@@ -55,11 +55,11 @@ const normState = o => {
   o = o && typeof o === 'object' ? o : {};
   const obj = x => x && typeof x === 'object' && !Array.isArray(x) ? x : {};
   const set = Object.assign({ sh: 1, sec: 45, goal: 20, theme: 'auto' }, obj(o.set));
-  return { h: Array.isArray(o.h) ? o.h : [], m: obj(o.m), f: obj(o.f), sn: obj(o.sn), ex: obj(o.ex), set };
+  return { h: Array.isArray(o.h) ? o.h : [], m: obj(o.m), f: obj(o.f), sn: obj(o.sn), ex: obj(o.ex), set, ts: +o.ts || 0, hc: +o.hc || 0 };
 };
 let S = (() => { try { return normState(JSON.parse(localStorage.getItem(LS))); } catch (e) { return normState(null); } })();
 let saveFailed = false;
-const save = () => { try { localStorage.setItem(LS, JSON.stringify(S)); saveFailed = false; } catch (e) { saveFailed = true; } };
+const save = () => { S.ts = Date.now(); persist(); scheduleSync(); };
 const applyTheme = () => { const t = S.set.theme; if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; };
 
 // ───────────── savol banki (IndexedDB) ─────────────
@@ -130,6 +130,170 @@ function mergeBank(a, b) {
   });
   return o;
 }
+
+// ───────────── hisob va bulut (Supabase) ─────────────
+const KP = 'testlar:profile:v1', KU = 'testlar:uid', KD = 'testlar:dirty', KX = 'testlar:deleted', KS = 'testlar:synced', KL = 'testlar:last';
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* xotira yopiq */ } };
+let A = { mode: 'in', busy: false, err: '', info: '', form: { name: '', email: '' }, profile: lsGet(KP, null), sync: 'idle', syncMsg: '', last: +localStorage.getItem(KL) || 0, users: null, usersErr: '', pwOpen: false };
+const online = () => navigator.onLine !== false;
+const cloudOn = () => SB.configured && !!SB.session();
+const isOwner = () => !!(A.profile && A.profile.role === 'owner');
+const isActive = p => { if (!p) return true; if (p.blocked) return false; if (p.role === 'owner' || p.lifetime || !p.expires_at) return true; return new Date(p.expires_at) > new Date(); };
+const persist = () => { try { localStorage.setItem(LS, JSON.stringify(S)); saveFailed = false; } catch (e) { saveFailed = true; } };
+const markDirty = ids => { const d = new Set(lsGet(KD, [])); ids.forEach(i => d.add(i)); lsSet(KD, [...d]); const x = lsGet(KX, []).filter(i => !ids.includes(i)); lsSet(KX, x); };
+const markDeleted = id => { const x = new Set(lsGet(KX, [])); x.add(id); lsSet(KX, [...x]); lsSet(KD, lsGet(KD, []).filter(i => i !== id)); };
+
+function uzErr(e) {
+  if (e && e.net) return 'Internetga ulanib bo‘lmadi. Ulanishni tekshirib, qayta urin.';
+  const m = String(e && e.message || e).toLowerCase(), c = (e && e.code) || '';
+  if (c === 'invalid_credentials' || m.includes('invalid login')) return 'Email yoki parol noto‘g‘ri.';
+  if (c === 'user_already_exists' || m.includes('already')) return 'Bu email bilan hisob bor. “Kirish”ni tanla.';
+  if (c === 'weak_password' || m.includes('at least') || m.includes('weak')) return 'Parol kamida 6 ta belgidan iborat bo‘lsin.';
+  if (c === 'email_not_confirmed') return 'Email tasdiqlanmagan. Pochtangdagi xatni tekshir.';
+  if (c === 'over_request_rate_limit' || c === 'over_email_send_rate_limit' || (e && e.status === 429)) return 'Juda ko‘p urinish. Birozdan keyin qayta urin.';
+  if (c === 'email_address_invalid' || c === 'validation_failed' || (m.includes('invalid') && m.includes('email'))) return 'Email manzili noto‘g‘ri.';
+  if (c === 'signup_disabled') return 'Ro‘yxatdan o‘tish hozir o‘chirilgan.';
+  return 'Xatolik: ' + String(e && e.message || e).slice(0, 140);
+}
+
+/** Natijalarni birlashtirish: tarix — birlashma, ko‘rilgan sanalar — eng yangisi, qolganlari — yangiroq qurilmadan. */
+function mergeState(a, b) {
+  const hc = Math.max(a.hc || 0, b.hc || 0), byId = new Map();
+  [...a.h, ...b.h].forEach(x => { if (x && x.id > hc) byId.set(x.id, x); });
+  const h = [...byId.values()].sort((x, y) => x.id - y.id).slice(-400);
+  const sn = Object.assign({}, a.sn); Object.entries(b.sn || {}).forEach(([k, v]) => { if (!sn[k] || v > sn[k]) sn[k] = v; });
+  const win = (a.ts || 0) >= (b.ts || 0) ? a : b;
+  return normState({ h, sn, hc, m: win.m, f: win.f, ex: win.ex, set: win.set, ts: Math.max(a.ts || 0, b.ts || 0) });
+}
+const sameSubj = (a, b) => a.name === b.name && a.topics.length === b.topics.length && a.topics.every(t => { const u = b.topics.find(y => y.id === t.id); return u && JSON.stringify(u) === JSON.stringify(t); });
+
+async function loadProfile() {
+  const uid = SB.session().user.id, r = await SB.rest('profiles?select=*&user_id=eq.' + encodeURIComponent(uid));
+  if (!r.length) throw new Error('Profil topilmadi');
+  A.profile = r[0]; lsSet(KP, A.profile);
+}
+async function syncState() {
+  const uid = SB.session().user.id, r = await SB.rest('app_state?select=data&user_id=eq.' + encodeURIComponent(uid));
+  const remote = r.length ? normState(r[0].data) : null, merged = remote ? mergeState(S, remote) : S;
+  const chLocal = JSON.stringify(merged) !== JSON.stringify(S), chRemote = !remote || JSON.stringify(merged) !== JSON.stringify(remote);
+  S = merged; if (chLocal) persist();
+  if (chRemote) await SB.rest('app_state?on_conflict=user_id', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: { user_id: uid, data: S, updated_at: new Date().toISOString() } });
+  if (chLocal && V.v !== 'quiz' && V.v !== 'res') { V.anim = false; draw(); }
+}
+async function syncBanks() {
+  const uid = SB.session().user.id, U = encodeURIComponent(uid), dirty = new Set(lsGet(KD, [])), synced = new Set(lsGet(KS, []));
+  const del = lsGet(KX, []);
+  if (del.length) { await SB.rest(`quiz_banks?user_id=eq.${U}&subject_id=in.(${del.map(i => '"' + String(i).replace(/"/g, '') + '"').join(',')})`, { method: 'DELETE' }); del.forEach(i => synced.delete(i)); lsSet(KX, []); }
+  const rows = await SB.rest(`quiz_banks?select=subject_id,name,data&user_id=eq.${U}`), remote = new Map(rows.map(r => [r.subject_id, r.data]));
+  const cur = TB ? JSON.parse(JSON.stringify(TB)) : { v: 1, subjects: [] }, push = new Set(dirty); let changed = false;
+  remote.forEach((sub, id) => {
+    if (!sub || !Array.isArray(sub.topics)) return;
+    const k = cur.subjects.findIndex(s => s.id === id);
+    if (k < 0) { cur.subjects.push(sub); changed = true; synced.add(id); return; }
+    const loc = cur.subjects[k], isD = dirty.has(id), mer = JSON.parse(JSON.stringify(loc));
+    if (!isD) mer.name = sub.name;
+    sub.topics.forEach(t => { const j = mer.topics.findIndex(y => y.id === t.id); if (j < 0) mer.topics.push(t); else if (!isD) mer.topics[j] = t; });
+    if (!sameSubj(mer, loc)) { cur.subjects[k] = mer; changed = true; }
+    if (!sameSubj(mer, sub)) push.add(id);
+    synced.add(id);
+  });
+  cur.subjects = cur.subjects.filter(s => { if (remote.has(s.id)) return true; if (synced.has(s.id) && !dirty.has(s.id)) { changed = true; return false; } push.add(s.id); return true; });
+  if (changed) {
+    if (cur.subjects.length && checkBank(cur).err.length) throw new Error('Bulutdagi bank formati buzilgan');
+    if (cur.subjects.length) await idbSet(cur); else await idbDel();
+    indexBank(cur.subjects.length ? cur : null);
+  }
+  const now = new Date().toISOString(), up = cur.subjects.filter(s => push.has(s.id)).map(s => ({ user_id: uid, subject_id: s.id, name: s.name, data: s, updated_at: now }));
+  if (up.length) { await SB.rest('quiz_banks?on_conflict=user_id,subject_id', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: up }); up.forEach(u => synced.add(u.subject_id)); }
+  lsSet(KD, []); lsSet(KS, [...synced]);
+  if (changed && V.v !== 'quiz' && V.v !== 'res') { V.anim = false; draw(); }
+}
+let curSync = null, again = false, syncTimer = 0;
+function scheduleSync() { if (!cloudOn() || !A.profile || !isActive(A.profile)) return; clearTimeout(syncTimer); syncTimer = setTimeout(() => { syncAll(); }, 2500); }
+function syncAll() {
+  if (!cloudOn()) return Promise.resolve();
+  if (curSync) { again = true; return curSync; }
+  curSync = (async () => {
+    if (!online()) { A.sync = 'offline'; refreshAcct(); return; }
+    A.sync = 'syncing'; refreshAcct();
+    try {
+      await loadProfile();
+      if (!isActive(A.profile)) { A.sync = 'idle'; lockApp(); return; }
+      if (V.v === 'locked') { V.v = 'home'; V.anim = true; draw(); }
+      await syncBanks(); await syncState();
+      A.sync = 'ok'; A.syncMsg = ''; A.last = Date.now(); try { localStorage.setItem(KL, String(A.last)); } catch (e) { /* ixtiyoriy */ }
+    } catch (e) { A.sync = e && e.net ? 'offline' : 'err'; A.syncMsg = e && e.net ? '' : String(e && e.message || e).slice(0, 120); }
+    refreshAcct();
+  })().finally(() => { curSync = null; if (again) { again = false; scheduleSync(); } });
+  return curSync;
+}
+function syncLine() {
+  const t = A.last ? new Date(A.last) : null, tm = t ? (keyOf(t) === today() ? '' : fmtDate(keyOf(t)) + ' ') + pad(t.getHours()) + ':' + pad(t.getMinutes()) : '';
+  if (A.sync === 'syncing') return `${ic('refresh')} Sinxronlanmoqda…`;
+  if (A.sync === 'err') return `${ic('alert')} Sinxronlanmadi: ${esc(A.syncMsg)}`;
+  if (A.sync === 'offline' || !online()) return `${ic('alert')} Internet yo‘q — ulanganda o‘zi sinxronlanadi${tm ? ' · oxirgi: ' + tm : ''}`;
+  return A.last ? `${ic('ok')} Bulutga saqlandi · ${tm}` : `${ic('refresh')} Hali sinxronlanmagan`;
+}
+function refreshAcct() { const e = $('#syncline'); if (e) e.innerHTML = syncLine(); }
+function lockApp() { V.v = 'locked'; Q = null; clearInterval(TI); V.anim = true; draw(); }
+function wipeLocal() {
+  S = normState(null); persist(); applyTheme(); indexBank(null); idbDel().catch(() => {});
+  [KP, KU, KD, KX, KS, KL].forEach(k => { try { localStorage.removeItem(k); } catch (e) { /* ixtiyoriy */ } });
+  A.profile = null; A.last = 0; A.sync = 'idle'; A.users = null; V.sel = {}; V.sid = '';
+}
+async function afterLogin() {
+  const uid = SB.session().user.id, prev = localStorage.getItem(KU);
+  if (prev && prev !== uid) wipeLocal();           // boshqa hisobning ma’lumoti aralashmasin
+  try { localStorage.setItem(KU, uid); } catch (e) { /* ixtiyoriy */ }
+  await loadProfile();
+  V.v = isActive(A.profile) ? 'home' : 'locked'; V.anim = true; A.pwOpen = false;
+  draw(); window.scrollTo(0, 0);
+  if (isActive(A.profile)) syncAll();
+}
+async function doAuth(form) {
+  const fd = new FormData(form), email = String(fd.get('email') || '').trim(), password = String(fd.get('password') || ''), name = String(fd.get('name') || '').trim();
+  A.form = { name, email }; A.err = ''; A.info = '';
+  if (!email || !password) { A.err = 'Email va parolni kiriting.'; draw(false); return; }
+  if (A.mode === 'up' && password.length < 6) { A.err = 'Parol kamida 6 ta belgidan iborat bo‘lsin.'; draw(false); return; }
+  A.busy = true; draw(false);
+  try {
+    if (A.mode === 'up') {
+      const r = await SB.signUp(email, password, name);
+      if (r.confirm) { A.busy = false; A.mode = 'in'; A.info = 'Emailingga tasdiqlash xati yuborildi. Havolani bosib, keyin kir.'; draw(false); return; }
+    } else await SB.signIn(email, password);
+    A.busy = false; A.form = { name: '', email: '' }; await afterLogin();
+  } catch (e) { A.busy = false; A.err = uzErr(e); draw(false); }
+}
+async function logout() {
+  if (!(await ask('Chiqamizmi?', 'Ma’lumotlaring bulutda saqlanadi. Shu qurilmadagi nusxa o‘chiriladi.', 'Chiqish', true))) return;
+  if (isActive(A.profile)) {   // faol bo‘lmagan (bloklangan) hisobda sinxronlanadigan narsa yo‘q
+    if (online()) { clearTimeout(syncTimer); await syncAll(); }
+    if (A.sync !== 'ok' && !(await ask('Sinxronlanmadi', 'Oxirgi o‘zgarishlar bulutga yuborilmadi va chiqsang yo‘qoladi.', 'Baribir chiqish', true))) return;
+  }
+  await SB.signOut(); wipeLocal(); A.mode = 'in'; A.err = ''; A.info = ''; V.v = 'auth'; V.anim = true; draw(); window.scrollTo(0, 0);
+}
+async function changePw(form) {
+  const pw = String(new FormData(form).get('pw') || '');
+  if (pw.length < 6) { toast('Parol kamida 6 ta belgi bo‘lsin'); return; }
+  try { await SB.changePassword(pw); A.pwOpen = false; setMsg('Parol o‘zgartirildi', true); V.anim = false; draw(); } catch (e) { toast(uzErr(e)); }
+}
+async function loadUsers() {
+  A.usersErr = '';
+  try { A.users = await SB.rest('profiles?select=*&order=created_at.desc'); } catch (e) { A.usersErr = uzErr(e); A.users = A.users || []; }
+  if (V.v === 'users') { V.anim = false; draw(); }
+}
+async function ownerSet(id, patch) {
+  const u = (A.users || []).find(x => x.user_id === id); if (!u) return;
+  const n = Object.assign({ blocked: u.blocked, lifetime: u.lifetime, expires_at: u.expires_at }, patch);
+  try { await SB.rpc('owner_set_user', { p_user: id, p_blocked: n.blocked, p_lifetime: n.lifetime, p_expires: n.expires_at }); toast('Saqlandi'); await loadUsers(); } catch (e) { toast(uzErr(e)); }
+}
+async function ownerDelete(id) {
+  const u = (A.users || []).find(x => x.user_id === id); if (!u) return;
+  if (!(await ask(`“${u.name || u.email}” o‘chirilsinmi?`, 'Hisob va uning bulutdagi barcha ma’lumoti butunlay o‘chadi.', 'O‘chirish', true))) return;
+  try { await SB.rpc('owner_delete_user', { p_user: id }); toast('O‘chirildi'); await loadUsers(); } catch (e) { toast(uzErr(e)); }
+}
+const userStatus = u => u.role === 'owner' ? 'Owner' : u.blocked ? 'Bloklangan' : u.lifetime ? 'Umrbod' : u.expires_at ? (new Date(u.expires_at) > new Date() ? 'Muddat: ' + fmtDate(keyOf(new Date(u.expires_at))) : 'Muddati tugagan') : 'Cheksiz';
 
 // ───────────── ko‘rinish holati ─────────────
 let V = { v: 'home', sid: '', n: 20, mo: 'm', sel: {}, msg: null, anim: true, fresh: false };
@@ -390,7 +554,7 @@ function flagView() {
 
 const segHtml = (key, cur, opts) => `<div class="seg" role="group">${opts.map(([v, n]) => `<button class="${String(cur) === String(v) ? 'on' : ''}" data-a="set" data-key="${key}" data-val="${v}" aria-pressed="${String(cur) === String(v)}">${n}</button>`).join('')}</div>`;
 function setView() {
-  let h = `<header class="hdr up"><h1>Sozlamalar</h1></header>${noteHtml()}${saveFailed ? `<div class="note">${ic('alert')}<span>Natijalarni saqlab bo‘lmadi (brauzer xotirasi to‘la yoki yopiq). Zaxira oling.</span></div>` : ''}
+  let h = `<header class="hdr up"><h1>Sozlamalar</h1></header>${noteHtml()}${saveFailed ? `<div class="note">${ic('alert')}<span>Natijalarni saqlab bo‘lmadi (brauzer xotirasi to‘la yoki yopiq). Zaxira oling.</span></div>` : ''}${acctCard()}
   <div class="card up" style="--i:1"><h2>${ic('layers')}Savol banki</h2>`;
   if (TB) h += `<p class="mu s">${TB.subjects.length} fan · ${topicsAll().length} mavzu · ${qCount()} savol</p><div class="grp">` + TB.subjects.map(s => `<div class="row" style="--h:${hueOf(s.id)}">${avatar(s)}<span class="t"><b>${esc(s.name)}</b><small>${s.topics.length} mavzu · ${subjCount(s)} savol</small></span><button class="x" style="color:var(--bad)" data-a="delSubj" data-id="${esc(s.id)}" aria-label="${esc(s.name)} fanini o‘chirish">${ic('trash')}</button></div>`).join('') + '</div>';
   else h += '<p class="mu s">Bank hali yo‘q.</p>';
@@ -404,12 +568,53 @@ function setView() {
   return h;
 }
 
+const LOGO = '<svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b6cff"/><stop offset="1" stop-color="#8a4dff"/></linearGradient></defs><rect width="120" height="120" rx="30" fill="url(#lg)"/><rect x="30" y="22" width="60" height="76" rx="10" fill="#fff"/><rect x="40" y="34" width="40" height="6" rx="3" fill="#5b6cff"/><circle cx="45" cy="55" r="4" fill="#5b6cff"/><rect x="54" y="53" width="26" height="4" rx="2" fill="#5b6cff"/><circle cx="45" cy="70" r="3.5" fill="none" stroke="#8a4dff" stroke-width="2"/><rect x="54" y="68" width="26" height="4" rx="2" fill="#c9cffd"/><circle cx="45" cy="85" r="3.5" fill="none" stroke="#8a4dff" stroke-width="2"/><rect x="54" y="83" width="20" height="4" rx="2" fill="#c9cffd"/></svg>';
+function authView() {
+  const up = A.mode === 'up', f = A.form;
+  return `<div class="authw up"><div class="alogo">${LOGO}</div><h1>Testlar</h1><p class="mu" style="margin:6px 0 18px">${up ? 'Yangi hisob och. Natijalaring bulutda saqlanadi.' : 'Hisobingga kir.'}</p>
+  <div class="seg" role="group"><button class="${up ? '' : 'on'}" data-a="authMode" data-m="in">Kirish</button><button class="${up ? 'on' : ''}" data-a="authMode" data-m="up">Ro‘yxatdan o‘tish</button></div>
+  <form id="af" class="card" novalidate>
+   ${up ? `<label class="fld"><span class="lb">Ism</span><input name="name" autocomplete="name" value="${esc(f.name)}" placeholder="Ismingiz"></label>` : ''}
+   <label class="fld"><span class="lb">Email</span><input name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" value="${esc(f.email)}" placeholder="email@manzil.uz"></label>
+   <label class="fld"><span class="lb">Parol</span><span class="pw"><input name="password" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" placeholder="${up ? 'Kamida 6 ta belgi' : 'Parol'}"><button type="button" class="eye" data-a="eye" aria-label="Parolni ko‘rsatish/yashirish">${ic('eye')}</button></span></label>
+   ${A.err ? `<div class="note" role="alert">${ic('alert')}<span>${esc(A.err)}</span></div>` : ''}${A.info ? `<div class="note okn" role="status">${ic('ok')}<span>${esc(A.info)}</span></div>` : ''}
+   <button class="big" type="submit" ${A.busy ? 'disabled' : ''}>${A.busy ? 'Kutilmoqda…' : up ? 'Hisob ochish' : 'Kirish'}</button>
+  </form><p class="mu s" style="text-align:center">Hisob ma’lumotlaring shifrlangan holda bulutda saqlanadi. Boshqa telefonda ham shu login bilan kirasan.</p></div>`;
+}
+function lockedView() {
+  const p = A.profile || {}, why = p.blocked ? 'Hisobing egasi tomonidan bloklangan.' : 'Obuna muddatingiz tugagan' + (p.expires_at ? ' (' + fmtDate(keyOf(new Date(p.expires_at))) + ')' : '') + '.';
+  return `<div class="authw up"><div class="alogo" style="filter:grayscale(.8)">${LOGO}</div><h1>Hisob faol emas</h1><p class="mu" style="margin:6px 0 18px">${esc(why)}<br>Ilova egasi bilan bog‘lan.</p>
+  <button class="big" data-a="syncNow">${ic('refresh')} Qayta tekshirish</button><button class="btn" style="margin-top:10px" data-a="logout">${ic('x')} Chiqish</button></div>`;
+}
+function acctCard() {
+  if (!SB.configured || !SB.session()) return '';
+  const p = A.profile || {}, nm = p.name || (SB.session().user.email || '').split('@')[0];
+  return `<div class="card up acct"><div class="hd" style="display:flex;align-items:center;gap:12px"><span class="av" style="--h:250">${initials(nm)}</span><div style="min-width:0;flex:1"><b style="display:block;overflow-wrap:anywhere">${esc(nm)}</b><small style="overflow-wrap:anywhere">${esc(SB.session().user.email || '')}</small></div>${isOwner() ? '<span class="chip static" style="color:var(--ac)">Owner</span>' : ''}</div>
+  <p class="mu s" id="syncline" style="margin:12px 0 0">${syncLine()}</p>
+  <div class="in"><button class="btn" data-a="syncNow">${ic('refresh')} Sinxronlash</button><button class="btn" data-a="pw">${ic('link')} Parol</button></div>
+  ${A.pwOpen ? `<form id="pf" class="grp" novalidate><label class="fld"><span class="lb">Yangi parol</span><span class="pw"><input name="pw" type="password" autocomplete="new-password" placeholder="Kamida 6 ta belgi"><button type="button" class="eye" data-a="eye" aria-label="Ko‘rsatish">${ic('eye')}</button></span></label><button class="big" type="submit">Parolni saqlash</button></form>` : ''}
+  ${isOwner() ? `<button class="big" style="margin-top:10px" data-a="users">${ic('layers')} Foydalanuvchilar</button>` : ''}
+  <button class="btn danger" style="margin-top:10px" data-a="logout">Chiqish</button></div>`;
+}
+function usersView() {
+  let h = `<header class="hdr up"><div style="display:flex;gap:12px;align-items:center"><button class="x" data-a="nav" data-v="set" aria-label="Orqaga">${ic('chevL')}</button><h1 style="font-size:26px">Foydalanuvchilar</h1></div></header>`;
+  if (A.usersErr) h += `<div class="note">${ic('alert')}<span>${esc(A.usersErr)}</span></div>`;
+  if (!A.users) return h + '<p class="mu">Yuklanmoqda…</p>';
+  h += `<p class="mu s">Jami: ${A.users.length}. Yangi foydalanuvchilar ilovaning o‘zidan ro‘yxatdan o‘tadi; bu yerda ularni bloklaysan yoki muddat berasan.</p>`;
+  A.users.forEach((u, i) => {
+    const st = userStatus(u), hue = [...String(u.user_id)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
+    h += `<div class="card up" style="--i:${i}"><div style="display:flex;align-items:center;gap:12px"><span class="av" style="--h:${hue}">${initials(u.name || u.email)}</span><div style="min-width:0;flex:1"><b style="display:block;overflow-wrap:anywhere">${esc(u.name || '—')}</b><small style="overflow-wrap:anywhere">${esc(u.email)}</small></div><span class="chip static">${esc(st)}</span></div>
+    ${u.role === 'owner' ? '' : `<div class="in"><button class="btn s" data-a="uBlock" data-id="${esc(u.user_id)}">${u.blocked ? 'Ochish' : 'Bloklash'}</button><button class="btn s" data-a="uPlus" data-id="${esc(u.user_id)}">+30 kun</button><button class="btn s" data-a="uLife" data-id="${esc(u.user_id)}">${u.lifetime ? 'Umrbodni olish' : 'Umrbod'}</button><button class="btn s danger fix" data-a="uDel" data-id="${esc(u.user_id)}" aria-label="O‘chirish">${ic('trash')}</button></div>`}</div>`;
+  });
+  return h;
+}
+
 function view() {
-  switch (V.v) { case 'quiz': return quizView(); case 'res': return resView(); case 'subj': return subjView(); case 'stat': return statView(); case 'set': return setView(); case 'flag': return flagView(); default: return homeView(); }
+  switch (V.v) { case 'auth': return authView(); case 'locked': return lockedView(); case 'users': return usersView(); case 'quiz': return quizView(); case 'res': return resView(); case 'subj': return subjView(); case 'stat': return statView(); case 'set': return setView(); case 'flag': return flagView(); default: return homeView(); }
 }
 function draw(keepScroll = true) {
   const sy = window.scrollY, anim = V.anim;
-  document.body.classList.toggle('noav', V.v === 'quiz');
+  document.body.classList.toggle('noav', ['quiz', 'auth', 'locked'].includes(V.v));
   const app = $('#app'); app.classList.toggle('anim', anim);
   app.innerHTML = view();
   const tab = V.v === 'stat' ? 'stat' : V.v === 'set' ? 'set' : 'home';
@@ -442,7 +647,7 @@ function confetti() {
 
 // ───────────── import / eksport ─────────────
 async function importTexts(files) {
-  const out = []; let cur = TB, added = 0, ok = 0, bad = 0;
+  const out = [], touched = new Set(); let cur = TB, added = 0, ok = 0, bad = 0;
   for (const f of files) {
     if (f.big) { out.push(`${f.name}: fayl juda katta (25 MB dan oshmasin)`); bad++; continue; }
     let d; try { d = JSON.parse(f.text); } catch (e) { out.push(`${f.name}: JSON emas`); bad++; continue; }
@@ -450,12 +655,12 @@ async function importTexts(files) {
     if (c.err.length) { out.push(`${f.name}: ${c.err.slice(0, 3).join('; ')}${c.err.length > 3 ? ` … (+${c.err.length - 3})` : ''}`); bad++; continue; }
     const m = mergeBank(cur, d), c2 = checkBank(m);
     if (c2.err.length) { out.push(`${f.name}: ${c2.err[0]}`); bad++; continue; }
-    cur = m; ok++; added += d.subjects.reduce((a, s) => a + subjCount(s), 0);
+    cur = m; ok++; added += d.subjects.reduce((a, s) => a + subjCount(s), 0); d.subjects.forEach(x => touched.add(x.id));
     if (c.warn.length) out.push(`${f.name}: ${c.warn.length} ta ogohlantirish (${c.warn[0]})`);
   }
   if (ok) {
     try { await idbSet(cur); } catch (e) { setMsg('Qurilma xotirasiga yozib bo‘lmadi', false); V.anim = false; draw(); return; }
-    indexBank(cur); try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { /* ixtiyoriy */ }
+    indexBank(cur); markDirty([...touched]); scheduleSync(); try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { /* ixtiyoriy */ }
     out.unshift(`${ok} ta fayl, ${added} ta savol yuklandi (jami ${qCount()})`);
   }
   setMsg(out.join(' · ') || 'Fayl tanlanmadi', ok > 0 && !bad);
@@ -484,7 +689,7 @@ async function restoreBackup(inp) {
     if (o.bank) { const c = checkBank(o.bank); if (c.err.length) throw new Error('Zaxiradagi bank buzilgan: ' + c.err[0]); }
     if (!(await ask('Zaxiradan tiklaymizmi?', 'Hozirgi natijalar va bank zaxiradagi bilan almashtiriladi.', 'Tiklash', true))) return;
     S = normState(o.state); save(); applyTheme();
-    if (o.bank) { await idbSet(o.bank); indexBank(o.bank); } else { await idbDel(); indexBank(null); }
+    if (o.bank) { const before = TB ? TB.subjects.map(x => x.id) : [], now = o.bank.subjects.map(x => x.id); await idbSet(o.bank); indexBank(o.bank); before.filter(i => !now.includes(i)).forEach(i => markDeleted(i)); markDirty(now); } else { (TB ? TB.subjects.map(x => x.id) : []).forEach(i => markDeleted(i)); await idbDel(); indexBank(null); }
     setMsg('Zaxira tiklandi', true);
   } catch (e) { setMsg('Tiklab bo‘lmadi: ' + (e && e.message || e), false); }
   V.anim = true; draw();
@@ -493,12 +698,22 @@ async function deleteSubject(id) {
   const s = findSubj(id); if (!s || !(await ask(`“${s.name}” o‘chirilsinmi?`, `Fan va undagi ${subjCount(s)} ta savol qurilmadan o‘chadi. Natijalar tarixi qoladi.`, 'O‘chirish', true))) return;
   const nb = JSON.parse(JSON.stringify(TB)); nb.subjects = nb.subjects.filter(x => x.id !== id);
   try { nb.subjects.length ? await idbSet(nb) : await idbDel(); } catch (e) { setMsg('O‘chirib bo‘lmadi', false); draw(); return; }
-  indexBank(nb.subjects.length ? nb : null); delete S.ex[id]; save(); if (V.sid === id) V.sid = ''; setMsg('Fan o‘chirildi', true); V.anim = false; draw();
+  indexBank(nb.subjects.length ? nb : null); delete S.ex[id]; markDeleted(id); save(); if (V.sid === id) V.sid = ''; setMsg('Fan o‘chirildi', true); V.anim = false; draw();
 }
 
 // ───────────── hodisalar ─────────────
-async function act(a, d) {
+async function act(a, d, el) {
   switch (a) {
+    case 'authMode': { const f = $('#af'); if (f) { const fd = new FormData(f); A.form = { name: String(fd.get('name') || ''), email: String(fd.get('email') || '') }; } A.mode = d.m; A.err = ''; A.info = ''; draw(false); break; }
+    case 'eye': { const i = el.closest('.pw').querySelector('input'); i.type = i.type === 'password' ? 'text' : 'password'; break; }
+    case 'syncNow': if (!online()) { toast('Internet yo‘q'); break; } toast('Sinxronlanmoqda…'); await syncAll(); toast(A.sync === 'ok' ? 'Sinxronlandi' : 'Sinxronlanmadi'); break;
+    case 'pw': A.pwOpen = !A.pwOpen; V.anim = false; draw(); break;
+    case 'logout': logout(); break;
+    case 'users': V.v = 'users'; V.anim = true; draw(false); window.scrollTo(0, 0); loadUsers(); break;
+    case 'uBlock': { const u = (A.users || []).find(x => x.user_id === d.id); if (u) ownerSet(d.id, { blocked: !u.blocked }); break; }
+    case 'uPlus': { const u = (A.users || []).find(x => x.user_id === d.id); if (!u) break; const b = u.expires_at && new Date(u.expires_at) > new Date() ? new Date(u.expires_at) : new Date(); b.setDate(b.getDate() + 30); ownerSet(d.id, { expires_at: b.toISOString(), lifetime: false }); break; }
+    case 'uLife': { const u = (A.users || []).find(x => x.user_id === d.id); if (u) ownerSet(d.id, { lifetime: !u.lifetime }); break; }
+    case 'uDel': ownerDelete(d.id); break;
     case 'sheetOk': closeSheet(true); break;
     case 'sheetNo': closeSheet(false); break;
     case 'nav': V.v = d.v; if (d.v === 'home') V.sid = ''; if (d.v !== 'set') setMsg(null); V.anim = true; draw(false); window.scrollTo(0, 0); break;
@@ -525,11 +740,17 @@ async function act(a, d) {
     case 'sample': loadSample(); break;
     case 'export': exportBackup(); break;
     case 'delSubj': deleteSubject(d.id); break;
-    case 'clrHist': if (await ask('Natijalar tarixi o‘chirilsinmi?', 'Statistika tozalanadi. Xatolar banki va savollar qoladi.', 'O‘chirish', true)) { S.h = []; save(); setMsg('Tarix tozalandi', true); V.anim = false; draw(); } break;
-    case 'reset': if (await ask('Hammasi o‘chirilsinmi?', 'Savol banki, natijalar va sozlamalar butunlay o‘chadi. Avval zaxira olgan bo‘lsang yaxshi.', 'Hammasini o‘chirish', true)) { S = normState(null); save(); applyTheme(); try { await idbDel(); } catch (e) { /* bo‘sh */ } indexBank(null); V = { v: 'home', sid: '', n: 20, mo: 'm', sel: {}, msg: null, anim: true, fresh: false }; draw(); } break;
+    case 'clrHist': if (await ask('Natijalar tarixi o‘chirilsinmi?', 'Statistika tozalanadi. Xatolar banki va savollar qoladi.', 'O‘chirish', true)) { S.h = []; S.hc = Date.now(); save(); setMsg('Tarix tozalandi', true); V.anim = false; draw(); } break;
+    case 'reset': if (await ask('Hammasi o‘chirilsinmi?', 'Savol banki, natijalar va sozlamalar butunlay o‘chadi' + (cloudOn() ? ', bulutdagi nusxa ham' : '') + '. Avval zaxira olgan bo‘lsang yaxshi.', 'Hammasini o‘chirish', true)) {
+      if (cloudOn()) { try { const U = encodeURIComponent(SB.session().user.id); await SB.rest('quiz_banks?user_id=eq.' + U, { method: 'DELETE' }); await SB.rest('app_state?user_id=eq.' + U, { method: 'DELETE' }); } catch (e) { toast('Bulutdagi nusxani o‘chirib bo‘lmadi: ' + uzErr(e)); break; } }
+      lsSet(KD, []); lsSet(KX, []); lsSet(KS, []); S = normState(null); persist(); applyTheme(); try { await idbDel(); } catch (e) { /* bo‘sh */ } indexBank(null);
+      V = { v: 'home', sid: '', n: 20, mo: 'm', sel: {}, msg: null, anim: true, fresh: false }; draw(); } break;
   }
 }
-document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b && !b.disabled) act(b.dataset.a, b.dataset); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b && !b.disabled) act(b.dataset.a, b.dataset, b); });
+document.addEventListener('submit', e => { e.preventDefault(); if (e.target.id === 'af') doAuth(e.target); else if (e.target.id === 'pf') changePw(e.target); });
+window.addEventListener('online', () => { syncAll(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && cloudOn() && Date.now() - A.last > 60000) syncAll(); });
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'fbank') return pickedFiles(t);
@@ -548,9 +769,14 @@ document.addEventListener('keydown', e => {
 
 // ───────────── ishga tushirish ─────────────
 (async () => {
-  applyTheme(); draw();
+  applyTheme();
+  if (SB.configured && !SB.session()) V.v = 'auth';
+  else if (SB.configured && A.profile && !isActive(A.profile)) V.v = 'locked';
+  draw();
   try { const d = await idbGet(); if (d && !checkBank(d).err.length) indexBank(d); } catch (e) { /* bank yo‘q */ }
   V.anim = true; draw();
+  SB.onOut(() => { A.profile = null; V.v = 'auth'; V.anim = true; draw(); });
   if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+  if (cloudOn()) syncAll();
 })();
 })();

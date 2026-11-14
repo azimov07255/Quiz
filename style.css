@@ -266,3 +266,20 @@ body.noav #nav{display:none}
 .sh-card h3{font-size:20px;font-weight:800}
 .sh-card p{color:var(--mu);margin:4px 0 14px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ───────── Kirish / hisob ───────── */
+.authw{max-width:420px;margin:0 auto;padding-top:min(8vh,60px);text-align:center}
+.authw .alogo{width:84px;height:84px;margin:0 auto 14px;filter:drop-shadow(0 14px 18px rgba(91,108,255,.45))}
+.authw .alogo svg{width:100%;height:100%}
+.authw .seg{margin:0 0 10px}
+.authw form{text-align:left}
+.fld{display:block;margin:12px 0}
+.fld .lb{display:block;font-size:13px;font-weight:700;color:var(--mu);margin:0 0 6px 2px}
+.fld input{width:100%;font:inherit;font-size:16px;padding:14px 14px;border-radius:14px;border:2px solid transparent;background:var(--card2);color:var(--tx);min-height:52px;outline:none;transition:border-color .2s}
+.fld input:focus{border-color:var(--ac)}
+.pw{display:flex;gap:8px;align-items:center;position:relative}
+.pw input{padding-right:52px}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;display:grid;place-items:center;color:var(--mu);border-radius:12px}
+.authw .big{margin-top:6px}
+.acct .in{margin-bottom:0}
+.acct form{margin-top:10px}

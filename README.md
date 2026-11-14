@@ -25,9 +25,18 @@ PWA/offline uchun HTTPS (yoki localhost) kerak, masalan GitHub Pages/Netlify/Clo
 | `index.html`, `style.css`, `app.js` | ilova |
 | `sw.js`, `manifest.webmanifest`, `icons/` | PWA / offline |
 | `data/testlar-banki.json` | namuna bank (239 savol, “Namuna” tugmasi yuklaydi) |
+| `auth.js`, `config.js` | Supabase Auth/PostgREST mijozi va loyiha sozlamasi |
+| `supabase/migrations/` | baza sxemasi va xavfsizlik (RLS) |
 | `tools/tekshir.py` | bank tekshiruvchi |
 | `tests/smoke.cjs` | Playwright sinovi: `node tests/smoke.cjs` |
 | `KITOBDAN_TEST.md` | kitob/PDF’dan savol tuzish tartibi va format |
+
+## Hisob va bulut (Supabase)
+- Kirish: email + parol (ilovaning o‘zidan ro‘yxatdan o‘tiladi). Natijalar, xatolar va savol banki hisobga bog‘lanadi va boshqa qurilmada o‘zi tushadi; oflayn ham ishlaydi, internet kelganda sinxronlanadi.
+- **Owner:** `brodyagayou1999@gmail.com` BIRINCHI bo‘lib ro‘yxatdan o‘tganda avtomatik owner bo‘ladi (⚙️ → Foydalanuvchilar: bloklash, +30 kun, umrbod, o‘chirish).
+- Baza: `supabase/migrations/` (profiles, app_state, quiz_banks + RLS). `config.js` dagi “publishable” kalit ochiq bo‘lishi mo‘ljallangan; maxfiy kalit repoga yozilmaydi.
+- **Supabase panelida bir marta:** Authentication → Sign In / Providers → Email → **“Confirm email”** ni o‘chiring (yoki o‘z SMTP’ingizni ulang), aks holda har bir ro‘yxatdan o‘tishda tasdiqlash xati kerak bo‘ladi.
+- Sinovlar: `node tests/smoke.cjs` (mahalliy rejim), `node tests/cloud.cjs` (jonli baza, `tests/cloud-users.sql` kerak).
 
 ## Ma’lumot qayerda saqlanadi
 Savol banki — IndexedDB, natijalar/xatolar/sozlamalar — localStorage (faqat shu qurilmada). **⚙️ Sozlamalar → Zaxira** bilan fayl qilib saqlab, boshqa qurilmada tiklash mumkin. Safari uzoq foydalanilmagan sayt ma’lumotini o‘chirib yuborishi mumkin — shuning uchun vaqti-vaqti bilan zaxira ol.

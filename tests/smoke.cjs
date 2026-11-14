@@ -3,7 +3,8 @@ const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium, devices } = require('playwright');
 const root = path.join(__dirname, '..');
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml' };
-const srv = http.createServer((q, r) => { let p = decodeURIComponent(q.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html'; const f = path.join(root, p); if (!f.startsWith(root) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'content-type': MIME[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(r); });
+// Mahalliy rejim: config.js bo‘sh beriladi (Supabase ulanmaydi, login talab qilinmaydi). Bulut sinovi — tests/cloud.cjs
+const srv = http.createServer((q, r) => { let p = decodeURIComponent(q.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html'; if (p === '/config.js') { r.writeHead(200, { 'content-type': 'text/javascript' }); return r.end('window.TESTLAR_CONFIG = {};'); } const f = path.join(root, p); if (!f.startsWith(root) || !fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'content-type': MIME[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(r); });
 const bank = JSON.parse(fs.readFileSync(path.join(root, 'data/testlar-banki.json'), 'utf8'));
 const byText = {}; bank.subjects.forEach(s => s.topics.forEach(t => t.q.forEach(q => { byText[q.q] = q; })));
 let fails = 0; const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fails++; };
