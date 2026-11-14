@@ -77,15 +77,25 @@ async function idbDo(mode, fn) {
     t.onerror = t.onabort = () => { d.close(); rej(t.error); };
   });
 }
-const idbGet = () => idbDo('readonly', s => s.get('bank'));
-const idbSet = v => idbDo('readwrite', s => s.put(v, 'bank'));
-const idbDel = () => idbDo('readwrite', s => s.delete('bank'));
+const idbGet = (k = 'bank') => idbDo('readonly', s => s.get(k));
+const idbSet = (v, k = 'bank') => idbDo('readwrite', s => s.put(v, k));
+const idbDel = (k = 'bank') => idbDo('readwrite', s => s.delete(k));
 
-let TB = null, TBX = {};
-function indexBank(d) {
-  TB = d && d.subjects.length ? d : null; TBX = {};
-  if (TB) TB.subjects.forEach(s => s.topics.forEach(t => t.q.forEach(q => { TBX[q.id] = { s, t, q }; })));
+let TB = null, TBX = {};       // TB: ko‘rinadigan hamma fanlar (katalog + o‘zining)
+let UB = null;                 // UB: foydalanuvchining o‘z banki (qurilmada saqlanadi va sinxronlanadi)
+let CBRAW = [], CB = [];       // katalog: xom qatorlar va ilova ichida ishlatiladigan (id’lari “c:” bilan boshlanadigan) fanlar
+function rebuild() {
+  const subs = [...CB, ...(UB ? UB.subjects : [])];
+  TB = subs.length ? { v: 1, subjects: subs } : null; TBX = {};
+  subs.forEach(sb => sb.topics.forEach(t => t.q.forEach(q => { TBX[q.id] = { s: sb, t, q }; })));
 }
+function indexBank(d) { UB = d && d.subjects.length ? d : null; rebuild(); }
+function catalogize(e) {
+  const d = e.data, P = 'c:';
+  return { ...d, id: P + e.subject_id, name: e.name, cat: true, category: e.category || '', draft: !e.published,
+    topics: d.topics.map(t => ({ ...t, id: P + t.id, q: t.q.map(q => ({ ...q, id: P + q.id })) })) };
+}
+function setCatalog(raw) { CBRAW = raw.filter(e => e && e.data && !checkBank({ v: 1, subjects: [e.data] }).err.length); CB = CBRAW.map(catalogize); rebuild(); }
 const topicsAll = () => TB ? TB.subjects.flatMap(s => s.topics) : [];
 const findTopic = id => topicsAll().find(t => t.id === id);
 const findSubj = id => TB && TB.subjects.find(s => s.id === id);
@@ -188,7 +198,7 @@ async function syncBanks() {
   const del = lsGet(KX, []);
   if (del.length) { await SB.rest(`quiz_banks?user_id=eq.${U}&subject_id=in.(${del.map(i => '"' + String(i).replace(/"/g, '') + '"').join(',')})`, { method: 'DELETE' }); del.forEach(i => synced.delete(i)); lsSet(KX, []); }
   const rows = await SB.rest(`quiz_banks?select=subject_id,name,data&user_id=eq.${U}`), remote = new Map(rows.map(r => [r.subject_id, r.data]));
-  const cur = TB ? JSON.parse(JSON.stringify(TB)) : { v: 1, subjects: [] }, push = new Set(dirty); let changed = false;
+  const cur = UB ? JSON.parse(JSON.stringify(UB)) : { v: 1, subjects: [] }, push = new Set(dirty); let changed = false;
   remote.forEach((sub, id) => {
     if (!sub || !Array.isArray(sub.topics)) return;
     const k = cur.subjects.findIndex(s => s.id === id);
@@ -211,6 +221,20 @@ async function syncBanks() {
   lsSet(KD, []); lsSet(KS, [...synced]);
   if (changed && V.v !== 'quiz' && V.v !== 'res') { V.anim = false; draw(); }
 }
+async function syncCatalog() {
+  const q = i => '"' + String(i).replace(/"/g, '') + '"';
+  const meta = await SB.rest('catalog_subjects?select=subject_id,name,category,sort,published,updated_at&order=sort.asc,name.asc');
+  const have = new Map(CBRAW.map(e => [e.subject_id, e]));
+  const need = meta.filter(m => !have.get(m.subject_id) || have.get(m.subject_id).updated_at !== m.updated_at).map(m => m.subject_id);
+  const got = need.length ? await SB.rest('catalog_subjects?select=subject_id,data&subject_id=in.(' + need.map(q).join(',') + ')') : [];
+  const gm = new Map(got.map(g => [g.subject_id, g.data]));
+  const raw = meta.map(m => ({ ...m, data: gm.get(m.subject_id) || (have.get(m.subject_id) || {}).data }));
+  const sig = a => JSON.stringify(a.map(e => [e.subject_id, e.updated_at, e.name, e.category, e.sort, e.published]));
+  if (sig(raw) === sig(CBRAW)) return;
+  setCatalog(raw);
+  try { CBRAW.length ? await idbSet({ raw: CBRAW }, 'catalog') : await idbDel('catalog'); } catch (e) { /* keshlab bo‘lmasa ham ishlaydi */ }
+  if (V.v !== 'quiz' && V.v !== 'res') { V.anim = false; draw(); }
+}
 let curSync = null, again = false, syncTimer = 0;
 function scheduleSync() { if (!cloudOn() || !A.profile || !isActive(A.profile)) return; clearTimeout(syncTimer); syncTimer = setTimeout(() => { syncAll(); }, 2500); }
 function syncAll() {
@@ -223,7 +247,7 @@ function syncAll() {
       await loadProfile();
       if (!isActive(A.profile)) { A.sync = 'idle'; lockApp(); return; }
       if (V.v === 'locked') { V.v = 'home'; V.anim = true; draw(); }
-      await syncBanks(); await syncState();
+      await syncBanks(); await syncCatalog(); await syncState();
       A.sync = 'ok'; A.syncMsg = ''; A.last = Date.now(); try { localStorage.setItem(KL, String(A.last)); } catch (e) { /* ixtiyoriy */ }
     } catch (e) { A.sync = e && e.net ? 'offline' : 'err'; A.syncMsg = e && e.net ? '' : String(e && e.message || e).slice(0, 120); }
     refreshAcct();
@@ -238,9 +262,9 @@ function syncLine() {
   return A.last ? `${ic('ok')} Bulutga saqlandi · ${tm}` : `${ic('refresh')} Hali sinxronlanmagan`;
 }
 function refreshAcct() { const e = $('#syncline'); if (e) e.innerHTML = syncLine(); }
-function lockApp() { V.v = 'locked'; Q = null; clearInterval(TI); V.anim = true; draw(); }
+function lockApp() { V.v = 'locked'; Q = null; clearInterval(TI); CBRAW = []; CB = []; rebuild(); idbDel('catalog').catch(() => {}); V.anim = true; draw(); }
 function wipeLocal() {
-  S = normState(null); persist(); applyTheme(); indexBank(null); idbDel().catch(() => {});
+  S = normState(null); persist(); applyTheme(); CBRAW = []; CB = []; indexBank(null); idbDel().catch(() => {}); idbDel('catalog').catch(() => {});
   [KP, KU, KD, KX, KS, KL].forEach(k => { try { localStorage.removeItem(k); } catch (e) { /* ixtiyoriy */ } });
   A.profile = null; A.last = 0; A.sync = 'idle'; A.users = null; V.sel = {}; V.sid = '';
 }
@@ -291,7 +315,8 @@ const money = n => String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, 
 const intOf = v => parseInt(String(v || '').replace(/\D/g, ''), 10) || 0;
 const planText = v => (PLANS.find(p => p[0] === v) || ['', ''])[1];
 const fld = (name, label, o = {}) => `<label class="fld"><span class="lb">${esc(label)}</span>${o.gen ? `<span class="pw"><input name="${name}" type="text" value="${esc(o.value || '')}" autocomplete="off" autocapitalize="none" spellcheck="false"><button type="button" class="eye" data-a="gen" aria-label="Yangi parol yaratish">${ic('dice')}</button></span>` : `<input name="${name}" type="${o.type || 'text'}" value="${esc(o.value || '')}" placeholder="${esc(o.ph || '')}" ${o.mode ? `inputmode="${o.mode}"` : ''} autocomplete="off" autocapitalize="none" spellcheck="false">`}</label>`;
-const planChips = sel => `<span class="lb" style="display:block;font-size:13px;font-weight:700;color:var(--mu);margin:12px 0 6px 2px">Obuna muddati</span><div class="chips"><input type="hidden" name="plan" value="${sel}">${PLANS.map(([v, n]) => `<button type="button" class="chip ${v === sel ? 'on' : ''}" data-a="sfChip" data-val="${v}">${n}</button>`).join('')}</div>`;
+const chipsRow = (name, sel, opts, label) => `<span class="lb" style="display:block;font-size:13px;font-weight:700;color:var(--mu);margin:12px 0 6px 2px">${esc(label)}</span><div class="chips"><input type="hidden" name="${name}" value="${sel}">${opts.map(([v, n]) => `<button type="button" class="chip ${v === sel ? 'on' : ''}" data-a="sfChip" data-val="${v}">${n}</button>`).join('')}</div>`;
+const planChips = sel => chipsRow('plan', sel, PLANS, 'Obuna muddati');
 const formSheet = (title, inner, okLabel) => openSheet(`<h3>${esc(title)}</h3><form id="sf" novalidate>${inner}<p id="sferr" class="mu s" role="alert" style="color:var(--bad);min-height:18px;margin:8px 2px 0"></p><div class="in"><button type="button" class="btn" data-a="sheetNo">Bekor qilish</button><button type="submit" class="big">${esc(okLabel)}</button></div></form>`);
 function sfValidate(form) {
   const v = Object.fromEntries(new FormData(form));
@@ -326,6 +351,70 @@ async function resetUserPw(id) {
   const v = await formSheet('Yangi parol: ' + (u.name || u.email), fld('password', 'Yangi parol', { gen: true, value: genPw() }), 'Parolni o‘rnatish');
   if (!v) return;
   try { await SB.fn('admin-users', { action: 'set_password', user_id: id, password: v.password }); await showCreds(u.email, v.password, ''); } catch (e) { toast(uzErr(e)); }
+}
+// ── owner: umumiy katalog ──
+const catQ = e => e.data.topics.reduce((a, t) => a + t.q.length, 0);
+async function catSave(sid, patch, okMsg) {
+  try { await SB.rest('catalog_subjects?subject_id=eq.' + encodeURIComponent(sid), { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: Object.assign({ updated_at: new Date().toISOString() }, patch) }); await syncCatalog(); toast(okMsg || 'Saqlandi'); if (V.v === 'cat') { V.anim = false; draw(); } }
+  catch (e) { toast(uzErr(e)); }
+}
+async function catUpload(inp) {
+  const fs = [...inp.files]; inp.value = ''; if (!fs.length) return;
+  const subs = [], errs = [];
+  for (const f of fs) {
+    let d; try { d = JSON.parse(await f.text()); } catch (e) { errs.push(f.name + ': JSON emas'); continue; }
+    const c = checkBank(d); if (c.err.length) { errs.push(`${f.name}: ${c.err[0]}`); continue; }
+    d.subjects.forEach(x => subs.push(x));
+  }
+  if (errs.length) { setMsg(errs.join(' · '), false); V.anim = false; draw(); }
+  if (!subs.length) return;
+  const v = await formSheet('Katalogga qo‘shish', `<p class="mu s" style="margin:4px 2px">${subs.map(x => `${esc(x.name)} · ${x.topics.length} mavzu · ${subjCount(x)} savol`).join('<br>')}</p><p class="mu s" style="margin:4px 2px">Fan avval bor bo‘lsa, yangi mavzular (kitoblar) unga qo‘shiladi, bir xil <code>id</code>li mavzu yangilanadi.</p>` + fld('category', 'Kategoriya', { value: lsGet('testlar:lastcat', 'Madrasa'), ph: 'Masalan: Madrasa, IELTS' }) + chipsRow('pub', '1', [['1', 'Hammaga chop etilsin'], ['0', 'Qoralama (faqat men ko‘raman)']], 'Holati'), 'Yuklash');
+  if (!v) return;
+  const cat = String(v.category || '').trim().slice(0, 40), pub = v.pub !== '0'; lsSet('testlar:lastcat', cat || 'Madrasa');
+  const now = new Map(CBRAW.map(e => [e.subject_id, e])), rows = []; let mx = Math.max(0, ...CBRAW.map(e => +e.sort || 0));
+  subs.forEach(x => {
+    const ex = now.get(x.id), data = ex ? JSON.parse(JSON.stringify(ex.data)) : { id: x.id, name: x.name, topics: [] };
+    data.name = x.name; x.topics.forEach(t => { const i = data.topics.findIndex(y => y.id === t.id); if (i < 0) data.topics.push(t); else data.topics[i] = t; });
+    rows.push({ subject_id: x.id, name: x.name, category: cat || (ex && ex.category) || '', sort: ex ? ex.sort : (mx += 10), published: pub, data, updated_at: new Date().toISOString() });
+  });
+  const all = [...CBRAW.filter(e => !rows.some(r => r.subject_id === e.subject_id)).map(e => e.data), ...rows.map(r => r.data)], chk = checkBank({ v: 1, subjects: all });
+  if (chk.err.length) { setMsg('Katalogda xato: ' + chk.err[0], false); V.anim = false; draw(); return; }
+  try {
+    await SB.rest('catalog_subjects?on_conflict=subject_id', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: rows });
+    await syncCatalog(); setMsg(`Katalogga yuklandi: ${rows.length} ta fan, ${rows.reduce((a, r) => a + r.data.topics.reduce((b, t) => b + t.q.length, 0), 0)} ta savol${pub ? '' : ' (qoralama)'}`, true);
+  } catch (e) { setMsg('Yuklanmadi: ' + uzErr(e), false); }
+  V.anim = false; draw();
+}
+async function catEdit(sid) {
+  const e = CBRAW.find(x => x.subject_id === sid); if (!e) return;
+  const v = await formSheet('Tahrirlash', fld('name', 'Fan nomi', { value: e.name }) + fld('category', 'Kategoriya', { value: e.category }) + fld('sort', 'Tartib raqami (kichigi tepada)', { value: String(e.sort), mode: 'numeric' }) + chipsRow('pub', e.published ? '1' : '0', [['1', 'Chop etilgan'], ['0', 'Qoralama']], 'Holati'), 'Saqlash');
+  if (!v) return; const name = String(v.name || '').trim(); if (!name) { toast('Nom bo‘sh bo‘lmasin'); return; }
+  const data = JSON.parse(JSON.stringify(e.data)); data.name = name;
+  await catSave(sid, { name, category: String(v.category || '').trim().slice(0, 40), sort: intOf(v.sort), published: v.pub !== '0', data });
+}
+async function catDel(sid) {
+  const e = CBRAW.find(x => x.subject_id === sid); if (!e || !(await ask(`“${e.name}” kataloqdan o‘chirilsinmi?`, 'Barcha obunachilardan ham yo‘qoladi (ularning natijalari tarixda qoladi).', 'O‘chirish', true))) return;
+  try { await SB.rest('catalog_subjects?subject_id=eq.' + encodeURIComponent(sid), { method: 'DELETE' }); await syncCatalog(); toast('O‘chirildi'); V.anim = false; draw(); } catch (er) { toast(uzErr(er)); }
+}
+async function catTopicDel(sid, tid) {
+  const e = CBRAW.find(x => x.subject_id === sid); if (!e) return; const t = e.data.topics.find(x => x.id === tid); if (!t) return;
+  if (e.data.topics.length < 2) { toast('Oxirgi mavzuni o‘chirib bo‘lmaydi. Butun fanni o‘chiring.'); return; }
+  if (!(await ask(`“${t.name}” mavzusi o‘chirilsinmi?`, `${t.q.length} ta savol kataloqdan yo‘qoladi.`, 'O‘chirish', true))) return;
+  const data = JSON.parse(JSON.stringify(e.data)); data.topics = data.topics.filter(x => x.id !== tid);
+  await catSave(sid, { data }, 'Mavzu o‘chirildi');
+}
+function catView() {
+  let h = `<header class="hdr up"><div style="display:flex;gap:12px;align-items:center"><button class="x" data-a="nav" data-v="set" aria-label="Orqaga">${ic('chevL')}</button><h1 style="font-size:26px">Umumiy katalog</h1></div></header>${noteHtml()}
+  <p class="mu s">Bu yerga yuklagan savollaring faol obunachilarning hammasida o‘zi paydo bo‘ladi. Kitoblarni birma-bir qo‘sha berasan: bir xil fan <code>id</code>sidagi mavzular shu fanga qo‘shiladi.</p>
+  <button class="big up" data-a="catPick">${ic('upload')} Katalogga fayl qo‘shish</button>`;
+  if (!CBRAW.length) return h + '<div class="card empty"><p class="mu">Katalog hali bo‘sh.</p></div>';
+  CBRAW.forEach((e, i) => {
+    const hue = hueOf('c:' + e.subject_id);
+    h += `<div class="card up" style="--i:${i}"><div style="display:flex;align-items:center;gap:12px"><span class="av" style="--h:${hue}">${initials(e.name)}</span><div style="min-width:0;flex:1"><b style="display:block;overflow-wrap:anywhere">${esc(e.name)}</b><small style="display:block">${e.data.topics.length} mavzu · ${catQ(e)} savol</small><span class="chip static" style="margin-top:6px">${esc(e.category || 'Kategoriyasiz')}</span> ${e.published ? '' : '<span class="chip static" style="margin-top:6px;color:var(--warn)">Qoralama</span>'}</div></div>
+    <details class="rev" style="box-shadow:none;background:var(--card2)"><summary style="font-weight:600">Mavzular (kitoblar)</summary>${e.data.topics.map(t => `<div class="row" style="box-shadow:none;margin:8px 0;min-height:48px"><span class="t"><b style="font-size:14.5px">${esc(t.name)}</b><small>${t.q.length} savol</small></span><button class="x" style="color:var(--bad)" data-a="catTopicDel" data-sid="${esc(e.subject_id)}" data-tid="${esc(t.id)}" aria-label="${esc(t.name)} mavzusini o‘chirish">${ic('trash')}</button></div>`).join('')}</details>
+    <div class="in"><button class="btn s" data-a="catEdit" data-id="${esc(e.subject_id)}">Tahrirlash</button><button class="btn s danger" data-a="catDel" data-id="${esc(e.subject_id)}">O‘chirish</button></div></div>`;
+  });
+  return h;
 }
 async function logout() {
   if (!(await ask('Chiqamizmi?', 'Ma’lumotlaring bulutda saqlanadi. Shu qurilmadagi nusxa o‘chiriladi.', 'Chiqish', true))) return;
@@ -522,11 +611,12 @@ function homeView() {
   if (pl.length) {
     h += `<div class="sec up" style="--i:7"><h2>Imtihon rejasi</h2></div><div class="plans up" style="--i:7">${pl.map(({ s, p }) => `<button class="pcard" data-a="plan" data-id="${esc(s.id)}" style="--h:${hueOf(s.id)}">${ring(pct(p.seen, p.total), 56, 6, `${p.left}<small>kun</small>`, `--clr:hsl(${hueOf(s.id)} 85% 58%)`)}<span class="t"><b>${esc(s.name)}</b><small>Bugun ${p.quota} ta yangi savol</small></span>${ic('play')}</button>`).join('')}</div>`;
   }
-  h += `<div class="sec up" style="--i:8"><h2>Fanlar</h2><span class="chip static">${TB.subjects.length} ta · ${qCount()} savol</span></div>`;
-  TB.subjects.forEach((s, i) => {
-    const ids = subjQ(s.id), m = mastery(ids);
-    h += `<button class="scard up" style="--i:${9 + i};--h:${hueOf(s.id)}" data-a="subj" data-id="${esc(s.id)}">${avatar(s)}<span class="t"><b>${esc(s.name)}</b><small>${s.topics.length} mavzu · ${subjCount(s)} savol · ${m}% o‘zlashtirildi</small><span class="bar" style="display:block"><i style="width:${m}%"></i></span></span>${ic('chevR')}</button>`;
-  });
+  const card = (sb, i) => { const ids = subjQ(sb.id), m = mastery(ids);
+    return `<button class="scard up" style="--i:${9 + i};--h:${hueOf(sb.id)}" data-a="subj" data-id="${esc(sb.id)}">${avatar(sb)}<span class="t"><b>${esc(sb.name)}${sb.draft ? ' <span class="chip static">Qoralama</span>' : ''}</b><small>${sb.topics.length} mavzu · ${subjCount(sb)} savol · ${m}% o‘zlashtirildi</small><span class="bar" style="display:block"><i style="width:${m}%"></i></span></span>${ic('chevR')}</button>`; };
+  const cats = new Map(); TB.subjects.filter(x => x.cat).forEach(x => { const k = x.category || 'Katalog'; (cats.get(k) || cats.set(k, []).get(k)).push(x); });
+  const own = TB.subjects.filter(x => !x.cat); let n = 0;
+  cats.forEach((L, k) => { h += `<div class="sec up" style="--i:8"><h2>${esc(k)}</h2><span class="chip static">${L.length} ta</span></div>` + L.map(x => card(x, n++)).join(''); });
+  if (own.length) h += `<div class="sec up" style="--i:8"><h2>${cats.size ? 'Mening fanlarim' : 'Fanlar'}</h2><span class="chip static">${own.length} ta</span></div>` + own.map(x => card(x, n++)).join('');
   return h;
 }
 
@@ -624,7 +714,7 @@ const segHtml = (key, cur, opts) => `<div class="seg" role="group">${opts.map(([
 function setView() {
   let h = `<header class="hdr up"><h1>Sozlamalar</h1></header>${noteHtml()}${saveFailed ? `<div class="note">${ic('alert')}<span>Natijalarni saqlab bo‘lmadi (brauzer xotirasi to‘la yoki yopiq). Zaxira oling.</span></div>` : ''}${acctCard()}
   <div class="card up" style="--i:1"><h2>${ic('layers')}Savol banki</h2>`;
-  if (TB) h += `<p class="mu s">${TB.subjects.length} fan · ${topicsAll().length} mavzu · ${qCount()} savol</p><div class="grp">` + TB.subjects.map(s => `<div class="row" style="--h:${hueOf(s.id)}">${avatar(s)}<span class="t"><b>${esc(s.name)}</b><small>${s.topics.length} mavzu · ${subjCount(s)} savol</small></span><button class="x" style="color:var(--bad)" data-a="delSubj" data-id="${esc(s.id)}" aria-label="${esc(s.name)} fanini o‘chirish">${ic('trash')}</button></div>`).join('') + '</div>';
+  if (TB) h += `<p class="mu s">${TB.subjects.length} fan · ${topicsAll().length} mavzu · ${qCount()} savol</p><div class="grp">` + TB.subjects.map(s => `<div class="row" style="--h:${hueOf(s.id)}">${avatar(s)}<span class="t"><b>${esc(s.name)}</b><small>${s.topics.length} mavzu · ${subjCount(s)} savol</small></span>${s.cat ? '<span class="chip static">Katalog</span>' : `<button class="x" style="color:var(--bad)" data-a="delSubj" data-id="${esc(s.id)}" aria-label="${esc(s.name)} fanini o‘chirish">${ic('trash')}</button>`}</div>`).join('') + '</div>';
   else h += '<p class="mu s">Bank hali yo‘q.</p>';
   h += `<div class="in"><button class="btn" data-a="pickBank">${ic('upload')} Fayl qo‘shish</button><button class="btn" data-a="sample">${ic('sparkle')} Namuna</button></div><p class="mu s">Bir nechta fayl tanlash mumkin. Fan va mavzu <code>id</code>si bir xil bo‘lsa, mavzu yangilanadi, qolganlari saqlanadi.</p></div>
   <div class="card up" style="--i:2"><h2>${ic('target')}Kunlik maqsad</h2><p class="mu s">Kuniga nechta savol yechmoqchisan?</p>${segHtml('goal', S.set.goal, [[10, '10'], [20, '20'], [40, '40'], [60, '60'], [100, '100']])}</div>
@@ -671,7 +761,7 @@ function acctCard() {
   <p class="mu s" id="syncline" style="margin:12px 0 0">${syncLine()}</p>
   <div class="in"><button class="btn" data-a="syncNow">${ic('refresh')} Sinxronlash</button><button class="btn" data-a="pw">${ic('link')} Parol</button></div>
   ${A.pwOpen ? `<form id="pf" class="grp" novalidate><label class="fld"><span class="lb">Yangi parol</span><span class="pw"><input name="pw" type="password" autocomplete="new-password" placeholder="Kamida 6 ta belgi"><button type="button" class="eye" data-a="eye" aria-label="Ko‘rsatish">${ic('eye')}</button></span></label><button class="big" type="submit">Parolni saqlash</button></form>` : ''}
-  ${isOwner() ? `<button class="big" style="margin-top:10px" data-a="users">${ic('layers')} Foydalanuvchilar</button>` : ''}
+  ${isOwner() ? `<button class="big" style="margin-top:10px" data-a="users">${ic('layers')} Foydalanuvchilar</button><button class="big" style="margin-top:10px" data-a="cat">${ic('book')} Umumiy katalog</button>` : ''}
   <button class="btn danger" style="margin-top:10px" data-a="logout">Chiqish</button></div>`;
 }
 function usersView() {
@@ -693,14 +783,14 @@ function usersView() {
 }
 
 function view() {
-  switch (V.v) { case 'auth': return authView(); case 'reset': return resetView(); case 'locked': return lockedView(); case 'users': return usersView(); case 'quiz': return quizView(); case 'res': return resView(); case 'subj': return subjView(); case 'stat': return statView(); case 'set': return setView(); case 'flag': return flagView(); default: return homeView(); }
+  switch (V.v) { case 'cat': return catView(); case 'auth': return authView(); case 'reset': return resetView(); case 'locked': return lockedView(); case 'users': return usersView(); case 'quiz': return quizView(); case 'res': return resView(); case 'subj': return subjView(); case 'stat': return statView(); case 'set': return setView(); case 'flag': return flagView(); default: return homeView(); }
 }
 function draw(keepScroll = true) {
   const sy = window.scrollY, anim = V.anim;
   document.body.classList.toggle('noav', ['quiz', 'auth', 'locked', 'reset'].includes(V.v));
   const app = $('#app'); app.classList.toggle('anim', anim);
   app.innerHTML = view();
-  const tab = V.v === 'stat' ? 'stat' : V.v === 'set' ? 'set' : 'home';
+  const tab = V.v === 'stat' ? 'stat' : ['set', 'users', 'cat'].includes(V.v) ? 'set' : 'home';
   $('#nav').innerHTML = [['home', 'book', 'Fanlar'], ['stat', 'chart', 'Statistika'], ['set', 'sliders', 'Sozlamalar']].map(([v, i, n]) => `<button data-a="nav" data-v="${v}" class="${tab === v ? 'on' : ''}" ${tab === v ? 'aria-current="page"' : ''}>${ic(i)}${n}</button>`).join('');
   V.anim = false;
   if (keepScroll) window.scrollTo(0, sy);
@@ -730,7 +820,7 @@ function confetti() {
 
 // ───────────── import / eksport ─────────────
 async function importTexts(files) {
-  const out = [], touched = new Set(); let cur = TB, added = 0, ok = 0, bad = 0;
+  const out = [], touched = new Set(); let cur = UB, added = 0, ok = 0, bad = 0;
   for (const f of files) {
     if (f.big) { out.push(`${f.name}: fayl juda katta (25 MB dan oshmasin)`); bad++; continue; }
     let d; try { d = JSON.parse(f.text); } catch (e) { out.push(`${f.name}: JSON emas`); bad++; continue; }
@@ -763,7 +853,7 @@ function download(name, text) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
 }
-const exportBackup = () => { download('testlar-zaxira-' + today() + '.json', JSON.stringify({ app: 'testlar-app', v: 1, state: S, bank: TB })); setMsg('Zaxira fayli yuklab olindi', true); V.anim = false; draw(); };
+const exportBackup = () => { download('testlar-zaxira-' + today() + '.json', JSON.stringify({ app: 'testlar-app', v: 1, state: S, bank: UB })); setMsg('Zaxira fayli yuklab olindi', true); V.anim = false; draw(); };
 async function restoreBackup(inp) {
   const f = inp.files[0]; inp.value = ''; if (!f) return;
   try {
@@ -772,14 +862,14 @@ async function restoreBackup(inp) {
     if (o.bank) { const c = checkBank(o.bank); if (c.err.length) throw new Error('Zaxiradagi bank buzilgan: ' + c.err[0]); }
     if (!(await ask('Zaxiradan tiklaymizmi?', 'Hozirgi natijalar va bank zaxiradagi bilan almashtiriladi.', 'Tiklash', true))) return;
     S = normState(o.state); save(); applyTheme();
-    if (o.bank) { const before = TB ? TB.subjects.map(x => x.id) : [], now = o.bank.subjects.map(x => x.id); await idbSet(o.bank); indexBank(o.bank); before.filter(i => !now.includes(i)).forEach(i => markDeleted(i)); markDirty(now); } else { (TB ? TB.subjects.map(x => x.id) : []).forEach(i => markDeleted(i)); await idbDel(); indexBank(null); }
+    if (o.bank) { const before = UB ? UB.subjects.map(x => x.id) : [], now = o.bank.subjects.map(x => x.id); await idbSet(o.bank); indexBank(o.bank); before.filter(i => !now.includes(i)).forEach(i => markDeleted(i)); markDirty(now); } else { (UB ? UB.subjects.map(x => x.id) : []).forEach(i => markDeleted(i)); await idbDel(); indexBank(null); }
     setMsg('Zaxira tiklandi', true);
   } catch (e) { setMsg('Tiklab bo‘lmadi: ' + (e && e.message || e), false); }
   V.anim = true; draw();
 }
 async function deleteSubject(id) {
-  const s = findSubj(id); if (!s || !(await ask(`“${s.name}” o‘chirilsinmi?`, `Fan va undagi ${subjCount(s)} ta savol qurilmadan o‘chadi. Natijalar tarixi qoladi.`, 'O‘chirish', true))) return;
-  const nb = JSON.parse(JSON.stringify(TB)); nb.subjects = nb.subjects.filter(x => x.id !== id);
+  const s = findSubj(id); if (!s || s.cat || !(await ask(`“${s.name}” o‘chirilsinmi?`, `Fan va undagi ${subjCount(s)} ta savol qurilmadan o‘chadi. Natijalar tarixi qoladi.`, 'O‘chirish', true))) return;
+  const nb = JSON.parse(JSON.stringify(UB)); nb.subjects = nb.subjects.filter(x => x.id !== id);
   try { nb.subjects.length ? await idbSet(nb) : await idbDel(); } catch (e) { setMsg('O‘chirib bo‘lmadi', false); draw(); return; }
   indexBank(nb.subjects.length ? nb : null); delete S.ex[id]; markDeleted(id); save(); if (V.sid === id) V.sid = ''; setMsg('Fan o‘chirildi', true); V.anim = false; draw();
 }
@@ -794,11 +884,16 @@ async function act(a, d, el) {
     case 'logout': logout(); break;
     case 'users': V.v = 'users'; V.anim = true; draw(false); window.scrollTo(0, 0); loadUsers(); break;
     case 'uBlock': { const u = (A.users || []).find(x => x.user_id === d.id); if (u) ownerSet(d.id, { blocked: !u.blocked }); break; }
+    case 'cat': V.v = 'cat'; V.anim = true; setMsg(null); draw(false); window.scrollTo(0, 0); break;
+    case 'catPick': $('#fcat').click(); break;
+    case 'catEdit': catEdit(d.id); break;
+    case 'catDel': catDel(d.id); break;
+    case 'catTopicDel': catTopicDel(d.sid, d.tid); break;
     case 'newUser': newUser(); break;
     case 'uGrant': grantUser(d.id); break;
     case 'uPw': resetUserPw(d.id); break;
     case 'gen': { const inp = el.closest('.pw').querySelector('input'); inp.value = genPw(); break; }
-    case 'sfChip': { const wrap = el.parentElement; wrap.querySelector('input[name=plan]').value = d.val; wrap.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === el)); break; }
+    case 'sfChip': { const wrap = el.parentElement; wrap.querySelector('input[type=hidden]').value = d.val; wrap.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === el)); break; }
     case 'copyCred': toast((await copyText($('#credtxt').textContent)) ? 'Nusxalandi' : 'Nusxalab bo‘lmadi, qo‘lda belgilab ol'); break;
     case 'uDel': ownerDelete(d.id); break;
     case 'sheetOk': closeSheet(true); break;
@@ -830,7 +925,7 @@ async function act(a, d, el) {
     case 'clrHist': if (await ask('Natijalar tarixi o‘chirilsinmi?', 'Statistika tozalanadi. Xatolar banki va savollar qoladi.', 'O‘chirish', true)) { S.h = []; S.hc = Date.now(); save(); setMsg('Tarix tozalandi', true); V.anim = false; draw(); } break;
     case 'reset': if (await ask('Hammasi o‘chirilsinmi?', 'Savol banki, natijalar va sozlamalar butunlay o‘chadi' + (cloudOn() ? ', bulutdagi nusxa ham' : '') + '. Avval zaxira olgan bo‘lsang yaxshi.', 'Hammasini o‘chirish', true)) {
       if (cloudOn()) { try { const U = encodeURIComponent(SB.session().user.id); await SB.rest('quiz_banks?user_id=eq.' + U, { method: 'DELETE' }); await SB.rest('app_state?user_id=eq.' + U, { method: 'DELETE' }); } catch (e) { toast('Bulutdagi nusxani o‘chirib bo‘lmadi: ' + uzErr(e)); break; } }
-      lsSet(KD, []); lsSet(KX, []); lsSet(KS, []); S = normState(null); persist(); applyTheme(); try { await idbDel(); } catch (e) { /* bo‘sh */ } indexBank(null);
+      lsSet(KD, []); lsSet(KX, []); lsSet(KS, []); S = normState(null); persist(); applyTheme(); try { await idbDel(); await idbDel('catalog'); } catch (e) { /* bo‘sh */ } CBRAW = []; CB = []; indexBank(null);
       V = { v: 'home', sid: '', n: 20, mo: 'm', sel: {}, msg: null, anim: true, fresh: false }; draw(); } break;
   }
 }
@@ -846,6 +941,7 @@ document.addEventListener('change', e => {
   const t = e.target;
   if (t.id === 'fbank') return pickedFiles(t);
   if (t.id === 'fback') return restoreBackup(t);
+  if (t.id === 'fcat') return catUpload(t);
   if (t.dataset.c === 'sel') { V.sel[t.dataset.id] = t.checked; draw(); }
   if (t.dataset.c === 'exam') { t.value ? S.ex[t.dataset.id] = t.value : delete S.ex[t.dataset.id]; save(); toast(t.value ? 'Sana saqlandi' : 'Sana o‘chirildi'); }
 });
@@ -868,6 +964,7 @@ document.addEventListener('keydown', e => {
   else if (SB.configured && A.profile && !isActive(A.profile)) V.v = 'locked';
   draw();
   try { const d = await idbGet(); if (d && !checkBank(d).err.length) indexBank(d); } catch (e) { /* bank yo‘q */ }
+  try { const c = await idbGet('catalog'); if (c && Array.isArray(c.raw) && cloudOn()) setCatalog(c.raw); } catch (e) { /* katalog keshi yo‘q */ }
   V.anim = true; draw();
   SB.onOut(() => { A.profile = null; V.v = 'auth'; V.anim = true; draw(); });
   if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});

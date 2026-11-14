@@ -8,4 +8,5 @@ update public.profiles set pending=false, expires_at=null where email='zz.user@q
 
 -- Sinovdan keyin TOZALASH:
 -- delete from public.payments where email like 'zz.%@quiz.test';
+-- delete from public.catalog_subjects;   (agar sinov katalogi qolgan bo‘lsa)
 -- delete from auth.users where email like 'zz.%@quiz.test';
