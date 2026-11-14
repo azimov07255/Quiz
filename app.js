@@ -12,22 +12,55 @@ const today = () => keyOf(new Date());
 const addDays = (k, n) => { const d = new Date(k + 'T12:00:00'); d.setDate(d.getDate() + n); return keyOf(d); };
 const diffDays = (a, b) => Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5);
 const fmtDate = k => { const [y, m, d] = String(k).split('-'); return d + '.' + m + '.' + y; };
+const MONTHS = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
+const DAYS = ['Yak', 'Du', 'Se', 'Chor', 'Pay', 'Jum', 'Shan'];
 const mmss = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + pad(s % 60); };
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
 const shuffle = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 const LET = 'ABCD';
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) { /* ixtiyoriy */ } };
+
+// ───────────── SVG ikonkalar ─────────────
+const P = {
+  chevL: '<path d="M15 18l-6-6 6-6"/>', chevR: '<path d="M9 18l6-6-6-6"/>', x: '<path d="M18 6L6 18M6 6l12 12"/>',
+  play: '<path d="M8 5.5v13l11-6.5z" fill="currentColor"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  book: '<path d="M12 6.5C10.5 5 8 4.3 4 4.5v13c4-.2 6.5.5 8 2 1.5-1.5 4-2.2 8-2v-13c-4-.2-6.5.5-8 2z"/><path d="M12 6.5v13"/>',
+  chart: '<path d="M5 20v-8M12 20V4M19 20v-5"/>', sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+  flame: '<path d="M12 3c.8 3.4 5 5.4 5 10a5 5 0 0 1-10 0c0-2 1-3.3 2-4.3.2 1.5 1 2.3 1.8 2.6C10.6 8.5 11 5.6 12 3z"/>',
+  flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>', bulb: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.7.6 1 1.3 1 2.1h5c0-.8.3-1.5 1-2.1A6 6 0 0 0 12 3z"/>',
+  timer: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.5M9.5 3h5"/>', pencil: '<path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14.5 7.5l2 2"/>',
+  dice: '<rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="15" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/><circle cx="9" cy="15" r="1" fill="currentColor"/>',
+  refresh: '<path d="M20 11a8 8 0 0 0-14.5-4M4 4.5V8h3.5M4 13a8 8 0 0 0 14.5 4M20 19.5V16h-3.5"/>',
+  alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16.3v.1"/>', calendar: '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M8 3v4M16 3v4"/>',
+  upload: '<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>', download: '<path d="M12 4v12M7 11l5 5 5-5M5 20h14"/>', trash: '<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+  sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>', layers: '<path d="M12 4l9 5-9 5-9-5z"/><path d="M3 14l9 5 9-5"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+  ok: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>', no: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>', half: '<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
+  shuffle: '<path d="M16 4h4v4M4 20L20 4M20 16v4h-4M4 4l5 5M15 15l5 5"/>', moon: '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>', link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+};
+const ic = (n, sz) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true"${sz ? ` style="width:${sz}px;height:${sz}px"` : ''}>${P[n] || ''}</svg>`;
+const hueOf = id => { const i = TB ? TB.subjects.findIndex(s => s.id === id) : -1; return i >= 0 ? (232 + i * 57) % 360 : 232; };
+const initials = n => { const w = String(n).trim().split(/\s+/).filter(Boolean); return esc((w.length > 1 ? w[0][0] + w[1][0] : String(n).slice(0, 2)).toUpperCase()); };
+const avatar = s => `<span class="av" style="--h:${hueOf(s.id)}" aria-hidden="true">${initials(s.name)}</span>`;
+function ring(p, size, sw, inner, style) {
+  const r = (size - sw) / 2, c = 2 * Math.PI * r, off = c * (1 - Math.max(0, Math.min(100, p)) / 100), m = size / 2;
+  return `<div class="ringw" style="width:${size}px;height:${size}px;${style || ''}"><svg class="ring" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle class="trk" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}"/><circle class="val" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}" stroke-dasharray="${c}" style="--c:${c};stroke-dashoffset:${off}" transform="rotate(-90 ${m} ${m})"/></svg><div class="ri">${inner || ''}</div></div>`;
+}
+const scoreClr = p => p >= 75 ? 'var(--ok)' : p >= 50 ? 'var(--warn)' : 'var(--bad)';
 
 // ───────────── holat (localStorage) ─────────────
 const LS = 'testlar:state:v1';
 const normState = o => {
   o = o && typeof o === 'object' ? o : {};
   const obj = x => x && typeof x === 'object' && !Array.isArray(x) ? x : {};
-  const set = Object.assign({ sh: 1, sec: 45 }, obj(o.set));
+  const set = Object.assign({ sh: 1, sec: 45, goal: 20, theme: 'auto' }, obj(o.set));
   return { h: Array.isArray(o.h) ? o.h : [], m: obj(o.m), f: obj(o.f), sn: obj(o.sn), ex: obj(o.ex), set };
 };
 let S = (() => { try { return normState(JSON.parse(localStorage.getItem(LS))); } catch (e) { return normState(null); } })();
 let saveFailed = false;
 const save = () => { try { localStorage.setItem(LS, JSON.stringify(S)); saveFailed = false; } catch (e) { saveFailed = true; } };
+const applyTheme = () => { const t = S.set.theme; if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; };
 
 // ───────────── savol banki (IndexedDB) ─────────────
 const idb = () => new Promise((res, rej) => {
@@ -59,6 +92,7 @@ const findSubj = id => TB && TB.subjects.find(s => s.id === id);
 const subjQ = sid => { const s = findSubj(sid); return s ? s.topics.flatMap(t => t.q.map(q => q.id)) : []; };
 const topicQ = id => { const t = findTopic(id); return t ? t.q.map(q => q.id) : []; };
 const subjCount = s => s.topics.reduce((a, t) => a + t.q.length, 0);
+const qCount = () => Object.keys(TBX).length;
 
 /** Bankni tekshiradi. {err:[], warn:[]} qaytaradi. */
 function checkBank(d) {
@@ -98,14 +132,24 @@ function mergeBank(a, b) {
 }
 
 // ───────────── ko‘rinish holati ─────────────
-let V = { v: 'home', sid: '', n: 20, mo: 'm', sel: {}, msg: null };
+let V = { v: 'home', sid: '', n: 20, mo: 'm', sel: {}, msg: null, anim: true, fresh: false };
 let Q = null, R = null, TI = 0;
 const setMsg = (t, ok) => { V.msg = t ? { t, ok: !!ok } : null; };
-
 function toast(t) {
   const e = $('#toast'); e.textContent = t; e.classList.add('on');
   clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('on'), 2600);
 }
+// tasdiqlash oynasi (alert/confirm o‘rniga)
+let sheetRes = null;
+function ask(title, body, okLabel, danger) {
+  return new Promise(res => {
+    if (sheetRes) sheetRes(false);
+    sheetRes = res; const e = $('#sheet');
+    e.innerHTML = `<div class="sh-bg" data-a="sheetNo"></div><div class="sh-card" role="alertdialog" aria-modal="true" aria-label="${esc(title)}"><h3>${esc(title)}</h3><p>${esc(body)}</p><div class="in"><button class="btn" data-a="sheetNo">Bekor qilish</button><button class="big ${danger ? 'danger' : ''}" data-a="sheetOk">${esc(okLabel || 'Ha')}</button></div></div>`;
+    e.classList.add('on'); setTimeout(() => { const b = $('#sheet .big'); b && b.focus({ preventScroll: true }); }, 50);
+  });
+}
+function closeSheet(v) { $('#sheet').classList.remove('on'); const r = sheetRes; sheetRes = null; if (r) r(v); }
 
 // ───────────── hisoblar ─────────────
 const misIds = () => Object.keys(S.m).filter(i => TBX[i]);
@@ -114,11 +158,14 @@ const flagIds = () => Object.keys(S.f).filter(i => TBX[i]);
 const hist = key => S.h.filter(x => x.t === key);
 const best = key => { const L = hist(key); return L.length ? Math.max(...L.map(x => pct(x.ok, x.n))) : null; };
 const last = key => { const L = hist(key); return L.length ? pct(L[L.length - 1].ok, L[L.length - 1].n) : null; };
-function subjAvg(s) {
-  const keys = new Set(['s:' + s.id, ...s.topics.map(t => t.id)]);
-  const L = S.h.filter(x => keys.has(x.t));
-  return L.length ? Math.round(L.reduce((a, x) => a + x.ok / x.n, 0) / L.length * 100) : null;
+const todayCount = () => S.h.filter(x => x.d === today()).reduce((a, x) => a + x.n, 0);
+function streak() {
+  const days = new Set(S.h.map(x => x.d)); let d = today(), n = 0;
+  if (!days.has(d)) d = addDays(d, -1);
+  while (days.has(d)) { n++; d = addDays(d, -1); }
+  return n;
 }
+const mastery = ids => { const m = ids.filter(i => S.sn[i] && !S.m[i]).length; return pct(m, ids.length); };
 function plan(sid) {
   const d = S.ex[sid]; if (!d) return null;
   const ids = subjQ(sid), seen = ids.filter(i => S.sn[i]).length, rem = ids.length - seen, left = diffDays(today(), d);
@@ -126,10 +173,11 @@ function plan(sid) {
   return { d, left, total: ids.length, seen, rem, quota: rem ? Math.ceil(rem / Math.max(1, left)) : 0 };
 }
 function keyName(k) {
-  if (k.startsWith('s:')) { const s = findSubj(k.slice(2)); return 'Fan: ' + (s ? s.name : k.slice(2)); }
-  if (k.startsWith('u:')) { const s = findSubj(k.slice(2)); return 'Reja: ' + (s ? s.name : k.slice(2)); }
+  if (k.startsWith('s:')) { const s = findSubj(k.slice(2)); return s ? s.name + ' (umumiy)' : k.slice(2); }
+  if (k.startsWith('u:')) { const s = findSubj(k.slice(2)); return (s ? s.name : k.slice(2)) + ' (reja)'; }
   return { a: 'Umumiy test', m: 'Xatolar banki', f: 'Belgilanganlar', d: 'Takrorlash', c: 'Tanlangan mavzular' }[k] || (findTopic(k) || { name: k }).name;
 }
+const greet = () => { const h = new Date().getHours(); return h < 5 ? 'Xayrli tun' : h < 12 ? 'Xayrli tong' : h < 18 ? 'Xayrli kun' : 'Xayrli kech'; };
 
 // ───────────── testni boshlash ─────────────
 function pool(c) {
@@ -149,10 +197,10 @@ function begin(c) {
   if (!ids.length) { toast('Bu bo‘limda savol yo‘q'); return; }
   ids = ids.slice(0, c.n > 0 ? Math.min(c.n, ids.length) : ids.length);
   const sh = S.set.sh !== 0, now = Date.now();
-  Q = { cfg: c, mo: c.mo, label: c.label || '', ids, i: 0, ans: {}, rv: {}, sf: {}, fin: false, t0: now,
+  Q = { cfg: c, mo: c.mo, label: c.label || '', ids, i: 0, ans: {}, rv: {}, sf: {}, fin: false, t0: now, combo: 0,
     ord: ids.map(() => sh ? shuffle([0, 1, 2, 3]) : [0, 1, 2, 3]),
     dl: c.mo === 'e' ? now + ids.length * S.set.sec * 1000 : 0 };
-  R = null; V.v = 'quiz'; startTimer(); draw(); window.scrollTo(0, 0);
+  R = null; V.v = 'quiz'; V.anim = true; startTimer(); draw(); window.scrollTo(0, 0);
 }
 const cfgOf = (kind, id, label, extra) => ({ kind, id: id || '', label, extra, n: ['m', 'f', 'd'].includes(kind) ? 0 : V.n, mo: V.mo });
 
@@ -162,7 +210,7 @@ function startTimer() {
   TI = setInterval(() => {
     if (!Q || Q.fin || V.v !== 'quiz') { clearInterval(TI); return; }
     const l = Math.round((Q.dl - Date.now()) / 1000), e = $('#tmr');
-    if (e) e.textContent = mmss(l);
+    if (e) { e.textContent = mmss(l); e.parentElement.classList.toggle('low', l <= 10); }
     if (l <= 0) { clearInterval(TI); toast('⏰ Vaqt tugadi'); finish(true); }
   }, 500);
 }
@@ -171,17 +219,20 @@ function answer(k) {
   if (!Q || Q.fin || Q.mo === 'o') return;
   const i = Q.i, id = Q.ids[i];
   if (Q.mo === 'm' && Q.ans[id] !== undefined) return;
-  Q.ans[id] = Q.ord[i][k]; draw(false);
-  const fb = $('.fb'); if (fb) fb.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  Q.ans[id] = Q.ord[i][k];
+  if (Q.mo === 'm') { const good = Q.ans[id] === TBX[id].q.a; Q.combo = good ? Q.combo + 1 : 0; buzz(good ? 12 : [30, 40, 30]); }
+  V.anim = false; draw(false);
+  const fb = $('.fb'); if (fb) fb.scrollIntoView({ block: 'nearest', behavior: reduced() ? 'auto' : 'smooth' });
 }
-function go(d) { if (!Q) return; Q.i = Math.max(0, Math.min(Q.ids.length - 1, Q.i + d)); draw(); window.scrollTo(0, 0); }
-function rate(r) { if (!Q || Q.fin) return; const id = Q.ids[Q.i], q = TBX[id].q; Q.sf[id] = r; Q.ans[id] = r === 'y' ? q.a : -1; draw(false); }
-function flag(id) { S.f[id] ? delete S.f[id] : S.f[id] = 1; save(); draw(false); }
+function go(d) { if (!Q) return; Q.i = Math.max(0, Math.min(Q.ids.length - 1, Q.i + d)); V.anim = true; draw(); window.scrollTo(0, 0); }
+function rate(r) { if (!Q || Q.fin) return; const id = Q.ids[Q.i], q = TBX[id].q; Q.sf[id] = r; Q.ans[id] = r === 'y' ? q.a : -1; V.anim = false; draw(false); }
+function flag(id) { S.f[id] ? delete S.f[id] : S.f[id] = 1; save(); V.anim = false; draw(false); }
 
-function finish(force) {
+async function finish(force) {
   if (!Q || Q.fin) return;
   const un = Q.ids.filter(id => Q.ans[id] === undefined).length;
-  if (un && !force && !confirm(un + ' ta savolga javob berilmagan. Baribir yakunlansinmi?')) return;
+  if (un && !force && !(await ask('Testni yakunlaymizmi?', un + ' ta savolga hali javob berilmagan. Ular xato hisoblanadi.', 'Yakunlash'))) return;
+  if (!Q || Q.fin) return;
   clearInterval(TI); Q.fin = true;
   const T = today(); let ok = 0; const wrong = [];
   Q.ids.forEach(id => {
@@ -198,99 +249,115 @@ function finish(force) {
   const c = Q.cfg, key = c.kind === 't' ? c.id : ['s', 'u'].includes(c.kind) ? c.kind + ':' + c.id : c.kind;
   const rec = { id: Date.now(), d: T, t: key, n: Q.ids.length, ok, sec: Math.round((Date.now() - Q.t0) / 1000), mo: Q.mo };
   S.h.push(rec); if (S.h.length > 400) S.h.splice(0, S.h.length - 400);
-  R = { rec, wrong, un, ans: Q.ans, cfg: c, ord: Q.ord, ids: Q.ids };
-  V.v = 'res'; save(); draw(); window.scrollTo(0, 0);
+  R = { rec, wrong, un, ans: Q.ans, cfg: c };
+  V.v = 'res'; V.anim = true; V.fresh = true; save(); draw(); window.scrollTo(0, 0);
 }
-function quit() { if (confirm('Test to‘xtatilsinmi? Natija saqlanmaydi.')) { clearInterval(TI); Q = null; V.v = V.sid ? 'subj' : 'home'; draw(); } }
+async function quit() {
+  if (await ask('Testni to‘xtatamizmi?', 'Natija saqlanmaydi.', 'To‘xtatish', true)) { clearInterval(TI); Q = null; V.v = V.sid ? 'subj' : 'home'; V.anim = true; draw(); }
+}
 
 // ───────────── ko‘rinishlar ─────────────
-const noteHtml = () => V.msg ? `<div class="note ${V.msg.ok ? 'okn' : ''}" role="status">${esc(V.msg.t)}</div>` : '';
-const nChips = () => `<div class="chips" role="group" aria-label="Savollar soni"><small style="align-self:center">Savollar soni:</small>${[10, 20, 30, 50, 0].map(n => `<button class="chip ${V.n === n ? 'on' : ''}" data-a="setN" data-n="${n}" aria-pressed="${V.n === n}">${n || 'hammasi'}</button>`).join('')}</div>`;
-const modeSeg = () => `<div class="seg" role="group" aria-label="Rejim">${[['m', '✍️ Mashq'], ['e', '⏱ Imtihon'], ['o', '🧠 Ochiq']].map(([k, n]) => `<button class="${V.mo === k ? 'on' : ''}" data-a="setMo" data-mo="${k}" aria-pressed="${V.mo === k}">${n}</button>`).join('')}</div><p class="mu s" style="margin:-2px 0 6px">${{ m: 'Har javobdan keyin izoh ko‘rinadi.', e: `Taymer (savolga ${S.set.sec} s), natija oxirida.`, o: 'Avval o‘zing o‘ylaysan, keyin javobni ko‘rib o‘zingni baholaysan.' }[V.mo]}</p>`;
+const noteHtml = () => V.msg ? `<div class="note ${V.msg.ok ? 'okn' : ''}" role="status">${ic(V.msg.ok ? 'ok' : 'alert')}<span>${esc(V.msg.t)}</span></div>` : '';
+const nChips = () => `<div class="chips" role="group" aria-label="Savollar soni"><span class="lbl">Savollar soni</span>${[10, 20, 30, 50, 0].map(n => `<button class="chip ${V.n === n ? 'on' : ''}" data-a="setN" data-n="${n}" aria-pressed="${V.n === n}">${n || 'Hammasi'}</button>`).join('')}</div>`;
+const modeSeg = () => `<div class="seg" role="group" aria-label="Rejim">${[['m', 'pencil', 'Mashq'], ['e', 'timer', 'Imtihon'], ['o', 'bulb', 'Ochiq']].map(([k, i, n]) => `<button class="${V.mo === k ? 'on' : ''}" data-a="setMo" data-mo="${k}" aria-pressed="${V.mo === k}">${ic(i)}${n}</button>`).join('')}</div><p class="mu s" style="margin:0 2px 8px">${{ m: 'Har javobdan keyin darrov izoh ko‘rinadi.', e: `Taymer: savolga ${S.set.sec} soniya. Natija oxirida.`, o: 'Avval o‘zing o‘ylaysan, keyin javobni ko‘rib o‘zingni baholaysan.' }[V.mo]}</p>`;
 
 function emptyView() {
-  return `<h1>📝 Testlar</h1>${noteHtml()}<div class="card"><h2>Savol banki hali yo‘q</h2>
-  <p class="mu">Kitob yoki PDF’dan tuzilgan <code>testlar-banki.json</code> faylni bir marta yuklaysan — u shu qurilmada saqlanadi va internetsiz ishlaydi.</p>
-  <button class="big" data-a="pickBank">📥 Fayl tanlash</button>
-  <button class="btn" style="width:100%;margin-top:8px" data-a="sample">📚 Namuna bankni yuklash</button></div>
-  <div class="card"><h2>Bank qanday olinadi?</h2><p class="mu">Kitob/PDF/slaydlarni Claude’ga tashlaysan, u fan → mavzu → 4 variantli savollar qilib <code>.json</code> beradi. Batafsil: <code>KITOBDAN_TEST.md</code>.</p></div>`;
+  return `${noteHtml()}<div class="card empty up" style="--i:0"><svg class="ill" viewBox="0 0 200 150" aria-hidden="true"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b6cff"/><stop offset="1" stop-color="#8a4dff"/></linearGradient></defs><rect x="38" y="30" width="124" height="92" rx="18" fill="#8a4dff" opacity=".18" transform="rotate(-8 100 76)"/><rect x="38" y="30" width="124" height="92" rx="18" fill="#5b6cff" opacity=".28" transform="rotate(5 100 76)"/><rect x="38" y="24" width="124" height="96" rx="18" fill="url(#g1)"/><circle cx="62" cy="52" r="6" fill="#fff"/><rect x="76" y="48" width="64" height="8" rx="4" fill="#fff" opacity=".9"/><circle cx="62" cy="76" r="6" fill="none" stroke="#fff" stroke-width="3"/><rect x="76" y="72" width="52" height="8" rx="4" fill="#fff" opacity=".6"/><circle cx="62" cy="100" r="6" fill="none" stroke="#fff" stroke-width="3"/><rect x="76" y="96" width="60" height="8" rx="4" fill="#fff" opacity=".6"/></svg>
+  <h1 style="font-size:26px">Testlar</h1><p class="mu" style="margin:6px 0 16px">Kitob va PDF’laringdan tuzilgan savollarni yuklab, 4 variantli testlar yech.</p>
+  <button class="big" data-a="pickBank">${ic('upload')} Test banki faylini yuklash</button>
+  <button class="btn" style="margin-top:10px" data-a="sample">${ic('sparkle')} Namuna bankni yuklash</button></div>
+  <div class="card up" style="--i:1"><h2>Qanday ishlaydi?</h2><ol class="steps">
+  <li><span class="n">1</span><span>Kitob yoki PDF’ni <b>Claude</b>’ga tashlaysan.</span></li>
+  <li><span class="n">2</span><span>U fan → mavzu → savollar qilib <code>.json</code> bank beradi.</span></li>
+  <li><span class="n">3</span><span>Bankni shu yerga yuklaysan. Internetsiz ham ishlaydi.</span></li></ol></div>`;
 }
 
 function homeView() {
   if (!TB) return emptyView();
-  const due = dueIds().length, mis = misIds().length, fl = flagIds().length;
+  const due = dueIds().length, mis = misIds().length, fl = flagIds().length, td = todayCount(), goal = S.set.goal, st = streak();
   const pl = TB.subjects.map(s => ({ s, p: plan(s.id) })).filter(x => x.p && !x.p.past && x.p.quota);
-  let h = `<h1>📝 Testlar</h1>${noteHtml()}`;
-  if (due || pl.length) {
-    h += `<div class="card"><div class="hd"><h2>Bugun</h2><span class="chip static">${fmtDate(today())}</span></div>`;
-    if (due) h += `<button class="row btnrow" data-a="start" data-kind="d" data-label="🔁 Bugun takrorlash"><span class="t">🔁 Takrorlash: <b>${due} ta</b> savol</span><span>▶</span></button>`;
-    pl.forEach(({ s, p }) => { h += `<button class="row btnrow" data-a="plan" data-id="${esc(s.id)}"><span class="t">📅 ${esc(s.name)}<br><small>${p.left ? p.left + ' kun qoldi' : 'imtihon bugun'} · bugun ${p.quota} ta yangi savol</small></span><span>▶</span></button>`; });
-    h += '</div>';
+  const d = new Date(), done = td >= goal;
+  const cta = due ? `<button class="cta" data-a="start" data-kind="d" data-label="Bugun takrorlash">${ic('refresh')} Takrorlash · ${due}</button>` : `<button class="cta" data-a="start" data-kind="a" data-label="Hamma fanlar">${ic('play')} Boshlash</button>`;
+  let h = `<header class="hdr up"><div><p class="eyebrow">${greet()}</p><h1>${d.getDate()}-${MONTHS[d.getMonth()]}</h1></div><div class="pill flame" title="Ketma-ket kunlar">${ic('flame')}<b>${st}</b> kun</div></header>${noteHtml()}
+  <section class="hero up" style="--i:1" aria-label="Kunlik maqsad"><div class="hero-l"><p class="k">Kunlik maqsad</p><p class="n">${td}<span>/ ${goal} savol</span></p><p class="hint">${done ? 'Maqsad bajarildi! Zo‘r ish.' : (goal - td) + ' ta savol qoldi'}</p>${cta}</div>${ring(pct(td, goal), 98, 10, Math.min(100, pct(td, goal)) + '%')}</section>
+  <div class="tiles">
+   <button class="tile up" style="--i:2;--h:250" data-a="start" data-kind="a" data-label="Hamma fanlar"><span class="ti">${ic('dice')}</span><span><b>Umumiy test</b><small>Hamma fanlardan</small></span></button>
+   <button class="tile up" style="--i:3;--h:8" data-a="start" data-kind="m" data-label="Xatolar banki" ${mis ? '' : 'disabled'}><span class="ti">${ic('alert')}</span>${mis ? `<span class="bdg">${mis}</span>` : ''}<span><b>Xatolar (${mis})</b><small>${mis ? 'Xatolaringni to‘g‘irla' : 'Hozircha xato yo‘q'}</small></span></button>
+   <button class="tile up" style="--i:4;--h:160" data-a="start" data-kind="d" data-label="Bugun takrorlash" ${due ? '' : 'disabled'}><span class="ti">${ic('refresh')}</span>${due ? `<span class="bdg">${due}</span>` : ''}<span><b>Takrorlash</b><small>${due ? 'Bugun ' + due + ' ta' : 'Bugun reja yo‘q'}</small></span></button>
+   <button class="tile up" style="--i:5;--h:35" data-a="nav" data-v="flag" ${fl ? '' : 'disabled'}><span class="ti">${ic('flag')}</span><span><b>Belgilangan</b><small>${fl ? fl + ' ta savol' : 'Shubhali savollar'}</small></span></button>
+  </div>
+  <div class="opts up" style="--i:6">${nChips()}${modeSeg()}</div>`;
+  if (pl.length) {
+    h += `<div class="sec up" style="--i:7"><h2>Imtihon rejasi</h2></div><div class="plans up" style="--i:7">${pl.map(({ s, p }) => `<button class="pcard" data-a="plan" data-id="${esc(s.id)}" style="--h:${hueOf(s.id)}">${ring(pct(p.seen, p.total), 56, 6, `${p.left}<small>kun</small>`, `--clr:hsl(${hueOf(s.id)} 85% 58%)`)}<span class="t"><b>${esc(s.name)}</b><small>Bugun ${p.quota} ta yangi savol</small></span>${ic('play')}</button>`).join('')}</div>`;
   }
-  h += `${nChips()}${modeSeg()}
-  <div class="in"><button class="btn" data-a="start" data-kind="a" data-label="Hamma fanlar">🎲 Umumiy test</button>
-  <button class="btn" data-a="start" data-kind="m" data-label="Xatolar banki" ${mis ? '' : 'disabled'}>❗ Xatolar (${mis})</button></div>
-  ${fl ? `<div class="chips"><button class="chip" data-a="nav" data-v="flag">🚩 Belgilangan savollar (${fl})</button></div>` : ''}
-  <h2 style="margin:16px 0 4px">Fanlar</h2>`;
-  TB.subjects.forEach(s => {
-    const a = subjAvg(s);
-    h += `<button class="row btnrow" data-a="subj" data-id="${esc(s.id)}"><span class="t"><b>${esc(s.name)}</b><br><small>${s.topics.length} mavzu · ${subjCount(s)} savol${a !== null ? ' · o‘rtacha ' + a + '%' : ''}</small></span><span>›</span></button>`;
+  h += `<div class="sec up" style="--i:8"><h2>Fanlar</h2><span class="chip static">${TB.subjects.length} ta · ${qCount()} savol</span></div>`;
+  TB.subjects.forEach((s, i) => {
+    const ids = subjQ(s.id), m = mastery(ids);
+    h += `<button class="scard up" style="--i:${9 + i};--h:${hueOf(s.id)}" data-a="subj" data-id="${esc(s.id)}">${avatar(s)}<span class="t"><b>${esc(s.name)}</b><small>${s.topics.length} mavzu · ${subjCount(s)} savol · ${m}% o‘zlashtirildi</small><span class="bar" style="display:block"><i style="width:${m}%"></i></span></span>${ic('chevR')}</button>`;
   });
   return h;
 }
 
 function subjView() {
   const s = findSubj(V.sid); if (!s) { V.v = 'home'; return homeView(); }
-  const sel = s.topics.filter(t => V.sel[t.id]), selQ = sel.reduce((a, t) => a + t.q.length, 0), p = plan(s.id);
-  let h = `<div class="top"><button class="x" data-a="nav" data-v="home" aria-label="Orqaga">‹</button><h1 style="margin:0;flex:1;text-align:center;font-size:19px">${esc(s.name)}</h1><span style="width:44px"></span></div>${noteHtml()}`;
-  if (p && !p.past) h += `<div class="card"><div class="hd"><b>📅 Imtihon: ${fmtDate(p.d)}</b><span class="chip static">${p.left} kun</span></div><div class="bar ok"><i style="width:${pct(p.seen, p.total)}%"></i></div><p class="mu s" style="margin:0 0 8px">Ko‘rilgan ${p.seen}/${p.total}${p.rem ? ' · kuniga ' + p.quota + ' ta yangi savol' : ' · hammasi ko‘rilgan, takrorlash vaqti'}</p><button class="btn s" style="width:100%" data-a="plan" data-id="${esc(s.id)}" ${p.quota ? '' : 'disabled'}>▶ Bugungi ${p.quota} ta savol</button></div>`;
-  h += `${nChips()}${modeSeg()}<button class="big" data-a="start" data-kind="s" data-id="${esc(s.id)}" data-label="${esc(s.name)}">🎲 Butun fandan umumiy test (${subjCount(s)})</button>
-  <div class="hd" style="margin:16px 0 0"><h2>Mavzular</h2><button class="chip" data-a="selAll">${sel.length === s.topics.length ? 'Belgini olish' : 'Hammasini tanlash'}</button></div>
-  <p class="mu s" style="margin:2px 0">Mavzu nomiga bosib shu mavzudan boshlaysan, katakchalar bilan bir nechtasini birlashtirasan.</p>`;
-  s.topics.forEach(t => {
+  const h0 = hueOf(s.id), ids = subjQ(s.id), m = mastery(ids), p = plan(s.id);
+  const sel = s.topics.filter(t => V.sel[t.id]), selQ = sel.reduce((a, t) => a + t.q.length, 0);
+  let h = `<section class="shero up" style="--h:${h0}"><div class="top"><button class="x" data-a="nav" data-v="home" aria-label="Orqaga">${ic('chevL')}</button><span class="chip static" style="background:rgba(255,255,255,.2);color:#fff">${s.topics.length} mavzu</span></div>
+  <div class="row2"><div><h1>${esc(s.name)}</h1><p>${ids.length} savol · ${S.h.filter(x => x.t === 's:' + s.id || s.topics.some(t => t.id === x.t)).length} urinish</p></div>${ring(m, 70, 8, m + '%')}</div></section>${noteHtml()}`;
+  if (p && !p.past) h += `<div class="card up" style="--i:1;--h:${h0}"><div class="hd" style="display:flex;justify-content:space-between;align-items:center"><b>${ic('calendar')} Imtihon: ${fmtDate(p.d)}</b><span class="chip static">${p.left} kun</span></div><div class="bar ok" style="margin:10px 0"><i style="width:${pct(p.seen, p.total)}%"></i></div><p class="mu s" style="margin:0 0 10px">Ko‘rilgan ${p.seen}/${p.total}${p.rem ? ' · kuniga ' + p.quota + ' ta yangi savol' : ' · hammasi ko‘rilgan, takrorlash vaqti'}</p><button class="btn s" data-a="plan" data-id="${esc(s.id)}" ${p.quota ? '' : 'disabled'}>${ic('play')} Bugungi ${p.quota} ta savol</button></div>`;
+  h += `<div class="opts up" style="--i:2">${nChips()}${modeSeg()}</div>
+  <button class="big up" style="--i:3;background:linear-gradient(135deg,hsl(${h0} 80% 56%),hsl(${(h0 + 40) % 360} 80% 46%));box-shadow:0 8px 20px -6px hsl(${h0} 80% 45% / .6)" data-a="start" data-kind="s" data-id="${esc(s.id)}" data-label="${esc(s.name)}">${ic('dice')} Butun fandan umumiy test · ${subjCount(s)}</button>
+  <div class="sec up" style="--i:4"><h2>Mavzular</h2><button class="chip" data-a="selAll">${sel.length === s.topics.length ? 'Belgini olish' : 'Hammasini tanlash'}</button></div>
+  <p class="mu s up" style="margin:-2px 2px 4px;--i:4">Mavzuga bosib shundan boshlaysan. Katakchalar bilan bir nechtasini birlashtirasan.</p>`;
+  s.topics.forEach((t, i) => {
     const b = best(t.id), l = last(t.id);
-    h += `<div class="row"><input type="checkbox" data-c="sel" data-id="${esc(t.id)}" ${V.sel[t.id] ? 'checked' : ''} aria-label="${esc(t.name)} tanlash"><button class="t" style="background:none;border:0;text-align:left;padding:0" data-a="start" data-kind="t" data-id="${esc(t.id)}" data-label="${esc(t.name)}"><b>${esc(t.name)}</b><br><small>${t.q.length} savol${t.src ? ' · ' + esc(t.src) : ''}${b !== null ? ' · eng yaxshi ' + b + '%' : ''}${l !== null ? ' · oxirgi ' + l + '%' : ''}</small></button><span>▶</span></div>`;
+    h += `<div class="row up" style="--i:${5 + i};--h:${h0}"><input type="checkbox" data-c="sel" data-id="${esc(t.id)}" ${V.sel[t.id] ? 'checked' : ''} aria-label="${esc(t.name)} tanlash"><button class="tmain" data-a="start" data-kind="t" data-id="${esc(t.id)}" data-label="${esc(t.name)}"><span class="t"><b>${esc(t.name)}</b><small>${t.q.length} savol${b !== null ? ' · eng yaxshi ' + b + '%' : ''}${l !== null ? ' · oxirgi ' + l + '%' : ''}</small></span></button><span class="go">${ic('play')}</span></div>`;
   });
-  h += `<div class="sticky"><button class="big" data-a="startSel" ${sel.length ? '' : 'disabled'}>${sel.length ? `▶ Tanlanganlardan test (${sel.length} mavzu · ${selQ} savol)` : 'Katakchalar bilan mavzu tanlang'}</button></div>`;
+  if (sel.length) h += `<div class="sticky"><button class="big" data-a="startSel">${ic('layers')} Tanlanganlardan test · ${sel.length} mavzu · ${selQ} savol</button></div>`;
   return h;
 }
 
 function optionsHtml(id, x) {
   const i = Q.i, q = x.q, ord = Q.ord[i], a = Q.ans[id], ex = Q.mo === 'm';
   return ord.map((oi, k) => {
-    let cls = 'opt';
-    if (a !== undefined) { if (ex) { if (oi === q.a) cls += ' ok'; else if (oi === a) cls += ' bad'; } else if (oi === a) cls += ' sel'; }
-    return `<button class="${cls}" data-a="ans" data-k="${k}" ${ex && a !== undefined ? 'disabled' : ''}><span class="l">${LET[k]}</span><span>${esc(q.o[oi])}</span></button>`;
+    let cls = 'opt', mk = '';
+    if (a !== undefined) { if (ex) { if (oi === q.a) { cls += ' ok'; mk = ic('ok'); } else if (oi === a) { cls += ' bad'; mk = ic('no'); } } else if (oi === a) cls += ' sel'; }
+    return `<button class="${cls}" data-a="ans" data-k="${k}" ${ex && a !== undefined ? 'disabled' : ''}><span class="l">${LET[k]}</span><span class="tx">${esc(q.o[oi])}</span><span class="mk">${mk}</span></button>`;
   }).join('');
 }
 function quizView() {
   if (!Q) return '';
   const i = Q.i, id = Q.ids[i], x = TBX[id], q = x.q, open = Q.mo === 'o', a = Q.ans[id], ex = Q.mo === 'm', fl = !!S.f[id], lastQ = i >= Q.ids.length - 1;
   const answered = a !== undefined;
-  const head = `<div class="top"><small>${esc(Q.label)} · <b>${i + 1} / ${Q.ids.length}</b>${open ? ' · 🧠' : ''}</small>${Q.dl ? `<span class="tmr" id="tmr">${mmss((Q.dl - Date.now()) / 1000)}</span>` : ''}<button class="x" data-a="quit" aria-label="To‘xtatish">✕</button></div><div class="bar"><i style="width:${pct(i + 1, Q.ids.length)}%"></i></div>`;
+  const top = `<div class="qtop"><button class="x" data-a="quit" aria-label="To‘xtatish">${ic('x')}</button><div class="mid"><div class="cnt"><span>${esc(Q.label)}</span><span><b>${i + 1} / ${Q.ids.length}</b></span></div><div class="bar"><i style="width:${pct(i + (answered ? 1 : 0), Q.ids.length)}%"></i></div></div>${Q.dl ? `<span class="tmr">${ic('timer')}<span id="tmr">${mmss((Q.dl - Date.now()) / 1000)}</span></span>` : ''}</div>`;
+  const tags = `<div class="tags"><span class="tag">${esc(x.t.name)}</span>${open ? '<span class="tag">Ochiq rejim</span>' : ''}${Q.combo >= 2 && ex ? `<span class="tag fire">${ic('flame', 13)} ${Q.combo} ketma-ket</span>` : ''}</div>`;
+  const src = q.r ? `<span class="src">${ic('book', 14)} ${esc(x.t.name)}, ${esc(q.r)}</span>` : '';
   let body;
   if (!open) {
     body = optionsHtml(id, x);
-    if (ex && answered) body += `<div class="fb ${a === q.a ? '' : 'bad'}" role="status"><b>${a === q.a ? '✅ To‘g‘ri' : '❌ Noto‘g‘ri'}</b>${a === q.a ? '' : `<br>To‘g‘ri javob: <b>${esc(q.o[q.a])}</b>`}${q.e ? `<p>${esc(q.e)}</p>` : ''}${q.r ? `<p class="mu s">Manba: ${esc(x.t.name)}, ${esc(q.r)}</p>` : ''}</div>`;
+    if (ex && answered) body += `<div class="fb ${a === q.a ? '' : 'bad'}" role="status"><div class="fh">${ic(a === q.a ? 'ok' : 'no', 22)} ${a === q.a ? 'To‘g‘ri!' : 'Noto‘g‘ri'}</div>${a === q.a ? '' : `<p>To‘g‘ri javob: <b>${esc(q.o[q.a])}</b></p>`}${q.e ? `<p>${esc(q.e)}</p>` : ''}${src}</div>`;
   } else if (!Q.rv[id]) {
-    body = `<p class="mu">Avval javobni o‘zing o‘ylab ko‘r yoki ovoz chiqarib ayt, keyin tekshir.</p><button class="big" data-a="rev">👁 Javobni ko‘rish</button>`;
+    body = `<div class="fb neutral"><div class="fh">${ic('bulb', 22)} O‘ylab ko‘r</div><p>Avval javobni ichingda yoki ovoz chiqarib ayt, keyin tekshir.</p></div><button class="big" data-a="rev" style="margin-top:6px">${ic('eye')} Javobni ko‘rish</button>`;
   } else {
     const sf = Q.sf[id];
-    body = `<div class="fb"><b>To‘g‘ri javob:</b> ${esc(q.o[q.a])}${q.e ? `<p>${esc(q.e)}</p>` : ''}${q.r ? `<p class="mu s">Manba: ${esc(x.t.name)}, ${esc(q.r)}</p>` : ''}</div><p class="mu s" style="margin:10px 0 4px">Qanchalik bilding?</p><div class="in">${[['y', '✅ Bildim'], ['p', '🟡 Qisman'], ['n', '❌ Bilmadim']].map(([k, n]) => `<button class="${sf === k ? 'big' : 'btn'}" data-a="rate" data-r="${k}" aria-pressed="${sf === k}">${n}</button>`).join('')}</div>`;
+    body = `<div class="fb"><div class="fh">${ic('ok', 22)} To‘g‘ri javob</div><p><b>${esc(q.o[q.a])}</b></p>${q.e ? `<p>${esc(q.e)}</p>` : ''}${src}</div><p class="mu s" style="margin:14px 2px 8px;font-weight:600">Qanchalik bilding?</p><div class="rate">${[['y', 'ok', 'Bildim'], ['p', 'half', 'Qisman'], ['n', 'no', 'Bilmadim']].map(([k, i, n]) => `<button class="${k} ${sf === k ? 'on' : ''}" data-a="rate" data-r="${k}" aria-pressed="${sf === k}">${ic(i)}${n}</button>`).join('')}</div>`;
   }
   const need = (ex && !answered) || (open && !Q.sf[id]);
-  const nav = `<div class="in"><button class="btn s fix" data-a="go" data-d="-1" ${i ? '' : 'disabled'} aria-label="Oldingi">‹</button><button class="btn s fix" data-a="flag" data-id="${esc(id)}" aria-pressed="${fl}">${fl ? '🚩 Belgilangan' : '🏳️ Shubhali'}</button>${lastQ ? `<button class="big" data-a="finish" ${need ? 'disabled' : ''}>🏁 Yakunlash</button>` : `<button class="big" data-a="go" data-d="1" ${need ? 'disabled' : ''}>Keyingisi ›</button>`}</div>`;
-  const grid = Q.mo === 'e' ? `<div class="chips" style="margin-top:14px">${Q.ids.map((d, j) => `<button class="chip ${j === i ? 'on' : ''}" style="min-width:40px" data-a="jump" data-i="${j}">${Q.ans[d] !== undefined ? '✓' : j + 1}</button>`).join('')}</div><button class="btn s" style="width:100%;margin-top:6px" data-a="finish">🏁 Testni yakunlash</button>` : '';
-  return head + `<p class="q">${esc(q.q)}</p>` + body + nav + grid;
+  const bar = `<div class="qbar"><div class="in"><button class="ib" data-a="go" data-d="-1" ${i ? '' : 'disabled'} aria-label="Oldingi">${ic('chevL')}</button><button class="ib ${fl ? 'on' : ''}" data-a="flag" data-id="${esc(id)}" aria-pressed="${fl}" aria-label="Shubhali deb belgilash">${ic('flag')}</button>${lastQ ? `<button class="big" data-a="finish" ${need ? 'disabled' : ''}>${ic('check')} Yakunlash</button>` : `<button class="big" data-a="go" data-d="1" ${need ? 'disabled' : ''}>Keyingisi ${ic('chevR')}</button>`}</div></div>`;
+  const grid = Q.mo === 'e' ? `<div class="grid-q">${Q.ids.map((d, j) => `<button class="dot ${j === i ? 'cur' : Q.ans[d] !== undefined ? 'done' : ''}" data-a="jump" data-i="${j}" aria-label="${j + 1}-savol">${Q.ans[d] !== undefined && j !== i ? ic('check', 16) : j + 1}</button>`).join('')}</div><button class="btn s" data-a="finish">${ic('check')} Testni yakunlash</button>` : '';
+  return top + `<div class="qwrap ${V.anim ? 'in' : ''}">${tags}<div class="qcard"><p class="q">${esc(q.q)}</p></div>${body}${grid}</div>` + bar;
 }
 
 function resView() {
   if (!R) return '';
-  const r = R.rec, p = pct(r.ok, r.n), g = p >= 86 ? 'A’lo' : p >= 71 ? 'Yaxshi' : p >= 56 ? 'Qoniqarli' : 'Past';
-  let h = `<div class="card score"><b class="n">${p}%</b><b>${r.ok} / ${r.n}</b> to‘g‘ri · ${g} · ${mmss(r.sec)}${R.un ? ` · javobsiz: ${R.un}` : ''}</div>
-  <div class="in"><button class="big" data-a="again">🔁 Qayta</button>${R.wrong.length ? `<button class="btn" data-a="start" data-kind="m" data-label="Xatolar banki">❗ Xatolarni mashq qil</button>` : ''}<button class="btn" data-a="nav" data-v="${V.sid ? 'subj' : 'home'}">Orqaga</button></div>`;
-  if (!R.wrong.length) return h + '<p style="text-align:center">🎉 Hammasi to‘g‘ri!</p>';
-  h += `<h2 style="margin:16px 0 4px">Xato javoblar (${R.wrong.length})</h2>`;
+  const r = R.rec, p = pct(r.ok, r.n), msg = p >= 90 ? 'Ajoyib natija!' : p >= 75 ? 'Juda yaxshi!' : p >= 55 ? 'Yomon emas' : 'Mashqni davom ettir';
+  const sub = p >= 90 ? 'Bu mavzu mustahkam.' : p >= 75 ? 'Xatolarni takrorlasang, a’lo bo‘ladi.' : p >= 55 ? 'Xatolar ustida ishlab, qayta urinib ko‘r.' : 'Xatolar bankidan mashq qilsang, tez o‘sasan.';
+  let h = `<div class="card res up"><div class="hd"><span class="chip static">${esc(keyName(r.t))}</span></div>${ring(p, 150, 14, `<span class="n" id="cnt" data-to="${p}">${R.shown ? p : 0}%</span>`, `--clr:${scoreClr(p)}`)}<h2>${msg}</h2><p class="mu" style="margin:0">${sub}</p>
+  <div class="stat3"><div class="g"><b>${r.ok}</b><small>To‘g‘ri</small></div><div class="r"><b>${r.n - r.ok}</b><small>Xato${R.un ? ' · ' + R.un + ' javobsiz' : ''}</small></div><div><b>${mmss(r.sec)}</b><small>Vaqt</small></div></div></div>
+  <div class="in up" style="--i:1"><button class="big" data-a="again">${ic('refresh')} Qayta yechish</button>${R.wrong.length ? `<button class="btn" data-a="start" data-kind="m" data-label="Xatolar banki">${ic('alert')} Xatolarni mashq qil</button>` : ''}</div>
+  <button class="btn s up" style="--i:2" data-a="nav" data-v="${V.sid ? 'subj' : 'home'}">Orqaga</button>`;
+  if (!R.wrong.length) return h + '<p class="up" style="--i:3;text-align:center;font-weight:700;margin-top:18px">Hammasi to‘g‘ri!</p>';
+  h += `<div class="sec up" style="--i:3"><h2>Xato javoblar</h2><span class="chip static">${R.wrong.length} ta</span></div>`;
   R.wrong.forEach(id => {
     const x = TBX[id]; if (!x) return; const q = x.q, a = R.ans[id];
     h += `<details class="rev"><summary>${esc(q.q)}</summary><p><b>To‘g‘ri:</b> ${esc(q.o[q.a])}</p>${a === undefined ? '<p class="mu">Javob berilmagan</p>' : a < 0 ? '<p class="mu">Ochiq rejimda “bilmadim/qisman” deb baholading</p>' : `<p class="mu"><b>Sen:</b> ${esc(q.o[a])}</p>`}${q.e ? `<p>${esc(q.e)}</p>` : ''}<small>${esc(x.t.name)}${q.r ? ', ' + esc(q.r) : ''}</small></details>`;
@@ -300,56 +367,80 @@ function resView() {
 
 function statView() {
   const h = S.h;
-  if (!h.length) return `<h1>📊 Statistika</h1><p class="mu">Hali test yechilmagan.</p>`;
+  if (!h.length) return `<header class="hdr up"><h1>Statistika</h1></header><div class="card empty up"><p style="font-size:44px;margin:0">📊</p><h2>Hali test yechilmagan</h2><p class="mu">Birinchi testni yechgach, bu yerda natijalaring va zaif mavzularing ko‘rinadi.</p></div>`;
   const by = {}; h.forEach(x => (by[x.t] = by[x.t] || []).push(x));
   const rows = Object.entries(by).map(([k, L]) => ({ k, n: L.length, avg: Math.round(L.reduce((a, x) => a + x.ok / x.n, 0) / L.length * 100) })).sort((a, b) => a.avg - b.avg);
-  const tot = h.reduce((a, x) => a + x.n, 0), ok = h.reduce((a, x) => a + x.ok, 0);
-  const days = {}; h.forEach(x => { days[x.d] = 1; });
-  return `<h1>📊 Statistika</h1><div class="card"><div class="grid"><span>Yechilgan testlar</span><b>${h.length}</b><span>Javob berilgan savollar</span><b>${tot}</b><span>Umumiy to‘g‘ri</span><b>${pct(ok, tot)}%</b><span>Faol kunlar</span><b>${Object.keys(days).length}</b><span>Xatolar bankida</span><b>${misIds().length}</b></div></div>
-  <h2 style="margin:16px 0 4px">Zaifdan kuchliga</h2><p class="mu s" style="margin:0 0 4px">Mavzuga bossang, shuni darrov mashq qilasan.</p>
-  ${rows.map(r => `<button class="stbar" data-a="statGo" data-k="${esc(r.k)}"><span class="k">${esc(keyName(r.k))}</span><span class="b"><span class="bar ${r.avg >= 70 ? 'ok' : ''}" style="display:block"><i style="width:${r.avg}%"></i></span></span><span class="v">${r.avg}% · ${r.n}×</span></button>`).join('')}
-  <h2 style="margin:16px 0 4px">So‘nggi natijalar</h2>${h.slice(-8).reverse().map(x => `<div class="row"><span class="t"><b>${pct(x.ok, x.n)}%</b> <small>${esc(keyName(x.t))} · ${x.ok}/${x.n} · ${fmtDate(x.d)} · ${{ m: 'mashq', e: 'imtihon', o: 'ochiq' }[x.mo] || ''}</small></span></div>`).join('')}`;
+  const tot = h.reduce((a, x) => a + x.n, 0), ok = h.reduce((a, x) => a + x.ok, 0), days = new Set(h.map(x => x.d));
+  const wk = []; for (let i = 6; i >= 0; i--) { const k = addDays(today(), -i), n = h.filter(x => x.d === k).reduce((a, x) => a + x.n, 0); wk.push({ k, n, l: DAYS[new Date(k + 'T12:00:00').getDay()] }); }
+  const mx = Math.max(10, ...wk.map(w => w.n));
+  return `<header class="hdr up"><h1>Statistika</h1><div class="pill flame">${ic('flame')}<b>${streak()}</b> kun</div></header>
+  <div class="kpis"><div class="kpi up" style="--i:1">${ic('target')}<b>${pct(ok, tot)}%</b><small>Umumiy aniqlik</small></div><div class="kpi up" style="--i:2">${ic('layers')}<b>${tot}</b><small>Yechilgan savol</small></div><div class="kpi up" style="--i:3">${ic('check')}<b>${h.length}</b><small>Yechilgan test</small></div><div class="kpi up" style="--i:4">${ic('calendar')}<b>${days.size}</b><small>Faol kun</small></div></div>
+  <div class="card up" style="--i:5"><div class="hd" style="display:flex;justify-content:space-between"><h2>Oxirgi 7 kun</h2><span class="chip static">savollar</span></div><div class="week">${wk.map((w, i) => `<div class="c ${w.n ? 'has' : ''} ${i === 6 ? 'now' : ''}"><em>${w.n || ''}</em><i style="height:${Math.max(6, Math.round(w.n / mx * 84))}px"></i><small>${w.l}</small></div>`).join('')}</div></div>
+  <div class="sec up" style="--i:6"><h2>Zaifdan kuchliga</h2></div><p class="mu s" style="margin:-4px 2px 6px">Bosib, shu bo‘limni darrov mashq qil.</p>
+  ${rows.map(r => `<button class="stbar" data-a="statGo" data-k="${esc(r.k)}">${ring(r.avg, 48, 6, r.avg + '%', `--clr:${scoreClr(r.avg)}`)}<span class="k">${esc(keyName(r.k))}<small>${r.n} marta yechilgan</small></span>${ic('chevR')}</button>`).join('')}
+  <div class="sec"><h2>So‘nggi natijalar</h2></div>${h.slice(-8).reverse().map(x => `<div class="row"><span class="t"><b>${pct(x.ok, x.n)}% · ${esc(keyName(x.t))}</b><small>${x.ok}/${x.n} · ${fmtDate(x.d)} · ${{ m: 'mashq', e: 'imtihon', o: 'ochiq' }[x.mo] || ''}</small></span></div>`).join('')}`;
 }
 
 function flagView() {
   const L = flagIds();
-  return `<div class="top"><button class="x" data-a="nav" data-v="home" aria-label="Orqaga">‹</button><h1 style="margin:0;flex:1;text-align:center;font-size:19px">🚩 Belgilanganlar</h1><span style="width:44px"></span></div>
-  <p class="mu s">Shubhali deb belgilagan savollaringni kitob yoki o‘qituvchi bilan tekshir.</p>${L.length ? `<button class="big" data-a="start" data-kind="f" data-label="Belgilanganlar">▶ Yechish (${L.length})</button>` : '<p class="mu">Belgilangan savol yo‘q.</p>'}
-  ${L.map(id => { const x = TBX[id]; return `<details class="rev"><summary>${esc(x.q.q)}</summary><p><b>Javob:</b> ${esc(x.q.o[x.q.a])}</p>${x.q.e ? `<p>${esc(x.q.e)}</p>` : ''}<small>${esc(x.t.name)}${x.q.r ? ', ' + esc(x.q.r) : ''}</small><div style="margin-top:8px"><button class="btn s" data-a="flag" data-id="${esc(id)}">Belgini olib tashlash</button></div></details>`; }).join('')}`;
+  return `<header class="hdr up"><div style="display:flex;gap:12px;align-items:center"><button class="x" data-a="nav" data-v="home" aria-label="Orqaga">${ic('chevL')}</button><h1 style="font-size:26px">Belgilanganlar</h1></div></header>
+  <p class="mu s">Shubhali deb belgilagan savollaringni kitob yoki o‘qituvchi bilan tekshir.</p>${L.length ? `<button class="big" data-a="start" data-kind="f" data-label="Belgilanganlar">${ic('play')} Yechish · ${L.length}</button>` : '<div class="card empty"><p class="mu">Belgilangan savol yo‘q.</p></div>'}
+  ${L.map(id => { const x = TBX[id]; return `<details class="rev"><summary>${esc(x.q.q)}</summary><p><b>Javob:</b> ${esc(x.q.o[x.q.a])}</p>${x.q.e ? `<p>${esc(x.q.e)}</p>` : ''}<small>${esc(x.t.name)}${x.q.r ? ', ' + esc(x.q.r) : ''}</small><div style="margin-top:10px"><button class="btn s" data-a="flag" data-id="${esc(id)}">Belgini olib tashlash</button></div></details>`; }).join('')}`;
 }
 
 const segHtml = (key, cur, opts) => `<div class="seg" role="group">${opts.map(([v, n]) => `<button class="${String(cur) === String(v) ? 'on' : ''}" data-a="set" data-key="${key}" data-val="${v}" aria-pressed="${String(cur) === String(v)}">${n}</button>`).join('')}</div>`;
 function setView() {
-  const nq = qCount();
-  let h = `<h1>⚙️ Sozlamalar</h1>${noteHtml()}${saveFailed ? '<div class="note">⚠️ Natijalarni saqlab bo‘lmadi (brauzer xotirasi to‘la yoki yopiq). Zaxira oling.</div>' : ''}
-  <div class="card"><h2>Savol banki</h2>`;
-  if (TB) {
-    h += `<p class="mu s">${TB.subjects.length} fan · ${topicsAll().length} mavzu · ${nq} savol</p>` + TB.subjects.map(s => `<div class="row"><span class="t"><b>${esc(s.name)}</b><br><small>${s.topics.length} mavzu · ${subjCount(s)} savol</small></span><button class="btn s danger" style="min-height:40px" data-a="delSubj" data-id="${esc(s.id)}" aria-label="${esc(s.name)} fanini o‘chirish">🗑</button></div>`).join('');
-  } else h += '<p class="mu s">Bank yo‘q.</p>';
-  h += `<div class="in"><button class="btn" data-a="pickBank">📥 Fayl qo‘shish</button><button class="btn" data-a="sample">📚 Namuna</button></div><p class="mu s">Bir nechta fayl tanlash mumkin. Fan va mavzu <code>id</code>si bir xil bo‘lsa, mavzu yangilanadi, qolganlari saqlanadi.</p></div>
-  <div class="card"><h2>Variantlar tartibi</h2>${segHtml('sh', S.set.sh, [[1, 'Aralashtirilsin'], [0, 'Faylda berilgandek']])}
-  <h2 style="margin-top:12px">Imtihon rejimida bitta savolga vaqt</h2>${segHtml('sec', S.set.sec, [[30, '30 s'], [45, '45 s'], [60, '60 s'], [90, '90 s']])}</div>`;
-  if (TB) h += `<div class="card"><h2>📅 Imtihon sanalari</h2><p class="mu s">Sana qo‘ysang, ilova ko‘rilmagan savollarni kunlarga bo‘lib “kuniga N ta” reja chiqaradi.</p>${TB.subjects.map(s => `<div class="row"><span class="t"><b>${esc(s.name)}</b></span><input type="date" value="${esc(S.ex[s.id] || '')}" data-c="exam" data-id="${esc(s.id)}" aria-label="${esc(s.name)} imtihon sanasi"></div>`).join('')}</div>`;
-  h += `<div class="card"><h2>Zaxira</h2><p class="mu s">Natijalar, xatolar va savol banki bitta faylda. Telefonni almashtirsang shu fayl bilan tiklaysan.</p><div class="in"><button class="btn" data-a="export">💾 Zaxira olish</button><button class="btn" data-a="pickBack">♻️ Tiklash</button></div></div>
-  <div class="card"><h2>Tozalash</h2><div class="in"><button class="btn danger" data-a="clrHist">Natijalar tarixini o‘chirish</button><button class="btn danger" data-a="reset">Hammasini o‘chirish</button></div></div>`;
+  let h = `<header class="hdr up"><h1>Sozlamalar</h1></header>${noteHtml()}${saveFailed ? `<div class="note">${ic('alert')}<span>Natijalarni saqlab bo‘lmadi (brauzer xotirasi to‘la yoki yopiq). Zaxira oling.</span></div>` : ''}
+  <div class="card up" style="--i:1"><h2>${ic('layers')}Savol banki</h2>`;
+  if (TB) h += `<p class="mu s">${TB.subjects.length} fan · ${topicsAll().length} mavzu · ${qCount()} savol</p><div class="grp">` + TB.subjects.map(s => `<div class="row" style="--h:${hueOf(s.id)}">${avatar(s)}<span class="t"><b>${esc(s.name)}</b><small>${s.topics.length} mavzu · ${subjCount(s)} savol</small></span><button class="x" style="color:var(--bad)" data-a="delSubj" data-id="${esc(s.id)}" aria-label="${esc(s.name)} fanini o‘chirish">${ic('trash')}</button></div>`).join('') + '</div>';
+  else h += '<p class="mu s">Bank hali yo‘q.</p>';
+  h += `<div class="in"><button class="btn" data-a="pickBank">${ic('upload')} Fayl qo‘shish</button><button class="btn" data-a="sample">${ic('sparkle')} Namuna</button></div><p class="mu s">Bir nechta fayl tanlash mumkin. Fan va mavzu <code>id</code>si bir xil bo‘lsa, mavzu yangilanadi, qolganlari saqlanadi.</p></div>
+  <div class="card up" style="--i:2"><h2>${ic('target')}Kunlik maqsad</h2><p class="mu s">Kuniga nechta savol yechmoqchisan?</p>${segHtml('goal', S.set.goal, [[10, '10'], [20, '20'], [40, '40'], [60, '60'], [100, '100']])}</div>
+  <div class="card up" style="--i:3"><h2>${ic('sliders')}Test</h2><p class="mu s" style="margin-bottom:0">Variantlar tartibi</p>${segHtml('sh', S.set.sh, [[1, 'Aralashtirilsin'], [0, 'Faylda berilgandek']])}<p class="mu s" style="margin-bottom:0">Imtihonda bitta savolga vaqt</p>${segHtml('sec', S.set.sec, [[30, '30 s'], [45, '45 s'], [60, '60 s'], [90, '90 s']])}</div>
+  <div class="card up" style="--i:4"><h2>${ic('moon')}Ko‘rinish</h2>${segHtml('theme', S.set.theme, [['auto', 'Avto'], ['light', 'Yorug‘'], ['dark', 'Qorong‘i']])}</div>`;
+  if (TB) h += `<div class="card up" style="--i:5"><h2>${ic('calendar')}Imtihon sanalari</h2><p class="mu s">Sana qo‘ysang, ilova ko‘rilmagan savollarni kunlarga bo‘lib “kuniga N ta” reja chiqaradi.</p><div class="grp">${TB.subjects.map(s => `<div class="row"><span class="t"><b>${esc(s.name)}</b></span><input type="date" value="${esc(S.ex[s.id] || '')}" data-c="exam" data-id="${esc(s.id)}" aria-label="${esc(s.name)} imtihon sanasi"></div>`).join('')}</div></div>`;
+  h += `<div class="card up" style="--i:6"><h2>${ic('download')}Zaxira</h2><p class="mu s">Natijalar, xatolar va savol banki bitta faylda. Telefonni almashtirsang, shu fayl bilan tiklaysan.</p><div class="in"><button class="btn" data-a="export">${ic('download')} Zaxira olish</button><button class="btn" data-a="pickBack">${ic('upload')} Tiklash</button></div></div>
+  <div class="card up" style="--i:7"><h2>${ic('trash')}Tozalash</h2><div class="in"><button class="btn danger" data-a="clrHist">Natijalar tarixi</button><button class="btn danger" data-a="reset">Hammasini o‘chirish</button></div></div>`;
   return h;
 }
-const qCount = () => Object.keys(TBX).length;
 
 function view() {
   switch (V.v) { case 'quiz': return quizView(); case 'res': return resView(); case 'subj': return subjView(); case 'stat': return statView(); case 'set': return setView(); case 'flag': return flagView(); default: return homeView(); }
 }
 function draw(keepScroll = true) {
-  const sy = window.scrollY;
+  const sy = window.scrollY, anim = V.anim;
   document.body.classList.toggle('noav', V.v === 'quiz');
-  $('#app').innerHTML = view();
+  const app = $('#app'); app.classList.toggle('anim', anim);
+  app.innerHTML = view();
   const tab = V.v === 'stat' ? 'stat' : V.v === 'set' ? 'set' : 'home';
-  $('#nav').innerHTML = [['home', '📚', 'Fanlar'], ['stat', '📊', 'Statistika'], ['set', '⚙️', 'Sozlamalar']].map(([v, i, n]) => `<button data-a="nav" data-v="${v}" class="${tab === v ? 'on' : ''}" ${tab === v ? 'aria-current="page"' : ''}><span>${i}</span>${n}</button>`).join('');
+  $('#nav').innerHTML = [['home', 'book', 'Fanlar'], ['stat', 'chart', 'Statistika'], ['set', 'sliders', 'Sozlamalar']].map(([v, i, n]) => `<button data-a="nav" data-v="${v}" class="${tab === v ? 'on' : ''}" ${tab === v ? 'aria-current="page"' : ''}>${ic(i)}${n}</button>`).join('');
+  V.anim = false;
   if (keepScroll) window.scrollTo(0, sy);
+  if (V.v === 'res' && V.fresh) { V.fresh = false; celebrate(); }
+}
+function celebrate() {
+  if (!R) return; const p = pct(R.rec.ok, R.rec.n), e = $('#cnt');
+  if (!e) return;
+  if (reduced()) { e.textContent = p + '%'; R.shown = true; return; }
+  const t0 = performance.now(), D = 900;
+  (function step(t) { const k = Math.min(1, (t - t0) / D), v = Math.round(p * (1 - Math.pow(1 - k, 3))); const el = $('#cnt'); if (el) el.textContent = v + '%'; if (k < 1) requestAnimationFrame(step); else if (R) R.shown = true; })(t0);
+  if (p >= 80) { setTimeout(confetti, 350); buzz([20, 40, 20]); }
+}
+function confetti() {
+  if (reduced()) return;
+  const c = document.createElement('canvas'); c.className = 'confetti'; document.body.appendChild(c);
+  const dpr = Math.min(2, devicePixelRatio || 1), W = c.width = innerWidth * dpr, H = c.height = innerHeight * dpr, x = c.getContext('2d');
+  const cols = ['#5b6cff', '#8a4dff', '#12b76a', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'];
+  const ps = Array.from({ length: 110 }, () => ({ x: W / 2 + (Math.random() - .5) * W * .3, y: H * .35, vx: (Math.random() - .5) * 14 * dpr, vy: (-Math.random() * 15 - 5) * dpr, s: (5 + Math.random() * 6) * dpr, r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: cols[Math.floor(Math.random() * cols.length)] }));
+  const t0 = performance.now();
+  (function f(t) {
+    const el = t - t0; x.clearRect(0, 0, W, H);
+    ps.forEach(p => { p.vy += .45 * dpr; p.x += p.vx; p.y += p.vy; p.r += p.vr; x.save(); x.globalAlpha = Math.max(0, 1 - el / 2600); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c; x.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .6); x.restore(); });
+    if (el < 2600) requestAnimationFrame(f); else c.remove();
+  })(t0);
 }
 
 // ───────────── import / eksport ─────────────
-const readFile = f => f.text();
 async function importTexts(files) {
   const out = []; let cur = TB, added = 0, ok = 0, bad = 0;
   for (const f of files) {
@@ -360,20 +451,20 @@ async function importTexts(files) {
     const m = mergeBank(cur, d), c2 = checkBank(m);
     if (c2.err.length) { out.push(`${f.name}: ${c2.err[0]}`); bad++; continue; }
     cur = m; ok++; added += d.subjects.reduce((a, s) => a + subjCount(s), 0);
-    if (c.warn.length) out.push(`${f.name}: ⚠️ ${c.warn.length} ta ogohlantirish (${c.warn[0]})`);
+    if (c.warn.length) out.push(`${f.name}: ${c.warn.length} ta ogohlantirish (${c.warn[0]})`);
   }
   if (ok) {
-    try { await idbSet(cur); } catch (e) { setMsg('Qurilma xotirasiga yozib bo‘lmadi', false); draw(); return; }
+    try { await idbSet(cur); } catch (e) { setMsg('Qurilma xotirasiga yozib bo‘lmadi', false); V.anim = false; draw(); return; }
     indexBank(cur); try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { /* ixtiyoriy */ }
-    out.unshift(`✅ ${ok} ta fayl, ${added} ta savol yuklandi (jami ${qCount()})`);
+    out.unshift(`${ok} ta fayl, ${added} ta savol yuklandi (jami ${qCount()})`);
   }
   setMsg(out.join(' · ') || 'Fayl tanlanmadi', ok > 0 && !bad);
-  draw();
+  V.anim = true; draw();
 }
 async function pickedFiles(inp) {
   const fs = [...inp.files]; inp.value = ''; if (!fs.length) return;
   const files = [];
-  for (const f of fs) { if (f.size > 25e6) { files.push({ name: f.name, big: true }); continue; } files.push({ name: f.name, text: await readFile(f) }); }
+  for (const f of fs) { if (f.size > 25e6) { files.push({ name: f.name, big: true }); continue; } files.push({ name: f.name, text: await f.text() }); }
   importTexts(files);
 }
 async function loadSample() {
@@ -384,43 +475,45 @@ function download(name, text) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
 }
-const exportBackup = () => { download('testlar-zaxira-' + today() + '.json', JSON.stringify({ app: 'testlar-app', v: 1, state: S, bank: TB })); setMsg('Zaxira fayli yuklab olindi', true); draw(); };
+const exportBackup = () => { download('testlar-zaxira-' + today() + '.json', JSON.stringify({ app: 'testlar-app', v: 1, state: S, bank: TB })); setMsg('Zaxira fayli yuklab olindi', true); V.anim = false; draw(); };
 async function restoreBackup(inp) {
   const f = inp.files[0]; inp.value = ''; if (!f) return;
   try {
-    const o = JSON.parse(await readFile(f));
+    const o = JSON.parse(await f.text());
     if (!o || o.app !== 'testlar-app' || !o.state) throw new Error('Bu zaxira fayli emas');
     if (o.bank) { const c = checkBank(o.bank); if (c.err.length) throw new Error('Zaxiradagi bank buzilgan: ' + c.err[0]); }
-    if (!confirm('Hozirgi natijalar va bank zaxiradagi bilan almashtiriladi. Davom etasanmi?')) return;
-    S = normState(o.state); save();
+    if (!(await ask('Zaxiradan tiklaymizmi?', 'Hozirgi natijalar va bank zaxiradagi bilan almashtiriladi.', 'Tiklash', true))) return;
+    S = normState(o.state); save(); applyTheme();
     if (o.bank) { await idbSet(o.bank); indexBank(o.bank); } else { await idbDel(); indexBank(null); }
-    setMsg('✅ Zaxira tiklandi', true);
+    setMsg('Zaxira tiklandi', true);
   } catch (e) { setMsg('Tiklab bo‘lmadi: ' + (e && e.message || e), false); }
-  draw();
+  V.anim = true; draw();
 }
 async function deleteSubject(id) {
-  const s = findSubj(id); if (!s || !confirm(`“${s.name}” fani va undagi ${subjCount(s)} ta savol qurilmadan o‘chirilsinmi? (Natijalar tarixi qoladi.)`)) return;
+  const s = findSubj(id); if (!s || !(await ask(`“${s.name}” o‘chirilsinmi?`, `Fan va undagi ${subjCount(s)} ta savol qurilmadan o‘chadi. Natijalar tarixi qoladi.`, 'O‘chirish', true))) return;
   const nb = JSON.parse(JSON.stringify(TB)); nb.subjects = nb.subjects.filter(x => x.id !== id);
   try { nb.subjects.length ? await idbSet(nb) : await idbDel(); } catch (e) { setMsg('O‘chirib bo‘lmadi', false); draw(); return; }
-  indexBank(nb.subjects.length ? nb : null); delete S.ex[id]; save(); if (V.sid === id) V.sid = ''; setMsg('Fan o‘chirildi', true); draw();
+  indexBank(nb.subjects.length ? nb : null); delete S.ex[id]; save(); if (V.sid === id) V.sid = ''; setMsg('Fan o‘chirildi', true); V.anim = false; draw();
 }
 
 // ───────────── hodisalar ─────────────
-function act(a, d) {
+async function act(a, d) {
   switch (a) {
-    case 'nav': V.v = d.v; if (d.v === 'home') V.sid = ''; if (d.v !== 'set') setMsg(null); draw(false); window.scrollTo(0, 0); break;
-    case 'subj': V.sid = d.id; V.v = 'subj'; V.sel = {}; setMsg(null); draw(false); window.scrollTo(0, 0); break;
+    case 'sheetOk': closeSheet(true); break;
+    case 'sheetNo': closeSheet(false); break;
+    case 'nav': V.v = d.v; if (d.v === 'home') V.sid = ''; if (d.v !== 'set') setMsg(null); V.anim = true; draw(false); window.scrollTo(0, 0); break;
+    case 'subj': V.sid = d.id; V.v = 'subj'; V.sel = {}; setMsg(null); V.anim = true; draw(false); window.scrollTo(0, 0); break;
     case 'setN': V.n = +d.n; draw(); break;
     case 'setMo': V.mo = d.mo; draw(); break;
-    case 'set': S.set[d.key] = +d.val; save(); draw(); break;
+    case 'set': S.set[d.key] = d.key === 'theme' ? d.val : +d.val; save(); if (d.key === 'theme') applyTheme(); draw(); break;
     case 'start': begin(cfgOf(d.kind, d.id, d.label)); break;
     case 'startSel': { const ids = Object.keys(V.sel).filter(i => V.sel[i] && findTopic(i)); begin(cfgOf('c', '', 'Tanlangan mavzular', ids)); break; }
     case 'selAll': { const s = findSubj(V.sid), all = s.topics.every(t => V.sel[t.id]); V.sel = {}; if (!all) s.topics.forEach(t => { V.sel[t.id] = 1; }); draw(); break; }
-    case 'plan': { const p = plan(d.id), s = findSubj(d.id); if (!p || p.past || !p.quota) { toast('Bugun reja yo‘q'); break; } begin({ kind: 'u', id: d.id, label: '📅 ' + s.name, n: p.quota, mo: V.mo === 'e' ? 'e' : V.mo }); break; }
+    case 'plan': { const p = plan(d.id), s = findSubj(d.id); if (!p || p.past || !p.quota) { toast('Bugun reja yo‘q'); break; } begin({ kind: 'u', id: d.id, label: s.name + ' · reja', n: p.quota, mo: V.mo }); break; }
     case 'ans': answer(+d.k); break;
     case 'go': go(+d.d); break;
-    case 'jump': if (Q) { Q.i = +d.i; draw(); window.scrollTo(0, 0); } break;
-    case 'rev': if (Q) { Q.rv[Q.ids[Q.i]] = 1; draw(false); } break;
+    case 'jump': if (Q) { Q.i = +d.i; V.anim = true; draw(); window.scrollTo(0, 0); } break;
+    case 'rev': if (Q) { Q.rv[Q.ids[Q.i]] = 1; V.anim = false; draw(false); } break;
     case 'rate': rate(d.r); break;
     case 'flag': flag(d.id); break;
     case 'finish': finish(); break;
@@ -432,8 +525,8 @@ function act(a, d) {
     case 'sample': loadSample(); break;
     case 'export': exportBackup(); break;
     case 'delSubj': deleteSubject(d.id); break;
-    case 'clrHist': if (confirm('Barcha natijalar tarixi o‘chirilsinmi?')) { S.h = []; save(); setMsg('Tarix tozalandi', true); draw(); } break;
-    case 'reset': if (confirm('Savol banki, natijalar va sozlamalar butunlay o‘chirilsinmi?')) { S = normState(null); save(); idbDel().finally(() => { indexBank(null); V = { v: 'home', sid: '', n: 20, mo: 'm', sel: {}, msg: null }; draw(); }); } break;
+    case 'clrHist': if (await ask('Natijalar tarixi o‘chirilsinmi?', 'Statistika tozalanadi. Xatolar banki va savollar qoladi.', 'O‘chirish', true)) { S.h = []; save(); setMsg('Tarix tozalandi', true); V.anim = false; draw(); } break;
+    case 'reset': if (await ask('Hammasi o‘chirilsinmi?', 'Savol banki, natijalar va sozlamalar butunlay o‘chadi. Avval zaxira olgan bo‘lsang yaxshi.', 'Hammasini o‘chirish', true)) { S = normState(null); save(); applyTheme(); try { await idbDel(); } catch (e) { /* bo‘sh */ } indexBank(null); V = { v: 'home', sid: '', n: 20, mo: 'm', sel: {}, msg: null, anim: true, fresh: false }; draw(); } break;
   }
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b && !b.disabled) act(b.dataset.a, b.dataset); });
@@ -445,18 +538,19 @@ document.addEventListener('change', e => {
   if (t.dataset.c === 'exam') { t.value ? S.ex[t.dataset.id] = t.value : delete S.ex[t.dataset.id]; save(); toast(t.value ? 'Sana saqlandi' : 'Sana o‘chirildi'); }
 });
 document.addEventListener('keydown', e => {
-  if (V.v !== 'quiz' || !Q || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'Escape' && sheetRes) { closeSheet(false); return; }
+  if (sheetRes || V.v !== 'quiz' || !Q || e.ctrlKey || e.metaKey || e.altKey) return;
   const k = e.key.toLowerCase(), i = '1234'.indexOf(k) >= 0 ? '1234'.indexOf(k) : 'abcd'.indexOf(k);
   if (i >= 0 && k.length === 1) { answer(i); return; }
-  if (k === 'arrowright') { const b = $('[data-a="go"][data-d="1"]'); if (b && !b.disabled) go(1); }
+  if (k === 'arrowright' || k === 'enter') { const b = $('.qbar [data-a="go"][data-d="1"]'); if (b && !b.disabled) go(1); }
   if (k === 'arrowleft') go(-1);
 });
 
 // ───────────── ishga tushirish ─────────────
 (async () => {
-  draw();
+  applyTheme(); draw();
   try { const d = await idbGet(); if (d && !checkBank(d).err.length) indexBank(d); } catch (e) { /* bank yo‘q */ }
-  draw();
+  V.anim = true; draw();
   if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
 })();

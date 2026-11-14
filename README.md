@@ -7,7 +7,9 @@ Har xil fanlar (univer, madrasa va h.k.) bo‘yicha 4 variantli testlar: **fan �
 - Mavzu / butun fan / **bir nechta mavzu tanlab** / hamma fanlardan umumiy test; 10-20-30-50-hammasi
 - **Xatolar banki** va takrorlash (xato → ertasi, to‘g‘ri → 3 kundan keyin; 2 marta ketma-ket to‘g‘ri bo‘lsa banklardan chiqadi)
 - 📅 **Imtihon sanasi** → “kuniga N ta yangi savol” rejasi
+- 🔥 Kunlik maqsad halqasi, ketma-ket kunlar (streak), o‘zlashtirish foizi, 7 kunlik faollik grafigi
 - 🚩 Shubhali savollarni belgilash, 📊 statistika (zaif mavzular), zaxira/tiklash
+- Yorug‘/qorong‘i/avto tema, animatsiyalar, 80%+ natijada tabrik effekti (“harakatni kamaytirish” sozlamasiga bo‘ysunadi)
 - Bank import: bir nechta `.json`, validatsiya, mavjud mavzular saqlanadi
 
 ## Ishga tushirish
