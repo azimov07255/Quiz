@@ -12,6 +12,9 @@ Har xil fanlar (univer, madrasa va h.k.) bo‘yicha 4 variantli testlar: **fan �
 - Yorug‘/qorong‘i/avto tema, animatsiyalar, 80%+ natijada tabrik effekti (“harakatni kamaytirish” sozlamasiga bo‘ysunadi)
 - Bank import: bir nechta `.json`, validatsiya, mavjud mavzular saqlanadi
 
+## Yangi versiya chiqarish
+Ilova o‘zgargach **`sw.js` dagi `VERSION` va `app.js` dagi `APP_VERSION` ni bir xil qilib oshiring** (masalan 1.5.0 → 1.5.1) — shunda foydalanuvchida “Yangi versiya tayyor · Yangilash” xabari chiqadi (`node tests/update.cjs` ikkalasi mosligini tekshiradi). Versiyani oshirmasangiz, qurilmalar eski fayllarda qoladi.
+
 ## Ishga tushirish
 Statik fayllar — istalgan server bilan:
 ```bash
@@ -39,7 +42,7 @@ PWA/offline uchun HTTPS (yoki localhost) kerak, masalan GitHub Pages/Netlify/Clo
 - Natijalar, xatolar va savol banki hisobga bog‘lanadi, boshqa qurilmada o‘zi tushadi; oflayn ham ishlaydi.
 - **Owner:** `brodyagayou1999@gmail.com` (birinchi bo‘lib kirgan). Baza: `supabase/migrations/`, server funksiyasi: `supabase/functions/admin-users/` (maxfiy kalit faqat serverda). `config.js` dagi “publishable” kalit ochiq bo‘lishi mo‘ljallangan.
 - **Supabase panelida sozlash kerak:** Authentication → *URL Configuration*: **Site URL** = ilovaning haqiqiy manzili va *Redirect URLs* ga ham shu manzilni qo‘shing (aks holda tiklash havolasi noto‘g‘ri joyga olib boradi). Ko‘p foydalanuvchi bo‘lsa — o‘z SMTP’ingizni ulang (standart pochta soatiga bir necha xat bilan cheklangan). Sotishdan oldin Pro rejaga o‘ting (bepul loyiha 1 hafta faolsiz qolsa to‘xtatiladi).
-- Sinovlar: `node tests/smoke.cjs` (mahalliy rejim), `node tests/cloud.cjs` va `node tests/catalog.cjs` (jonli baza, `tests/cloud-users.sql` kerak).
+- Sinovlar: `node tests/smoke.cjs` (mahalliy rejim), `node tests/update.cjs` (animatsiya va yangi versiya xabari), `node tests/cloud.cjs` va `node tests/catalog.cjs` (jonli baza, `tests/cloud-users.sql` kerak).
 
 ## Ma’lumot qayerda saqlanadi
 Savol banki — IndexedDB, natijalar/xatolar/sozlamalar — localStorage (faqat shu qurilmada). **⚙️ Sozlamalar → Zaxira** bilan fayl qilib saqlab, boshqa qurilmada tiklash mumkin. Safari uzoq foydalanilmagan sayt ma’lumotini o‘chirib yuborishi mumkin — shuning uchun vaqti-vaqti bilan zaxira ol.

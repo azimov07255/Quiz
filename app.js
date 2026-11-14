@@ -2,6 +2,7 @@
    Savol banki: IndexedDB. Natijalar/xatolar/sozlamalar: localStorage. Hech qanday server yoki kalit yo‘q. */
 (() => {
 'use strict';
+const APP_VERSION = '1.5.0';   // sw.js dagi VERSION bilan bir xil bo‘lsin
 
 // ───────────── yordamchilar ─────────────
 const $ = (s, r = document) => r.querySelector(s);
@@ -722,7 +723,8 @@ function setView() {
   <div class="card up" style="--i:4"><h2>${ic('moon')}Ko‘rinish</h2>${segHtml('theme', S.set.theme, [['auto', 'Avto'], ['light', 'Yorug‘'], ['dark', 'Qorong‘i']])}</div>`;
   if (TB) h += `<div class="card up" style="--i:5"><h2>${ic('calendar')}Imtihon sanalari</h2><p class="mu s">Sana qo‘ysang, ilova ko‘rilmagan savollarni kunlarga bo‘lib “kuniga N ta” reja chiqaradi.</p><div class="grp">${TB.subjects.map(s => `<div class="row"><span class="t"><b>${esc(s.name)}</b></span><input type="date" value="${esc(S.ex[s.id] || '')}" data-c="exam" data-id="${esc(s.id)}" aria-label="${esc(s.name)} imtihon sanasi"></div>`).join('')}</div></div>`;
   h += `<div class="card up" style="--i:6"><h2>${ic('download')}Zaxira</h2><p class="mu s">Natijalar, xatolar va savol banki bitta faylda. Telefonni almashtirsang, shu fayl bilan tiklaysan.</p><div class="in"><button class="btn" data-a="export">${ic('download')} Zaxira olish</button><button class="btn" data-a="pickBack">${ic('upload')} Tiklash</button></div></div>
-  <div class="card up" style="--i:7"><h2>${ic('trash')}Tozalash</h2><div class="in"><button class="btn danger" data-a="clrHist">Natijalar tarixi</button><button class="btn danger" data-a="reset">Hammasini o‘chirish</button></div></div>`;
+  <div class="card up" style="--i:7"><h2>${ic('sparkle')}Ilova</h2><p class="mu s">Versiya ${APP_VERSION}. Yangilanish chiqsa, ilova o‘zi xabar beradi.</p><button class="btn" data-a="checkUpdate">${ic('refresh')} Yangilanishni tekshirish</button></div>
+  <div class="card up" style="--i:8"><h2>${ic('trash')}Tozalash</h2><div class="in"><button class="btn danger" data-a="clrHist">Natijalar tarixi</button><button class="btn danger" data-a="reset">Hammasini o‘chirish</button></div></div>`;
   return h;
 }
 
@@ -785,6 +787,49 @@ function usersView() {
 function view() {
   switch (V.v) { case 'cat': return catView(); case 'auth': return authView(); case 'reset': return resetView(); case 'locked': return lockedView(); case 'users': return usersView(); case 'quiz': return quizView(); case 'res': return resView(); case 'subj': return subjView(); case 'stat': return statView(); case 'set': return setView(); case 'flag': return flagView(); default: return homeView(); }
 }
+// ───────────── yangi versiya va kirish animatsiyasi ─────────────
+let UPD = null, UPD_LATER = false, RELOADING = false, SWREG = null;
+function paintUpdate() {
+  const e = $('#upd'); if (!e) return;
+  if (!UPD || UPD_LATER || V.v === 'quiz') { e.classList.remove('on'); return; }
+  e.innerHTML = `<span class="ui">${ic('sparkle')}</span><span class="ut"><b>Yangi versiya tayyor</b><small>${UPD.version ? 'Versiya ' + esc(UPD.version) : 'Bir necha soniya oladi'}</small></span><button class="ub" data-a="applyUpdate">Yangilash</button><button class="ux" data-a="updLater" aria-label="Keyinroq">${ic('x')}</button>`;
+  e.classList.add('on');
+}
+function offerUpdate(reg) {
+  if (!reg.waiting) return;
+  UPD = UPD || { reg, version: '' }; UPD.reg = reg; paintUpdate();
+  try { reg.waiting.postMessage({ type: 'GET_VERSION' }); } catch (e) { /* ixtiyoriy */ }
+}
+async function setupSW() {
+  if (!('serviceWorker' in navigator) || location.protocol === 'file:') return;
+  navigator.serviceWorker.addEventListener('message', ev => { if (ev.data && ev.data.type === 'VERSION' && UPD) { UPD.version = ev.data.version; paintUpdate(); } });
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (UPD && UPD.applying && !RELOADING) { RELOADING = true; location.reload(); } });
+  try {
+    const reg = await navigator.serviceWorker.register('sw.js'); SWREG = reg;
+    if (reg.waiting && navigator.serviceWorker.controller) offerUpdate(reg);
+    reg.addEventListener('updatefound', () => { const w = reg.installing; if (w) w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) offerUpdate(reg); }); });
+    const chk = () => reg.update().catch(() => {});
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) chk(); });
+    setInterval(chk, 30 * 60 * 1000);
+  } catch (e) { /* oflayn yoki bloklangan */ }
+}
+function applyUpdate() {
+  if (!UPD) return; UPD.applying = true;
+  const w = UPD.reg && UPD.reg.waiting; if (w) w.postMessage({ type: 'SKIP_WAITING' }); else location.reload();
+  setTimeout(() => { if (!RELOADING) { RELOADING = true; location.reload(); } }, 4000);
+}
+async function checkUpdate() {
+  if (!SWREG) { toast('Yangilanishni tekshirib bo‘lmadi (oflayn rejim)'); return; }
+  toast('Tekshirilmoqda…');
+  try { await SWREG.update(); } catch (e) { toast('Internet yo‘q'); return; }
+  await new Promise(r => setTimeout(r, 1500));
+  if (SWREG.waiting) offerUpdate(SWREG); else if (SWREG.installing) toast('Yangi versiya yuklanmoqda…'); else toast('Eng so‘nggi versiya (v' + APP_VERSION + ')');
+}
+function hideSplash() {
+  const e = $('#splash'); if (!e) return;
+  const wait = Math.max(0, (reduced() ? 500 : 1900) - performance.now());
+  setTimeout(() => { document.body.classList.remove('splashing'); e.classList.add('out'); V.anim = true; draw(true); setTimeout(() => e.remove(), 700); }, wait);
+}
 function draw(keepScroll = true) {
   const sy = window.scrollY, anim = V.anim;
   document.body.classList.toggle('noav', ['quiz', 'auth', 'locked', 'reset'].includes(V.v));
@@ -795,6 +840,7 @@ function draw(keepScroll = true) {
   V.anim = false;
   if (keepScroll) window.scrollTo(0, sy);
   if (V.v === 'res' && V.fresh) { V.fresh = false; celebrate(); }
+  paintUpdate();
 }
 function celebrate() {
   if (!R) return; const p = pct(R.rec.ok, R.rec.n), e = $('#cnt');
@@ -889,6 +935,9 @@ async function act(a, d, el) {
     case 'catEdit': catEdit(d.id); break;
     case 'catDel': catDel(d.id); break;
     case 'catTopicDel': catTopicDel(d.sid, d.tid); break;
+    case 'applyUpdate': applyUpdate(); break;
+    case 'updLater': UPD_LATER = true; paintUpdate(); break;
+    case 'checkUpdate': checkUpdate(); break;
     case 'newUser': newUser(); break;
     case 'uGrant': grantUser(d.id); break;
     case 'uPw': resetUserPw(d.id); break;
@@ -967,7 +1016,7 @@ document.addEventListener('keydown', e => {
   try { const c = await idbGet('catalog'); if (c && Array.isArray(c.raw) && cloudOn()) setCatalog(c.raw); } catch (e) { /* katalog keshi yo‘q */ }
   V.anim = true; draw();
   SB.onOut(() => { A.profile = null; V.v = 'auth'; V.anim = true; draw(); });
-  if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+  setupSW(); hideSplash();
   if (cloudOn() && V.v !== 'reset') syncAll();
 })();
 })();

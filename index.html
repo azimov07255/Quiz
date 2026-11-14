@@ -15,6 +15,35 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="splash" aria-hidden="true">
+  <div class="sp-orb o1"></div><div class="sp-orb o2"></div><div class="sp-orb o3"></div>
+  <div class="sp-stage">
+    <span class="sp-chip c1">A</span><span class="sp-chip c2">B</span><span class="sp-chip c3">C</span><span class="sp-chip c4">D</span>
+    <div class="sp-logo"><svg viewBox="0 0 120 120">
+      <rect class="sp-tile" x="6" y="6" width="108" height="108" rx="30" fill="#fff"/>
+      <rect class="sp-ln" style="--i:0" x="30" y="28" width="60" height="9" rx="4.5" fill="#5b6cff"/>
+      <circle class="sp-dot" style="--i:1" cx="38" cy="56" r="7" fill="#5b6cff"/>
+      <path class="sp-chk" d="M34.4 56.3l2.9 2.9 5.1-5.8" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" pathLength="1"/>
+      <rect class="sp-ln" style="--i:1" x="52" y="53" width="38" height="6" rx="3" fill="#5b6cff"/>
+      <circle class="sp-dot" style="--i:2" cx="38" cy="76" r="6" fill="none" stroke="#8a4dff" stroke-width="2.6"/>
+      <rect class="sp-ln" style="--i:2" x="52" y="73" width="38" height="6" rx="3" fill="#c9cffd"/>
+      <circle class="sp-dot" style="--i:3" cx="38" cy="96" r="6" fill="none" stroke="#8a4dff" stroke-width="2.6"/>
+      <rect class="sp-ln" style="--i:3" x="52" y="93" width="28" height="6" rx="3" fill="#c9cffd"/>
+    </svg></div>
+  </div>
+  <h1 class="sp-title"><span style="--i:0">T</span><span style="--i:1">e</span><span style="--i:2">s</span><span style="--i:3">t</span><span style="--i:4">l</span><span style="--i:5">a</span><span style="--i:6">r</span></h1>
+  <p class="sp-sub">Bilim — har kuni</p>
+  <div class="sp-bar"><i></i></div>
+</div>
+<script>
+// Kirish animatsiyasi: har ishga tushishda bir marta (bir sessiyada qayta ko‘rsatilmaydi). Sinov rejimida (webdriver) o‘tkazib yuboriladi; ?splash=1 majburan ko‘rsatadi.
+(function () {
+  var s = document.getElementById('splash'), force = /[?&]splash=1/.test(location.search), seen = false;
+  try { seen = sessionStorage.getItem('testlar:splash') === '1'; sessionStorage.setItem('testlar:splash', '1'); } catch (e) {}
+  if (!force && (navigator.webdriver || seen)) { s.parentNode.removeChild(s); } else { document.body.className += ' splashing'; }
+})();
+</script>
+<div id="upd" role="status" aria-live="polite"></div>
 <main id="app" aria-live="polite"></main>
 <nav id="nav" aria-label="Asosiy"></nav>
 <div id="toast" role="status" aria-live="polite"></div>
