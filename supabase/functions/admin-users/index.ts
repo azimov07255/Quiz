@@ -41,7 +41,7 @@ Deno.serve(async (req: Request) => {
     const { data, error } = await admin.auth.admin.createUser({ email, password: pw, email_confirm: true, user_metadata: { name } });
     if (error || !data?.user) {
       const m = String(error?.message || '').toLowerCase();
-      return json({ error: m.includes('already') || m.includes('registered') ? 'Bu email bilan hisob bor' : 'Hisob ochilmadi: ' + (error?.message || 'noma’lum xato') }, 400);
+      return json({ error: m.includes('already') || m.includes('registered') ? 'Bu login yoki email bilan hisob bor' : 'Hisob ochilmadi: ' + (error?.message || 'noma’lum xato') }, 400);
     }
     const uid = data.user.id;
     const expires_at = lifetime ? null : new Date(Date.now() + days * 864e5).toISOString();

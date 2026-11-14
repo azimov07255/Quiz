@@ -5,7 +5,7 @@ const root = path.join(__dirname, '..');
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml' };
 const srv = http.createServer((q, r) => { let p = decodeURIComponent(q.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html'; const f = path.join(root, p); if (!fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'content-type': MIME[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(r); });
 let fails = 0; const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fails++; };
-const PW = 'Sinov-12345';
+const PW = process.env.TEST_PW; if (!PW) { console.error('TEST_PW muhit o‘zgaruvchisi kerak (sinov hisoblari paroli)'); process.exit(1); };
 const book = (tid, name, n) => ({ id: tid, name, src: name, q: Array.from({ length: n }, (_, i) => ({ id: `${tid}.${i + 1}`, q: `${name}: ${i + 1}-savol?`, o: ['A javob', 'B javob', 'C javob', 'D javob'], a: i % 4, e: 'Izoh', r: `${i + 1}-bet` })) });
 const file = (subs) => ({ name: 'bank.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ v: 1, subjects: subs })) });
 (async () => {
