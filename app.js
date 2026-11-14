@@ -145,6 +145,7 @@ const markDirty = ids => { const d = new Set(lsGet(KD, [])); ids.forEach(i => d.
 const markDeleted = id => { const x = new Set(lsGet(KX, [])); x.add(id); lsSet(KX, [...x]); lsSet(KD, lsGet(KD, []).filter(i => i !== id)); };
 
 function uzErr(e) {
+  if (e && e.uz) return e.message;
   if (e && e.net) return 'Internetga ulanib bo‘lmadi. Ulanishni tekshirib, qayta urin.';
   const m = String(e && e.message || e).toLowerCase(), c = (e && e.code) || '';
   if (c === 'invalid_credentials' || m.includes('invalid login')) return 'Email yoki parol noto‘g‘ri.';
@@ -153,6 +154,7 @@ function uzErr(e) {
   if (c === 'email_not_confirmed') return 'Email tasdiqlanmagan. Pochtangdagi xatni tekshir.';
   if (c === 'over_request_rate_limit' || c === 'over_email_send_rate_limit' || (e && e.status === 429)) return 'Juda ko‘p urinish. Birozdan keyin qayta urin.';
   if (c === 'email_address_invalid' || c === 'validation_failed' || (m.includes('invalid') && m.includes('email'))) return 'Email manzili noto‘g‘ri.';
+  if (c === 'same_password') return 'Yangi parol eskisidan farq qilsin.';
   if (c === 'signup_disabled') return 'Ro‘yxatdan o‘tish hozir o‘chirilgan.';
   return 'Xatolik: ' + String(e && e.message || e).slice(0, 140);
 }
@@ -212,7 +214,7 @@ async function syncBanks() {
 let curSync = null, again = false, syncTimer = 0;
 function scheduleSync() { if (!cloudOn() || !A.profile || !isActive(A.profile)) return; clearTimeout(syncTimer); syncTimer = setTimeout(() => { syncAll(); }, 2500); }
 function syncAll() {
-  if (!cloudOn()) return Promise.resolve();
+  if (!cloudOn() || V.v === 'reset') return Promise.resolve();
   if (curSync) { again = true; return curSync; }
   curSync = (async () => {
     if (!online()) { A.sync = 'offline'; refreshAcct(); return; }
@@ -265,6 +267,66 @@ async function doAuth(form) {
     A.busy = false; A.form = { name: '', email: '' }; await afterLogin();
   } catch (e) { A.busy = false; A.err = uzErr(e); draw(false); }
 }
+async function doForgot(form) {
+  const email = String(new FormData(form).get('email') || '').trim();
+  A.form = { name: '', email }; A.err = ''; A.info = '';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { A.err = 'To‘g‘ri email manzilini kiriting.'; draw(false); return; }
+  A.busy = true; draw(false);
+  try { await SB.recover(email, location.origin + location.pathname); A.info = 'Agar bu email ro‘yxatda bo‘lsa, tiklash havolasi yuborildi. Pochtani (Spam papkasini ham) tekshir.'; }
+  catch (e) { A.err = uzErr(e); }
+  A.busy = false; draw(false);
+}
+async function doReset(form) {
+  const fd = new FormData(form), pw = String(fd.get('pw') || ''), pw2 = String(fd.get('pw2') || ''); A.err = '';
+  if (pw.length < 6) { A.err = 'Parol kamida 6 ta belgidan iborat bo‘lsin.'; draw(false); return; }
+  if (pw !== pw2) { A.err = 'Parollar bir xil emas.'; draw(false); return; }
+  A.busy = true; draw(false);
+  try { await SB.changePassword(pw); await SB.loadUser(); SB.clearRecovery(); A.busy = false; setMsg('Parol yangilandi', true); await afterLogin(); }
+  catch (e) { A.busy = false; A.err = uzErr(e); draw(false); }
+}
+// ── owner: formalar, hisob ochish, obuna, parol ──
+const PLANS = [['30', '30 kun'], ['90', '3 oy'], ['180', '6 oy'], ['365', '1 yil'], ['life', 'Umrbod']];
+const genPw = () => { const al = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789', a = new Uint32Array(9); crypto.getRandomValues(a); return [...a].map(x => al[x % al.length]).join(''); };
+const money = n => String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const intOf = v => parseInt(String(v || '').replace(/\D/g, ''), 10) || 0;
+const planText = v => (PLANS.find(p => p[0] === v) || ['', ''])[1];
+const fld = (name, label, o = {}) => `<label class="fld"><span class="lb">${esc(label)}</span>${o.gen ? `<span class="pw"><input name="${name}" type="text" value="${esc(o.value || '')}" autocomplete="off" autocapitalize="none" spellcheck="false"><button type="button" class="eye" data-a="gen" aria-label="Yangi parol yaratish">${ic('dice')}</button></span>` : `<input name="${name}" type="${o.type || 'text'}" value="${esc(o.value || '')}" placeholder="${esc(o.ph || '')}" ${o.mode ? `inputmode="${o.mode}"` : ''} autocomplete="off" autocapitalize="none" spellcheck="false">`}</label>`;
+const planChips = sel => `<span class="lb" style="display:block;font-size:13px;font-weight:700;color:var(--mu);margin:12px 0 6px 2px">Obuna muddati</span><div class="chips"><input type="hidden" name="plan" value="${sel}">${PLANS.map(([v, n]) => `<button type="button" class="chip ${v === sel ? 'on' : ''}" data-a="sfChip" data-val="${v}">${n}</button>`).join('')}</div>`;
+const formSheet = (title, inner, okLabel) => openSheet(`<h3>${esc(title)}</h3><form id="sf" novalidate>${inner}<p id="sferr" class="mu s" role="alert" style="color:var(--bad);min-height:18px;margin:8px 2px 0"></p><div class="in"><button type="button" class="btn" data-a="sheetNo">Bekor qilish</button><button type="submit" class="big">${esc(okLabel)}</button></div></form>`);
+function sfValidate(form) {
+  const v = Object.fromEntries(new FormData(form));
+  if ('email' in v && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(v.email).trim())) return 'To‘g‘ri email manzilini kiriting.';
+  if ('password' in v && (String(v.password).length < 6 || String(v.password).length > 72)) return 'Parol 6 dan 72 gacha belgi bo‘lsin.';
+  return '';
+}
+function showCreds(email, pw, plan) {
+  const text = `Testlar ilovasi\nLogin: ${email}\nParol: ${pw}${plan ? '\nObuna: ' + plan : ''}\nHavola: ${location.origin}${location.pathname}`;
+  return openSheet(`<h3>Hisob tayyor</h3><p class="mu s">Shu ma’lumotni mijozga yubor. Parol keyin ko‘rinmaydi.</p><pre class="cred" id="credtxt">${esc(text)}</pre><div class="in"><button class="btn" data-a="copyCred">${ic('link')} Nusxalash</button><button class="big" data-a="sheetOk">Yopish</button></div>`);
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true; } catch (e) { /* zaxira usul */ }
+  try { const r = document.createRange(); r.selectNodeContents($('#credtxt')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); return document.execCommand('copy'); } catch (e) { return false; }
+}
+async function newUser() {
+  const v = await formSheet('Yangi foydalanuvchi', fld('name', 'Ism', { ph: 'Ism familiya' }) + fld('email', 'Email (login)', { type: 'email', mode: 'email', ph: 'email@manzil.uz' }) + fld('password', 'Parol', { gen: true, value: genPw() }) + planChips('30') + fld('amount', 'To‘lov summasi (so‘m), ixtiyoriy', { mode: 'numeric', ph: '0' }), 'Hisob ochish');
+  if (!v) return; const life = v.plan === 'life';
+  try {
+    await SB.fn('admin-users', { action: 'create', email: String(v.email).trim(), password: v.password, name: String(v.name || '').trim(), days: life ? 0 : +v.plan, lifetime: life, amount: intOf(v.amount) });
+    await loadUsers(); await showCreds(String(v.email).trim().toLowerCase(), v.password, planText(v.plan));
+  } catch (e) { toast(uzErr(e)); }
+}
+async function grantUser(id) {
+  const u = (A.users || []).find(x => x.user_id === id); if (!u) return;
+  const v = await formSheet('Obuna: ' + (u.name || u.email), `<p class="mu s" style="margin:4px 2px">Hozir: ${esc(userStatus(u))}</p>` + planChips('30') + fld('amount', 'To‘lov summasi (so‘m), ixtiyoriy', { mode: 'numeric', ph: '0' }), 'Obuna berish');
+  if (!v) return; const life = v.plan === 'life';
+  try { await SB.rpc('owner_grant', { p_user: id, p_days: life ? 0 : +v.plan, p_lifetime: life, p_amount: intOf(v.amount) }); toast('Obuna berildi'); await loadUsers(); } catch (e) { toast(uzErr(e)); }
+}
+async function resetUserPw(id) {
+  const u = (A.users || []).find(x => x.user_id === id); if (!u) return;
+  const v = await formSheet('Yangi parol: ' + (u.name || u.email), fld('password', 'Yangi parol', { gen: true, value: genPw() }), 'Parolni o‘rnatish');
+  if (!v) return;
+  try { await SB.fn('admin-users', { action: 'set_password', user_id: id, password: v.password }); await showCreds(u.email, v.password, ''); } catch (e) { toast(uzErr(e)); }
+}
 async function logout() {
   if (!(await ask('Chiqamizmi?', 'Ma’lumotlaring bulutda saqlanadi. Shu qurilmadagi nusxa o‘chiriladi.', 'Chiqish', true))) return;
   if (isActive(A.profile)) {   // faol bo‘lmagan (bloklangan) hisobda sinxronlanadigan narsa yo‘q
@@ -280,7 +342,10 @@ async function changePw(form) {
 }
 async function loadUsers() {
   A.usersErr = '';
-  try { A.users = await SB.rest('profiles?select=*&order=created_at.desc'); } catch (e) { A.usersErr = uzErr(e); A.users = A.users || []; }
+  try {
+    const [u, p] = await Promise.all([SB.rest('profiles?select=*&order=created_at.desc'), SB.rest('payments?select=amount,days,lifetime,created_at&order=created_at.desc&limit=2000')]);
+    A.users = u; A.pays = p;
+  } catch (e) { A.usersErr = uzErr(e); A.users = A.users || []; A.pays = A.pays || []; }
   if (V.v === 'users') { V.anim = false; draw(); }
 }
 async function ownerSet(id, patch) {
@@ -293,7 +358,7 @@ async function ownerDelete(id) {
   if (!(await ask(`“${u.name || u.email}” o‘chirilsinmi?`, 'Hisob va uning bulutdagi barcha ma’lumoti butunlay o‘chadi.', 'O‘chirish', true))) return;
   try { await SB.rpc('owner_delete_user', { p_user: id }); toast('O‘chirildi'); await loadUsers(); } catch (e) { toast(uzErr(e)); }
 }
-const userStatus = u => u.role === 'owner' ? 'Owner' : u.blocked ? 'Bloklangan' : u.lifetime ? 'Umrbod' : u.expires_at ? (new Date(u.expires_at) > new Date() ? 'Muddat: ' + fmtDate(keyOf(new Date(u.expires_at))) : 'Muddati tugagan') : 'Cheksiz';
+const userStatus = u => u.role === 'owner' ? 'Owner' : u.blocked ? 'Bloklangan' : u.pending ? 'Faollashtirilmagan' : u.lifetime ? 'Umrbod' : u.expires_at ? (new Date(u.expires_at) > new Date() ? 'Muddat: ' + fmtDate(keyOf(new Date(u.expires_at))) : 'Muddati tugagan') : 'Cheksiz';
 
 // ───────────── ko‘rinish holati ─────────────
 let V = { v: 'home', sid: '', n: 20, mo: 'm', sel: {}, msg: null, anim: true, fresh: false };
@@ -305,13 +370,16 @@ function toast(t) {
 }
 // tasdiqlash oynasi (alert/confirm o‘rniga)
 let sheetRes = null;
-function ask(title, body, okLabel, danger) {
+function openSheet(inner) {
   return new Promise(res => {
     if (sheetRes) sheetRes(false);
     sheetRes = res; const e = $('#sheet');
-    e.innerHTML = `<div class="sh-bg" data-a="sheetNo"></div><div class="sh-card" role="alertdialog" aria-modal="true" aria-label="${esc(title)}"><h3>${esc(title)}</h3><p>${esc(body)}</p><div class="in"><button class="btn" data-a="sheetNo">Bekor qilish</button><button class="big ${danger ? 'danger' : ''}" data-a="sheetOk">${esc(okLabel || 'Ha')}</button></div></div>`;
-    e.classList.add('on'); setTimeout(() => { const b = $('#sheet .big'); b && b.focus({ preventScroll: true }); }, 50);
+    e.innerHTML = `<div class="sh-bg" data-a="sheetNo"></div><div class="sh-card" role="dialog" aria-modal="true">${inner}</div>`;
+    e.classList.add('on'); setTimeout(() => { const b = $('#sheet input:not([type=hidden])') || $('#sheet .big'); b && b.focus({ preventScroll: true }); }, 60);
   });
+}
+function ask(title, body, okLabel, danger) {
+  return openSheet(`<h3>${esc(title)}</h3><p>${esc(body)}</p><div class="in"><button class="btn" data-a="sheetNo">Bekor qilish</button><button class="big ${danger ? 'danger' : ''}" data-a="sheetOk">${esc(okLabel || 'Ha')}</button></div>`);
 }
 function closeSheet(v) { $('#sheet').classList.remove('on'); const r = sheetRes; sheetRes = null; if (r) r(v); }
 
@@ -570,19 +638,29 @@ function setView() {
 
 const LOGO = '<svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5b6cff"/><stop offset="1" stop-color="#8a4dff"/></linearGradient></defs><rect width="120" height="120" rx="30" fill="url(#lg)"/><rect x="30" y="22" width="60" height="76" rx="10" fill="#fff"/><rect x="40" y="34" width="40" height="6" rx="3" fill="#5b6cff"/><circle cx="45" cy="55" r="4" fill="#5b6cff"/><rect x="54" y="53" width="26" height="4" rx="2" fill="#5b6cff"/><circle cx="45" cy="70" r="3.5" fill="none" stroke="#8a4dff" stroke-width="2"/><rect x="54" y="68" width="26" height="4" rx="2" fill="#c9cffd"/><circle cx="45" cy="85" r="3.5" fill="none" stroke="#8a4dff" stroke-width="2"/><rect x="54" y="83" width="20" height="4" rx="2" fill="#c9cffd"/></svg>';
 function authView() {
-  const up = A.mode === 'up', f = A.form;
-  return `<div class="authw up"><div class="alogo">${LOGO}</div><h1>Testlar</h1><p class="mu" style="margin:6px 0 18px">${up ? 'Yangi hisob och. Natijalaring bulutda saqlanadi.' : 'Hisobingga kir.'}</p>
-  <div class="seg" role="group"><button class="${up ? '' : 'on'}" data-a="authMode" data-m="in">Kirish</button><button class="${up ? 'on' : ''}" data-a="authMode" data-m="up">Ro‘yxatdan o‘tish</button></div>
-  <form id="af" class="card" novalidate>
+  const m = A.mode, fg = m === 'forgot', up = m === 'up' && SB.allowSignup, f = A.form;
+  const title = fg ? 'Parolni tiklash' : 'Testlar', sub = fg ? 'Emailingni yoz, tiklash havolasini yuboramiz.' : up ? 'Yangi hisob och.' : 'Hisobingga kir.';
+  return `<div class="authw up"><div class="alogo">${LOGO}</div><h1>${title}</h1><p class="mu" style="margin:6px 0 18px">${sub}</p>
+  ${SB.allowSignup && !fg ? `<div class="seg" role="group"><button class="${up ? '' : 'on'}" data-a="authMode" data-m="in">Kirish</button><button class="${up ? 'on' : ''}" data-a="authMode" data-m="up">Ro‘yxatdan o‘tish</button></div>` : ''}
+  <form id="${fg ? 'ff' : 'af'}" class="card" novalidate>
    ${up ? `<label class="fld"><span class="lb">Ism</span><input name="name" autocomplete="name" value="${esc(f.name)}" placeholder="Ismingiz"></label>` : ''}
    <label class="fld"><span class="lb">Email</span><input name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" value="${esc(f.email)}" placeholder="email@manzil.uz"></label>
-   <label class="fld"><span class="lb">Parol</span><span class="pw"><input name="password" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" placeholder="${up ? 'Kamida 6 ta belgi' : 'Parol'}"><button type="button" class="eye" data-a="eye" aria-label="Parolni ko‘rsatish/yashirish">${ic('eye')}</button></span></label>
+   ${fg ? '' : `<label class="fld"><span class="lb">Parol</span><span class="pw"><input name="password" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" placeholder="${up ? 'Kamida 6 ta belgi' : 'Parol'}"><button type="button" class="eye" data-a="eye" aria-label="Parolni ko‘rsatish/yashirish">${ic('eye')}</button></span></label>`}
    ${A.err ? `<div class="note" role="alert">${ic('alert')}<span>${esc(A.err)}</span></div>` : ''}${A.info ? `<div class="note okn" role="status">${ic('ok')}<span>${esc(A.info)}</span></div>` : ''}
-   <button class="big" type="submit" ${A.busy ? 'disabled' : ''}>${A.busy ? 'Kutilmoqda…' : up ? 'Hisob ochish' : 'Kirish'}</button>
-  </form><p class="mu s" style="text-align:center">Hisob ma’lumotlaring shifrlangan holda bulutda saqlanadi. Boshqa telefonda ham shu login bilan kirasan.</p></div>`;
+   <button class="big" type="submit" ${A.busy ? 'disabled' : ''}>${A.busy ? 'Kutilmoqda…' : fg ? 'Havola yuborish' : up ? 'Hisob ochish' : 'Kirish'}</button>
+   ${fg ? `<button type="button" class="lnk" data-a="authMode" data-m="in">‹ Kirishga qaytish</button>` : m === 'in' ? `<button type="button" class="lnk" data-a="authMode" data-m="forgot">Parolni unutdingmi?</button>` : ''}
+  </form><p class="mu s" style="text-align:center">${fg ? 'Xat kelmasa (Spam papkasini ham tekshir), ilova egasidan yangi parol so‘ra.' : SB.allowSignup ? 'Boshqa telefonda ham shu login bilan kirasan.' : 'Hisobni ilova egasi ochib beradi. Hisobing yo‘qmi? Egasiga yoz.'}</p></div>`;
+}
+function resetView() {
+  return `<div class="authw up"><div class="alogo">${LOGO}</div><h1>Yangi parol</h1><p class="mu" style="margin:6px 0 18px">Yangi parolni kiriting va saqlang.</p>
+  <form id="rf" class="card" novalidate>
+   <label class="fld"><span class="lb">Yangi parol</span><span class="pw"><input name="pw" type="password" autocomplete="new-password" placeholder="Kamida 6 ta belgi"><button type="button" class="eye" data-a="eye" aria-label="Ko‘rsatish/yashirish">${ic('eye')}</button></span></label>
+   <label class="fld"><span class="lb">Parolni takrorlang</span><input name="pw2" type="password" autocomplete="new-password" placeholder="Yana bir marta"></label>
+   ${A.err ? `<div class="note" role="alert">${ic('alert')}<span>${esc(A.err)}</span></div>` : ''}
+   <button class="big" type="submit" ${A.busy ? 'disabled' : ''}>${A.busy ? 'Kutilmoqda…' : 'Parolni saqlash'}</button></form></div>`;
 }
 function lockedView() {
-  const p = A.profile || {}, why = p.blocked ? 'Hisobing egasi tomonidan bloklangan.' : 'Obuna muddatingiz tugagan' + (p.expires_at ? ' (' + fmtDate(keyOf(new Date(p.expires_at))) + ')' : '') + '.';
+  const p = A.profile || {}, why = p.blocked ? 'Hisobing egasi tomonidan bloklangan.' : p.pending ? 'Hisobing hali faollashtirilmagan.' : 'Obuna muddatingiz tugagan' + (p.expires_at ? ' (' + fmtDate(keyOf(new Date(p.expires_at))) + ')' : '') + '.';
   return `<div class="authw up"><div class="alogo" style="filter:grayscale(.8)">${LOGO}</div><h1>Hisob faol emas</h1><p class="mu" style="margin:6px 0 18px">${esc(why)}<br>Ilova egasi bilan bog‘lan.</p>
   <button class="big" data-a="syncNow">${ic('refresh')} Qayta tekshirish</button><button class="btn" style="margin-top:10px" data-a="logout">${ic('x')} Chiqish</button></div>`;
 }
@@ -600,21 +678,26 @@ function usersView() {
   let h = `<header class="hdr up"><div style="display:flex;gap:12px;align-items:center"><button class="x" data-a="nav" data-v="set" aria-label="Orqaga">${ic('chevL')}</button><h1 style="font-size:26px">Foydalanuvchilar</h1></div></header>`;
   if (A.usersErr) h += `<div class="note">${ic('alert')}<span>${esc(A.usersErr)}</span></div>`;
   if (!A.users) return h + '<p class="mu">Yuklanmoqda…</p>';
-  h += `<p class="mu s">Jami: ${A.users.length}. Yangi foydalanuvchilar ilovaning o‘zidan ro‘yxatdan o‘tadi; bu yerda ularni bloklaysan yoki muddat berasan.</p>`;
+  const P = A.pays || [], ms = new Date(); ms.setDate(1); ms.setHours(0, 0, 0, 0);
+  const tot = P.reduce((a, x) => a + (+x.amount || 0), 0), mon = P.filter(x => new Date(x.created_at) >= ms).reduce((a, x) => a + (+x.amount || 0), 0);
+  const act = A.users.filter(u => u.role !== 'owner' && isActive(u) && !u.pending).length, pend = A.users.filter(u => u.pending).length;
+  h += `<button class="big up" data-a="newUser">${ic('upload')} Yangi foydalanuvchi qo‘shish</button>
+  <div class="kpis"><div class="kpi up" style="--i:1"><b>${money(mon)}</b><small>Shu oy daromad (so‘m)</small></div><div class="kpi up" style="--i:2"><b>${money(tot)}</b><small>Jami daromad (so‘m)</small></div><div class="kpi up" style="--i:3"><b>${act}</b><small>Faol obunachilar</small></div><div class="kpi up" style="--i:4"><b>${P.length}</b><small>To‘lovlar soni</small></div></div>`;
+  if (pend) h += `<div class="note">${ic('alert')}<span>${pend} ta hisob faollashtirilmagan (o‘zi ro‘yxatdan o‘tgan). “Obuna” bersang ochiladi, keraksiz bo‘lsa o‘chir.</span></div>`;
   A.users.forEach((u, i) => {
     const st = userStatus(u), hue = [...String(u.user_id)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
-    h += `<div class="card up" style="--i:${i}"><div style="display:flex;align-items:center;gap:12px"><span class="av" style="--h:${hue}">${initials(u.name || u.email)}</span><div style="min-width:0;flex:1"><b style="display:block;overflow-wrap:anywhere">${esc(u.name || '—')}</b><small style="overflow-wrap:anywhere">${esc(u.email)}</small></div><span class="chip static">${esc(st)}</span></div>
-    ${u.role === 'owner' ? '' : `<div class="in"><button class="btn s" data-a="uBlock" data-id="${esc(u.user_id)}">${u.blocked ? 'Ochish' : 'Bloklash'}</button><button class="btn s" data-a="uPlus" data-id="${esc(u.user_id)}">+30 kun</button><button class="btn s" data-a="uLife" data-id="${esc(u.user_id)}">${u.lifetime ? 'Umrbodni olish' : 'Umrbod'}</button><button class="btn s danger fix" data-a="uDel" data-id="${esc(u.user_id)}" aria-label="O‘chirish">${ic('trash')}</button></div>`}</div>`;
+    h += `<div class="card up" style="--i:${i}"><div style="display:flex;align-items:center;gap:12px"><span class="av" style="--h:${hue}">${initials(u.name || u.email)}</span><div style="min-width:0;flex:1"><b style="display:block;overflow-wrap:anywhere">${esc(u.name || '—')}</b><small style="display:block;overflow-wrap:anywhere">${esc(u.email)}</small><span class="chip static" style="margin-top:6px">${esc(st)}</span></div></div>
+    ${u.role === 'owner' ? '' : `<div class="in"><button class="btn s" data-a="uGrant" data-id="${esc(u.user_id)}">Obuna</button><button class="btn s" data-a="uPw" data-id="${esc(u.user_id)}">Parol</button><button class="btn s" data-a="uBlock" data-id="${esc(u.user_id)}">${u.blocked ? 'Ochish' : 'Bloklash'}</button><button class="btn s danger fix" data-a="uDel" data-id="${esc(u.user_id)}" aria-label="O‘chirish">${ic('trash')}</button></div>`}</div>`;
   });
   return h;
 }
 
 function view() {
-  switch (V.v) { case 'auth': return authView(); case 'locked': return lockedView(); case 'users': return usersView(); case 'quiz': return quizView(); case 'res': return resView(); case 'subj': return subjView(); case 'stat': return statView(); case 'set': return setView(); case 'flag': return flagView(); default: return homeView(); }
+  switch (V.v) { case 'auth': return authView(); case 'reset': return resetView(); case 'locked': return lockedView(); case 'users': return usersView(); case 'quiz': return quizView(); case 'res': return resView(); case 'subj': return subjView(); case 'stat': return statView(); case 'set': return setView(); case 'flag': return flagView(); default: return homeView(); }
 }
 function draw(keepScroll = true) {
   const sy = window.scrollY, anim = V.anim;
-  document.body.classList.toggle('noav', ['quiz', 'auth', 'locked'].includes(V.v));
+  document.body.classList.toggle('noav', ['quiz', 'auth', 'locked', 'reset'].includes(V.v));
   const app = $('#app'); app.classList.toggle('anim', anim);
   app.innerHTML = view();
   const tab = V.v === 'stat' ? 'stat' : V.v === 'set' ? 'set' : 'home';
@@ -704,15 +787,19 @@ async function deleteSubject(id) {
 // ───────────── hodisalar ─────────────
 async function act(a, d, el) {
   switch (a) {
-    case 'authMode': { const f = $('#af'); if (f) { const fd = new FormData(f); A.form = { name: String(fd.get('name') || ''), email: String(fd.get('email') || '') }; } A.mode = d.m; A.err = ''; A.info = ''; draw(false); break; }
+    case 'authMode': { const f = $('#af') || $('#ff'); if (f) { const fd = new FormData(f); A.form = { name: String(fd.get('name') || ''), email: String(fd.get('email') || '') }; } A.mode = d.m; A.err = ''; A.info = ''; draw(false); break; }
     case 'eye': { const i = el.closest('.pw').querySelector('input'); i.type = i.type === 'password' ? 'text' : 'password'; break; }
     case 'syncNow': if (!online()) { toast('Internet yo‘q'); break; } toast('Sinxronlanmoqda…'); await syncAll(); toast(A.sync === 'ok' ? 'Sinxronlandi' : 'Sinxronlanmadi'); break;
     case 'pw': A.pwOpen = !A.pwOpen; V.anim = false; draw(); break;
     case 'logout': logout(); break;
     case 'users': V.v = 'users'; V.anim = true; draw(false); window.scrollTo(0, 0); loadUsers(); break;
     case 'uBlock': { const u = (A.users || []).find(x => x.user_id === d.id); if (u) ownerSet(d.id, { blocked: !u.blocked }); break; }
-    case 'uPlus': { const u = (A.users || []).find(x => x.user_id === d.id); if (!u) break; const b = u.expires_at && new Date(u.expires_at) > new Date() ? new Date(u.expires_at) : new Date(); b.setDate(b.getDate() + 30); ownerSet(d.id, { expires_at: b.toISOString(), lifetime: false }); break; }
-    case 'uLife': { const u = (A.users || []).find(x => x.user_id === d.id); if (u) ownerSet(d.id, { lifetime: !u.lifetime }); break; }
+    case 'newUser': newUser(); break;
+    case 'uGrant': grantUser(d.id); break;
+    case 'uPw': resetUserPw(d.id); break;
+    case 'gen': { const inp = el.closest('.pw').querySelector('input'); inp.value = genPw(); break; }
+    case 'sfChip': { const wrap = el.parentElement; wrap.querySelector('input[name=plan]').value = d.val; wrap.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === el)); break; }
+    case 'copyCred': toast((await copyText($('#credtxt').textContent)) ? 'Nusxalandi' : 'Nusxalab bo‘lmadi, qo‘lda belgilab ol'); break;
     case 'uDel': ownerDelete(d.id); break;
     case 'sheetOk': closeSheet(true); break;
     case 'sheetNo': closeSheet(false); break;
@@ -748,7 +835,11 @@ async function act(a, d, el) {
   }
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b && !b.disabled) act(b.dataset.a, b.dataset, b); });
-document.addEventListener('submit', e => { e.preventDefault(); if (e.target.id === 'af') doAuth(e.target); else if (e.target.id === 'pf') changePw(e.target); });
+document.addEventListener('submit', e => {
+  e.preventDefault(); const id = e.target.id;
+  if (id === 'af') doAuth(e.target); else if (id === 'ff') doForgot(e.target); else if (id === 'rf') doReset(e.target); else if (id === 'pf') changePw(e.target);
+  else if (id === 'sf') { const er = sfValidate(e.target); if (er) { $('#sferr').textContent = er; return; } closeSheet(Object.fromEntries(new FormData(e.target))); }
+});
 window.addEventListener('online', () => { syncAll(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden && cloudOn() && Date.now() - A.last > 60000) syncAll(); });
 document.addEventListener('change', e => {
@@ -770,13 +861,16 @@ document.addEventListener('keydown', e => {
 // ───────────── ishga tushirish ─────────────
 (async () => {
   applyTheme();
-  if (SB.configured && !SB.session()) V.v = 'auth';
+  const rec = SB.recovery();
+  if (rec && rec.ok) V.v = 'reset';
+  else if (rec && rec.error) { A.err = 'Havola eskirgan yoki yaroqsiz. Tiklashni qaytadan so‘ra.'; A.mode = 'forgot'; V.v = 'auth'; }
+  else if (SB.configured && !SB.session()) V.v = 'auth';
   else if (SB.configured && A.profile && !isActive(A.profile)) V.v = 'locked';
   draw();
   try { const d = await idbGet(); if (d && !checkBank(d).err.length) indexBank(d); } catch (e) { /* bank yo‘q */ }
   V.anim = true; draw();
   SB.onOut(() => { A.profile = null; V.v = 'auth'; V.anim = true; draw(); });
   if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
-  if (cloudOn()) syncAll();
+  if (cloudOn() && V.v !== 'reset') syncAll();
 })();
 })();

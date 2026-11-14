@@ -283,3 +283,8 @@ body.noav #nav{display:none}
 .authw .big{margin-top:6px}
 .acct .in{margin-bottom:0}
 .acct form{margin-top:10px}
+
+.lnk{display:block;width:100%;margin-top:6px;background:none;color:var(--ac);font-weight:700;padding:10px 4px;min-height:44px;text-align:center}
+.cred{background:var(--card2);border-radius:14px;padding:14px;white-space:pre-wrap;word-break:break-all;font:14px/1.7 ui-monospace,Menlo,Consolas,monospace;margin:10px 0;text-align:left;user-select:all}
+.sh-card{max-height:calc(100dvh - 24px);overflow:auto;text-align:left}
+.sh-card .fld{margin:10px 0}

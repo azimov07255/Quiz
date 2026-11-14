@@ -8,7 +8,20 @@ const configured = !!(C.url && C.key);
 let sess = null, refreshing = null;
 try { sess = JSON.parse(localStorage.getItem(SK)); } catch (e) { sess = null; }
 const outCbs = [];
+let recovery = null;
 const store = s => { sess = s; try { s ? localStorage.setItem(SK, JSON.stringify(s)) : localStorage.removeItem(SK); } catch (e) { /* xotira yopiq */ } };
+
+// Parolni tiklash havolasidan kelgan bo‘lsa (…#access_token=…&type=recovery), sessiyani qabul qilamiz.
+(() => {
+  const h = location.hash || ''; if (!/[#&](access_token|error)=/.test(h)) return;
+  const q = new URLSearchParams(h.replace(/^#/, ''));
+  if (q.get('error')) recovery = { error: q.get('error_description') || q.get('error') };
+  else if (q.get('type') === 'recovery' && q.get('access_token')) {
+    store({ access_token: q.get('access_token'), refresh_token: q.get('refresh_token') || '', expires_at: +q.get('expires_at') || Math.floor(Date.now() / 1000) + (+q.get('expires_in') || 3600), user: { id: '', email: '' } });
+    recovery = { ok: true };
+  } else return;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ixtiyoriy */ }
+})();
 
 async function call(path, o = {}) {
   let r;
@@ -48,8 +61,18 @@ async function api(path, o = {}) {
 }
 const rest = (path, o) => api('/rest/v1/' + path, o);
 const rpc = (fn, args) => api('/rest/v1/rpc/' + fn, { method: 'POST', body: args || {} });
+async function recover(email, redirectTo) { await call('/auth/v1/recover?redirect_to=' + encodeURIComponent(redirectTo), { method: 'POST', body: { email } }); }
+async function loadUser() { const j = await api('/auth/v1/user'); sess.user = { id: j.id, email: j.email }; store(sess); return sess; }
+async function fn(name, body) {
+  const tk = await token(); let r;
+  try { r = await fetch(C.url + '/functions/v1/' + name, { method: 'POST', headers: { apikey: C.key, 'content-type': 'application/json', authorization: 'Bearer ' + tk }, body: JSON.stringify(body) }); }
+  catch (e) { const er = new Error('network'); er.net = true; throw er; }
+  const j = await r.json().catch(() => null);
+  if (!r.ok) { const er = new Error((j && (j.error || j.message)) || ('HTTP ' + r.status)); er.uz = true; er.status = r.status; throw er; }
+  return j;
+}
 async function changePassword(pw) { await api('/auth/v1/user', { method: 'PUT', body: { password: pw } }); }
 async function signOut() { const t = sess && sess.access_token; store(null); if (t) { try { await call('/auth/v1/logout', { method: 'POST', token: t }); } catch (e) { /* offline bo‘lsa ham mahalliy chiqiladi */ } } }
 
-window.SB = { configured, session: () => sess, signIn, signUp, signOut, rest, rpc, changePassword, refresh, onOut: f => outCbs.push(f) };
+window.SB = { configured, allowSignup: !!C.allowSignup, session: () => sess, signIn, signUp, signOut, rest, rpc, fn, recover, loadUser, changePassword, refresh, recovery: () => recovery, clearRecovery: () => { recovery = null; }, onOut: f => outCbs.push(f) };
 })();

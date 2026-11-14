@@ -26,16 +26,18 @@ PWA/offline uchun HTTPS (yoki localhost) kerak, masalan GitHub Pages/Netlify/Clo
 | `sw.js`, `manifest.webmanifest`, `icons/` | PWA / offline |
 | `data/testlar-banki.json` | namuna bank (239 savol, “Namuna” tugmasi yuklaydi) |
 | `auth.js`, `config.js` | Supabase Auth/PostgREST mijozi va loyiha sozlamasi |
-| `supabase/migrations/` | baza sxemasi va xavfsizlik (RLS) |
+| `supabase/migrations/`, `supabase/functions/` | baza sxemasi, RLS va owner uchun server funksiyasi |
 | `tools/tekshir.py` | bank tekshiruvchi |
 | `tests/smoke.cjs` | Playwright sinovi: `node tests/smoke.cjs` |
 | `KITOBDAN_TEST.md` | kitob/PDF’dan savol tuzish tartibi va format |
 
 ## Hisob va bulut (Supabase)
-- Kirish: email + parol (ilovaning o‘zidan ro‘yxatdan o‘tiladi). Natijalar, xatolar va savol banki hisobga bog‘lanadi va boshqa qurilmada o‘zi tushadi; oflayn ham ishlaydi, internet kelganda sinxronlanadi.
-- **Owner:** `brodyagayou1999@gmail.com` BIRINCHI bo‘lib ro‘yxatdan o‘tganda avtomatik owner bo‘ladi (⚙️ → Foydalanuvchilar: bloklash, +30 kun, umrbod, o‘chirish).
-- Baza: `supabase/migrations/` (profiles, app_state, quiz_banks + RLS). `config.js` dagi “publishable” kalit ochiq bo‘lishi mo‘ljallangan; maxfiy kalit repoga yozilmaydi.
-- **Supabase panelida bir marta:** Authentication → Sign In / Providers → Email → **“Confirm email”** ni o‘chiring (yoki o‘z SMTP’ingizni ulang), aks holda har bir ro‘yxatdan o‘tishda tasdiqlash xati kerak bo‘ladi.
+- **Hisobni faqat owner ochib beradi** (Sozlamalar → Foydalanuvchilar → *Yangi foydalanuvchi qo‘shish*: ism, email, parol (🎲), obuna muddati, to‘lov summasi). Tayyor login-parol matnini mijozga yuborasan. Ilovada “Ro‘yxatdan o‘tish” yo‘q (`config.js` → `allowSignup:false`); to‘g‘ridan-to‘g‘ri API orqali ochilgan hisob “faollashtirilmagan” bo‘lib, hech narsa qila olmaydi.
+- **Obuna:** 30 kun / 3 oy / 6 oy / 1 yil / umrbod. Muddati tugasa yoki bloklansa — ilova yopiladi (server tomonida RLS bilan ham). To‘lovlar hisobi: shu oy / jami daromad, faol obunachilar.
+- **Parolni unutdim:** email orqali tiklash havolasi; yoki owner “Parol” tugmasi bilan yangisini beradi.
+- Natijalar, xatolar va savol banki hisobga bog‘lanadi, boshqa qurilmada o‘zi tushadi; oflayn ham ishlaydi.
+- **Owner:** `brodyagayou1999@gmail.com` (birinchi bo‘lib kirgan). Baza: `supabase/migrations/`, server funksiyasi: `supabase/functions/admin-users/` (maxfiy kalit faqat serverda). `config.js` dagi “publishable” kalit ochiq bo‘lishi mo‘ljallangan.
+- **Supabase panelida sozlash kerak:** Authentication → *URL Configuration*: **Site URL** = ilovaning haqiqiy manzili va *Redirect URLs* ga ham shu manzilni qo‘shing (aks holda tiklash havolasi noto‘g‘ri joyga olib boradi). Ko‘p foydalanuvchi bo‘lsa — o‘z SMTP’ingizni ulang (standart pochta soatiga bir necha xat bilan cheklangan). Sotishdan oldin Pro rejaga o‘ting (bepul loyiha 1 hafta faolsiz qolsa to‘xtatiladi).
 - Sinovlar: `node tests/smoke.cjs` (mahalliy rejim), `node tests/cloud.cjs` (jonli baza, `tests/cloud-users.sql` kerak).
 
 ## Ma’lumot qayerda saqlanadi
