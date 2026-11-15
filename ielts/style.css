@@ -286,8 +286,7 @@ audio{width:100%;margin-top:10px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* ---------- AI: chat, baho, lug'at ---------- */
-.cin{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav) + 22px + env(safe-area-inset-bottom));width:min(540px,calc(100% - 24px));display:flex;gap:8px;align-items:flex-end;background:var(--card);border-radius:24px;box-shadow:0 12px 30px -12px rgba(50,30,150,.5),0 0 0 1px var(--ln);padding:8px;z-index:19}
-.cin textarea{flex:1;border:0;outline:0;resize:none;background:none;padding:10px 8px;max-height:96px;font-size:15.5px;line-height:1.35}
+.cin textarea{flex:1;border:0;outline:0;resize:none;background:none;padding:10px 8px;max-height:120px;line-height:1.35}
 .cin .ib.send{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff}
 .cin .ib[disabled]{opacity:.45}
 .cin .ib.rec-on{background:#f43f5e;color:#fff;animation:blink 1s infinite}
@@ -313,3 +312,29 @@ audio{width:100%;margin-top:10px}
 .exs{margin:6px 0;font-size:14.5px;line-height:1.5;font-style:italic}
 
 .df{margin:6px 0;font-size:14.5px;line-height:1.5}.df em{display:block;color:var(--mu);font-size:13.5px;margin-top:2px}
+
+/* ---------- Chat qobig'i (messenjer uslubi: klaviaturada sakramaydi) ---------- */
+body.chatpage{overflow:hidden;position:fixed;width:100%;inset:0}
+.chat{position:fixed;left:50%;transform:translateX(-50%);top:var(--vt,0px);width:min(560px,100%);height:var(--vh,100dvh);display:flex;flex-direction:column;padding-bottom:calc(var(--nav) + 20px + env(safe-area-inset-bottom));z-index:5;background:var(--bg)}
+body.kb .chat{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+body.kb .nav{display:none}
+.chead{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--hero);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 18px 16px;border-radius:0 0 26px 26px}
+.chead .hi{font-size:12px;opacity:.85}.chead h1{font-size:22px;font-weight:800}
+.cmsgs{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:16px 16px 10px}
+.cin{flex:none;display:flex;gap:8px;align-items:flex-end;margin:6px 12px 8px;background:var(--card);border-radius:24px;box-shadow:0 10px 26px -14px rgba(50,30,150,.5),0 0 0 1px var(--ln);padding:8px}
+.seg.wrap{flex-wrap:wrap;overflow:visible}
+
+/* ---------- umumiy qulaylik ---------- */
+html{touch-action:manipulation;-webkit-text-size-adjust:100%}
+input,textarea,select{font-size:16px!important}
+button,.nav,.top,.tabs2,.seg,.chip,.tool,.sktile,.qp,.item{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.item,.card{min-width:0}
+.item .tx{overflow:hidden}
+
+.pad .seg{margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px}
+
+.bd.num{font-size:17px;font-weight:900}
+.bub .mini{position:static;display:grid;margin-top:8px;width:30px;height:30px}
+.spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--soft);border-top-color:var(--p2);animation:spin .8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.item,.btn,.opt,.sktile,.tool,.qp button{transition:transform .12s,box-shadow .2s}

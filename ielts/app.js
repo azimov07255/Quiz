@@ -62,9 +62,12 @@ IE.draw = (anim = true) => {
   const y = window.scrollY; IE.clearTimers();
   const r = (location.hash.replace(/^#\/?/, '') || 'home').split('/'), fn = IE.routes[r[0]] || IE.routes.home; let o;
   try { o = fn(r.slice(1)); } catch (e) { console.error(e); o = { h: '<div class="empty" style="padding-top:30vh">Xatolik: ' + esc(e.message) + '<br><button class="btn sm" data-go="home" style="margin-top:12px">Bosh sahifa</button></div>', sub: true }; }
-  app.className = anim ? 'anim' : ''; app.innerHTML = o.h; if (o.mount) o.mount(); window.scrollTo(0, y);
+  document.body.classList.toggle('chatpage', r[0] === 'chat'); if (r[0] !== 'chat') document.body.classList.remove('kb');
+  app.className = anim ? 'anim' : ''; app.innerHTML = o.h; if (o.mount) o.mount(); window.scrollTo(0, r[0] === 'chat' ? 0 : y);
 };
+IE.curRoute = (location.hash.replace(/^#\/?/, '') || 'home'); IE.prevRoute = '';
 window.addEventListener('hashchange', () => {
+  IE.prevRoute = IE.curRoute; IE.curRoute = (location.hash.replace(/^#\/?/, '') || 'home');
   IE.rec.cancel(); IE.closeSheet(); V.s1 = null; V.s2 = null; V.fc = null; V.w = null;
   if (!D.access) return;
   IE.draw(true); window.scrollTo(0, 0);
@@ -98,7 +101,7 @@ async function boot() {
   try {
     IE.setTheme(IE.theme());
     if (!SB.configured || !SB.session()) { showAuth(); return; }
-    app.innerHTML = '<div class="empty" style="padding-top:42vh">Yuklanmoqda…</div>';
+    app.innerHTML = '<div style="padding-top:42vh"><div class="spin"></div></div>';
     try { await Promise.all([loadData(), loadProfile()]); }
     catch (e) { app.innerHTML = '<div class="empty" style="padding-top:34vh">Ma’lumotni yuklab bo‘lmadi.<br>' + esc(IE.uzErr(e)) + '<br><button class="btn sm" style="margin-top:14px" id="rt">Qayta urinish</button></div>'; $('#rt').onclick = () => { booting = false; boot(); }; return; }
     if (!D.access) { showLock(); return; }

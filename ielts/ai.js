@@ -5,7 +5,6 @@ const IE = window.IE, { esc, ic, bd, $, lsGet, lsSet } = IE, S = () => IE.S(), R
 const call = async body => { try { return await SB.fn('ielts-ai', body); } catch (e) { throw new Error(e.net ? 'Internetga ulanib bo‘lmadi.' : (e.message || 'AI xatosi')); } };
 IE.ai = call;
 const nl = t => t.replace(/\n/g, '<br>');
-const bottom = () => setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 40);
 
 /* ---------- Speaking Chat ---------- */
 const CK = 'ielts:chat';
@@ -16,34 +15,41 @@ const bubble = m => {
   const parts = m.c.split(/💡\s*Tuzatish:?/), main = parts[0].trim(), note = (parts[1] || '').trim();
   return '<div class="bub ai">' + nl(esc(main)) + (note ? '<div class="cnote"><b>Tuzatish</b>' + nl(esc(note)) + '</div>' : '') + '<button class="mini" data-a="say" data-t="' + esc(main) + '" aria-label="Eshitish">' + ic('spk') + '</button></div>';
 };
+const msgsHTML = () => {
+  const c = st(), topics = IE.D.prompts.sp1.map(t => t.t);
+  if (!c.m.length) return '<div class="card c" style="padding:22px 16px">' + bd('spark', 'A', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<h3 style="font-size:19px">Salom! Inglizcha gaplashamiz</h3><p class="mu sm" style="margin:6px 0 14px">AI savol beradi, siz javob berasiz. Har javobdan keyin xatolaringiz o‘zbekcha tushuntiriladi.</p><button class="btn block" data-a="cstart" data-t="">' + ic('play') + ' Suhbatni boshlash</button></div>' +
+    '<div class="sec"><h2>Yoki mavzu tanlang</h2></div><div class="seg wrap">' + topics.map(t => '<button data-a="cstart" data-t="' + esc(t) + '">' + esc(t) + '</button>').join('') + '</div>' +
+    (c.busy ? '<div class="bub ai typing"><i></i><i></i><i></i></div>' : '');
+  return c.m.map(bubble).join('') + (c.busy ? '<div class="bub ai typing"><i></i><i></i><i></i></div>' : '') + (c.err ? '<div class="card c" style="margin-bottom:10px"><p class="sm" style="color:var(--bad);font-weight:600">' + esc(c.err) + '</p><button class="btn sm" style="margin-top:8px" data-a="cretry">Qayta urinish</button></div>' : '');
+};
+const paint = () => {
+  const m = $('#cmsgs'); if (!m || location.hash !== '#/chat') return; const c = st();
+  m.innerHTML = msgsHTML(); const b = $('.cin .send'), n = $('#cnewb'); if (b) b.disabled = c.busy; if (n) n.classList.toggle('hide', !c.m.length);
+  m.scrollTo({ top: c.m.length ? m.scrollHeight : 0, behavior: 'smooth' });
+};
 R.chat = () => {
-  const c = st(), empty = !c.m.length, topics = IE.D.prompts.sp1.map(t => t.t);
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const body = empty
-    ? '<div class="card c" style="padding:22px 16px">' + bd('spark', 'A', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<h3 style="font-size:19px">Salom! Inglizcha gaplashamiz</h3><p class="mu sm" style="margin:6px 0 14px">AI savol beradi, siz javob berasiz. Har javobdan keyin xatolaringiz o‘zbekcha tushuntiriladi.</p><button class="btn block" data-a="cstart" data-t="">' + ic('play') + ' Suhbatni boshlash</button></div>' +
-      '<div class="sec"><h2>Yoki mavzu tanlang</h2></div><div class="seg" style="flex-wrap:wrap;overflow:visible">' + topics.map(t => '<button data-a="cstart" data-t="' + esc(t) + '">' + esc(t) + '</button>').join('') + '</div>'
-    : c.m.map(bubble).join('') + (c.busy ? '<div class="bub ai typing"><i></i><i></i><i></i></div>' : '') + (c.err ? '<div class="card c" style="margin-bottom:10px"><p class="sm" style="color:var(--bad);font-weight:600">' + esc(c.err) + '</p><button class="btn sm" style="margin-top:8px" data-a="cretry">Qayta urinish</button></div>' : '');
-  const inner = '<div class="hero" style="padding-bottom:34px"><div class="row"><div><div class="hi">AI repetitor</div><h1>Speaking Chat</h1></div>' + (empty ? '' : '<button class="ib w" data-a="cnew" aria-label="Yangi suhbat">' + ic('back2') + '</button>') + '</div></div>' +
-    '<div class="pad" style="margin-top:-12px;position:relative;padding-bottom:150px">' + body + '</div>' +
-    '<div class="cin"><textarea id="ci" rows="1" placeholder="Inglizcha javob yozing…"' + (c.busy ? ' disabled' : '') + '></textarea>' + (SR ? '<button class="ib" id="cm" data-a="cmic" aria-label="Ovoz bilan">' + ic('mic') + '</button>' : '') + '<button class="ib send" data-a="csend" aria-label="Yuborish"' + (c.busy ? ' disabled' : '') + '>' + ic('next') + '</button></div>';
-  const o = { h: '<div class="scr">' + inner + '</div><nav class="nav">' + [['home', 'home', 'Home'], ['practice', 'target', 'Practice'], ['chat', 'chat', 'Chat'], ['tools', 'grid', 'Tools'], ['me', 'user', 'Profil']].map(t => '<button class="' + (t[0] === 'chat' ? 'on' : '') + '" data-go="' + t[0] + '">' + ic(t[1]) + '<span>' + t[2] + '</span></button>').join('') + '</nav>', tab: 'chat' };
+  const c = st(), SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const o = { h: '<div class="chat"><div class="chead"><div><div class="hi">AI repetitor</div><h1>Speaking Chat</h1></div><button class="ib w' + (c.m.length ? '' : ' hide') + '" id="cnewb" data-a="cnew" aria-label="Yangi suhbat">' + ic('back2') + '</button></div>' +
+    '<div class="cmsgs" id="cmsgs">' + msgsHTML() + '</div>' +
+    '<div class="cin"><textarea id="ci" rows="1" placeholder="Inglizcha javob yozing…" enterkeyhint="send"></textarea>' + (SR ? '<button class="ib" id="cm" data-a="cmic" aria-label="Ovoz bilan">' + ic('mic') + '</button>' : '') + '<button class="ib send" data-a="csend" aria-label="Yuborish"' + (c.busy ? ' disabled' : '') + '>' + ic('next') + '</button></div></div>' +
+    '<nav class="nav">' + [['home', 'home', 'Home'], ['practice', 'target', 'Practice'], ['chat', 'chat', 'Chat'], ['tools', 'grid', 'Tools'], ['me', 'user', 'Profil']].map(t => '<button class="' + (t[0] === 'chat' ? 'on' : '') + '" data-go="' + t[0] + '">' + ic(t[1]) + '<span>' + t[2] + '</span></button>').join('') + '</nav>', tab: 'chat' };
+  o.mount = () => { const m = $('#cmsgs'); if (m) m.scrollTop = c.m.length ? m.scrollHeight : 0; };
   return o;
 };
 async function send(text, retry) {
   const c = st(); if (c.busy) return;
   if (text) c.m.push({ r: 'user', c: text });
-  c.busy = true; c.err = ''; persist(); IE.draw(false); bottom();
+  c.busy = true; c.err = ''; persist(); paint();
   try {
     const out = await call({ action: 'chat', topic: c.topic, messages: c.m.slice(-10).map(x => ({ role: x.r === 'user' ? 'user' : 'assistant', content: x.c })) });
     c.m.push({ r: 'ai', c: out.reply }); IE.touchDay(); IE.save();
   } catch (e) { c.err = e.message; }
-  c.busy = false; persist();
-  if (location.hash === '#/chat') { IE.draw(false); bottom(); }
+  c.busy = false; persist(); paint();
 }
-A.csend = () => { const ta = $('#ci'), t = ta ? ta.value.trim() : ''; if (!t) return; if (V.sr) { try { V.sr.stop(); } catch (e) { /* */ } } send(t); };
-A.cstart = el => { const c = st(); c.topic = el.dataset.t || ''; c.m = []; send(c.topic ? 'Let’s talk about: ' + c.topic + '.' : ''); };
+A.csend = () => { const ta = $('#ci'), t = ta ? ta.value.trim() : ''; if (!t || st().busy) return; ta.value = ''; ta.style.height = ''; if (V.sr) { try { V.sr.stop(); } catch (e) { /* */ } } send(t); };
+A.cstart = el => { const c = st(); c.topic = el.dataset.t || ''; c.m = []; const n = $('#cnewb'); if (n) n.classList.remove('hide'); send(c.topic ? 'Let’s talk about: ' + c.topic + '.' : ''); };
 A.cretry = () => send('', true);
-A.cnew = () => IE.ask('Yangi suhbat?', 'Joriy suhbat tozalanadi.', 'Boshlash', () => { V.chat = { m: [], busy: false, topic: '', err: '' }; persist(); IE.draw(false); });
+A.cnew = () => IE.ask('Yangi suhbat?', 'Joriy suhbat tozalanadi.', 'Boshlash', () => { V.chat = { m: [], busy: false, topic: '', err: '' }; persist(); paint(); });
 A.cmic = () => {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition, btn = $('#cm'), ta = $('#ci'); if (!SR) return IE.toast('Bu brauzerda ovozni matnga aylantirish yo‘q');
   if (V.sr) { try { V.sr.stop(); } catch (e) { /* */ } return; }
@@ -52,6 +58,12 @@ A.cmic = () => {
   r.onend = () => { V.sr = null; if (btn) btn.classList.remove('rec-on'); }; r.onerror = e => { V.sr = null; if (btn) btn.classList.remove('rec-on'); IE.toast(e.error === 'not-allowed' ? 'Mikrofonga ruxsat berilmadi' : 'Ovoz tanilmadi'); };
   try { r.start(); V.sr = r; if (btn) btn.classList.add('rec-on'); } catch (e) { IE.toast('Ovoz yozib bo‘lmadi'); }
 };
+const vv = window.visualViewport;
+if (vv) { const set = () => { const r = document.documentElement.style; r.setProperty('--vh', vv.height + 'px'); r.setProperty('--vt', vv.offsetTop + 'px'); }; vv.addEventListener('resize', set); vv.addEventListener('scroll', set); set(); }
+document.addEventListener('focusin', e => { if (e.target.id === 'ci') document.body.classList.add('kb'); });
+document.addEventListener('focusout', e => { if (e.target.id === 'ci') setTimeout(() => { if (document.activeElement !== e.target) document.body.classList.remove('kb'); }, 200); });
+document.addEventListener('mousedown', e => { if (e.target.closest('.cin .ib')) e.preventDefault(); });
+document.addEventListener('input', e => { if (e.target.id === 'ci') { e.target.style.height = 'auto'; e.target.style.height = Math.min(120, e.target.scrollHeight) + 'px'; } });
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
   if (e.target.id === 'ci') { e.preventDefault(); A.csend(); } else if (e.target.id === 'dq') { e.preventDefault(); A.dsearch(); }
@@ -112,7 +124,7 @@ R.dict = () => {
     f.meanings.map(m => '<h4 class="dh">' + esc(m.pos || 'ma’no') + '</h4>' + m.defs.map((x, i) => '<p class="df">' + (x.d ? '<b>' + (i + 1) + '.</b> ' + esc(x.d) : '') + (x.ex ? '<em>“' + esc(x.ex) + '”</em>' : '') + '</p>').join('') +
       (m.syn && m.syn.length ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">' + m.syn.map(x => '<span class="chip">' + esc(x) + '</span>').join('') + '</div>' : '')).join('') +
     '<button class="btn block' + (my ? ' ghost' : '') + '" style="margin-top:16px"' + (my ? ' disabled' : ' data-a="dadd"') + '>' + (my ? ic('check') + ' Lug‘atingizda bor' : ic('star') + ' Mening so‘zlarimga qo‘shish') + '</button></div>' : '';
-  return { h: '<header class="top"><button class="ib" data-go="tools" aria-label="Orqaga">' + ic('back') + '</button><h1>Dictionary</h1></header><div class="scr sub"><div class="pad"><div class="row" style="gap:8px"><input class="search" id="dq" style="margin:0" placeholder="Inglizcha so‘z yoki ibora…" value="' + esc(d.q) + '" autocapitalize="off" spellcheck="false"><button class="btn" style="min-width:56px;padding:0 16px" data-a="dsearch" aria-label="Qidirish">' + ic('search') + '</button></div>' +
+  return { h: '<header class="top"><button class="ib" data-a="back" data-r="tools" aria-label="Orqaga">' + ic('back') + '</button><h1>Dictionary</h1></header><div class="scr sub"><div class="pad"><div class="row" style="gap:8px"><input class="search" id="dq" style="margin:0" placeholder="Inglizcha so‘z yoki ibora…" value="' + esc(d.q) + '" autocapitalize="off" spellcheck="false"><button class="btn" style="min-width:56px;padding:0 16px" data-a="dsearch" aria-label="Qidirish">' + ic('search') + '</button></div>' +
     (d.busy ? '<div class="card c" style="margin-top:14px"><div class="bub ai typing" style="margin:0 auto;display:inline-flex"><i></i><i></i><i></i></div></div>' : '') +
     (d.err ? '<div class="card c" style="margin-top:14px"><p class="sm" style="color:var(--bad);font-weight:600">' + esc(d.err) + '</p></div>' : '') + card +
     (!f && !d.busy && !d.err ? '<div class="empty">' + bd('search', 'A') + 'Istalgan so‘zni yozing — ta’rifi, talaffuzi, misollari va o‘zbekcha tarjimasi chiqadi.</div>' : '') + '</div></div>', sub: true };

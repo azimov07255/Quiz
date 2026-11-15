@@ -3,12 +3,13 @@
 'use strict';
 const IE = window.IE, { esc, ic, bd, $, $$, lsGet, lsSet, fmtT, fmtD, ago } = Object.assign({}, IE, { ic: IE.ic, bd: IE.bd });
 const S = () => IE.S(), D = IE.D, R = IE.routes, A = IE.act, V = IE.V;
+A.back = el => { const r = el.dataset.r; if (IE.prevRoute === r && history.length > 1) history.back(); else IE.go(r); };
 IE.go = r => { if (location.hash === '#/' + r) IE.draw(false); else location.hash = '#/' + r; };
 
 /* ---------- umumiy bo‘laklar ---------- */
 const TABS = [['home', 'home', 'Home'], ['practice', 'target', 'Practice'], ['chat', 'chat', 'Chat'], ['tools', 'grid', 'Tools'], ['me', 'user', 'Profil']];
 const nav = tab => '<nav class="nav">' + TABS.map(t => '<button class="' + (t[0] === tab ? 'on' : '') + '" data-go="' + t[0] + '" aria-label="' + t[2] + '">' + ic(t[1]) + '<span>' + t[2] + '</span></button>').join('') + '</nav>';
-const top = (title, back, right) => '<header class="top"><button class="ib" data-go="' + back + '" aria-label="Orqaga">' + ic('back') + '</button><h1>' + esc(title) + '</h1>' + (right || '') + '</header>';
+const top = (title, back, right) => '<header class="top"><button class="ib" data-a="back" data-r="' + back + '" aria-label="Orqaga">' + ic('back') + '</button><h1>' + esc(title) + '</h1>' + (right || '') + '</header>';
 const page = (tab, inner) => ({ h: '<div class="scr">' + inner + '</div>' + nav(tab), tab });
 const sub = (title, back, inner, right, extra) => ({ h: top(title, back, right) + '<div class="scr sub">' + inner + '</div>' + (extra || ''), sub: true });
 const soonChip = '<span class="chip soon">' + ic('lock') + ' Tez orada</span>';
@@ -256,8 +257,8 @@ R.speaking = a => {
   if (a[0] === '2') return sp2(+a[1]);
   const P = D.prompts;
   return sub('Speaking', 'practice', '<div class="pad"><div class="card" style="margin-bottom:6px"><div class="row">' + bd('mic', 'S', 'lg') + '<div style="flex:1"><b style="font-size:16px">3 qismli suhbat</b><div class="sm mu">Savolga javob bering, o‘zingizni yozib oling va qayta tinglang. Mikrofonga ruxsat so‘raladi.</div></div></div></div>' +
-    '<div class="sec"><h2>Part 1 · Qisqa savollar</h2></div><div class="lst">' + P.sp1.map((t, i) => '<button class="item" data-go="speaking/1/' + i + '">' + bd('mic', 'S', 'sm') + '<div class="tx"><b>' + esc(t.t) + '</b><span>' + t.q.length + ' savol</span></div><span class="go">' + ic('next') + '</span></button>').join('') + '</div>' +
-    '<div class="sec"><h2>Part 2 + 3 · Cue card</h2></div><div class="lst">' + P.sp2.map((t, i) => '<button class="item" data-go="speaking/2/' + i + '">' + bd('mic', 'S', 'sm') + '<div class="tx"><b style="white-space:normal">' + esc(t.t.replace('Describe ', '')) + '</b><span>1 daq tayyorgarlik · 2 daq nutq</span></div><span class="go">' + ic('next') + '</span></button>').join('') + '</div></div>');
+    '<div class="sec"><h2>Part 1 · Qisqa savollar</h2></div><div class="lst">' + P.sp1.map((t, i) => '<button class="item" data-go="speaking/1/' + i + '"><span class="bd sk-S sm num">' + (i + 1) + '</span>' + '<div class="tx"><b>' + esc(t.t) + '</b><span>' + t.q.length + ' savol</span></div><span class="go">' + ic('next') + '</span></button>').join('') + '</div>' +
+    '<div class="sec"><h2>Part 2 + 3 · Cue card</h2></div><div class="lst">' + P.sp2.map((t, i) => '<button class="item" data-go="speaking/2/' + i + '"><span class="bd sk-S sm num">' + (i + 1) + '</span>' + '<div class="tx"><b style="white-space:normal">' + esc(t.t.replace('Describe ', '')) + '</b><span>1 daq tayyorgarlik · 2 daq nutq</span></div><span class="go">' + ic('next') + '</span></button>').join('') + '</div></div>');
 };
 const micBtn = (on, act) => '<div class="rec"><button class="mic' + (on ? ' on' : '') + '" data-a="' + act + '" aria-label="Yozib olish">' + ic(on ? 'stop' : 'mic') + '</button></div>';
 function sp1(i) {
