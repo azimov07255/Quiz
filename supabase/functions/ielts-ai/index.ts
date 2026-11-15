@@ -11,38 +11,62 @@ const json = (o: unknown, s = 200) => new Response(JSON.stringify(o), { status: 
 const LIMIT = Math.min(500, Math.max(1, Math.floor(Number(Deno.env.get('AI_DAILY_LIMIT')) || 30)))
 const GEMINI = Deno.env.get('GEMINI_API_KEY') || '', GROQ = Deno.env.get('GROQ_API_KEY') || ''
 const GMODELS = [Deno.env.get('GEMINI_MODEL'), 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'].filter(Boolean) as string[]
-const QMODEL = Deno.env.get('GROQ_MODEL') || 'llama-3.3-70b-versatile'
 
 type Msg = { role: 'user' | 'assistant'; content: string }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function gemini(system: string, msgs: Msg[], asJson: boolean, temp: number): Promise<string> {
-  let last = 'gemini'
-  for (const m of GMODELS) {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
-      method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': GEMINI },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: system }] },
-        contents: msgs.map((x) => ({ role: x.role === 'assistant' ? 'model' : 'user', parts: [{ text: x.content }] })),
-        generationConfig: { temperature: temp, maxOutputTokens: 2048, ...(asJson ? { responseMimeType: 'application/json' } : {}) },
-      }),
-    })
-    const j = await r.json().catch(() => ({}))
-    const t = j?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('') || ''
-    if (r.ok && t) return t
-    last = `gemini ${m} ${r.status}: ${String(j?.error?.message || j?.promptFeedback?.blockReason || 'bo‘sh javob').slice(0, 110)}`
-    if (r.status === 401 || r.status === 403) break
+  const errs: string[] = []
+  outer: for (const m of GMODELS) {
+    for (let a = 0; a < 2; a++) {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+        method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': GEMINI },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents: msgs.map((x) => ({ role: x.role === 'assistant' ? 'model' : 'user', parts: [{ text: x.content }] })),
+          generationConfig: { temperature: temp, maxOutputTokens: 2048, ...(asJson ? { responseMimeType: 'application/json' } : {}) },
+        }),
+      })
+      const j = await r.json().catch(() => ({}))
+      const t = j?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('') || ''
+      if (r.ok && t) return t
+      errs.push(`${m} ${r.status}${a === 0 ? ': ' + String(j?.error?.message || j?.promptFeedback?.blockReason || 'bo‘sh javob').slice(0, 60) : ''}`)
+      if (r.status === 401 || r.status === 403) break outer
+      if ((r.status === 503 || r.status === 429) && a === 0) { await sleep(900); continue }
+      break
+    }
   }
-  throw new Error(last)
+  throw new Error('gemini [' + errs.join('; ') + ']')
+}
+let GCACHE: { ids: string[]; at: number } | null = null
+async function groqModels(): Promise<string[]> {
+  const pref = [Deno.env.get('GROQ_MODEL'), 'llama-3.3-70b-versatile', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'llama-3.1-8b-instant', 'qwen/qwen3-32b', 'meta-llama/llama-4-scout-17b-16e-instruct'].filter(Boolean) as string[]
+  try {
+    if (!GCACHE || Date.now() - GCACHE.at > 3600e3) {
+      const r = await fetch('https://api.groq.com/openai/v1/models', { headers: { authorization: 'Bearer ' + GROQ } })
+      const j = await r.json().catch(() => ({}))
+      const ids: string[] = (j?.data || []).filter((m: any) => m.active !== false).map((m: any) => String(m.id)).filter((id: string) => !/whisper|tts|guard|prompt|orpheus|playai|safeguard|compound|embed/i.test(id))
+      GCACHE = { ids, at: Date.now() }
+    }
+    const ids = GCACHE.ids
+    if (ids.length) { const ok = pref.filter((p) => ids.includes(p)); return [...ok, ...ids.filter((i) => !ok.includes(i))].slice(0, 3) }
+  } catch { /* ro‘yxat olinmasa, standart tartib */ }
+  return pref.slice(0, 3)
 }
 async function groq(system: string, msgs: Msg[], asJson: boolean, temp: number): Promise<string> {
-  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + GROQ },
-    body: JSON.stringify({ model: QMODEL, temperature: temp, max_tokens: 2048, messages: [{ role: 'system', content: system }, ...msgs], ...(asJson ? { response_format: { type: 'json_object' } } : {}) }),
-  })
-  const j = await r.json().catch(() => ({}))
-  const t = j?.choices?.[0]?.message?.content || ''
-  if (!r.ok || !t) throw new Error(`groq ${QMODEL} ${r.status}: ${String(j?.error?.message || 'bo‘sh javob').slice(0, 110)}`)
-  return t
+  const errs: string[] = []
+  for (const model of await groqModels()) {
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + GROQ },
+      body: JSON.stringify({ model, temperature: temp, max_tokens: 2048, messages: [{ role: 'system', content: system }, ...msgs], ...(asJson ? { response_format: { type: 'json_object' } } : {}), ...(/gpt-oss/.test(model) ? { reasoning_effort: 'low' } : {}) }),
+    })
+    const j = await r.json().catch(() => ({}))
+    const t = String(j?.choices?.[0]?.message?.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+    if (r.ok && t) return t
+    errs.push(`${model} ${r.status}: ${String(j?.error?.message || 'bo‘sh javob').slice(0, 70)}`)
+    if (r.status === 401) break
+  }
+  throw new Error('groq [' + errs.join('; ') + ']')
 }
 async function ask(system: string, msgs: Msg[], asJson = false, temp = 0.6): Promise<string> {
   if (!GEMINI && !GROQ) throw new Error('nokey')
@@ -110,6 +134,6 @@ Deno.serve(async (req) => {
     return json({ result: out })
   } catch (e) {
     const m = String((e as Error).message || e)
-    return json({ error: m === 'nokey' ? 'AI sozlanmagan.' : 'AI xatosi — ' + m.slice(0, 260) }, 502)
+    return json({ error: m === 'nokey' ? 'AI sozlanmagan.' : 'AI xatosi — ' + m.slice(0, 400) }, 502)
   }
 })
