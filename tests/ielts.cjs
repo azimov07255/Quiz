@@ -3,7 +3,7 @@
 const http = require('http'), fs = require('fs'), path = require('path'), os = require('os');
 const { chromium, devices } = require('playwright');
 const root = path.join(__dirname, '..');
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml', '.mp3': 'audio/mpeg' };
+const MIME = { '.mjs': 'text/javascript', '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml', '.mp3': 'audio/mpeg' };
 const srv = http.createServer((q, r) => {
   let p = decodeURIComponent(q.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html'; const f = path.join(root, p);
   if (!fs.existsSync(f) || fs.statSync(f).isDirectory()) { r.writeHead(404); return r.end(); }
@@ -26,6 +26,10 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
     await ctx.route('https://api.dictionaryapi.dev/**', route => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify([{ word: 'resilient', phonetics: [{ text: '/rɪˈzɪliənt/', audio: 'https://api.dictionaryapi.dev/media/pronunciations/en/resilient-uk.mp3' }, { text: '/rəˈzɪljənt/', audio: 'https://api.dictionaryapi.dev/media/pronunciations/en/resilient-us.mp3' }], meanings: [{ partOfSpeech: 'adjective', definitions: [{ definition: 'Able to recover quickly from difficulties.', example: 'Children are often remarkably resilient.' }], synonyms: ['tough', 'flexible'] }] }]) }));
     await ctx.route(SB + '/**', async route => {
       const u = route.request().url(), m = route.request().method(), j = b => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(b) });
+      if (u.includes('/storage/v1/object/')) { state.cloud = state.cloud || {}; const k = u.split('ielts-books/')[1];
+        if (m === 'POST') { state.cloud[k] = route.request().postDataBuffer(); return j({ Key: k }); }
+        if (m === 'DELETE') { delete state.cloud[k]; return j({}); }
+        return state.cloud[k] ? route.fulfill({ status: 200, contentType: 'application/pdf', body: state.cloud[k] }) : route.fulfill({ status: 404, contentType: 'application/json', body: '{"message":"not found"}' }); }
       if (u.includes('/rest/v1/profiles')) return j([PROFILE(groups)]);
       if (u.includes('/rest/v1/ielts_state')) { if (m === 'POST') { state.posted = JSON.parse(route.request().postData()); return route.fulfill({ status: 201, body: '' }); } return j([]); }
       if (u.includes('/functions/v1/ielts-ai')) {
@@ -150,6 +154,25 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
   await A.evaluate(() => { const m = IE.S().mock, s = IE.S(), t0 = m.ts + 1000; m.L.forEach((id, i) => s.listens.push({ ts: t0 + i, id, raw: 7, tot: 10, band: 6.5, secs: 300, a: {} })); m.R.forEach((id, i) => s.reads.push({ ts: t0 + 10 + i, p: id, raw: 9, tot: 13, band: 6, secs: 900, a: {} })); s.writes.push({ ts: t0 + 20, p: m.W, words: 260, secs: 2400, x: 'x', ai: { overall: 6.5 } }); s.speaks.push({ ts: t0 + 30, k: '1', t: IE.D.prompts.sp1[m.S.p1].t, ai: { overall: 6 } }); s.speaks.push({ ts: t0 + 31, k: '2', t: IE.D.prompts.sp2[m.S.p2].t.replace('Describe ', ''), ai: { overall: 6.5 } }); });
   await A.goto(base + '#/practice'); await A.goto(base + '#/mock'); await A.waitForSelector('[data-a="mfin"]'); ok(true, 'hamma bo‘lim bajarilgach “Natijani ko‘rish” paydo bo‘ldi'); await A.click('[data-a="mfin"]'); await A.waitForSelector('.res .big');
   ok(/^\d\.\d$/.test(await A.innerText('.res .big')), 'Mock umumiy bandi hisoblandi: ' + (await A.innerText('.res .big'))); ok(await A.evaluate(() => IE.S().mocks.length === 1 && !IE.S().mock), 'natija tarixga yozildi, mock yopildi'); await shot(A, '51-mock-report');
+  console.log('8h. Kitoblar (PDF): yuklash, o‘qish, reja, bulut');
+  const PDF = process.env.TESTPDF; if (PDF && fs.existsSync(PDF)) {
+    await A.goto(base + '#/books'); await A.waitForSelector('#bkf', { state: 'attached' }); await A.setInputFiles('#bkf', PDF);
+    await A.waitForSelector('[data-a="bksave"][data-c="1"]'); await shot(A, '52-book-save'); await A.click('[data-a="bksave"][data-c="1"]');
+    await A.waitForSelector('[data-a="bkps"]', { timeout: 15000 }); ok(await A.evaluate(() => IE.S().books.length === 1 && IE.S().books[0].pg === 12 && IE.S().books[0].cloud === true), 'Kitob qo‘shildi (12 bet), bulutga belgilandi');
+    ok(Object.keys(st.cloud || {}).length === 1, 'PDF Storage’ga yuborildi'); ok(await A.evaluate(async () => !!(await IE.idbGet('book:' + IE.S().books[0].id))), 'PDF qurilmada (IndexedDB) ham saqlandi');
+    await A.click('[data-a="bkpm"][data-m="per"]'); await A.fill('#bkpp', '4'); await A.click('[data-a="bkps"]'); await A.waitForSelector('text=Bugungi reja'); ok(await A.evaluate(() => IE.S().books[0].plan.per === 4), 'Reja: kuniga 4 bet'); await shot(A, '53-book-plan');
+    await A.click('[data-a="bkv"][data-v="text"]'); await A.waitForSelector('.bktx .w', { timeout: 15000 }); ok((await A.locator('.bktx .w').count()) > 20, 'Matn rejimida so‘zlar chiqdi'); await shot(A, '54-book-text');
+    await A.locator('.bktx .w >> nth=3').click(); await A.waitForSelector('#wsh h2'); ok(true, 'So‘z bosilganda lug‘at oynasi ochildi'); await A.evaluate(() => IE.closeSheet());
+    await A.click('[data-a="bkgo"][data-d="1"]'); await A.waitForFunction(() => /^2 \//.test(document.querySelector('.bkp').innerText)); ok(await A.evaluate(() => IE.S().books[0].max === 2), 'Keyingi betga o‘tdi, o‘qilgan 2 bet');
+    await A.click('[data-a="bkv"][data-v="page"]'); await A.waitForSelector('#bkcv'); await A.waitForFunction(() => { const c = document.querySelector('#bkcv'); return c && c.width > 100 && !document.querySelector('#bksp'); }, null, { timeout: 15000 }); ok(true, 'Sahifa rejimi (canvas) chizildi'); await shot(A, '55-book-page');
+    await A.click('[data-a="bkv"][data-v="plan"]'); await A.waitForSelector('text=Bugungi reja'); ok((await A.innerText('#bkbody')).includes('bet qoldi'), 'Reja: bugun qancha qolgani ko‘rinadi'); await shot(A, '56-book-plan2');
+    await A.goto(base + '#/home'); await A.waitForSelector('text=Bugungi reja:'); ok(true, 'Home’da “Bugungi reja” kartasi bor');
+    await A.goto(base + '#/books'); await A.waitForSelector('.bki'); await shot(A, '57-books');
+    // boshqa qurilma: lokal nusxa yo‘q — bulutdan avtomatik yuklanadi
+    await A.evaluate(async () => { const id = IE.S().books[0].id; await IE.idbDel('book:' + id); localStorage.removeItem('ielts:bkloc'); });
+    const bid = await A.evaluate(() => IE.S().books[0].id); await A.goto(base + '#/book/' + bid); await A.reload(); await A.waitForSelector('.bktx .w', { timeout: 20000 }); ok(await A.evaluate(async () => !!(await IE.idbGet('book:' + IE.S().books[0].id))), 'Qurilmada yo‘q kitob bulutdan yuklab olindi va keshlandi');
+    await A.goto(base + '#/books'); await A.click('[data-a="bkmenu"]'); await A.click('[data-a="bkdel"]'); await A.click('#askok'); await A.waitForFunction(() => !IE.S().books.filter(b => !b.del).length); ok(Object.keys(st.cloud || {}).length === 0, 'O‘chirilganda bulutdagi fayl ham o‘chdi');
+  } else console.log('  (TESTPDF berilmagan — o‘tkazib yuborildi)');
   console.log('9. Ruxsat: guruhsiz foydalanuvchi');
   const { pg: B } = await mk([]); await B.goto(base); await B.waitForSelector('.lockc'); ok((await B.innerText('.lockc')).includes('Ruxsat'), 'guruhsiz: “Ruxsat kerak” ekrani'); await shot(B, '21-lock');
   console.log('10. Kirish ekrani (sessiyasiz)');

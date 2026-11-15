@@ -42,6 +42,7 @@ R.home = () => {
     '<div class="sm mu">' + (days != null && days >= 0 ? 'Imtihongacha <b>' + days + '</b> kun' : '<a data-go="me" style="color:var(--pl);font-weight:700">Imtihon sanasini qo‘shing</a>') + '</div></div></div>' +
     '<div class="stats"><div class="stat"><b>' + IE.bandTxt(IE.skillBands().L) + '</b><span>Listening</span></div><div class="stat"><b>' + IE.bandTxt(IE.skillBands().R) + '</b><span>Reading</span></div><div class="stat"><b>' + IE.bandTxt(IE.skillBands().W) + '</b><span>Writing</span></div><div class="stat"><b>' + Object.keys(s.srs).length + '</b><span>So‘zlar</span></div></div></div>' +
     (IE.mockActive && IE.mockActive() ? '<div class="rise" style="margin-top:14px"><button class="item" data-go="mock">' + bd('trophy', 'M') + '<div class="tx"><b>Mock test davom etmoqda</b><span>Bosib davom ettiring</span></div><span class="go">' + ic('next') + '</span></button></div>' : '') +
+    (IE.bookHome ? IE.bookHome() : '') +
     '<div class="rise" style="margin-top:14px"><button class="aibn" data-go="chat">' + bd('spark', 'A', 'lg') + '<div style="flex:1"><h3>AI Speaking Tutor</h3><p>Suhbat qiling, xatolaringiz tuzatiladi.</p></div><span class="chip" style="background:rgba(255,255,255,.22);color:#fff">AI</span></button></div>' +
     '<div class="sec"><h2>Tezkor mashq</h2></div><div class="qp rise">' +
     Object.entries(sk).map(([k, v]) => '<button data-go="' + (k === 'L' ? 'listening' : k === 'R' ? 'reading' : k === 'W' ? 'writing' : 'speaking') + '">' + bd(v[0], v[1]) + v[2] + '</button>').join('') + '</div>' +
@@ -59,7 +60,7 @@ R.practice = () => page('practice', '<div class="hero" style="padding-bottom:70p
   '<button class="mock rise" data-go="mock">' + bd('trophy', 'M', 'lg') + '<div style="flex:1"><h3>Mock Test</h3><p>To‘liq imtihon sinovi: 4 ta bo‘lim ketma-ket</p></div>' + '<span class="chip" style="background:rgba(255,255,255,.22);color:#fff">' + (IE.mockActive && IE.mockActive() ? 'Davom' : 'Boshlash') + '</span></button></div>');
 
 R.tools = () => {
-  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'articles'], ['head', 'L', 'Podcasts', 'articles/tab/p'], ['spk', 'S', 'Shadowing', 'shadow'], ['wave', 'L', 'Dictation', 'dictation'], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'dict']];
+  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'articles'], ['head', 'L', 'Podcasts', 'articles/tab/p'], ['spk', 'S', 'Shadowing', 'shadow'], ['wave', 'L', 'Dictation', 'dictation'], ['doc', 'R', 'Kitoblar (PDF)', 'books'], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'dict']];
   return page('tools', '<div class="hero" style="padding-bottom:70px"><div class="hi">O‘rganish vositalari</div><h1>Study Tools</h1></div><div class="lift"><div class="tools rise">' +
     T.map(t => '<button class="tool' + (t[4] ? ' off' : '') + '" data-go="' + t[3] + '">' + bd(t[0], t[1]) + t[2] + (t[4] ? '<span class="chip soon">Tez orada</span>' : '') + '</button>').join('') + '</div></div>');
 };

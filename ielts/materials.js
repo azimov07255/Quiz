@@ -194,6 +194,7 @@ A.aword = async el => {
   }
 };
 A.wadd = () => { const b = V.wcur; if (!b) return; const id = 'my:' + b.w.toLowerCase(), m = m0(), v = m && vocabFor(m, b.w); const word = v ? v.w : b.w; const mid = 'my:' + word.toLowerCase(); if (S().my.some(x => x.id === mid)) return; const df = b.free && b.free.meanings[0] && b.free.meanings[0].defs[0]; S().my.push({ id: mid, w: word, uz: b.uz || '', def: df ? df.d : '', ex: b.ex || (df ? df.ex : ''), pos: b.pos || '', ts: Date.now() }); IE.save(); IE.toast('Qo‘shildi'); if (V.wpaint) V.wpaint(); paintVocab(); };
+IE.addArticle = addArticle;
 function paintVocab() { const m = m0(), p = $('.apanel[data-p="vocab"]'); if (m && p) p.innerHTML = vocabHTML(m); }
 A.vadd = el => { const m = m0(), v = m && m.vocab[+el.dataset.i]; if (!v) return; const id = 'my:' + v.w.toLowerCase(); if (!S().my.some(x => x.id === id)) { S().my.push({ id, w: v.w, uz: v.uz, def: '', ex: v.ex || '', pos: v.pos, ts: Date.now() }); IE.save(); IE.toast('Qo‘shildi'); } paintVocab(); };
 A.vall = () => { const m = m0(); if (!m) return; let n = 0; m.vocab.forEach(v => { const id = 'my:' + v.w.toLowerCase(); if (!S().my.some(x => x.id === id)) { S().my.push({ id, w: v.w, uz: v.uz, def: '', ex: v.ex || '', pos: v.pos, ts: Date.now() }); n++; } }); IE.save(); IE.toast(n + ' ta so‘z qo‘shildi'); paintVocab(); };

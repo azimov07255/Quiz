@@ -72,8 +72,14 @@ async function fn(name, body) {
   if (!r.ok) { const er = new Error((j && (j.error || j.message)) || ('HTTP ' + r.status)); er.uz = true; er.status = r.status; throw er; }
   return j;
 }
+/** Xom so‘rov (Storage: ikkilik fayllar yuklash/yuklab olish uchun) — tokenni o‘zi qo‘yadi, Response qaytaradi. */
+async function raw(path, o = {}) {
+  const tk = await token();
+  try { return await fetch(C.url + path, { method: o.method || 'GET', headers: Object.assign({ apikey: C.key, authorization: 'Bearer ' + tk }, o.headers || {}), body: o.body }); }
+  catch (e) { const er = new Error('network'); er.net = true; throw er; }
+}
 async function changePassword(pw) { await api('/auth/v1/user', { method: 'PUT', body: { password: pw } }); }
 async function signOut() { const t = sess && sess.access_token; store(null); if (t) { try { await call('/auth/v1/logout', { method: 'POST', token: t }); } catch (e) { /* offline bo‘lsa ham mahalliy chiqiladi */ } } }
 
-window.SB = { configured, allowSignup: !!C.allowSignup, session: () => sess, signIn, signUp, signOut, rest, rpc, rpcPub, fn, recover, loadUser, changePassword, refresh, recovery: () => recovery, clearRecovery: () => { recovery = null; }, onOut: f => outCbs.push(f) };
+window.SB = { configured, allowSignup: !!C.allowSignup, session: () => sess, signIn, signUp, signOut, rest, rpc, rpcPub, fn, raw, recover, loadUser, changePassword, refresh, recovery: () => recovery, clearRecovery: () => { recovery = null; }, onOut: f => outCbs.push(f) };
 })();

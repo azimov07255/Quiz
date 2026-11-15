@@ -1,7 +1,7 @@
 /* IELTS · BY AZIMOV — yadro: yordamchilar, ikonkalar, holat (localStorage) va Supabase bilan sinxronlash. */
 (() => {
 'use strict';
-const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '0.6.0' };
+const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '0.6.1' };
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 Object.assign(IE, { $, $$, esc });
@@ -50,6 +50,8 @@ const P = {
   list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
   eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   pause: '<rect x="6" y="5" width="4" height="14" rx="1.5" class="f"/><rect x="14" y="5" width="4" height="14" rx="1.5" class="f"/>',
+  cloud: '<path d="M7 18a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 8.5a4.8 4.8 0 0 1-.5 9.5z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
   refresh: '<path d="M20 11a8 8 0 1 0-2.4 6"/><path d="M20 4v7h-7"/>',
   back2: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>'
 };
@@ -73,19 +75,20 @@ IE.bandTxt = b => (b == null || isNaN(b)) ? '—' : (Math.round(b * 2) / 2).toFi
 
 /* ---------- holat ---------- */
 const LS = 'ielts:state:v1';
-const blank = () => ({ v: 1, prof: { name: '', level: '', target: 7, exam: 'Academic', date: '' }, pts: 0, reads: [], listens: [], arts: [], writes: [], speaks: [], my: [], lib: [], mock: null, mocks: [], drafts: {}, srs: {}, days: [], uid: '' });
-const norm = s => { const b = blank(); s = (s && typeof s === 'object') ? s : {}; return Object.assign(b, s, { prof: Object.assign(b.prof, s.prof || {}), reads: Array.isArray(s.reads) ? s.reads : [], listens: Array.isArray(s.listens) ? s.listens : [], mocks: Array.isArray(s.mocks) ? s.mocks : [], mock: s.mock && typeof s.mock === 'object' ? s.mock : null, arts: Array.isArray(s.arts) ? s.arts : [], lib: Array.isArray(s.lib) ? s.lib : [], writes: Array.isArray(s.writes) ? s.writes : [], speaks: Array.isArray(s.speaks) ? s.speaks : [], my: Array.isArray(s.my) ? s.my : [], days: Array.isArray(s.days) ? s.days : [], drafts: s.drafts && typeof s.drafts === 'object' ? s.drafts : {}, srs: s.srs && typeof s.srs === 'object' ? s.srs : {} }); };
+const blank = () => ({ v: 1, prof: { name: '', level: '', target: 7, exam: 'Academic', date: '' }, pts: 0, reads: [], listens: [], arts: [], writes: [], speaks: [], my: [], lib: [], mock: null, mocks: [], books: [], drafts: {}, srs: {}, days: [], uid: '' });
+const norm = s => { const b = blank(); s = (s && typeof s === 'object') ? s : {}; return Object.assign(b, s, { prof: Object.assign(b.prof, s.prof || {}), reads: Array.isArray(s.reads) ? s.reads : [], listens: Array.isArray(s.listens) ? s.listens : [], mocks: Array.isArray(s.mocks) ? s.mocks : [], books: Array.isArray(s.books) ? s.books : [], mock: s.mock && typeof s.mock === 'object' ? s.mock : null, arts: Array.isArray(s.arts) ? s.arts : [], lib: Array.isArray(s.lib) ? s.lib : [], writes: Array.isArray(s.writes) ? s.writes : [], speaks: Array.isArray(s.speaks) ? s.speaks : [], my: Array.isArray(s.my) ? s.my : [], days: Array.isArray(s.days) ? s.days : [], drafts: s.drafts && typeof s.drafts === 'object' ? s.drafts : {}, srs: s.srs && typeof s.srs === 'object' ? s.srs : {} }); };
 let S = norm(lsGet(LS, null));
 IE.S = () => S;
 IE.setState = s => { S = norm(s); };
 const union = (x, y) => { const m = new Map(); [...x, ...y].forEach(e => { if (!e || !e.ts) return; const o = m.get(e.ts); if (!o || (e.ai && !o.ai)) m.set(e.ts, e); }); return [...m.values()].sort((p, q) => p.ts - q.ts).slice(-300); };
+const mergeBooks = (x, y) => { const m = new Map(); [...(x || []), ...(y || [])].forEach(e => { if (!e || !e.id) return; const o = m.get(e.id); if (!o || (e.mt || 0) > (o.mt || 0)) m.set(e.id, e); }); return [...m.values()].sort((p, q) => (p.ts || 0) - (q.ts || 0)).slice(-200); };
 const unionMy = (x, y) => { const m = new Map(); [...x, ...y].forEach(e => { if (e && e.id) m.set(e.id, e); }); return [...m.values()].sort((p, q) => (p.ts || 0) - (q.ts || 0)).slice(-1500); };
 function merge(a, b) {
   const srs = Object.assign({}, a.srs); Object.entries(b.srs || {}).forEach(([k, v]) => { if (!srs[k] || (v.t || 0) > (srs[k].t || 0)) srs[k] = v; });
   const drafts = Object.assign({}, a.drafts); Object.entries(b.drafts || {}).forEach(([k, v]) => { if (!drafts[k] || (v.t || 0) > (drafts[k].t || 0)) drafts[k] = v; });
   Object.keys(drafts).forEach(k => { if (drafts[k].del) delete drafts[k]; });
   const win = (a.pts || 0) >= (b.pts || 0) ? a : b;
-  return norm({ v: 1, prof: win.prof, pts: Math.max(a.pts || 0, b.pts || 0), reads: union(a.reads, b.reads), listens: union(a.listens, b.listens), arts: union(a.arts, b.arts), mocks: union(a.mocks, b.mocks), mock: ((a.mock && a.mock.ts) || 0) >= ((b.mock && b.mock.ts) || 0) ? a.mock : b.mock, lib: unionMy(a.lib, b.lib), writes: union(a.writes, b.writes), speaks: union(a.speaks, b.speaks), my: unionMy(a.my, b.my), drafts, srs, days: [...new Set([...a.days, ...b.days])].sort().slice(-400), uid: a.uid || b.uid });
+  return norm({ v: 1, prof: win.prof, pts: Math.max(a.pts || 0, b.pts || 0), reads: union(a.reads, b.reads), listens: union(a.listens, b.listens), arts: union(a.arts, b.arts), mocks: union(a.mocks, b.mocks), books: mergeBooks(a.books, b.books), mock: ((a.mock && a.mock.ts) || 0) >= ((b.mock && b.mock.ts) || 0) ? a.mock : b.mock, lib: unionMy(a.lib, b.lib), writes: union(a.writes, b.writes), speaks: union(a.speaks, b.speaks), my: unionMy(a.my, b.my), drafts, srs, days: [...new Set([...a.days, ...b.days])].sort().slice(-400), uid: a.uid || b.uid });
 }
 let syncT = 0, saveFailed = false;
 IE.save = (now) => { saveFailed = !lsSet(LS, S); clearTimeout(syncT); syncT = setTimeout(() => IE.sync().catch(() => {}), now ? 0 : 5000); };

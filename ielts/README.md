@@ -9,7 +9,7 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v0.6.0)
+## Hozir ishlaydi (v0.6.1)
 - **Home**: target band, overall, seriya, imtihongacha kun, tezkor mashq, so‘nggi natijalar
 - **Listening**: 8 ta haqiqiy diktor yozuvi (VOA Learning English, ommaviy mulk; `audio/`), 80 savol, imtihon rejimi (bir marta, to‘xtatib bo‘lmaydi) va mashq rejimi (to‘xtatish, 10 s orqaga, tezlik), natijada har savol uchun “shu joydan tinglash” va bosiladigan transkript. Yozuv va matn mosligi offlayn nutq tanish bilan tekshirilgan, vaqtlar shu orqali aniqlangan
 - **Articles & Podcasts**: 8 ta VOA maqolasi (audio + rasm), matn audio bilan birga yuradi (joriy gap belgilanadi, ▶ bilan shu joydan tinglash), so‘z bosilsa ma’no (maqola lug‘ati → ochiq lug‘at → AI tarjima), 10 ta lug‘at, 3 ta grammatika qoidasi va 8 ta savol; rasmlar Wikimedia Commons (CC0/PD/CC BY(-SA)), mualliflari `data/articles.json` da.
@@ -17,6 +17,7 @@ Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshir
 - **Reading**: 3 ta Academic matn (39 savol; heads / T-F-NG / MCQ / gap to‘ldirish), 20 daqiqalik taymer, gapni belgilash, tushuntirishli natija, taxminiy band
 - **Writing**: 30 ta Task 2 mavzu, taymer, so‘z hisoblagich, qoralama, o‘zini tekshirish ro‘yxati, 2 ta Band 8 namuna insho
 - **Mock Test**: to‘liq (4 Listening + 3 Reading + Writing + Speaking) yoki tezkor rejim; bo‘limlar mavjud mashq ekranlari orqali topshiriladi, natijalar avtomatik yig‘iladi, umumiy band va eng zaif bo‘lim bo‘yicha maslahat.
+- **Kitoblar (PDF)**: Tools → Kitoblar. PDF yuklash, Matn rejimi (so‘zni bossangiz tarjima + lug‘atga qo‘shish) va Sahifa rejimi (asl ko‘rinish, zoom), betni AI mashqqa aylantirish, kunlik reja (tugatish sanasi yoki kunlik bet), 7 kunlik statistika, Home’da “Bugungi reja”. Saqlash: qurilmada (IndexedDB) va/yoki bulutda (Supabase Storage `ielts-books`, shaxsiy papka, 50 MB gacha; boshqa qurilmada avtomatik yuklab olinadi). PDF o‘qish kutubxonasi: pdf.js (Apache-2.0, `vendor/pdfjs/`).
 - **Yangilash tugmasi**: Home va Profilda; ilovadan chiqmasdan yangi versiyani tekshiradi va o‘rnatadi.
 - **Speaking AI**: yozib olingan javob serverda matnga aylanadi (Groq Whisper → zaxira Gemini), so‘ng 4 IELTS mezoni bo‘yicha baholanadi (talaffuz ovozdan emas, matndan taxmin qilinadi), xatolar, namunaviy javob.
 - **Ibora rejimi**: maqolada ketma-ket so‘zlarni bosib yoki matnni belgilab phrasal verb / collocation ma’nosini kontekst bilan olish.

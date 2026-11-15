@@ -414,3 +414,24 @@ button,.nav,.top,.tabs2,.seg,.chip,.tool,.sktile,.qp,.item{-webkit-user-select:n
 .ib.spin svg{animation:spin .8s linear infinite}
 [data-a="upd"].has .bd,.set[data-a="upd"].has b::after{content:"";}
 .set[data-a="upd"].has b::after{content:" · yangi versiya bor";color:#f43f5e;font-size:12px;font-weight:800}
+
+/* ---------- kitoblar (PDF) ---------- */
+.bkc{flex:none;width:46px;height:58px;border-radius:10px;background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff;font:900 22px/58px Georgia,serif;text-align:center;box-shadow:var(--sh)}
+.bki{padding:10px 10px 10px 12px}
+.bkm{display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-align:left}
+.bkm .tx{min-width:0;flex:1}.bkm .tx b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bkt{display:flex;gap:10px;margin-top:6px;font-size:11.5px;color:var(--mu);font-weight:700}
+.bkt em{font-style:normal;display:inline-flex;align-items:center;gap:4px}.bkt svg{width:13px;height:13px}
+.bkpad{padding-bottom:96px}
+.bktx{font:18px/1.75 Georgia,'Times New Roman',serif;word-break:break-word}
+.bktx p{margin:0 0 1em}.bktx h4{margin:1.2em 0 .5em;font:800 19px/1.3 var(--f,system-ui)}
+.bkpg{overflow:auto;border-radius:12px;background:#fff;box-shadow:var(--sh);-webkit-overflow-scrolling:touch}
+.bkpg canvas{display:block;max-width:none}
+.bkn{display:flex;align-items:center;gap:10px;justify-content:center}
+.bkp{flex:1;max-width:180px;padding:11px 14px;border-radius:99px;background:var(--card);box-shadow:var(--sh);font-size:15px;text-align:center}
+.bkn .ib.pri{background:linear-gradient(135deg,var(--p1),var(--p2));color:#fff}
+.bkn .ib[disabled]{opacity:.35}
+.bkch{display:flex;gap:8px;align-items:flex-end;height:96px;margin-top:12px}
+.bkch>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.bkch i{display:block;width:100%;min-height:3px;border-radius:6px 6px 3px 3px;background:linear-gradient(180deg,var(--p2),var(--p1))}
+.bkch small{font-size:10.5px;color:var(--mu);font-weight:700}

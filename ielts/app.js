@@ -86,6 +86,7 @@ const onIn = e => {
 };
 document.addEventListener('input', onIn);
 document.addEventListener('change', e => {
+  if (e.target.id === 'bkf' && e.target.files && e.target.files[0]) { const f = e.target.files[0]; e.target.value = ''; return IE.bookAdd(f); }
   if (e.target.id === 'camf' && e.target.files && e.target.files[0]) return IE.camImport(e.target.files[0]);
   if (e.target.tagName === 'SELECT' || e.target.type === 'date' || e.target.type === 'checkbox') onIn(e);
 });
