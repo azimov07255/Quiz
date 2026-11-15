@@ -38,8 +38,8 @@ async function call(path, o = {}) {
 const fromTok = j => ({ access_token: j.access_token, refresh_token: j.refresh_token, expires_at: j.expires_at || Math.floor(Date.now() / 1000) + (j.expires_in || 3600), user: { id: j.user.id, email: j.user.email } });
 
 async function signIn(email, password) { const j = await call('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password } }); store(fromTok(j)); return sess; }
-async function signUp(email, password, name) {
-  const j = await call('/auth/v1/signup', { method: 'POST', body: { email, password, data: { name } } });
+async function signUp(email, password, name, code) {
+  const j = await call('/auth/v1/signup', { method: 'POST', body: { email, password, data: { name, code: code || '' } } });
   if (j && j.access_token) { store(fromTok(j)); return { session: sess }; }
   return { confirm: true };
 }
@@ -61,6 +61,7 @@ async function api(path, o = {}) {
 }
 const rest = (path, o) => api('/rest/v1/' + path, o);
 const rpc = (fn, args) => api('/rest/v1/rpc/' + fn, { method: 'POST', body: args || {} });
+const rpcPub = (fn, args) => call('/rest/v1/rpc/' + fn, { method: 'POST', body: args || {} });   // kirishdan oldin (anon)
 async function recover(email, redirectTo) { await call('/auth/v1/recover?redirect_to=' + encodeURIComponent(redirectTo), { method: 'POST', body: { email } }); }
 async function loadUser() { const j = await api('/auth/v1/user'); sess.user = { id: j.id, email: j.email }; store(sess); return sess; }
 async function fn(name, body) {
@@ -74,5 +75,5 @@ async function fn(name, body) {
 async function changePassword(pw) { await api('/auth/v1/user', { method: 'PUT', body: { password: pw } }); }
 async function signOut() { const t = sess && sess.access_token; store(null); if (t) { try { await call('/auth/v1/logout', { method: 'POST', token: t }); } catch (e) { /* offline bo‘lsa ham mahalliy chiqiladi */ } } }
 
-window.SB = { configured, allowSignup: !!C.allowSignup, session: () => sess, signIn, signUp, signOut, rest, rpc, fn, recover, loadUser, changePassword, refresh, recovery: () => recovery, clearRecovery: () => { recovery = null; }, onOut: f => outCbs.push(f) };
+window.SB = { configured, allowSignup: !!C.allowSignup, session: () => sess, signIn, signUp, signOut, rest, rpc, rpcPub, fn, recover, loadUser, changePassword, refresh, recovery: () => recovery, clearRecovery: () => { recovery = null; }, onOut: f => outCbs.push(f) };
 })();

@@ -366,3 +366,55 @@ body.splashing #app,body.splashing #nav{opacity:0}
 .pal .fin{width:100%}
 .qbar .big{height:54px;border-radius:18px}
 .qbar .ib{height:54px;width:54px;border-radius:18px}
+
+/* ───────── Musobaqa (arena) ───────── */
+.fld select{width:100%;font:inherit;font-size:15.5px;padding:14px;border-radius:14px;border:2px solid transparent;background:var(--card2);color:var(--tx);min-height:52px;outline:none}
+.fld select:focus{border-color:var(--ac)}
+.arena-cta{display:flex;align-items:center;gap:14px;width:100%;text-align:left;margin:14px 0;padding:16px;border-radius:22px;color:#fff;background:linear-gradient(135deg,#ff7a45 0%,#ef3f7a 55%,#8a4dff 100%);box-shadow:0 14px 28px -12px rgba(239,63,122,.65)}
+.arena-cta .ti{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:rgba(255,255,255,.2)}
+.arena-cta b{display:block;font-size:18px}.arena-cta small{display:block;opacity:.9}
+.arena-cta>.i:last-child{margin-left:auto}
+.arena-hero{display:flex;gap:14px;align-items:center;padding:18px;border-radius:24px;color:#fff;background:linear-gradient(135deg,#ff7a45,#ef3f7a 60%,#8a4dff);box-shadow:0 16px 32px -14px rgba(239,63,122,.6);margin:6px 0 14px}
+.arena-hero .ah-i{flex:0 0 auto;display:grid;place-items:center;width:60px;height:60px;border-radius:20px;background:rgba(255,255,255,.22)}
+.arena-hero b{font-size:18px}.arena-hero p{margin:4px 0 0;opacity:.92;font-size:14px}
+.jf{display:flex;gap:10px;margin-top:10px}
+.jf input{flex:1;min-width:0;text-align:center;font:800 24px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.35em;text-transform:uppercase;padding:14px 8px;border-radius:16px;border:2px solid transparent;background:var(--card2);color:var(--tx);outline:none}
+.jf input:focus{border-color:var(--ac)}
+.jf .big{flex:0 0 auto;width:auto;padding:0 20px}
+.arena-code{text-align:center;padding:22px 16px;border-radius:26px;background:var(--card);box-shadow:var(--sh);margin-bottom:12px;position:relative;overflow:hidden}
+.arena-code::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:var(--grad)}
+.arena-code .k{margin:0 0 10px;font-weight:700;color:var(--mu);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.arena-code .code{display:flex;justify-content:center;gap:8px;margin-bottom:10px}
+.arena-code .code span{display:grid;place-items:center;width:46px;height:60px;border-radius:14px;background:var(--grad);color:#fff;font:800 30px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:var(--shb);animation:pop .5s both}
+.arena-code .code span:nth-child(2){animation-delay:.06s}.arena-code .code span:nth-child(3){animation-delay:.12s}.arena-code .code span:nth-child(4){animation-delay:.18s}.arena-code .code span:nth-child(5){animation-delay:.24s}
+.lbc{padding:10px 12px}
+.lbr{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:16px;transition:background .3s}
+.lbr+.lbr{border-top:1px solid var(--bd)}
+.lbr.me{background:var(--acs);border-top-color:transparent}
+.lbr .rk{flex:0 0 26px;text-align:center;font-weight:800;color:var(--mu)}
+.lbr .rk.r1{color:#f59e0b}.lbr .rk.r2{color:#94a3b8}.lbr .rk.r3{color:#c2703d}
+.lbr .av{flex:0 0 38px;width:38px;height:38px;font-size:13px}
+.lbr .lbm{flex:1;min-width:0}.lbr .lbm b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+.lbr .bar{display:block;height:6px;margin-top:5px}
+.lbr .sc{flex:0 0 auto;font-weight:800;font-variant-numeric:tabular-nums;font-size:17px;color:var(--ac)}
+.wait{text-align:center;padding:22px 16px}
+.wait h2{margin:6px 0 2px}
+.dots{display:inline-flex;gap:6px;margin-top:10px}.dots i{width:9px;height:9px;border-radius:50%;background:var(--ac);animation:dotp 1.2s infinite ease-in-out}.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+@keyframes dotp{0%,80%,100%{transform:scale(.5);opacity:.4}40%{transform:scale(1);opacity:1}}
+.arena-top{display:flex;align-items:center;gap:10px}
+.arena-top .abarw{height:10px;border-radius:99px;background:var(--acs);overflow:hidden}
+.arena-top .abarw i{display:block;height:100%;border-radius:99px;background:var(--grad);transition:width .16s linear}
+.arena-top .tmr{height:40px;padding:0 12px;font-size:17px}
+.arena-top .apts{font-weight:800;font-variant-numeric:tabular-nums;color:#fff;background:linear-gradient(135deg,#ff7a45,#ef3f7a);border-radius:14px;padding:0 12px;height:40px;display:inline-flex;align-items:center;min-width:56px;justify-content:center}
+.afb{text-align:center;font-weight:800;font-size:20px;margin:10px 0 0;animation:fbin .35s both}
+.afb.good{color:var(--ok)}.afb.bad{color:var(--bad)}
+.arena-pod{text-align:center;padding:18px 8px 0;margin-bottom:12px}
+.arena-pod .k{font-size:22px;font-weight:800;margin:0 0 14px}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:10px}
+.pod{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.pod .av{width:52px;height:52px;font-size:17px}.pod b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.pod small{color:var(--mu);font-weight:700}
+.pod .blk{width:100%;border-radius:14px 14px 0 0;display:grid;place-items:start center;padding-top:8px;font-weight:800;font-size:22px;color:#fff;animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.pod.p1 .blk{height:110px;background:linear-gradient(180deg,#fbbf24,#f59e0b)}
+.pod.p2 .blk{height:80px;background:linear-gradient(180deg,#cbd5e1,#94a3b8)}
+.pod.p3 .blk{height:58px;background:linear-gradient(180deg,#e0a06b,#c2703d)}
+@keyframes rise{from{transform:scaleY(.1);opacity:0;transform-origin:bottom}to{transform:none;opacity:1;transform-origin:bottom}}

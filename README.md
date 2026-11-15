@@ -44,5 +44,11 @@ PWA/offline uchun HTTPS (yoki localhost) kerak, masalan GitHub Pages/Netlify/Clo
 - **Supabase panelida sozlash kerak:** Authentication → *URL Configuration*: **Site URL** = ilovaning haqiqiy manzili va *Redirect URLs* ga ham shu manzilni qo‘shing (aks holda tiklash havolasi noto‘g‘ri joyga olib boradi). Ko‘p foydalanuvchi bo‘lsa — o‘z SMTP’ingizni ulang (standart pochta soatiga bir necha xat bilan cheklangan). Sotishdan oldin Pro rejaga o‘ting (bepul loyiha 1 hafta faolsiz qolsa to‘xtatiladi).
 - Sinovlar: `node tests/smoke.cjs` (mahalliy rejim), `node tests/update.cjs` (animatsiya va yangi versiya xabari), `node tests/cloud.cjs` va `node tests/catalog.cjs` (jonli baza: `tests/cloud-users.sql` dagi hisoblarni o‘z parolingiz bilan yarating va `TEST_PW=<parol>` bering; sinovdan keyin hisoblarni o‘chiring).
 
+## Ro‘yxatdan o‘tish, guruhlar va musobaqa (v1.6)
+- **Taklif kodi bilan ro‘yxatdan o‘tish.** Owner: Sozlamalar → “Ro‘yxatdan o‘tish” (yoki Foydalanuvchilar sahifasi) — ochiq/yopiq, taklif kodi, necha kunga kirish beriladi va yangi hisoblar qaysi guruhga tushadi. Yopiq bo‘lsa, ilovada “Ro‘yxatdan o‘tish” tugmasi ko‘rinmaydi (server tekshiradi, kodsiz hisob faol bo‘lmaydi).
+- **Guruhlar (kimga nima ko‘rinadi).** Har bir foydalanuvchi va har bir katalog fani guruhlarga ega bo‘lishi mumkin. Fan guruhsiz bo‘lsa — hammaga, guruhli bo‘lsa — faqat shu guruhdagilarga ko‘rinadi (RLS server tomonda). Foydalanuvchi: Foydalanuvchilar → “Guruh”. Fan: Umumiy katalog → “Tahrirlash” yoki yuklashda.
+- **Musobaqa.** Bosh sahifadagi “Musobaqa”: xona ochiladi (5 belgili kod), kursdoshlar kod bilan qo‘shiladi, bir xil savollar, tez va to‘g‘ri javob ko‘proq ball beradi (100 + 60 gacha tezlik bonusi), jonli reyting va g‘oliblar zinapoyasi. Ball klientda hisoblanadi, server faqat chegaradan oshmasligini tekshiradi (do‘stlar orasida o‘ynash uchun).
+- Migratsiya: `supabase/migrations/20261115_groups_signup_arena.sql`; sinov: `tests/arena.cjs` (jonli Supabase, 2 o‘yinchi).
+
 ## Ma’lumot qayerda saqlanadi
 Savol banki — IndexedDB, natijalar/xatolar/sozlamalar — localStorage (faqat shu qurilmada). **⚙️ Sozlamalar → Zaxira** bilan fayl qilib saqlab, boshqa qurilmada tiklash mumkin. Safari uzoq foydalanilmagan sayt ma’lumotini o‘chirib yuborishi mumkin — shuning uchun vaqti-vaqti bilan zaxira ol.
