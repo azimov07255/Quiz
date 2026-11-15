@@ -91,7 +91,7 @@ function normUnit(kind, raw, label, which) {
   const id = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), title = String(raw.title || label || 'Cambridge').slice(0, 120), topic = String(raw.topic || 'Cambridge').slice(0, 40);
   if (kind === 'r') {
     let paras = (Array.isArray(raw.paras) ? raw.paras : []).map((p, i) => ({ k: String(p.k || i + 1).slice(0, 3), t: String(p.t || '').trim() })).filter(p => p.t);
-    if (paras.length < 2 || paras.reduce((s, p) => s + p.t.length, 0) < 600) throw new Error('Matn (passage) to‘liq chiqmadi. Sahifalarni tekshiring.');
+    if (paras.length < 2 || paras.reduce((s, p) => s + p.t.length, 0) < 300) throw new Error('Matn (passage) to‘liq chiqmadi. Sahifalarni tekshiring.');
     if (new Set(paras.map(p => p.k)).size !== paras.length) paras = paras.map((p, i) => Object.assign(p, { k: String(i + 1) }));
     return { unit: { id, mt: Date.now(), title, topic, level: 'Cambridge IELTS', cam: label || title, paras, groups }, warn };
   }
@@ -129,7 +129,8 @@ function hub() {
   const rd = store.reading, ls = store.listening;
   return sub('Cambridge IELTS', 'practice', '<div class="pad"><div class="card rise"><div class="row">' + bd('book', 'R', 'lg') + '<div style="flex:1"><b style="font-size:16px">Shaxsiy Cambridge testlari</b><div class="sm mu">Kitobingiz (PDF) sahifalaridan Reading passage va Listening section tuzing — keyin oddiy testdek yechasiz (band, tahlil, tarix).</div></div></div></div>' +
     '<div class="two" style="margin-top:12px"><button class="btn" data-go="cambridge/new/r">' + ic('plus') + ' Reading</button><button class="btn" data-go="cambridge/new/l">' + ic('plus') + ' Listening</button></div>' +
-    '<div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap"><label class="chip" style="display:inline-flex">' + ic('doc') + ' JSON fayldan yuklash<input type="file" accept=".json,application/json" id="camj" hidden></label><button class="chip' + (cloudOn() ? ' on' : '') + '" data-a="camcl">' + ic('cloud') + ' Bulut: ' + (cloudOn() ? 'yoqilgan' : 'o‘chiq') + '</button>' + (cloudOn() ? '<button class="chip" data-a="camsyn">' + ic('refresh') + ' Sinxronlash</button>' : '') + '</div>' +
+    '<div class="card" style="margin-top:12px"><div class="row">' + bd('doc', 'T') + '<div style="flex:1"><b>JSON fayldan yuklash</b><div class="sm mu">Tayyor test faylingiz bo‘lsa — to‘g‘ridan-to‘g‘ri yuklang (Reading va Listening birga bo‘lishi mumkin).</div></div></div><div class="two" style="margin-top:10px"><label class="btn sm" style="text-align:center">' + ic('down') + ' JSON tanlash<input type="file" accept=".json,application/json,text/plain" id="camj" hidden></label><button class="btn sm ghost" data-a="camtpl">Namuna formati</button></div></div>' +
+    '<div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap"><button class="chip' + (cloudOn() ? ' on' : '') + '" data-a="camcl">' + ic('cloud') + ' Bulut: ' + (cloudOn() ? 'yoqilgan' : 'o‘chiq') + '</button>' + (cloudOn() ? '<button class="chip" data-a="camsyn">' + ic('refresh') + ' Sinxronlash</button>' : '') + '</div>' +
     (!rd.length && !ls.length ? '<div class="card rise" style="margin-top:14px"><b style="font-size:16px">Testlar hozircha yo‘q — o‘zingiz qo‘shasiz</b><div class="sm mu" style="margin:6px 0 10px">Cambridge matnlari ilovada tayyor emas (mualliflik huquqi). Kitobingizdan 3 qadamda olinadi:</div>' +
       '<div class="lst"><button class="item" data-go="books"><span class="qn">1</span><div class="tx"><b>Kitob PDF’ini yuklang</b><span>Kitoblar → PDF tanlash (telefondagi fayl)</span></div><span class="go">' + ic('next') + '</span></button>' +
       '<button class="item" data-go="cambridge/new/r"><span class="qn">2</span><div class="tx"><b>Reading qo‘shing</b><span>Passage va javoblar kaliti bet raqamlarini kiriting</span></div><span class="go">' + ic('next') + '</span></button>' +
@@ -147,11 +148,26 @@ A.camsyn = () => { camSync(true); };
 IE.camJson = async file => {
   try {
     const j = JSON.parse(await file.text()); let n = 0;
-    const add = (k, list) => (Array.isArray(list) ? list : []).forEach(raw => { try { const { unit } = normUnit(k, raw, raw.cam || raw.title, raw.sec); store[kindOf(k)].push(unit); n++; } catch (e) { /* o‘tkazib */ } });
+    let bad = '', nb = 0;
+    const add = (k, list) => (Array.isArray(list) ? list : []).forEach(raw => { try { const { unit } = normUnit(k, raw, raw.cam || raw.title, raw.sec); store[kindOf(k)].push(unit); n++; } catch (e) { nb++; bad = bad || e.message; } });
     if (Array.isArray(j.reading) || Array.isArray(j.listening)) { add('r', j.reading); add('l', j.listening); } else if (j && j.groups) add(j.paras ? 'r' : 'l', [j]);
-    if (!n) return IE.toast('JSON ichida yaroqli test topilmadi');
-    await persist(); inject(); IE.toast(n + ' ta test qo‘shildi'); IE.draw(false);
+    if (!n) return IE.toast(bad ? 'Test qo‘shilmadi: ' + bad : 'JSON ichida test topilmadi (Namuna formatiga qarang)');
+    await persist(); inject(); IE.toast(n + ' ta test qo‘shildi' + (nb ? ', ' + nb + ' ta o‘tkazib yuborildi' : '')); IE.draw(false);
   } catch (e) { IE.toast('JSON o‘qilmadi'); }
+};
+A.camtpl = () => {
+  const P = 'Write the full passage paragraph here, exactly as printed in the book. Each paragraph needs a letter (A, B, C...) if the test uses matching headings or paragraph questions; otherwise use the numbers 1, 2, 3. Replace this sample text with the real paragraph.';
+  const tpl = { _izoh: 'Bu namuna. "reading" va "listening" ro‘yxatlarida istalgancha test bo‘lishi mumkin. Savol turlari: heads, tfng, fill, mcq. Javoblar: heads → "iv", tfng → "TRUE"/"FALSE"/"NOT GIVEN" (YES/NO ham bo‘ladi), mcq → 0-dan boshlanadigan indeks yoki harf ("B"), fill → mumkin bo‘lgan javoblar ro‘yxati. Audio JSON’ga kirmaydi — keyin ilovada biriktiriladi.',
+    reading: [{ cam: 'Cambridge 16 · Test 1 · Passage 1', title: 'Passage title', topic: 'Topic', paras: [{ k: 'A', t: P }, { k: 'B', t: P }, { k: 'C', t: P }],
+      groups: [{ type: 'heads', title: 'Questions 1-2', note: 'Choose the correct heading for paragraphs B and C.', headings: [{ id: 'i', t: 'First heading' }, { id: 'ii', t: 'Second heading' }, { id: 'iii', t: 'Third heading' }], qs: [{ n: 1, para: 'B', a: 'ii', why: 'Izoh (ixtiyoriy)' }, { n: 2, para: 'C', a: 'i' }] },
+        { type: 'tfng', title: 'Questions 3-4', note: 'Write TRUE, FALSE or NOT GIVEN.', qs: [{ n: 3, q: 'Statement one.', a: 'TRUE' }, { n: 4, q: 'Statement two.', a: 'NOT GIVEN' }] },
+        { type: 'fill', title: 'Questions 5-6', note: 'Write ONE WORD ONLY.', qs: [{ n: 5, q: 'The ______ was built in 1990.', a: ['bridge'] }, { n: 6, q: 'It is made of ______.', a: ['steel', 'iron'] }] },
+        { type: 'mcq', title: 'Questions 7-8', note: 'Choose the correct letter A, B or C.', qs: [{ n: 7, q: 'What is the main idea?', o: ['Option A', 'Option B', 'Option C'], a: 1 }, { n: 8, q: 'Where did it happen?', o: ['Here', 'There', 'Nowhere'], a: 'A' }] }] }],
+    listening: [{ cam: 'Cambridge 16 · Test 1 · Section 1', title: 'Section title', tr: [{ x: 'Audioscript paragraph one (ixtiyoriy).' }, { x: 'Audioscript paragraph two.' }],
+      groups: [{ type: 'fill', title: 'Questions 1-3', note: 'Write NO MORE THAN TWO WORDS AND/OR A NUMBER.', qs: [{ n: 1, q: 'Name: ______', a: ['Smith'], p: 0 }, { n: 2, q: 'Phone: ______', a: ['0123456'] }, { n: 3, q: 'Date: ______', a: ['5 May', '5th May'] }] },
+        { type: 'mcq', title: 'Questions 4-5', note: 'Choose the correct letter A, B or C.', qs: [{ n: 4, q: 'Which room?', o: ['Hall', 'Lab', 'Cafe'], a: 2 }, { n: 5, q: 'When?', o: ['Morning', 'Evening', 'Noon'], a: 0 }] }] }] };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(tpl, null, 2)], { type: 'application/json' })), a = document.createElement('a');
+  a.href = url; a.download = 'cambridge-namuna.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000); IE.toast('Namuna yuklab olindi');
 };
 IE.camChange = el => {
   const f = el.files && el.files[0]; if (!f) return false;

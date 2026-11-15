@@ -1,6 +1,6 @@
 // IELTS ilovasi: offline + versiyali kesh. Ilova o‘zgargach VERSION ni oshiring (app.js dagi APP_VERSION bilan bir xil).
 // Eslatma: ../config.js va ../auth.js Testlar bilan umumiy — ular tarmoqdan olinadi, bo‘lmasa keshdan.
-const VERSION = '0.8.2';
+const VERSION = '0.8.3';
 const CACHE = 'ielts-' + VERSION;
 const SHELL = ['./', 'index.html', 'style.css', 'core.js', 'screens.js', 'ai.js', 'listening.js', 'materials.js', 'practice.js', 'mock.js', 'books.js', 'cambridge.js', 'app.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
   'data/reading.json', 'data/vocab8.json', 'data/strategy.json', 'data/prompts.json', 'data/listening.json', 'data/articles.json', 'data/podcasts.json', '../config.js', '../auth.js'];
