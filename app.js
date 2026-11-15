@@ -2,7 +2,7 @@
    Savol banki: IndexedDB. Natijalar/xatolar/sozlamalar: localStorage. Hech qanday server yoki kalit yo‘q. */
 (() => {
 'use strict';
-const APP_VERSION = '1.8.0';   // sw.js dagi VERSION bilan bir xil bo‘lsin
+const APP_VERSION = '1.9.0';   // sw.js dagi VERSION bilan bir xil bo‘lsin
 
 // ───────────── yordamchilar ─────────────
 const $ = (s, r = document) => r.querySelector(s);
@@ -412,8 +412,8 @@ async function catSave(sid, patch, okMsg) {
   try { await SB.rest('catalog_subjects?subject_id=eq.' + encodeURIComponent(sid), { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: Object.assign({ updated_at: new Date().toISOString() }, patch) }); await syncCatalog(); toast(okMsg || 'Saqlandi'); if (V.v === 'cat') { V.anim = false; draw(); } }
   catch (e) { toast(uzErr(e)); }
 }
-async function catUpload(inp) {
-  const fs = [...inp.files]; inp.value = ''; if (!fs.length) return;
+async function catUpload(inp, preset) {
+  const fs = [...inp.files]; inp.value = ''; if (!fs.length) return; preset = preset || {};
   const subs = [], errs = [];
   for (const f of fs) {
     let d; try { d = JSON.parse(await f.text()); } catch (e) { errs.push(f.name + ': JSON emas'); continue; }
@@ -422,7 +422,7 @@ async function catUpload(inp) {
   }
   if (errs.length) { setMsg(errs.join(' · '), false); V.anim = false; draw(); }
   if (!subs.length) return;
-  const v = await formSheet('Katalogga qo‘shish', `<p class="mu s" style="margin:4px 2px">${subs.map(x => `${esc(x.name)} · ${x.topics.length} mavzu · ${subjCount(x)} savol`).join('<br>')}</p><p class="mu s" style="margin:4px 2px">Fan avval bor bo‘lsa, yangi mavzular (kitoblar) unga qo‘shiladi, bir xil <code>id</code>li mavzu yangilanadi.</p>` + fld('category', 'Kategoriya', { value: lsGet('testlar:lastcat', 'Madrasa'), ph: 'Masalan: Madrasa, Oraliq, IELTS' }) + grpHint() + fld('groups', 'Kimlarga ko‘rinadi (guruhlar, vergul bilan; bo‘sh = hammaga)', { value: ((CBRAW.find(e => subs.some(x => x.id === e.subject_id)) || {}).groups || []).join(', '), ph: 'masalan: kursdosh' }) + chipsRow('pub', '1', [['1', 'Hammaga chop etilsin'], ['0', 'Qoralama (faqat men ko‘raman)']], 'Holati'), 'Yuklash');
+  const v = await formSheet('Katalogga qo‘shish', `<p class="mu s" style="margin:4px 2px">${subs.map(x => `${esc(x.name)} · ${x.topics.length} mavzu · ${subjCount(x)} savol`).join('<br>')}</p><p class="mu s" style="margin:4px 2px">Fan avval bor bo‘lsa, yangi mavzular (kitoblar) unga qo‘shiladi, bir xil <code>id</code>li mavzu yangilanadi.</p>` + fld('category', 'Kategoriya', { value: preset.cat || lsGet('testlar:lastcat', 'Madrasa'), ph: 'Masalan: Madrasa, Oraliq, IELTS' }) + grpHint() + fld('groups', 'Kimlarga ko‘rinadi (guruhlar, vergul bilan; bo‘sh = hammaga)', { value: ((CBRAW.find(e => subs.some(x => x.id === e.subject_id)) || {}).groups || (preset.groups ? [preset.groups] : [])).join(', '), ph: 'masalan: kursdosh' }) + chipsRow('pub', '1', [['1', 'Hammaga chop etilsin'], ['0', 'Qoralama (faqat men ko‘raman)']], 'Holati'), 'Yuklash');
   if (!v) return;
   const cat = String(v.category || '').trim().slice(0, 40), pub = v.pub !== '0', grp = parseGroups(v.groups); lsSet('testlar:lastcat', cat || 'Madrasa');
   const now = new Map(CBRAW.map(e => [e.subject_id, e])), rows = []; let mx = Math.max(0, ...CBRAW.map(e => +e.sort || 0));
@@ -438,6 +438,14 @@ async function catUpload(inp) {
     await syncCatalog(); setMsg(`Katalogga yuklandi: ${rows.length} ta fan, ${rows.reduce((a, r) => a + r.data.topics.reduce((b, t) => b + t.q.length, 0), 0)} ta savol${pub ? '' : ' (qoralama)'}`, true);
   } catch (e) { setMsg('Yuklanmadi: ' + uzErr(e), false); }
   V.anim = false; draw();
+}
+async function catPreset(f) {
+  if (!/^[a-z0-9]+\/[a-z0-9]+$/.test(f)) return;
+  try {
+    const r = await fetch('banklar/' + f + '.json', { cache: 'no-cache' }); if (!r.ok) throw new Error('HTTP ' + r.status);
+    const file = new File([await r.text()], f.split('/')[1] + '.json', { type: 'application/json' });
+    await catUpload({ files: [file], value: '' }, { cat: 'IELTS', groups: 'ielts' });
+  } catch (e) { toast('Tayyor bank yuklanmadi: ' + uzErr(e)); }
 }
 async function catEdit(sid) {
   const e = CBRAW.find(x => x.subject_id === sid); if (!e) return;
@@ -460,7 +468,8 @@ async function catTopicDel(sid, tid) {
 function catView() {
   let h = `<header class="hdr up"><div style="display:flex;gap:12px;align-items:center"><button class="x" data-a="nav" data-v="set" aria-label="Orqaga">${ic('chevL')}</button><h1 style="font-size:26px">Umumiy katalog</h1></div></header>${noteHtml()}
   <p class="mu s">Bu yerga yuklagan savollaring faol obunachilarning hammasida o‘zi paydo bo‘ladi. Kitoblarni birma-bir qo‘sha berasan: bir xil fan <code>id</code>sidagi mavzular shu fanga qo‘shiladi.</p>
-  <button class="big up" data-a="catPick">${ic('upload')} Katalogga fayl qo‘shish</button>`;
+  <button class="big up" data-a="catPick">${ic('upload')} Katalogga fayl qo‘shish</button>
+  <div class="card up" style="--i:1"><h2>${ic('sparkle')} Tayyor banklar</h2><p class="mu s">Ilovaga biriktirilgan banklarni bir tugma bilan katalogga qo‘shing (kategoriya va guruh avtomatik yoziladi).</p><div class="in"><button class="btn s" data-a="catPre" data-f="ielts/strategiya">IELTS strategiyalar · 178</button><button class="btn s" data-a="catPre" data-f="ielts/sozlar8">IELTS 8+ so‘zlar · 720</button></div></div>`;
   if (!CBRAW.length) return h + '<div class="card empty"><p class="mu">Katalog hali bo‘sh.</p></div>';
   CBRAW.forEach((e, i) => {
     const hue = hueOf('c:' + e.subject_id);
@@ -995,6 +1004,7 @@ async function act(a, d, el) {
     case 'uBlock': { const u = (A.users || []).find(x => x.user_id === d.id); if (u) ownerSet(d.id, { blocked: !u.blocked }); break; }
     case 'cat': V.v = 'cat'; V.anim = true; setMsg(null); draw(false); window.scrollTo(0, 0); break;
     case 'catPick': $('#fcat').click(); break;
+    case 'catPre': catPreset(d.f); break;
     case 'catEdit': catEdit(d.id); break;
     case 'catDel': catDel(d.id); break;
     case 'catTopicDel': catTopicDel(d.sid, d.tid); break;
