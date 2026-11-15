@@ -160,11 +160,12 @@ function hub() {
     (g.loose.r.length || g.loose.l.length ? '<div class="sec"><h2>Boshqa testlar</h2></div><div class="lst">' + g.loose.r.map(x => rowH('r', x)).join('') + g.loose.l.map(x => rowH('l', x)).join('') + '</div>' : '');
   const intro = none ? '<div class="card rise"><div class="row">' + bd('book', 'R', 'lg') + '<div style="flex:1"><b style="font-size:16px">Shaxsiy Cambridge testlari</b><div class="sm mu">Kitobingiz (PDF) dan Reading va Listening tuzing — kitob va Test bo‘yicha tartiblanadi, keyin oddiy testdek yechasiz.</div></div></div></div>' +
     '<div class="card rise" style="margin-top:14px"><b style="font-size:16px">Testlar hozircha yo‘q — o‘zingiz qo‘shasiz</b><div class="sm mu" style="margin:6px 0 10px">Cambridge matnlari ilovada tayyor emas (mualliflik huquqi). Kitoblarga PDF yuklang, keyin pastdagi “Kitobdan hammasini avtomatik” tugmasini bosing.</div><div class="lst"><button class="item" data-go="books"><span class="qn">1</span><div class="tx"><b>Kitob PDF’ini yuklang</b><span>Kitoblar → PDF tanlash (telefondagi fayl)</span></div><span class="go">' + ic('next') + '</span></button></div></div>' : '';
-  return sub('Cambridge IELTS', 'practice', '<div class="pad">' + intro + body + addBlock() + '</div>');
+  const noAud = store.listening.filter(u => !(u.dur > 0)).length, zipB = store.listening.length ? '<div class="sec"><h2>Audio</h2></div>' + (noAud ? '<div class="tip8" style="margin-bottom:6px"><b>' + noAud + ' ta Listening qismida audio yo‘q.</b> Kitobning audio ZIP faylini shu yerga yuklang — o‘zi joylab chiqadi.</div>' : '') + zipHTML() : '';
+  return sub('Cambridge IELTS', 'practice', '<div class="pad">' + intro + body + zipB + addBlock() + '</div>');
 }
 function testPage(book, n) {
   const bk = groups().books.find(x => x[0] === book), t = bk && bk[1].get(n); if (!t) return hub();
-  const ov = overall(t), L = skill(t, 'L'), Rr = skill(t, 'R');
+  const ov = overall(t), L = skill(t, 'L'), Rr = skill(t, 'R'), lack = Object.values(t.L).filter(u => !(u.dur > 0)).length;
   const row = (k, i, u) => {
     const nm = (k === 'L' ? 'Section ' : 'Passage ') + i;
     if (!u) return '<div class="item" style="opacity:.5">' + bd(k === 'L' ? 'head' : 'book', k, 'sm') + '<div class="tx"><b>' + nm + '</b><span>Qo‘shilmagan</span></div></div>';
@@ -174,7 +175,7 @@ function testPage(book, n) {
   const soon = nm => '<div class="item" style="opacity:.45">' + bd(nm === 'Writing' ? 'pen' : 'mic', nm === 'Writing' ? 'W' : 'S', 'sm') + '<div class="tx"><b>' + nm + '</b><span>Tez orada</span></div></div>';
   const inner = '<div class="pad"><div class="card rise"><div class="row" style="justify-content:space-between"><div><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase">' + esc(book) + '</div><div style="font-size:26px;font-weight:900">Test ' + n + '</div></div>' + (ov != null ? '<div class="c"><div class="mu xs">Taxminiy band</div><div style="font-size:30px;font-weight:900;color:var(--pl)">' + IE.bandTxt(ov) + '</div></div>' : '') + '</div>' +
     '<div class="two" style="margin-top:10px"><div class="stat"><b>' + (L.band != null ? IE.bandTxt(L.band) : L.done + '/' + L.need) + '</b><span>Listening</span></div><div class="stat"><b>' + (Rr.band != null ? IE.bandTxt(Rr.band) : Rr.done + '/' + Rr.need) + '</b><span>Reading</span></div></div></div>' +
-    '<div class="sec"><h2>Listening</h2></div><div class="lst">' + [1, 2, 3, 4].map(i => row('L', i, t.L[i])).join('') + '</div>' +
+    '<div class="sec"><h2>Listening</h2></div>' + (lack ? '<button class="item" style="margin-bottom:8px" data-go="cambridge">' + bd('down', 'L', 'sm') + '<div class="tx"><b>Audio ZIP yuklash</b><span>' + lack + ' ta Section’da audio yo‘q — Cambridge sahifasidagi “Audio” bo‘limidan zip tanlang</span></div><span class="go">' + ic('next') + '</span></button>' : '') + '<div class="lst">' + [1, 2, 3, 4].map(i => row('L', i, t.L[i])).join('') + '</div>' +
     '<div class="sec"><h2>Reading</h2></div><div class="lst">' + [1, 2, 3].map(i => row('R', i, t.R[i])).join('') + '</div>' +
     '<div class="sec"><h2>Writing va Speaking</h2></div><div class="lst">' + soon('Writing') + soon('Speaking') + '</div>' +
     '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Band — hamma Section/Passage topshirilgach hisoblanadi (har birining oxirgi natijasi bo‘yicha).</p></div>';
@@ -329,13 +330,14 @@ function parseTrack(path) {
 const stageKey = (book, n, part) => 'camstage:' + book + ':' + n + ':' + part;
 /** Tayyor bo‘lgan (yoki keyin tuziladigan) Section uchun saqlab qo‘yilgan audioni biriktiradi. */
 async function applyStage(unit, quiet) {
-  if (!unit || !unit.grp) return false; const [book, n] = unit.grp.split(':'), key = stageKey(book, n, unit.sn);
+  const pc = unit && parseCam(unit); if (!pc) return false; const key = stageKey(pc.book, pc.n, pc.i);
   let r = null; try { r = await IE.idbGet(key); } catch (e) { /* */ } if (!r || !r.buf) return false;
   await IE.camAudio(unit.id, new Blob([r.buf], { type: r.type || 'audio/mpeg' }), quiet); try { await IE.idbDel(key); } catch (e) { /* */ } return true;
 }
 async function readZip(file) {
-  const c = cb(); c.err = ''; c.zip = { busy: 'ZIP ochilmoqda…', rows: [] }; IE.draw(false);
-  const book = c.book, seq = []; let ff;
+  const c = cb(); c.err = ''; const sel = $('#czb'), bname = ((sel && sel.value) || c.zb || '').trim(); if (!bname) return IE.toast('Avval kamida bitta test qo‘shing');
+  c.zb = bname; c.zip = { busy: 'ZIP ochilmoqda…', rows: [], book: bname }; IE.draw(false);
+  const book = 'z' + Date.now().toString(36), seq = []; let ff;
   try {
     ff = await loadFflate();
     const pend = []; const uz = new ff.Unzip(); uz.register(ff.UnzipInflate); uz.register(ff.UnzipPassThrough);
@@ -355,21 +357,23 @@ async function readZip(file) {
   const sorted = seq.map((f, i) => Object.assign({ i }, f, parseTrack(f.name))).sort((a, b) => natCmp(a.name, b.name));
   if (sorted.some(f => !f.n || !f.part) && sorted.length % 4 === 0) sorted.forEach((f, k) => { if (!f.n || !f.part) { f.n = Math.floor(k / 4) + 1; f.part = k % 4 + 1; f.guess = true; } });
   const seen = new Set(); sorted.forEach(f => { if (f.n && f.part) { const k = f.n + ':' + f.part; if (seen.has(k)) f.dup = true; seen.add(k); } });
-  c.zip.rows = sorted; c.zip.busy = 'Biriktirilmoqda…'; IE.draw(false);
+  c.zip.rows = sorted; c.zip.tmp = book; c.zip.busy = 'Biriktirilmoqda…'; IE.draw(false);
   for (const f of sorted) { if (f.n && f.part && !f.dup) await place(f, true); }
   c.zip.busy = ''; const ok = sorted.filter(f => f.done).length; IE.toast(ok + ' ta audio joylashtirildi' + (sorted.length - ok ? ', ' + (sorted.length - ok) + ' tasi qo‘lda' : '')); IE.draw(false);
 }
 /** zip yozuvini (camzip:) Section audiosi sifatida joylashtiradi: unit bor bo‘lsa biriktiradi, yo‘q bo‘lsa kutish omboriga qo‘yadi. */
 async function place(f, quiet) {
-  const c = cb(), r = await IE.idbGet('camzip:' + c.book + ':' + f.i); if (!r) return;
-  const unit = store.listening.find(u => u.grp === c.book + ':' + f.n && u.sn === f.part);
-  if (unit) await IE.camAudio(unit.id, new Blob([r.buf], { type: r.type }), true); else await IE.idbSet(stageKey(c.book, f.n, f.part), r);
-  await IE.idbDel('camzip:' + c.book + ':' + f.i); f.done = unit ? 'att' : 'stage'; if (!quiet) IE.draw(false);
+  const c = cb(), z = c.zip, r = await IE.idbGet('camzip:' + z.tmp + ':' + f.i); if (!r) return;
+  const unit = store.listening.find(u => { const p = parseCam(u); return p && p.book === z.book && p.n === f.n && p.i === f.part; });
+  if (unit) await IE.camAudio(unit.id, new Blob([r.buf], { type: r.type }), true); else await IE.idbSet(stageKey(z.book, f.n, f.part), r);
+  await IE.idbDel('camzip:' + z.tmp + ':' + f.i); f.done = unit ? 'att' : 'stage'; if (!quiet) IE.draw(false);
 }
 A.czset = async el => { const c = cb(), f = c.zip && c.zip.rows.find(x => x.i === +el.dataset.i); if (!f) return; const v = el.value.split(':'); if (v.length !== 2) return; f.n = +v[0]; f.part = +v[1]; f.dup = false; await place(f); IE.toast('Joylashtirildi'); };
+function zipBookNames() { const names = groups().books.map(b => b[0]); const c = cb(), bk = IE.bookList ? IE.bookList().find(b => b.id === c.book) : null, nm = ((c.nm != null ? c.nm : (bk ? shortName(bk) : '')) || '').trim(); if (nm && !names.includes(nm) && (IE.curRoute || '') === 'cambridge/book') names.push(nm); return names; }
 const zipHTML = () => {
-  const c = cb(), z = c.zip, opts = (sel) => '<option value="">Tanlang…</option>' + [1, 2, 3, 4].flatMap(n => [1, 2, 3, 4].map(p => '<option value="' + n + ':' + p + '"' + (sel === n + ':' + p ? ' selected' : '') + '>Test ' + n + ' · Section ' + p + '</option>')).join('');
-  return '<div class="card" style="margin-top:12px"><div class="row">' + bd('head', 'L') + '<div style="flex:1"><b>Audio ZIP</b><div class="sm mu">Kitobning audio arxivi (zip). Fayl nomlaridan Test va Section o‘zi aniqlanadi.</div></div></div>' +
+  const c = cb(), z = c.zip, names = zipBookNames(), cur = c.zb && names.includes(c.zb) ? c.zb : names[0] || '', opts = (sel) => '<option value="">Tanlang…</option>' + [1, 2, 3, 4].flatMap(n => [1, 2, 3, 4].map(p => '<option value="' + n + ':' + p + '"' + (sel === n + ':' + p ? ' selected' : '') + '>Test ' + n + ' · Section ' + p + '</option>')).join('');
+  return '<div class="card" style="margin-top:12px"><div class="row">' + bd('head', 'L') + '<div style="flex:1"><b>Audio ZIP</b><div class="sm mu">Kitobning audio arxivi (zip). Fayl nomlaridan Test va Section o‘zi aniqlanadi va tayyor testlarga biriktiriladi.</div></div></div>' +
+    (names.length > 1 ? '<div class="fld" style="margin:10px 0 0"><label>Qaysi kitob</label><select id="czb">' + names.map(n => '<option' + (n === cur ? ' selected' : '') + '>' + esc(n) + '</option>').join('') + '</select></div>' : '<input type="hidden" id="czb" value="' + esc(cur) + '">') +
     (z && z.busy ? '<div class="mu sm row" style="gap:8px;margin-top:10px"><div class="spin sm"></div> <span id="czbusy">' + esc(z.busy) + '</span></div>' : '<label class="btn block" style="margin-top:10px">' + ic('down') + ' ZIP tanlash<input type="file" accept=".zip,application/zip,application/x-zip-compressed" id="camzip" hidden></label>') +
     (z && z.rows.length ? '<div class="lst" style="margin-top:10px">' + z.rows.map(f => '<div class="item" style="padding:8px 12px"><div class="tx" style="min-width:0"><b style="font-size:13px;white-space:normal;word-break:break-all">' + esc(f.name.split('/').pop()) + '</b><span>' + (f.done ? 'Test ' + f.n + ' · Section ' + f.part + (f.guess ? ' (tartib bo‘yicha taxmin)' : '') + (f.done === 'stage' ? ' · kutilmoqda: shu Test tuzilgach avtomatik biriktiriladi' : ' · biriktirildi') : (f.dup ? 'Takror (shu Section allaqachon bor)' : 'Aniqlanmadi — tanlang')) + '</span></div>' + (f.done ? '<span class="chip ok">✓</span>' : '<select class="sel" style="width:auto;max-width:150px" data-a="czset" data-i="' + f.i + '" onchange="IE.act.czset(this)">' + opts('') + '</select>') + '</div>').join('') + '</div>' : '') + '</div>';
 };
