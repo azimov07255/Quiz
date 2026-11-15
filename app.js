@@ -2,7 +2,7 @@
    Savol banki: IndexedDB. Natijalar/xatolar/sozlamalar: localStorage. Hech qanday server yoki kalit yo‘q. */
 (() => {
 'use strict';
-const APP_VERSION = '1.5.1';   // sw.js dagi VERSION bilan bir xil bo‘lsin
+const APP_VERSION = '1.5.2';   // sw.js dagi VERSION bilan bir xil bo‘lsin
 
 // ───────────── yordamchilar ─────────────
 const $ = (s, r = document) => r.querySelector(s);
@@ -677,8 +677,9 @@ function quizView() {
   }
   const need = (ex && !answered) || (open && !Q.sf[id]);
   const bar = `<div class="qbar"><div class="in"><button class="ib" data-a="go" data-d="-1" ${i ? '' : 'disabled'} aria-label="Oldingi">${ic('chevL')}</button><button class="ib ${fl ? 'on' : ''}" data-a="flag" data-id="${esc(id)}" aria-pressed="${fl}" aria-label="Shubhali deb belgilash">${ic('flag')}</button>${lastQ ? `<button class="big" data-a="finish" ${need ? 'disabled' : ''}>${ic('check')} Yakunlash</button>` : `<button class="big" data-a="go" data-d="1" ${need ? 'disabled' : ''}>Keyingisi ${ic('chevR')}</button>`}</div></div>`;
-  const grid = Q.mo === 'e' ? `<div class="grid-q">${Q.ids.map((d, j) => `<button class="dot ${j === i ? 'cur' : Q.ans[d] !== undefined ? 'done' : ''}" data-a="jump" data-i="${j}" aria-label="${j + 1}-savol">${Q.ans[d] !== undefined && j !== i ? ic('check', 16) : j + 1}</button>`).join('')}</div><button class="btn s" data-a="finish">${ic('check')} Testni yakunlash</button>` : '';
-  return top + `<div class="qwrap ${V.anim ? 'in' : ''}">${tags}<div class="qcard"><p class="q">${esc(q.q)}</p></div>${body}${grid}</div>` + bar;
+  const nAns = Q.ids.filter(d => Q.ans[d] !== undefined).length;
+  const grid = Q.mo === 'e' ? `<div class="pal"><div class="pt"><b>Savollar xaritasi</b><span>${nAns}/${Q.ids.length} javob berildi</span></div><div class="grid-q">${Q.ids.map((d, j) => `<button class="dot ${j === i ? 'cur' : Q.ans[d] !== undefined ? 'done' : ''} ${S.f[d] ? 'flag' : ''}" data-a="jump" data-i="${j}" aria-label="${j + 1}-savol">${j + 1}</button>`).join('')}</div><button class="btn fin" data-a="finish">${ic('check')} Testni yakunlash</button></div>` : '';
+  return top + `<div class="qwrap ${V.anim ? 'qin' : ''}">${tags}<div class="qcard"><span class="qn">Savol ${i + 1}</span><p class="q">${esc(q.q)}</p></div><div class="opts-q">${body}</div>${grid}</div>` + bar;
 }
 
 function resView() {
@@ -1004,6 +1005,13 @@ document.addEventListener('change', e => {
   if (t.dataset.c === 'sel') { V.sel[t.dataset.id] = t.checked; draw(); }
   if (t.dataset.c === 'exam') { t.value ? S.ex[t.dataset.id] = t.value : delete S.ex[t.dataset.id]; save(); toast(t.value ? 'Sana saqlandi' : 'Sana o‘chirildi'); }
 });
+let SW0 = null;
+document.addEventListener('touchstart', e => { SW0 = (V.v === 'quiz' && e.touches.length === 1 && !e.target.closest('.grid-q,input,textarea')) ? [e.touches[0].clientX, e.touches[0].clientY] : null; }, { passive: true });
+document.addEventListener('touchend', e => {
+  if (!SW0) return; const t = e.changedTouches[0], dx = t.clientX - SW0[0], dy = t.clientY - SW0[1]; SW0 = null;
+  if (Math.abs(dx) < 70 || Math.abs(dy) > 50) return;
+  const b = document.querySelector(`.qbar [data-a=go][data-d="${dx < 0 ? 1 : -1}"]`); if (b && !b.disabled) b.click();
+}, { passive: true });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && sheetRes) { closeSheet(false); return; }
   if (sheetRes || V.v !== 'quiz' || !Q || e.ctrlKey || e.metaKey || e.altKey) return;
