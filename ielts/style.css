@@ -338,3 +338,23 @@ button,.nav,.top,.tabs2,.seg,.chip,.tool,.sktile,.qp,.item{-webkit-user-select:n
 .spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--soft);border-top-color:var(--p2);animation:spin .8s linear infinite;margin:0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 .item,.btn,.opt,.sktile,.tool,.qp button{transition:transform .12s,box-shadow .2s}
+
+/* ---------- Listening ---------- */
+.lsticky{position:sticky;top:calc(61px + env(safe-area-inset-top));z-index:9;padding:10px 16px 6px;background:linear-gradient(var(--bg) 80%,transparent)}
+.lpl{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:22px;box-shadow:var(--sh);padding:10px 12px}
+.lplay{width:54px;height:54px;border-radius:50%;background:linear-gradient(145deg,var(--L1),var(--L2));color:#fff;font-size:24px;display:grid;place-items:center;flex:none;box-shadow:0 8px 18px -8px var(--L2)}
+.lplay[disabled]{opacity:.4}
+.lmid{flex:1;min-width:0}
+.lbar{position:relative;height:8px;border-radius:99px;background:var(--soft);margin:10px 0 6px}
+.lbar i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,var(--L1),var(--L2));width:0}
+.lrange{position:absolute;left:-4px;top:-10px;width:calc(100% + 8px);height:28px;opacity:0;margin:0;cursor:pointer}
+.ltime{display:flex;justify-content:space-between;font-size:12px;color:var(--mu);font-variant-numeric:tabular-nums;font-weight:700}
+.lsm{width:40px;height:40px;border-radius:12px;background:var(--soft);color:var(--pl);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none;position:relative}
+.lsm small{position:absolute;font-size:9px;font-weight:900}
+.item.sel{box-shadow:0 0 0 2px var(--p2),var(--sh)}
+.lseekb{margin-bottom:8px}
+.tr summary{font-weight:800;cursor:pointer;list-style:none;display:flex;gap:8px;align-items:center}
+.tr summary::-webkit-details-marker{display:none}
+.tr .trp{margin:12px 0 0;font:15.5px/1.6 Georgia,"Times New Roman",serif;cursor:pointer;padding:6px 8px;border-radius:10px}
+.tr .trp b{font:800 11px/1 -apple-system,sans-serif;color:var(--L2);background:var(--soft);padding:3px 6px;border-radius:6px;margin-right:6px}
+.tr .trp.wr{box-shadow:inset 3px 0 0 var(--bad);background:var(--badbg)}

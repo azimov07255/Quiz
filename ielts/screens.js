@@ -25,6 +25,7 @@ const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { c
 function allRecent() {
   const s = S(), out = [];
   s.reads.forEach(r => { const p = D.reading.passages.find(x => x.id === r.p); out.push({ ts: r.ts, k: 'R', t: p ? p.title : 'Reading', m: r.raw + '/' + r.tot + ' to‘g‘ri', b: IE.bandTxt(r.band), go: 'reading/' + r.p + '/result' }); });
+  s.listens.forEach(r => { const t = D.listening.tests.find(x => x.id === r.id); out.push({ ts: r.ts, k: 'L', t: t ? (t.topic.split(' · ')[1] || t.title) : 'Listening', m: r.raw + '/' + r.tot + ' to‘g‘ri', b: IE.bandTxt(r.band), go: 'listening/' + r.id + '/result' }); });
   s.writes.forEach(w => out.push({ ts: w.ts, k: 'W', t: 'Writing Task 2', m: w.words + ' so‘z · ' + Math.round(w.secs / 60) + ' daq', b: w.ai ? IE.bandTxt(w.ai.overall) : w.words + '', go: 'writing/h/' + w.ts }));
   s.speaks.forEach(w => out.push({ ts: w.ts, k: 'S', t: w.k === '2' ? 'Speaking Part 2' : 'Speaking Part 1', m: w.t || '', b: '✓', go: 'speaking' }));
   return out.sort((a, b) => b.ts - a.ts);
@@ -39,10 +40,10 @@ R.home = () => {
     '<div class="lift"><div class="card rise"><div class="score"><div class="ring" style="--v:' + (ov ? ov / 9 * 100 : 0) + '"><small>Overall</small><b>' + IE.bandTxt(ov) + '</b></div>' +
     '<div style="flex:1"><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase">Maqsad band</div><div style="font-size:34px;font-weight:900;line-height:1.1">' + IE.bandTxt(p.target) + '</div>' +
     '<div class="sm mu">' + (days != null && days >= 0 ? 'Imtihongacha <b>' + days + '</b> kun' : '<a data-go="me" style="color:var(--pl);font-weight:700">Imtihon sanasini qo‘shing</a>') + '</div></div></div>' +
-    '<div class="stats"><div class="stat"><b>' + IE.bandTxt(IE.skillBands().R) + '</b><span>Reading</span></div><div class="stat"><b>' + IE.bandTxt(IE.skillBands().W) + '</b><span>Writing</span></div><div class="stat"><b>' + Object.keys(s.srs).length + '</b><span>So‘zlar</span></div></div></div>' +
+    '<div class="stats"><div class="stat"><b>' + IE.bandTxt(IE.skillBands().L) + '</b><span>Listening</span></div><div class="stat"><b>' + IE.bandTxt(IE.skillBands().R) + '</b><span>Reading</span></div><div class="stat"><b>' + IE.bandTxt(IE.skillBands().W) + '</b><span>Writing</span></div><div class="stat"><b>' + Object.keys(s.srs).length + '</b><span>So‘zlar</span></div></div></div>' +
     '<div class="rise" style="margin-top:14px"><button class="aibn" data-go="chat">' + bd('spark', 'A', 'lg') + '<div style="flex:1"><h3>AI Speaking Tutor</h3><p>Suhbat qiling, xatolaringiz tuzatiladi.</p></div><span class="chip" style="background:rgba(255,255,255,.22);color:#fff">AI</span></button></div>' +
     '<div class="sec"><h2>Tezkor mashq</h2></div><div class="qp rise">' +
-    Object.entries(sk).map(([k, v]) => '<button data-go="' + (k === 'L' ? 'soon/listening' : k === 'R' ? 'reading' : k === 'W' ? 'writing' : 'speaking') + '">' + bd(v[0], v[1]) + v[2] + '</button>').join('') + '</div>' +
+    Object.entries(sk).map(([k, v]) => '<button data-go="' + (k === 'L' ? 'listening' : k === 'R' ? 'reading' : k === 'W' ? 'writing' : 'speaking') + '">' + bd(v[0], v[1]) + v[2] + '</button>').join('') + '</div>' +
     '<div class="rise" style="margin-top:14px"><button class="item" data-go="' + (due ? 'vocab/review' : 'vocab') + '">' + bd('cards', 'V') + '<div class="tx"><b>' + (due ? 'Takrorlash vaqti: ' + due + ' ta so‘z' : 'So‘zlar bilan ishlang') + '</b><span>' + (due ? 'Eslab qolish uchun hozir takrorlang' : 'Flesh-kartalar va avtomatik takrorlash') + '</span></div><span class="go">' + ic('next') + '</span></button></div>' +
     '<div class="sec"><h2>So‘nggi natijalar</h2>' + (rec.length ? '' : '') + '</div>' +
     (rec.length ? '<div class="lst rise">' + rec.map(r => '<button class="item" data-go="' + r.go + '">' + bd(sk[r.k][0], sk[r.k][1], 'sm') + '<div class="tx"><b>' + esc(r.t) + '</b><span>' + esc(r.m) + ' · ' + ago(r.ts) + '</span></div><span class="band sk-' + sk[r.k][1] + '">' + esc(r.b) + '</span></button>').join('') + '</div>'
@@ -52,7 +53,7 @@ R.home = () => {
 
 /* ---------- PRACTICE / TOOLS / CHAT ---------- */
 R.practice = () => page('practice', '<div class="hero" style="padding-bottom:70px"><div class="hi">Imtihon formati</div><h1>Practice</h1></div><div class="lift"><div class="skills rise">' +
-  [['L', 'head', 'Listening', '4 qism · audio savollar', 'soon/listening', 1], ['R', 'book', 'Reading', '3 matn · 39 savol', 'reading'], ['W', 'pen', 'Writing', 'Task 2 · taymer, namunalar', 'writing'], ['S', 'mic', 'Speaking', '3 qism · yozib olish', 'speaking']]
+  [['L', 'head', 'Listening', '8 ta haqiqiy audio · savollar', 'listening'], ['R', 'book', 'Reading', '3 matn · 39 savol', 'reading'], ['W', 'pen', 'Writing', 'Task 2 · taymer, namunalar', 'writing'], ['S', 'mic', 'Speaking', '3 qism · yozib olish', 'speaking']]
     .map(a => '<button class="sktile" data-go="' + a[4] + '">' + (a[5] ? soonChip : '') + bd(a[1], a[0], 'lg') + '<b>' + a[2] + '</b><small>' + a[3] + '</small></button>').join('') + '</div>' +
   '<button class="mock rise" data-go="soon/mock">' + bd('trophy', 'M', 'lg') + '<div style="flex:1"><h3>Mock Test</h3><p>To‘liq imtihon sinovi: 4 ta bo‘lim ketma-ket</p></div>' + '<span class="chip soon" style="background:rgba(255,255,255,.22);color:#fff">Tez orada</span></button></div>');
 
@@ -84,6 +85,7 @@ const isOk = (g, q, a) => {
   return a === q.a;
 };
 IE.isOk = isOk;
+IE.allQ = p => p.groups.flatMap(g => g.qs.map(q => ({ g, q })));
 const allQ = p => p.groups.flatMap(g => g.qs.map(q => ({ g, q })));
 const sents = t => t.match(/[^.!?]+(?:[.!?]+["”’)]*)?\s*/g) || [t];
 const RUNK = 'ielts:run';
@@ -133,6 +135,8 @@ function groupsHTML(p, ans, rev) {
     (g.summary ? '<div class="sum">' + esc(g.summary) + '</div>' : '') +
     g.qs.map(q => qBlock(g, q, ans[q.n], rev)).join('')).join('') + '</div>';
 }
+IE.qBlock = (...a) => qBlock(...a);
+IE.groupsHTML = (...a) => groupsHTML(...a);
 function readRun(id) {
   const p = D.reading.passages.find(x => x.id === id); if (!p) return R.reading([]);
   const r = V.run && V.run.id === id ? V.run : initRun(id), qs = allQ(p), done = qs.filter(x => r.ans[x.q.n] != null && r.ans[x.q.n] !== '').length;
@@ -150,20 +154,22 @@ function readRun(id) {
 }
 A.rtab = el => { V.run.tab = el.dataset.v; lsSet(RUNK, V.run); IE.draw(false); window.scrollTo(0, 0); };
 A.hl = el => { const r = V.run, k = el.dataset.k, v = ((r.hl[k] || 0) + 1) % 3; if (v) r.hl[k] = v; else delete r.hl[k]; el.classList.toggle('hl', v === 1); el.classList.toggle('hl2', v === 2); lsSet(RUNK, r); };
+const LRUNK = 'ielts:lrun';
+const ctx = () => (IE.curRoute || '').startsWith('listening') ? { r: V.l, test: () => D.listening.tests.find(x => x.id === V.l.id), key: LRUNK } : { r: V.run, test: () => D.reading.passages.find(x => x.id === V.run.id), key: RUNK };
 const refreshCount = () => {
-  const p = D.reading.passages.find(x => x.id === V.run.id), qs = allQ(p), done = qs.filter(x => V.run.ans[x.q.n] != null && V.run.ans[x.q.n] !== '').length;
+  const c0 = ctx(), p = c0.test(), qs = allQ(p), done = qs.filter(x => c0.r.ans[x.q.n] != null && c0.r.ans[x.q.n] !== '').length;
   const c = $('#cnt'), g = $('#pg'); if (c) c.textContent = done + '/' + qs.length; if (g) g.style.width = (done / qs.length * 100) + '%';
 };
 A.ans = el => {
-  const n = el.dataset.n, g = el.closest('.q'); let v = el.dataset.v; if (/^\d+$/.test(v) && el.closest('.opts')) v = +v;
-  if (V.run.ans[n] === v) { delete V.run.ans[n]; el.classList.remove('on'); }
-  else { V.run.ans[n] = v; $$('.opt', g).forEach(o => o.classList.toggle('on', o === el)); }
-  lsSet(RUNK, V.run); refreshCount();
+  const c0 = ctx(), n = el.dataset.n, g = el.closest('.q'); let v = el.dataset.v; if (/^\d+$/.test(v) && el.closest('.opts')) v = +v;
+  if (c0.r.ans[n] === v) { delete c0.r.ans[n]; el.classList.remove('on'); }
+  else { c0.r.ans[n] = v; $$('.opt', g).forEach(o => o.classList.toggle('on', o === el)); }
+  lsSet(c0.key, c0.r); refreshCount();
 };
 IE.inp = (el) => {
-  if (!V.run || !el.dataset.n) return;
-  const v = el.value; if (v === '') delete V.run.ans[el.dataset.n]; else V.run.ans[el.dataset.n] = v;
-  lsSet(RUNK, V.run); refreshCount();
+  const c0 = ctx(); if (!c0.r || !el.dataset.n) return;
+  const v = el.value; if (v === '') delete c0.r.ans[el.dataset.n]; else c0.r.ans[el.dataset.n] = v;
+  lsSet(c0.key, c0.r); refreshCount();
 };
 A.rsubmit = () => {
   const p = D.reading.passages.find(x => x.id === V.run.id), qs = allQ(p), left = qs.filter(x => V.run.ans[x.q.n] == null || V.run.ans[x.q.n] === '').length;

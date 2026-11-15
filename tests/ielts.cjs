@@ -3,8 +3,14 @@
 const http = require('http'), fs = require('fs'), path = require('path'), os = require('os');
 const { chromium, devices } = require('playwright');
 const root = path.join(__dirname, '..');
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml' };
-const srv = http.createServer((q, r) => { let p = decodeURIComponent(q.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html'; const f = path.join(root, p); if (!fs.existsSync(f) || fs.statSync(f).isDirectory()) { r.writeHead(404); return r.end(); } r.writeHead(200, { 'content-type': MIME[path.extname(f)] || 'application/octet-stream' }); fs.createReadStream(f).pipe(r); });
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.svg': 'image/svg+xml', '.mp3': 'audio/mpeg' };
+const srv = http.createServer((q, r) => {
+  let p = decodeURIComponent(q.url.split('?')[0]); if (p.endsWith('/')) p += 'index.html'; const f = path.join(root, p);
+  if (!fs.existsSync(f) || fs.statSync(f).isDirectory()) { r.writeHead(404); return r.end(); }
+  const size = fs.statSync(f).size, type = MIME[path.extname(f)] || 'application/octet-stream', m = /bytes=(\d*)-(\d*)/.exec(q.headers.range || '');
+  if (m) { const a = m[1] ? +m[1] : 0, b = m[2] ? Math.min(+m[2], size - 1) : size - 1; r.writeHead(206, { 'content-type': type, 'accept-ranges': 'bytes', 'content-range': 'bytes ' + a + '-' + b + '/' + size, 'content-length': b - a + 1 }); return fs.createReadStream(f, { start: a, end: b }).pipe(r); }
+  r.writeHead(200, { 'content-type': type, 'accept-ranges': 'bytes', 'content-length': size }); fs.createReadStream(f).pipe(r);
+});
 let fails = 0; const ok = (c, m) => { console.log((c ? '  ✅ ' : '  ❌ ') + m); if (!c) fails++; };
 const SB = 'https://hxywksrsgixwmmvvpajc.supabase.co';
 const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'Sinov', role: 'user', groups: g, lifetime: true, blocked: false, expires_at: null });
@@ -90,6 +96,18 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
   await A.goto(base + '#/dict'); await A.fill('#dq', 'resilient'); await A.press('#dq', 'Enter'); await A.waitForSelector('.df'); ok((await A.innerText('#uzb')).length >= 0, 'ta’rif darhol chiqdi'); await A.waitForFunction(() => document.querySelector('#uzb').innerText.includes('chidamli')); ok(true, 'o‘zbekcha tarjima keyin qo‘shildi'); await A.waitForSelector('[data-a="dadd"]'); await shot(A, '26-dict'); await A.click('[data-a="dadd"]');
   ok(await A.evaluate(() => IE.S().my.length === 1), 'so‘z “Mening so‘zlarim”ga qo‘shildi'); await A.goto(base + '#/vocab'); await A.waitForSelector('[data-go="vocab/t/my"]'); ok(true, 'Mening so‘zlarim ko‘rinadi');
   await A.goto(base + '#/tools'); await A.click('[data-go="strat"]'); await A.waitForSelector('.item'); const hl = await A.evaluate(() => history.length); await A.click('[data-a="back"]'); await A.waitForSelector('.tools'); ok(await A.evaluate(h => history.length <= h, hl), 'orqaga tugmasi tarixga yangi yozuv qo‘shmaydi');
+  console.log('8c. Listening: haqiqiy audio');
+  await A.goto(base + '#/listening'); await A.waitForSelector('.item'); ok(await A.locator('.item').count() === 8, 'ro‘yxatda 8 ta audio'); await shot(A, '27-listening-list');
+  await A.click('[data-go="listening/lincoln"]'); await A.waitForSelector('[data-a="lstart"]'); await shot(A, '28-listening-intro');
+  await A.click('[data-a="lmode"][data-v="exam"]'); await A.click('[data-a="lstart"]'); await A.waitForSelector('#au', { state: 'attached' }); ok(await A.locator('.q').count() === 10, '10 ta savol'); ok(await A.locator('#lseek').count() === 0, 'imtihon rejimida surish (seek) yo‘q');
+  await A.click('#lp'); await A.waitForFunction(() => { const a = document.getElementById('au'); return a && !a.paused && a.currentTime > 0.5; }, null, { timeout: 15000 }); ok(true, 'haqiqiy mp3 ijro etildi (currentTime ' + (await A.evaluate(() => document.getElementById('au').currentTime.toFixed(1))) + ' s)');
+  await A.click('#lp'); ok(await A.evaluate(() => !document.getElementById('au').paused), 'imtihon rejimida to‘xtatib bo‘lmaydi'); await shot(A, '29-listening-run');
+  await A.fill('input[data-n="1"]', 'five'); await A.fill('input[data-n="4"]', '30'); await A.fill('input[data-n="5"]', 'The Emancipation Proclamation'); await A.click('[data-a="ans"][data-n="8"][data-v="0"]'); await A.click('[data-a="ans"][data-n="10"][data-v="1"]');
+  ok((await A.innerText('#cnt')) === '5/10', 'javoblar hisoblagichi 5/10');
+  await A.click('[data-a="lsubmit"]'); await A.waitForSelector('#askok'); await A.click('#askok'); await A.waitForSelector('.res .big');
+  ok(/^\d\.\d$/.test(await A.innerText('.res .big')), 'Listening bandi chiqdi'); ok(await A.locator('.q.ok').count() === 5, 'to‘g‘ri javoblar 5 ta'); ok(await A.locator('.lseekb').count() === 10, 'har savolda “tinglash” tugmasi'); await shot(A, '30-listening-result');
+  await A.click('.tr summary'); await A.click('.trp >> nth=3'); await A.waitForFunction(() => { const a = document.getElementById('au'); return a && a.currentTime > 10; }, null, { timeout: 10000 }); ok(true, 'transkript abzatsi bosilganda audio shu joyga o‘tadi'); await shot(A, '31-listening-transcript');
+  ok(await A.evaluate(() => IE.S().listens.length === 1), 'natija holatga yozildi');
   console.log('9. Ruxsat: guruhsiz foydalanuvchi');
   const { pg: B } = await mk([]); await B.goto(base); await B.waitForSelector('.lockc'); ok((await B.innerText('.lockc')).includes('Ruxsat'), 'guruhsiz: “Ruxsat kerak” ekrani'); await shot(B, '21-lock');
   console.log('10. Kirish ekrani (sessiyasiz)');

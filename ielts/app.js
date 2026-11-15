@@ -18,7 +18,7 @@ IE.uzErr = e => {
 /* ---------- ma’lumotlar va profil ---------- */
 async function loadData() {
   const f = n => fetch('data/' + n + '.json').then(r => { if (!r.ok) throw new Error(n); return r.json(); });
-  [D.reading, D.vocab, D.strategy, D.prompts] = await Promise.all([f('reading'), f('vocab8'), f('strategy'), f('prompts')]);
+  [D.reading, D.vocab, D.strategy, D.prompts, D.listening] = await Promise.all([f('reading'), f('vocab8'), f('strategy'), f('prompts'), f('listening')]);
   await IE.loadCam();
 }
 const KP = 'ielts:profile';
@@ -59,7 +59,7 @@ function showLock() {
 
 /* ---------- yo‘naltirish ---------- */
 IE.draw = (anim = true) => {
-  const y = window.scrollY; IE.clearTimers();
+  const y = window.scrollY; IE.clearTimers(); document.querySelectorAll('audio').forEach(a => { try { a.pause(); } catch (e) { /* */ } });
   const r = (location.hash.replace(/^#\/?/, '') || 'home').split('/'), fn = IE.routes[r[0]] || IE.routes.home; let o;
   try { o = fn(r.slice(1)); } catch (e) { console.error(e); o = { h: '<div class="empty" style="padding-top:30vh">Xatolik: ' + esc(e.message) + '<br><button class="btn sm" data-go="home" style="margin-top:12px">Bosh sahifa</button></div>', sub: true }; }
   document.body.classList.toggle('chatpage', r[0] === 'chat'); if (r[0] !== 'chat') document.body.classList.remove('kb');
@@ -82,7 +82,7 @@ document.addEventListener('click', e => {
 });
 const onIn = e => {
   const el = e.target, k = el.dataset && el.dataset.in; if (!k) return;
-  const m = { fill: IE.inp, sel: IE.inp, ed: IE.edInput, notes: IE.inpNotes, vs: IE.vsearch, pf: IE.pf }[k]; if (m) m(el);
+  const m = { fill: IE.inp, sel: IE.inp, ed: IE.edInput, notes: IE.inpNotes, vs: IE.vsearch, pf: IE.pf, lseek: IE.lseek }[k]; if (m) m(el);
 };
 document.addEventListener('input', onIn);
 document.addEventListener('change', e => {

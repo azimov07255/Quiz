@@ -9,8 +9,9 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v0.2.2)
+## Hozir ishlaydi (v0.3.0)
 - **Home**: target band, overall, seriya, imtihongacha kun, tezkor mashq, so‘nggi natijalar
+- **Listening**: 8 ta haqiqiy diktor yozuvi (VOA Learning English, ommaviy mulk; `audio/`), 80 savol, imtihon rejimi (bir marta, to‘xtatib bo‘lmaydi) va mashq rejimi (to‘xtatish, 10 s orqaga, tezlik), natijada har savol uchun “shu joydan tinglash” va bosiladigan transkript. Yozuv va matn mosligi offlayn nutq tanish bilan tekshirilgan, vaqtlar shu orqali aniqlangan
 - **Reading**: 3 ta Academic matn (39 savol; heads / T-F-NG / MCQ / gap to‘ldirish), 20 daqiqalik taymer, gapni belgilash, tushuntirishli natija, taxminiy band
 - **Writing**: 30 ta Task 2 mavzu, taymer, so‘z hisoblagich, qoralama, o‘zini tekshirish ro‘yxati, 2 ta Band 8 namuna insho
 - **Speaking**: Part 1 (8 mavzu), Part 2 (8 cue card, 1 daq tayyorgarlik + 2 daq nutq), Part 3 savollari; mikrofon bilan yozib olish va qayta tinglash
@@ -26,7 +27,7 @@ Supabase → Edge Functions → Secrets: `GEMINI_API_KEY` (aistudio.google.com/a
 Kalit brauzerga hech qachon tushmaydi; funksiya faqat `can_ielts()` ruxsati bor foydalanuvchiga ishlaydi.
 
 ## Tez orada
-Listening (TTS), Mock Test, Articles, Shadowing, Dictation, Typing.
+Mock Test, Articles, Shadowing, Dictation, Typing.
 
 ## Fayllar
 `index.html`, `style.css`, `core.js` (holat/sinxron), `screens.js` (ekranlar), `app.js` (kirish/yo‘naltirish), `sw.js` (offline), `data/*.json` (matnlar, so‘zlar, strategiya, mavzular).

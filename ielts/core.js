@@ -1,7 +1,7 @@
 /* IELTS · BY AZIMOV — yadro: yordamchilar, ikonkalar, holat (localStorage) va Supabase bilan sinxronlash. */
 (() => {
 'use strict';
-const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '0.2.2' };
+const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '0.3.0' };
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 Object.assign(IE, { $, $$, esc });
@@ -49,6 +49,7 @@ const P = {
   cal: '<rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/>',
   list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
   eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  pause: '<rect x="6" y="5" width="4" height="14" rx="1.5" class="f"/><rect x="14" y="5" width="4" height="14" rx="1.5" class="f"/>',
   back2: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>'
 };
 IE.ic = (n, cls) => '<svg class="i ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (P[n] || '').replace(/ class="f"/g, ' fill="currentColor" stroke="none"').replace(/ class="x"/g, ' fill="currentColor" stroke="none"') + '</svg>';
@@ -65,12 +66,14 @@ Object.assign(IE, { dayKey, dayNum, fmtT, fmtD, ago });
 /* ---------- Reading: raw/40 → taxminiy band (Academic) ---------- */
 const RB = [[39, 9], [37, 8.5], [35, 8], [33, 7.5], [30, 7], [27, 6.5], [23, 6], [19, 5.5], [15, 5], [13, 4.5], [10, 4], [8, 3.5], [6, 3], [4, 2.5], [1, 2], [0, 1]];
 IE.band = (c, t) => { const raw = Math.round(c / Math.max(1, t) * 40); for (const [m, b] of RB) if (raw >= m) return b; return 1; };
+const LBT = [[39, 9], [37, 8.5], [35, 8], [32, 7.5], [30, 7], [26, 6.5], [23, 6], [18, 5.5], [16, 5], [13, 4.5], [11, 4], [8, 3.5], [6, 3], [4, 2.5], [1, 2], [0, 1]];
+IE.bandL = (c, t) => { const raw = Math.round(c / Math.max(1, t) * 40); for (const [m, b] of LBT) if (raw >= m) return b; return 1; };
 IE.bandTxt = b => (b == null || isNaN(b)) ? '—' : (Math.round(b * 2) / 2).toFixed(1);
 
 /* ---------- holat ---------- */
 const LS = 'ielts:state:v1';
-const blank = () => ({ v: 1, prof: { name: '', level: '', target: 7, exam: 'Academic', date: '' }, pts: 0, reads: [], writes: [], speaks: [], my: [], drafts: {}, srs: {}, days: [], uid: '' });
-const norm = s => { const b = blank(); s = (s && typeof s === 'object') ? s : {}; return Object.assign(b, s, { prof: Object.assign(b.prof, s.prof || {}), reads: Array.isArray(s.reads) ? s.reads : [], writes: Array.isArray(s.writes) ? s.writes : [], speaks: Array.isArray(s.speaks) ? s.speaks : [], my: Array.isArray(s.my) ? s.my : [], days: Array.isArray(s.days) ? s.days : [], drafts: s.drafts && typeof s.drafts === 'object' ? s.drafts : {}, srs: s.srs && typeof s.srs === 'object' ? s.srs : {} }); };
+const blank = () => ({ v: 1, prof: { name: '', level: '', target: 7, exam: 'Academic', date: '' }, pts: 0, reads: [], listens: [], writes: [], speaks: [], my: [], drafts: {}, srs: {}, days: [], uid: '' });
+const norm = s => { const b = blank(); s = (s && typeof s === 'object') ? s : {}; return Object.assign(b, s, { prof: Object.assign(b.prof, s.prof || {}), reads: Array.isArray(s.reads) ? s.reads : [], listens: Array.isArray(s.listens) ? s.listens : [], writes: Array.isArray(s.writes) ? s.writes : [], speaks: Array.isArray(s.speaks) ? s.speaks : [], my: Array.isArray(s.my) ? s.my : [], days: Array.isArray(s.days) ? s.days : [], drafts: s.drafts && typeof s.drafts === 'object' ? s.drafts : {}, srs: s.srs && typeof s.srs === 'object' ? s.srs : {} }); };
 let S = norm(lsGet(LS, null));
 IE.S = () => S;
 IE.setState = s => { S = norm(s); };
@@ -81,7 +84,7 @@ function merge(a, b) {
   const drafts = Object.assign({}, a.drafts); Object.entries(b.drafts || {}).forEach(([k, v]) => { if (!drafts[k] || (v.t || 0) > (drafts[k].t || 0)) drafts[k] = v; });
   Object.keys(drafts).forEach(k => { if (drafts[k].del) delete drafts[k]; });
   const win = (a.pts || 0) >= (b.pts || 0) ? a : b;
-  return norm({ v: 1, prof: win.prof, pts: Math.max(a.pts || 0, b.pts || 0), reads: union(a.reads, b.reads), writes: union(a.writes, b.writes), speaks: union(a.speaks, b.speaks), my: unionMy(a.my, b.my), drafts, srs, days: [...new Set([...a.days, ...b.days])].sort().slice(-400), uid: a.uid || b.uid });
+  return norm({ v: 1, prof: win.prof, pts: Math.max(a.pts || 0, b.pts || 0), reads: union(a.reads, b.reads), listens: union(a.listens, b.listens), writes: union(a.writes, b.writes), speaks: union(a.speaks, b.speaks), my: unionMy(a.my, b.my), drafts, srs, days: [...new Set([...a.days, ...b.days])].sort().slice(-400), uid: a.uid || b.uid });
 }
 let syncT = 0, saveFailed = false;
 IE.save = (now) => { saveFailed = !lsSet(LS, S); clearTimeout(syncT); syncT = setTimeout(() => IE.sync().catch(() => {}), now ? 0 : 5000); };
@@ -107,7 +110,7 @@ IE.streak = () => {
 IE.skillBands = () => {
   const avg = (arr, k) => { const v = arr.slice(-3).map(x => x[k]).filter(x => typeof x === 'number'); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
   const wr = S.writes.filter(w => w.ai && typeof w.ai.overall === 'number').map(w => ({ b: w.ai.overall }));
-  return { R: avg(S.reads, 'band'), W: avg(wr, 'b') };
+  return { L: avg(S.listens, 'band'), R: avg(S.reads, 'band'), W: avg(wr, 'b') };
 };
 IE.overall = () => { const b = IE.skillBands(), v = Object.values(b).filter(x => x != null); return v.length ? Math.round(v.reduce((a, c) => a + c, 0) / v.length * 2) / 2 : null; };
 
