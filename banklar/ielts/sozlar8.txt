@@ -1,0 +1,360 @@
+env|mitigate|yumshatmoq, kamaytirmoq (zararni)|Governments must act quickly to mitigate the effects of climate change.
+env|carbon footprint|uglerod izi (inson faoliyatidan chiqadigan CO₂ miqdori)|Flying less is one way to reduce your carbon footprint.
+env|renewable energy|qayta tiklanadigan energiya|Many countries are investing heavily in renewable energy such as wind and solar power.
+env|deforestation|o‘rmonlarning qirilishi|Deforestation destroys the habitats of countless species.
+env|biodiversity|biologik xilma-xillik|Coral reefs support an extraordinary level of marine biodiversity.
+env|sustainable|barqaror, tabiatga zarar yetkazmaydigan|Sustainable farming protects the soil for future generations.
+env|greenhouse gas|issiqxona gazi|Carbon dioxide is the most common greenhouse gas released by human activity.
+env|fossil fuels|qazilma yoqilg‘i|Burning fossil fuels is the main cause of global warming.
+env|ecosystem|ekotizim|A small change in temperature can disrupt an entire ecosystem.
+env|endangered species|yo‘qolish xavfi ostidagi turlar|Strict laws are needed to protect endangered species from poachers.
+env|habitat|yashash muhiti, turgan joyi|Urban expansion has reduced the natural habitat of many birds.
+env|conservation|tabiatni muhofaza qilish|Wildlife conservation depends on both funding and public awareness.
+env|landfill|chiqindixona, axlat poligoni|Most household waste still ends up in landfill sites.
+env|emissions|chiqindi gazlar, zararli moddalar tashlamalari|Strict limits on car emissions can improve air quality in cities.
+env|pollutant|ifloslantiruvchi modda|Factories release harmful pollutants into rivers and the air.
+env|eco-friendly|ekologik toza, tabiatga zarar qilmaydigan|More shoppers now choose eco-friendly packaging.
+env|overexploitation|resurslardan haddan ziyod foydalanish|The overexploitation of fish stocks has pushed some species to the edge of extinction.
+env|irreversible|qaytarib bo‘lmaydigan|Some damage to the environment may be irreversible.
+env|depletion|tugab borishi, kamayib ketishi|The depletion of natural resources is a serious global concern.
+env|reforestation|o‘rmonlarni qayta tiklash|Large-scale reforestation can help absorb carbon dioxide.
+edu|curriculum|o‘quv dasturi|The school curriculum should include practical life skills.
+edu|tuition fees|o‘qish to‘lovi|Rising tuition fees prevent many talented students from attending university.
+edu|compulsory education|majburiy ta’lim|Compulsory education guarantees that all children learn basic skills.
+edu|higher education|oliy ta’lim|Higher education improves a person’s career prospects.
+edu|vocational training|kasb-hunar ta’limi|Vocational training prepares young people for skilled jobs.
+edu|academic performance|o‘quv natijalari, o‘zlashtirish darajasi|Sleep and diet strongly affect academic performance.
+edu|critical thinking|tanqidiy fikrlash|Schools should teach critical thinking rather than memorisation.
+edu|rote learning|yodlab o‘rganish|Rote learning may help in exams but does not build understanding.
+edu|peer pressure|tengdoshlar bosimi|Teenagers often start smoking because of peer pressure.
+edu|extracurricular activities|darsdan tashqari mashg‘ulotlar|Extracurricular activities such as sport and music develop teamwork.
+edu|literacy|savodxonlik|Improving adult literacy can reduce poverty.
+edu|tertiary education|oliy va undan keyingi ta’lim|Tertiary education is expanding rapidly in many developing countries.
+edu|scholarship|stipendiya, grant|A scholarship allowed her to study abroad without financial worries.
+edu|dropout|o‘qishni tashlab ketgan kishi|The dropout rate is highest among students from poor families.
+edu|student-centred|talabaga yo‘naltirilgan|Student-centred learning encourages pupils to take responsibility for their progress.
+edu|lifelong learning|butun umr davomida o‘rganish|Lifelong learning helps workers adapt to a changing job market.
+edu|distance learning|masofaviy ta’lim|Distance learning makes education accessible to people in remote areas.
+edu|plagiarism|plagiat, boshqa birovning ishini o‘zlashtirish|Universities punish plagiarism with severe penalties.
+edu|assessment|baholash|Continuous assessment is fairer than a single final exam.
+edu|attendance|davomat, qatnashish|Low attendance is often a sign that students are losing interest.
+tec|cutting-edge|eng zamonaviy, ilg‘or|The company uses cutting-edge technology to speed up production.
+tec|artificial intelligence|sun’iy intellekt|Artificial intelligence can now diagnose some diseases faster than doctors.
+tec|automation|avtomatlashtirish|Automation may replace many routine factory jobs.
+tec|digital divide|raqamli tengsizlik|The digital divide leaves rural families without access to online services.
+tec|cybersecurity|kiberxavfsizlik|Banks spend large sums on cybersecurity to protect their customers.
+tec|data privacy|shaxsiy ma’lumotlar maxfiyligi|Many users worry about data privacy on social networks.
+tec|innovation|yangilik, innovatsiya|Innovation drives economic growth in modern societies.
+tec|obsolete|eskirgan, zamonaviy emas|Typewriters became obsolete when computers appeared.
+tec|breakthrough|katta kashfiyot, yutuq|Researchers announced a major breakthrough in battery technology.
+tec|user-friendly|foydalanish oson|A user-friendly website attracts more customers.
+tec|social media|ijtimoiy tarmoqlar|Social media has changed the way people share news.
+tec|online platform|onlayn platforma|The online platform connects freelancers with clients worldwide.
+tec|surveillance|kuzatuv, nazorat|Widespread surveillance raises concerns about personal freedom.
+tec|gadget|qurilma, texnik jihoz|Children today are surrounded by electronic gadgets.
+tec|virtual reality|virtual voqelik|Virtual reality can be used to train surgeons safely.
+tec|e-commerce|elektron tijorat|E-commerce has forced many high-street shops to close.
+tec|streaming|oqimli yuklash (onlayn ko‘rish/eshitish)|Streaming services have replaced DVDs for most viewers.
+tec|addictive|qaramlik uyg‘otadigan, odatga aylanib qoladigan|Some games are deliberately designed to be addictive.
+tec|screen time|ekran oldida o‘tkazilgan vaqt|Doctors advise limiting screen time for young children.
+tec|software|dasturiy ta’minot|The company released new software to improve online security.
+hea|sedentary lifestyle|kam harakat turmush tarzi|A sedentary lifestyle increases the risk of heart disease.
+hea|obesity|semizlik|Obesity is becoming a major problem in wealthy countries.
+hea|balanced diet|muvozanatli ovqatlanish|A balanced diet includes fruit, vegetables, protein and grains.
+hea|preventive medicine|profilaktik tibbiyot|Preventive medicine is cheaper than treating serious illnesses.
+hea|life expectancy|o‘rtacha umr uzunligi|Life expectancy has risen sharply over the last century.
+hea|mental health|ruhiy salomatlik|Schools should take pupils’ mental health seriously.
+hea|chronic disease|surunkali kasallik|Diabetes is a chronic disease that needs lifelong management.
+hea|epidemic|epidemiya|The government introduced strict measures to stop the epidemic.
+hea|healthcare system|sog‘liqni saqlash tizimi|An ageing population puts pressure on the healthcare system.
+hea|nutrition|ovqatlanish, oziqlanish|Good nutrition in childhood affects health in later life.
+hea|well-being|farovonlik, o‘zini yaxshi his qilish|Regular exercise improves both physical and mental well-being.
+hea|immune system|immun tizimi|Sleep strengthens the immune system.
+hea|stress-related|stress bilan bog‘liq|Stress-related illnesses are common among office workers.
+hea|addiction|qaram bo‘lish, giyohvandlik|Addiction to smartphones can damage relationships.
+hea|side effect|nojo‘ya ta’sir|The drug has several unpleasant side effects.
+hea|workout|jismoniy mashq, mashg‘ulot|A short daily workout is better than an occasional long one.
+hea|malnutrition|to‘yib ovqatlanmaslik, ozuqa yetishmasligi|Malnutrition remains a serious problem in some poor regions.
+hea|public health|jamoat salomatligi|Clean water is essential for public health.
+hea|vaccination|emlash|Mass vaccination has almost eliminated several deadly diseases.
+hea|treatment|davolash|Early treatment greatly improves a patient’s chances of recovery.
+wor|career prospects|kasbiy istiqbollar|A degree in engineering offers excellent career prospects.
+wor|job satisfaction|ishdan qoniqish|Job satisfaction depends on pay, respect and working conditions.
+wor|work-life balance|ish va shaxsiy hayot muvozanati|Flexible hours help employees achieve a better work-life balance.
+wor|unemployment|ishsizlik|Youth unemployment is high in many European countries.
+wor|promotion|lavozim oshishi|She worked hard and finally won a promotion.
+wor|salary|oylik maosh|A higher salary does not always make people happier.
+wor|workforce|ish kuchi, xodimlar|An ageing workforce will need more health support.
+wor|remote working|uzoqdan turib ishlash|Remote working saves time that was previously spent commuting.
+wor|flexible hours|moslashuvchan ish vaqti|Parents often prefer jobs with flexible hours.
+wor|redundancy|ish joyi qisqarishi (ishdan bo‘shatish)|The factory closure led to hundreds of redundancies.
+wor|entrepreneur|tadbirkor|A young entrepreneur launched her own online business.
+wor|self-employed|o‘z ishini o‘zi qiluvchi|More people are becoming self-employed as freelancers.
+wor|colleague|hamkasb|Good relationships with colleagues make work more enjoyable.
+wor|productivity|samaradorlik, unumdorlik|Shorter working weeks can actually increase productivity.
+wor|overtime|ish vaqtidan tashqari ish|Many nurses regularly work overtime.
+wor|burnout|ish sababli charchab ketish|Long hours and pressure often lead to burnout.
+wor|qualification|malaka, diplom, rasmiy tayyorgarlik|A professional qualification helps you stand out from other candidates.
+wor|apprenticeship|shogirdlik, ish o‘rganish dasturi|An apprenticeship combines paid work with training.
+wor|commute|ish joyiga qatnash|A long commute leaves workers exhausted.
+wor|labour market|mehnat bozori|The labour market demands more digital skills every year.
+cri|deterrent|to‘xtatuvchi vosita|Severe fines act as a deterrent to dangerous driving.
+cri|offender|huquqbuzar|First-time offenders should not always be sent to prison.
+cri|rehabilitation|reabilitatsiya, qayta tiklash|Rehabilitation programmes help prisoners return to normal life.
+cri|sentence|hukm, jazo|The judge gave him a suspended sentence.
+cri|law-abiding|qonunga itoatkor|Most citizens are law-abiding and respect the police.
+cri|juvenile delinquency|voyaga yetmaganlar jinoyati|Poverty is often linked to juvenile delinquency.
+cri|capital punishment|o‘lim jazosi|Many countries have abolished capital punishment.
+cri|community service|jamoat foydasiga ish (jazo sifatida)|Community service can be a more useful punishment than prison.
+cri|prison|qamoqxona|Overcrowded prisons make rehabilitation difficult.
+cri|petty crime|mayda jinoyat|Petty crime such as pickpocketing is common in tourist areas.
+cri|white-collar crime|iqtisodiy jinoyat (ofis xodimlari qiladigan)|White-collar crime, such as fraud, can cost millions.
+cri|fine|jarima|Drivers face a heavy fine for using phones at the wheel.
+cri|legislation|qonunchilik, qonunlar|New legislation will make online fraud a criminal offence.
+cri|enforce|joriy etmoq, amalga oshirishni ta’minlamoq|Police must enforce the law fairly.
+cri|victim|jabrlanuvchi|The victim of the robbery received support from the council.
+cri|witness|guvoh|A witness described the thief to the police.
+cri|punishment|jazo|Punishment alone cannot solve the problem of crime.
+cri|custodial sentence|qamoq jazosi|Custodial sentences should be kept for violent offenders.
+cri|crack down on|qattiq choralar ko‘rmoq|The authorities promised to crack down on illegal dumping.
+cri|prevent crime|jinoyatning oldini olmoq|Better street lighting can help prevent crime.
+soc|nuclear family|yadroviy oila (ota-ona va bolalar)|The nuclear family is becoming more common in cities.
+soc|extended family|keng oila (qarindoshlar bilan)|In an extended family, grandparents often look after the children.
+soc|generation gap|avlodlar o‘rtasidagi tafovut|The generation gap makes it hard for parents and teenagers to communicate.
+soc|upbringing|tarbiya|A strict upbringing does not always produce responsible adults.
+soc|role model|namuna bo‘ladigan shaxs|Athletes are often role models for young people.
+soc|elderly|keksalar|The elderly need better access to public transport.
+soc|ageing population|keksayib borayotgan aholi|An ageing population creates a shortage of young workers.
+soc|social cohesion|ijtimoiy hamjihatlik|Shared public spaces strengthen social cohesion.
+soc|community|jamoa, mahalla|Volunteers play a vital role in the local community.
+soc|neighbourhood|mahalla, qo‘shnichilik hududi|A safe neighbourhood is important for families with children.
+soc|traditional values|an’anaviy qadriyatlar|Some people fear that globalisation threatens traditional values.
+soc|gender equality|gender tengligi|Gender equality in education improves a nation’s economy.
+soc|peer|tengdosh, o‘rtoq|Teenagers are strongly influenced by their peers.
+soc|lifestyle|turmush tarzi|A healthy lifestyle includes sleep, exercise and a good diet.
+soc|single-parent|yolg‘iz ota yoki ona bo‘lgan (oila)|Single-parent families need extra financial support.
+soc|childcare|bolalarga qarash, bolalar bog‘chasi xizmati|Affordable childcare allows both parents to work.
+soc|tolerance|bag‘rikenglik|Schools should teach tolerance towards other cultures.
+soc|diversity|xilma-xillik|Cultural diversity makes cities more vibrant.
+soc|individualism|individualizm, shaxsiy manfaatni ustun qo‘yish|Individualism is stronger in some societies than in others.
+soc|mutual respect|o‘zaro hurmat|A successful marriage depends on mutual respect.
+urb|urbanisation|urbanizatsiya, shaharlashuv|Rapid urbanisation puts pressure on housing and transport.
+urb|overcrowding|haddan ziyod gavjumlik|Overcrowding in big cities leads to noise and pollution.
+urb|infrastructure|infratuzilma|Good infrastructure is vital for economic development.
+urb|public transport|jamoat transporti|Cheap public transport reduces the number of cars on the road.
+urb|traffic congestion|tirbandlik|Traffic congestion wastes time and increases air pollution.
+urb|affordable housing|hamyonbop uy-joy|Young workers struggle to find affordable housing in capital cities.
+urb|suburb|shahar atrofidagi hudud|Many families move to the suburbs for more space.
+urb|rural-urban migration|qishloqdan shaharga ko‘chish|Rural-urban migration is leaving villages almost empty.
+urb|skyscraper|osmono‘par bino|Skyscrapers allow cities to grow upwards instead of outwards.
+urb|city centre|shahar markazi|Parking in the city centre is expensive.
+urb|pedestrian|piyoda|Pedestrian zones make city centres safer and quieter.
+urb|residential area|turar-joy hududi|Heavy lorries should be banned from residential areas.
+urb|urban sprawl|shaharning nazoratsiz kengayishi|Urban sprawl swallows farmland and increases car use.
+urb|slum|kambag‘al, rasvo mahalla|Millions of people live in slums without clean water.
+urb|gentrification|gentrifikatsiya (eski kambag‘al hudud qimmatlashishi)|Gentrification pushes poorer residents out of their old neighbourhoods.
+urb|commuter|har kuni qatnovchi (ishga)|Commuters spend hours each week on trains and buses.
+urb|amenities|qulayliklar, xizmat ob’ektlari|The area has excellent amenities, including parks and libraries.
+urb|cost of living|yashash qimmatligi|The cost of living in big cities is much higher.
+urb|public facilities|jamoat inshootlari|Councils should invest more in public facilities such as libraries.
+urb|green space|yashil hudud, bog‘-park|Green spaces improve the mental health of city residents.
+eco|inflation|inflyatsiya|High inflation reduces the value of people’s savings.
+eco|recession|iqtisodiy tanazzul|The recession caused thousands of businesses to close.
+eco|consumer spending|iste’molchilar xarajati|Consumer spending rises sharply before holidays.
+eco|economic growth|iqtisodiy o‘sish|Economic growth does not always improve living standards.
+eco|poverty line|qashshoqlik chizig‘i|Millions of families still live below the poverty line.
+eco|living standard|turmush darajasi|Wages have risen, but the living standard has not improved.
+eco|income gap|daromadlar o‘rtasidagi tafovut|The income gap between rich and poor is widening.
+eco|globalisation|globallashuv|Globalisation has created new jobs but also destroyed old ones.
+eco|import|import qilmoq|The country has to import most of its oil.
+eco|export|eksport qilmoq|Small businesses should be encouraged to export their products.
+eco|tax|soliq|A higher tax on sugar could improve public health.
+eco|budget|byudjet|The city’s budget for education was reduced this year.
+eco|investment|investitsiya, sarmoya|Foreign investment created thousands of jobs.
+eco|profit margin|foyda marjasi|Supermarkets work with a very small profit margin.
+eco|multinational|ko‘p millatli (xalqaro) kompaniya|Multinationals often pay lower wages in poorer countries.
+eco|unemployment rate|ishsizlik darajasi|The unemployment rate fell to its lowest level in ten years.
+eco|supply and demand|taklif va talab|Prices are determined by supply and demand.
+eco|cost-effective|tejamkor, foydali (xarajatga nisbatan)|Prevention is more cost-effective than treatment.
+eco|disposable income|sarflash mumkin bo‘lgan daromad|Higher taxes reduce families’ disposable income.
+eco|affluent|boy, farovon|Affluent societies tend to produce more waste.
+med|mass media|ommaviy axborot vositalari|Mass media has a powerful influence on public opinion.
+med|advertisement|reklama|An advertisement for fast food can mislead young viewers.
+med|target audience|maqsadli auditoriya|Companies design adverts for a specific target audience.
+med|broadcast|efirga uzatmoq, translyatsiya|The match was broadcast live in over fifty countries.
+med|headline|sarlavha|The headline attracted attention but exaggerated the story.
+med|journalism|jurnalistika|Investigative journalism exposes corruption and injustice.
+med|influence|ta’sir qilmoq, ta’sir|Celebrities strongly influence young people’s choices.
+med|propaganda|targ‘ibot (yolg‘on yoki bir tomonlama)|During the war, propaganda was used to control public opinion.
+med|censorship|senzura|Censorship limits freedom of speech.
+med|celebrity|mashhur shaxs|Celebrity endorsements make products seem more attractive.
+med|viral|tez tarqaluvchi (internetda)|A viral video can make an unknown person famous overnight.
+med|consumerism|iste’molchilik|Consumerism encourages people to buy things they do not need.
+med|brand|brend, tovar belgisi|Teenagers often choose a brand rather than quality.
+med|circulation|tiraj|Newspaper circulation has fallen as readers move online.
+med|misinformation|noto‘g‘ri axborot|Misinformation can spread faster than the truth on social media.
+med|fake news|yolg‘on xabarlar|Schools should teach students how to spot fake news.
+med|sponsorship|homiylik|Sponsorship from tobacco companies has been banned in sport.
+med|publicity|ommaga e’lon qilish, shuhrat|The scandal gave the company a lot of negative publicity.
+med|news outlet|yangiliklar manbasi (nashr/kanal)|Every news outlet has its own political perspective.
+med|manipulate|chalg‘itmoq, o‘z foydasiga burmoq|Advertisers manipulate emotions to sell products.
+tra|tourism industry|turizm sohasi|The tourism industry employs millions of people worldwide.
+tra|sightseeing|diqqatga sazovor joylarni ko‘rish|We spent two days sightseeing in the old town.
+tra|destination|borish joyi, manzil|Bali is a popular destination for honeymoon couples.
+tra|itinerary|sayohat marshruti|The itinerary includes a visit to three national parks.
+tra|package holiday|tayyor tur paket|A package holiday is convenient but offers less freedom.
+tra|backpacking|ryukzak bilan arzon sayohat qilish|Backpacking allows travellers to meet local people.
+tra|cultural heritage|madaniy meros|Tourism can help protect a country’s cultural heritage.
+tra|landmark|diqqatga sazovor joy, mashhur belgi|The Eiffel Tower is Paris’s most famous landmark.
+tra|accommodation|turar joy|Accommodation costs rise sharply in the summer season.
+tra|mass tourism|ommaviy turizm|Mass tourism damages fragile coastal environments.
+tra|eco-tourism|ekoturizm|Eco-tourism offers visitors a chance to enjoy nature without harming it.
+tra|tourist attraction|turistik joy|The castle is the region’s biggest tourist attraction.
+tra|budget airline|arzon aviakompaniya|Budget airlines have made travel affordable for ordinary families.
+tra|jet lag|vaqt mintaqalari farqidan charchoq|After a long flight, jet lag can last for several days.
+tra|broaden one’s horizons|dunyoqarashni kengaytirmoq|Studying abroad can broaden your horizons.
+tra|off the beaten track|odatdagi sayyohlik yo‘llaridan chetda|We stayed in a village off the beaten track.
+tra|souvenir|esdalik (sovg‘a)|She bought a small souvenir for each of her friends.
+tra|culture shock|madaniy shok|Many students experience culture shock when moving abroad.
+tra|sustainable tourism|barqaror turizm|Sustainable tourism protects local communities and nature.
+tra|tourist trap|sayyohlarni aldaydigan joy|The restaurant near the museum was an expensive tourist trap.
+gov|policy|siyosat, yo‘nalish|The government changed its policy on immigration.
+gov|legislation|qonunchilik|New legislation was passed to protect workers’ rights.
+gov|taxpayer|soliq to‘lovchi|Taxpayers have the right to know how their money is spent.
+gov|public funding|davlat mablag‘i|Museums depend on public funding to stay open.
+gov|authority|hokimiyat, idora|Local authorities are responsible for refuse collection.
+gov|democracy|demokratiya|In a democracy, citizens choose their leaders.
+gov|election|saylov|Turnout in the last election was unusually low.
+gov|regulation|tartibga solish, qoida|Stronger regulation of banks might prevent financial crises.
+gov|subsidy|subsidiya, davlat yordami|Farmers receive a subsidy to keep food prices low.
+gov|welfare|ijtimoiy ta’minot|The welfare system supports people who cannot work.
+gov|bureaucracy|byurokratiya|Too much bureaucracy slows down small businesses.
+gov|local government|mahalliy hokimiyat|Local government manages schools and public parks.
+gov|citizen|fuqaro|Every citizen has the right to vote.
+gov|civic duty|fuqarolik burchi|Voting is considered a civic duty in many countries.
+gov|public service|davlat xizmati, jamoat xizmati|Nurses and teachers provide an essential public service.
+gov|corruption|korrupsiya|Corruption weakens trust in public institutions.
+gov|sovereignty|suverenitet|Small states are anxious to protect their sovereignty.
+gov|reform|islohot|Education reform should involve teachers and parents.
+gov|political stability|siyosiy barqarorlik|Political stability attracts foreign investors.
+gov|accountability|hisobdorlik, javobgarlik|Leaders must be held accountable for their decisions.
+sci|research|tadqiqot|Medical research has dramatically increased life expectancy.
+sci|experiment|tajriba, eksperiment|The experiment failed to produce the expected results.
+sci|hypothesis|gipoteza, taxmin|Scientists must test their hypothesis with reliable data.
+sci|genetic engineering|genetik muhandislik|Genetic engineering could help produce disease-resistant crops.
+sci|cloning|klonlash|Cloning animals raises serious ethical questions.
+sci|space exploration|koinotni o‘rganish|Space exploration has led to many useful inventions.
+sci|scientific evidence|ilmiy dalil|There is strong scientific evidence that smoking causes cancer.
+sci|laboratory|laboratoriya|The new drug was tested in a laboratory.
+sci|discovery|kashfiyot|The discovery of penicillin saved millions of lives.
+sci|theory|nazariya|Einstein’s theory changed our understanding of time and space.
+sci|peer review|hamkasblar tomonidan ko‘rib chiqish (ilmiy maqolani)|Peer review helps ensure that scientific papers are accurate.
+sci|data analysis|ma’lumotlarni tahlil qilish|Data analysis revealed a clear link between sleep and memory.
+sci|sample|namuna|Researchers collected samples from fifty different rivers.
+sci|vaccine|vaksina|A new vaccine was developed in less than a year.
+sci|cure|davo, shifo|Scientists are still searching for a cure for cancer.
+sci|curiosity|qiziquvchanlik|Curiosity drives children to ask questions and learn.
+sci|funding|moliyalashtirish|Lack of funding slows down scientific research.
+sci|breakthrough|katta yutuq|The breakthrough opened the way to cheaper solar panels.
+sci|innovation|yangilik, innovatsiya|Scientific innovation often begins with a small, unexpected finding.
+sci|renewable|qayta tiklanadigan|Renewable sources will supply most of our electricity by 2050.
+art|cultural heritage|madaniy meros|Museums protect a nation’s cultural heritage.
+art|tradition|an’ana|Traditions are passed from one generation to the next.
+art|folklore|xalq og‘zaki ijodi|Folklore reflects the beliefs and humour of ordinary people.
+art|masterpiece|durdona, san’at asari|The painting is widely regarded as a masterpiece.
+art|exhibition|ko‘rgazma|The exhibition attracted thousands of visitors.
+art|performing arts|ijro san’ati (teatr, musiqa, raqs)|Performing arts require years of discipline and practice.
+art|literature|adabiyot|Classical literature helps readers understand other eras.
+art|indigenous language|mahalliy (tub) xalq tili|Many indigenous languages are disappearing.
+art|endangered language|yo‘qolish xavfi ostidagi til|Recording elders can help save an endangered language.
+art|bilingual|ikki tilli|Bilingual children often switch easily between languages.
+art|multicultural|ko‘p madaniyatli|London is a multicultural city with residents from all over the world.
+art|artefact|artefakt, tarixiy buyum|The museum displays artefacts from ancient Egypt.
+art|craftsmanship|hunarmandlik mahorati|The craftsmanship of the carpet makers is world famous.
+art|creativity|ijodkorlik|Schools should do more to encourage creativity.
+art|self-expression|o‘zini ifodalash|Art offers young people a form of self-expression.
+art|museum|muzey|Entry to the museum is free on Sundays.
+art|preserve|saqlab qolmoq, asramoq|We must preserve old buildings for future generations.
+art|customs|urf-odatlar|Local customs differ from region to region.
+art|dialect|sheva, lahja|Each region has its own dialect.
+art|translation|tarjima|Translation can never capture every nuance of a poem.
+spo|physical fitness|jismoniy tayyorgarlik|Regular exercise improves physical fitness.
+spo|team spirit|jamoaviy ruh|Team sports build team spirit among young players.
+spo|professional athlete|professional sportchi|A professional athlete trains for several hours every day.
+spo|competitive|raqobatbardosh, musobaqaga moyil|Competitive sport teaches children to cope with losing.
+spo|amateur|havaskor|Amateur players take part for fun rather than money.
+spo|recreation|dam olish, ko‘ngilochar mashg‘ulot|Parks provide space for recreation in busy cities.
+spo|hobby|sevimli mashg‘ulot|Collecting stamps is a quiet and inexpensive hobby.
+spo|pastime|vaqt o‘tkazish mashg‘uloti|Chess is a popular pastime among retired people.
+spo|stamina|chidamlilik, jismoniy kuch|Marathon runners need exceptional stamina.
+spo|spectator|tomoshabin|Thousands of spectators filled the stadium.
+spo|tournament|turnir|The tournament brings together teams from twenty countries.
+spo|extreme sports|ekstremal sport|Extreme sports such as skydiving carry a high risk of injury.
+spo|leisure time|bo‘sh vaqt|People now have more leisure time than in the past.
+spo|unwind|dam olmoq, tinchlanmoq|Many people unwind by listening to music after work.
+spo|keep fit|sog‘lom (tetik) bo‘lib turmoq|Cycling to work is an easy way to keep fit.
+spo|outdoor activities|ochiq havodagi mashg‘ulotlar|Outdoor activities such as hiking improve mood and fitness.
+spo|sportsmanship|sportchilarcha odob|Good sportsmanship means accepting defeat gracefully.
+spo|endurance|chidamlilik|Long-distance swimming requires great endurance.
+spo|sedentary|kam harakat, o‘tirib ishlaydigan|A sedentary job can harm your back and your heart.
+spo|sponsorship|homiylik|Sponsorship brings large sums of money into professional football.
+idi|a double-edged sword|ikki yoqlama qilich (ham foyda, ham zarar)|Social media is a double-edged sword: it connects people but also spreads rumours.
+idi|the tip of the iceberg|muammoning ko‘rinadigan kichik qismi|These complaints are only the tip of the iceberg.
+idi|on the other hand|boshqa tomondan|Cities offer jobs; on the other hand, they are expensive.
+idi|a blessing in disguise|niqoblangan baxt (yomon ko‘ringan yaxshi voqea)|Losing that job turned out to be a blessing in disguise.
+idi|break the ice|noqulaylikni yo‘qotmoq, suhbatni boshlamoq|A short game helped to break the ice at the meeting.
+idi|in the long run|uzoq muddatda|In the long run, investing in education pays off.
+idi|keep an eye on|ko‘z-quloq bo‘lmoq, kuzatib turmoq|Parents should keep an eye on what children watch online.
+idi|a steep learning curve|o‘rganish juda qiyin bosqich|Learning to code involves a steep learning curve.
+idi|go the extra mile|qo‘shimcha harakat qilmoq|Good teachers go the extra mile for their students.
+idi|at the end of the day|oxir-oqibat, hammasidan keyin|At the end of the day, the decision is yours.
+idi|a matter of opinion|fikrga bog‘liq masala|Whether homework is useful is a matter of opinion.
+idi|play a crucial role|hal qiluvchi rol o‘ynamoq|Parents play a crucial role in a child’s development.
+idi|take for granted|o‘z-o‘zidan tushunarli deb olmoq (qadrlamaslik)|We often take clean water for granted.
+idi|bear in mind|yodda tutmoq|Bear in mind that not everyone can afford private tuition.
+idi|come to terms with|ko‘nikmoq, tan olmoq (qiyin haqiqatni)|It took her years to come to terms with the loss.
+idi|weigh up the pros and cons|afzallik va kamchiliklarni solishtirmoq|Before moving abroad, weigh up the pros and cons.
+idi|by and large|umuman olganda|By and large, people support the new law.
+idi|to a certain extent|ma’lum darajada|To a certain extent, I agree with this view.
+idi|it goes without saying|aytmasa ham bo‘ladi (aniq)|It goes without saying that exercise is good for health.
+idi|a growing body of evidence|tobora ko‘payib borayotgan dalillar|A growing body of evidence links sugar to heart disease.
+lnk|nevertheless|shunga qaramay|The plan is expensive; nevertheless, it should go ahead.
+lnk|furthermore|bundan tashqari|Furthermore, the policy ignores the needs of the poor.
+lnk|consequently|natijada, shu sababli|Prices rose; consequently, fewer people travelled.
+lnk|in contrast|aksincha, farqli o‘laroq|In contrast, rural areas have far fewer facilities.
+lnk|whereas|holbuki, ammo (qarama-qarshilik)|Some cities are growing, whereas others are shrinking.
+lnk|notwithstanding|…ga qaramay|Notwithstanding the risks, many people still choose to smoke.
+lnk|as a result of|…natijasida|As a result of the new law, accidents fell sharply.
+lnk|owing to|…tufayli, sababli|Owing to heavy rain, the match was cancelled.
+lnk|in the light of|…ni hisobga olib|In the light of recent research, the guidelines were revised.
+lnk|with regard to|…ga nisbatan, …haqida|With regard to housing, the situation is improving.
+lnk|to what extent|qanchalik darajada|To what extent should governments control what people eat?
+lnk|it is widely believed that|keng tarqalgan fikrga ko‘ra|It is widely believed that technology makes life easier.
+lnk|there is a strong case for|…ni yoqlovchi kuchli dalillar bor|There is a strong case for banning cars from city centres.
+lnk|arguably|dalil keltirib aytish mumkinki|Arguably, the internet is the most important invention of the century.
+lnk|by contrast|taqqoslaganda, aksincha|By contrast, public transport in Tokyo is extremely efficient.
+lnk|in addition to|…dan tashqari|In addition to higher wages, workers want shorter hours.
+lnk|on balance|hammasini hisobga olganda|On balance, the benefits outweigh the drawbacks.
+lnk|to sum up|xulosa qilib aytganda|To sum up, both sides present valid arguments.
+lnk|admittedly|tan olish kerakki|Admittedly, the cost is high, but the results justify it.
+lnk|undoubtedly|shubhasiz|Undoubtedly, education is the key to economic progress.
+pwr|detrimental|zararli, salbiy ta’sir qiluvchi|Too much screen time is detrimental to children’s sleep.
+pwr|substantial|katta, sezilarli|The company made a substantial profit last year.
+pwr|crucial|juda muhim, hal qiluvchi|Early diagnosis is crucial for effective treatment.
+pwr|inevitable|muqarrar, oldini olib bo‘lmaydigan|Some job losses are inevitable when factories modernise.
+pwr|widespread|keng tarqalgan|Concern about plastic pollution is widespread.
+pwr|alleviate|yengillashtirmoq, kamaytirmoq|New roads could alleviate traffic congestion.
+pwr|exacerbate|og‘irlashtirmoq, yomonlashtirmoq|Poor diet can exacerbate existing health problems.
+pwr|undermine|obro‘sini yoki asosini yemirmoq|Constant criticism can undermine a child’s confidence.
+pwr|foster|rag‘batlantirmoq, rivojlantirmoq|Group projects foster cooperation among students.
+pwr|curb|jilovlamoq, cheklamoq|Higher taxes may curb smoking.
+pwr|hinder|to‘sqinlik qilmoq|Lack of funding hinders scientific progress.
+pwr|facilitate|osonlashtirmoq, yordam bermoq|Online tools facilitate communication between teachers and parents.
+pwr|phenomenon|hodisa|Urbanisation is a global phenomenon.
+pwr|proponents|tarafdorlar, himoyachilar|Proponents of nuclear power argue that it is clean.
+pwr|dilemma|qiyin tanlov, dilemma|Governments face a dilemma between growth and the environment.
+pwr|controversial|bahsli, munozarali|Genetic engineering remains a controversial subject.
+pwr|reluctant|istamaydigan, ikkilanayotgan|Many workers are reluctant to retrain at an older age.
+pwr|profound|chuqur, katta (ta’sir)|The internet has had a profound effect on society.
+pwr|contemporary|zamonaviy, hozirgi|Contemporary art often challenges traditional ideas.
+pwr|feasible|amalga oshirish mumkin bo‘lgan|It is not feasible to ban all private cars overnight.

@@ -59,5 +59,11 @@ PWA/offline uchun HTTPS (yoki localhost) kerak, masalan GitHub Pages/Netlify/Clo
 - **Konspekt qo‘shish:** `banklar/konspekt/<fan>/<mavzu>.md` yozing (birinchi qator `# Sarlavha`; `##`, `-`, `1.`, `| jadval |`, `> eslatma`, `!! imtihonda tushadi`, `**qalin**`, `==muhim==`), keyin `python3 -I tools/konspekt_sql.py` bergan SQLni Supabase’da ishga tushiring (`catalog_notes`). `<fan>` va `<mavzu>` katalogdagi fan/mavzu `id`si bo‘lsin; ko‘rinish fan ko‘rinishiga (guruhlarga) bog‘liq.
 - Migratsiya: `supabase/migrations/20261115c_reports_stats_notes.sql`; sinov: `tests/notes.cjs`.
 
+## IELTS (eski "Kunlik tizim" paketidan)
+- **Cambridge so‘zlari** (shaxsiy yopiq fayl `cambridge-sozlar.json`): `python3 -I tools/cambridge_bank.py <fayl>` → `banklar/_private/cambridge-sozlar-bank.json` (14 fan, 144 mavzu, ~7550 savol: so‘z→ma’no va ta’rif→so‘z). **Litsenziyali kontent — repoga tushmaydi** (`banklar/_private/` gitignore’da); faqat o‘zingizning telefoningizga Sozlamalar → “Fayl qo‘shish” orqali yuklanadi, umumiy katalogga emas.
+- **Strategiyalar** (`tools/ielts_strategiya.py`): `banklar/ielts/strategiya.json` (fan `ielts`, 6 mavzu) + `banklar/konspekt/ielts/*.md` (konspektlar).
+- **8+ mavzuli so‘zlar** (`tools/ielts_sozlar.py`, manba `banklar/ielts/sozlar8.txt`): `banklar/ielts/sozlar8.json` (fan `ielts8`, 18 mavzu, 720 savol).
+- Katalogga yuklashda kategoriya “IELTS”, guruh `ielts` bering (faqat shu guruhdagilar ko‘radi).
+
 ## Ma’lumot qayerda saqlanadi
 Savol banki — IndexedDB, natijalar/xatolar/sozlamalar — localStorage (faqat shu qurilmada). **⚙️ Sozlamalar → Zaxira** bilan fayl qilib saqlab, boshqa qurilmada tiklash mumkin. Safari uzoq foydalanilmagan sayt ma’lumotini o‘chirib yuborishi mumkin — shuning uchun vaqti-vaqti bilan zaxira ol.

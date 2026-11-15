@@ -1,0 +1,2368 @@
+{
+ "v": 1,
+ "src": "IELTS strategiyalar (o‘zi yozgan o‘quv materiali, eski ilovadan)",
+ "subjects": [
+  {
+   "id": "ielts",
+   "name": "IELTS strategiyalar",
+   "topics": [
+    {
+     "id": "ielts-r",
+     "name": "Reading",
+     "src": "IELTS strategiya",
+     "q": [
+      {
+       "id": "ielts-r.1",
+       "q": "«True / False / Not Given» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Matnda o‘sha joyni toping va savolning HAMMA qismini solishtiring: son, sabab, daraja (all, some, often).",
+        "Variantdagi so‘z matndagi so‘zga o‘xshashligiga aldanish.",
+        "Bir nechta paragraf mos bo‘lganda eng aniq mosini tanlamaslik.",
+        "Sarlavha paragrafdagi bitta tafsilotga mos, lekin asosiy g‘oyaga emas."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Savol gapi matn bilan mosmi (True), qarama-qarshimi (False) yoki matnda umuman aytilmaganmi (Not Given) ekanini tekshiradi.",
+       "r": "Strategiya: True / False / Not Given"
+      },
+      {
+       "id": "ielts-r.2",
+       "q": "«True / False / Not Given» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Javobni o‘z so‘zingiz bilan yozish: matndagi so‘zni ishlating.",
+        "Savoldagi kalit so‘zni toping va sinonimlarini o‘ylang (increase = rise).",
+        "Matnda bor, lekin savolga javob BERMAYDIGAN to‘g‘ri gap.",
+        "Qiyin paragrafga yopishib qolish: o‘tkazib, oxirida qayting."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Savol gapi matn bilan mosmi (True), qarama-qarshimi (False) yoki matnda umuman aytilmaganmi (Not Given) ekanini tekshiradi.",
+       "r": "Strategiya: True / False / Not Given"
+      },
+      {
+       "id": "ielts-r.3",
+       "q": "«True / False / Not Given» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Bir nechta paragraf mos bo‘lganda eng aniq mosini tanlamaslik.",
+        "Ko‘plik va birlikni o‘zgartirib yozish.",
+        "Ma’no to‘liq mos bo‘lsa TRUE; matn aniq aksini aytsa FALSE; shu haqda hech narsa aytilmagan bo‘lsa NOT GIVEN.",
+        "Matnda bor, lekin savolga javob BERMAYDIGAN to‘g‘ri gap."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Savol gapi matn bilan mosmi (True), qarama-qarshimi (False) yoki matnda umuman aytilmaganmi (Not Given) ekanini tekshiradi.",
+       "r": "Strategiya: True / False / Not Given"
+      },
+      {
+       "id": "ielts-r.4",
+       "q": "«True / False / Not Given» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Ishlatilgan sarlavhani kesib tashlang: ortiqcha sarlavhalar bor va har biri bir marta ishlatiladi.",
+        "Aniq topa olmasangiz qoldirib keting va oxirida qaytib keling.",
+        "Avval sarlavhalarni o‘qing va har birining kalit g‘oyasini belgilang.",
+        "NOT GIVEN bilan FALSE’ni aralashtirish: FALSE’da matn ANIQ qarama-qarshi gapni aytadi."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Savoldagi kalit so‘zni toping va sinonimlarini o‘ylang (increase = rise).",
+       "r": "Strategiya: True / False / Not Given"
+      },
+      {
+       "id": "ielts-r.5",
+       "q": "«True / False / Not Given» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Bitta so‘z mos kelgani uchun TRUE deyish.",
+        "Ishlatilgan sarlavhani kesib tashlang: ortiqcha sarlavhalar bor va har biri bir marta ishlatiladi.",
+        "Bir paragraf bir necha marta ishlatilishi mumkin, tartib matn tartibida emas.",
+        "Paragrafning birinchi va oxirgi gapini o‘qing: asosiy g‘oya odatda shu yerda."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Savoldagi kalit so‘zni toping va sinonimlarini o‘ylang (increase = rise).",
+       "r": "Strategiya: True / False / Not Given"
+      },
+      {
+       "id": "ielts-r.6",
+       "q": "«True / False / Not Given»da ko‘p uchraydigan xato qaysi?",
+       "o": [
+        "Diagrammada matnning tegishli qismini topib, belgilarni matndan oling.",
+        "O‘z bilimingiz bilan javob berish: faqat matnga tayaning.",
+        "Bir paragraf bir necha marta ishlatilishi mumkin, tartib matn tartibida emas.",
+        "Avval sarlavhalarni o‘qing va har birining kalit g‘oyasini belgilang."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Savoldagi kalit so‘zni toping va sinonimlarini o‘ylang (increase = rise).",
+       "r": "Strategiya: True / False / Not Given"
+      },
+      {
+       "id": "ielts-r.7",
+       "q": "«True / False / Not Given» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "20 daqiqa.",
+        "Eshitish oldidan 30 soniya: hammasini o‘qib chiqing.",
+        "Har savolga taxminan 1,5 daqiqa.",
+        "Har savolga 1-1,5 daqiqa."
+       ],
+       "a": 2,
+       "e": "Tavsiya: Har savolga taxminan 1,5 daqiqa.",
+       "r": "Strategiya: True / False / Not Given"
+      },
+      {
+       "id": "ielts-r.8",
+       "q": "«True / False / Not Given» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Summary ko‘pincha matnning bir qismini qisqartirib beradi: avval o‘sha qismni toping, keyin bo‘shliqlarga qarang.",
+        "Noto‘g‘ri variantlar odatda “juda keng”, “juda tor” yoki matnga zid bo‘ladi: shu uch belgini qidiring.",
+        "Avval osonlarini yeching: qolgan sarlavhalar soni kamayadi va qiyinlari aniq bo‘lib qoladi.",
+        "Cheklov so‘zlariga e’tibor bering: only, always, mainly, all, never ma’noni butunlay o‘zgartiradi."
+       ],
+       "a": 3,
+       "e": "Cheklov so‘zlariga e’tibor bering: only, always, mainly, all, never ma’noni butunlay o‘zgartiradi.",
+       "r": "Strategiya: True / False / Not Given"
+      },
+      {
+       "id": "ielts-r.9",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Savol gapi matn bilan mosmi (True), qarama-qarshimi (False) yoki matnda umuman aytilmaganmi (Not Given) ekanini tekshiradi.»",
+       "o": [
+        "True / False / Not Given",
+        "Matching va Map / Plan labelling",
+        "Task 2: insho turlari",
+        "Writing mezonlari: Band 7 dan 8 ga"
+       ],
+       "a": 0,
+       "e": "True / False / Not Given: Savol gapi matn bilan mosmi (True), qarama-qarshimi (False) yoki matnda umuman aytilmaganmi (Not Given) ekanini tekshiradi.",
+       "r": "Strategiya: True / False / Not Given"
+      },
+      {
+       "id": "ielts-r.10",
+       "q": "«Matching Headings» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "So‘z chegarasidan oshib ketish: javob xato hisoblanadi.",
+        "Ishlatilgan sarlavhani kesib tashlang: ortiqcha sarlavhalar bor va har biri bir marta ishlatiladi.",
+        "Ko‘plik va birlikni o‘zgartirib yozish.",
+        "Variantdagi so‘z matndagi so‘zga o‘xshashligiga aldanish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Har bir paragrafning ASOSIY g‘oyasiga mos sarlavhani topish.",
+       "r": "Strategiya: Matching Headings"
+      },
+      {
+       "id": "ielts-r.11",
+       "q": "«Matching Headings» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Sonlarni va birliklarni noto‘g‘ri yozish.",
+        "Matnda bor, lekin savolga javob BERMAYDIGAN to‘g‘ri gap.",
+        "Tafsilotga emas, umumiy g‘oyaga mos sarlavhani tanlang.",
+        "Bitta so‘z mos kelgani uchun TRUE deyish."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Har bir paragrafning ASOSIY g‘oyasiga mos sarlavhani topish.",
+       "r": "Strategiya: Matching Headings"
+      },
+      {
+       "id": "ielts-r.12",
+       "q": "«Matching Headings» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Bitta so‘z mos kelgani uchun TRUE deyish.",
+        "Bir nechta paragraf mos bo‘lganda eng aniq mosini tanlamaslik.",
+        "Variantdagi so‘z matndagi so‘zga o‘xshashligiga aldanish.",
+        "Avval sarlavhalarni o‘qing va har birining kalit g‘oyasini belgilang."
+       ],
+       "a": 3,
+       "e": "To‘g‘ri yondashuv. Har bir paragrafning ASOSIY g‘oyasiga mos sarlavhani topish.",
+       "r": "Strategiya: Matching Headings"
+      },
+      {
+       "id": "ielts-r.13",
+       "q": "«Matching Headings» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Bir xil so‘zlarga aldanib qolish: sinonim va ma’noga qarang.",
+        "Diagrammada matnning tegishli qismini topib, belgilarni matndan oling.",
+        "Aniq topa olmasangiz qoldirib keting va oxirida qaytib keling.",
+        "Har bir gapdagi kalit ma’noni va uning ehtimoliy sinonimlarini belgilang."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Avval sarlavhalarni o‘qing va har birining kalit g‘oyasini belgilang.",
+       "r": "Strategiya: Matching Headings"
+      },
+      {
+       "id": "ielts-r.14",
+       "q": "«Matching Headings» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Har bir gapdagi kalit ma’noni va uning ehtimoliy sinonimlarini belgilang.",
+        "Sarlavha paragrafdagi bitta tafsilotga mos, lekin asosiy g‘oyaga emas.",
+        "Ko‘rsatmadagi so‘z chegarasini o‘qing: NO MORE THAN TWO WORDS = ko‘pi bilan 2 so‘z (son ham so‘z hisoblanadi).",
+        "Bir paragraf bir necha marta ishlatilishi mumkin, tartib matn tartibida emas."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Avval sarlavhalarni o‘qing va har birining kalit g‘oyasini belgilang.",
+       "r": "Strategiya: Matching Headings"
+      },
+      {
+       "id": "ielts-r.15",
+       "q": "«Matching Headings»da ko‘p uchraydigan xato qaysi?",
+       "o": [
+        "Javoblar odatda matn tartibida keladi.",
+        "Bir paragraf bir necha marta ishlatilishi mumkin, tartib matn tartibida emas.",
+        "Qiyin paragrafga yopishib qolish: o‘tkazib, oxirida qayting.",
+        "Bo‘sh joy qaysi turdagi so‘z ekanini aniqlang (ot, sifat, son) va grammatik moslikni tekshiring."
+       ],
+       "a": 2,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Avval sarlavhalarni o‘qing va har birining kalit g‘oyasini belgilang.",
+       "r": "Strategiya: Matching Headings"
+      },
+      {
+       "id": "ielts-r.16",
+       "q": "«Matching Headings» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Har bir bo‘lim oldidan taxminan 30 soniya.",
+        "Har savolga taxminan 1,5 daqiqa.",
+        "Har savolga 1,5-2 daqiqa.",
+        "Butun topshiriq uchun 6-8 daqiqa."
+       ],
+       "a": 3,
+       "e": "Tavsiya: Butun topshiriq uchun 6-8 daqiqa.",
+       "r": "Strategiya: Matching Headings"
+      },
+      {
+       "id": "ielts-r.17",
+       "q": "«Matching Headings» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Avval osonlarini yeching: qolgan sarlavhalar soni kamayadi va qiyinlari aniq bo‘lib qoladi.",
+        "Noto‘g‘ri variantlar odatda “juda keng”, “juda tor” yoki matnga zid bo‘ladi: shu uch belgini qidiring.",
+        "To‘xtab qolsangiz “What I’d also like to mention is…” kabi iboralar bilan davom eting.",
+        "Cheklov so‘zlariga e’tibor bering: only, always, mainly, all, never ma’noni butunlay o‘zgartiradi."
+       ],
+       "a": 0,
+       "e": "Avval osonlarini yeching: qolgan sarlavhalar soni kamayadi va qiyinlari aniq bo‘lib qoladi.",
+       "r": "Strategiya: Matching Headings"
+      },
+      {
+       "id": "ielts-r.18",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Har bir paragrafning ASOSIY g‘oyasiga mos sarlavhani topish.»",
+       "o": [
+        "Speaking Part 1",
+        "Matching Headings",
+        "General Training: xat yozish (Task 1)",
+        "Multiple Choice (Listening)"
+       ],
+       "a": 1,
+       "e": "Matching Headings: Har bir paragrafning ASOSIY g‘oyasiga mos sarlavhani topish.",
+       "r": "Strategiya: Matching Headings"
+      },
+      {
+       "id": "ielts-r.19",
+       "q": "«Matching Information» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Sarlavha paragrafdagi bitta tafsilotga mos, lekin asosiy g‘oyaga emas.",
+        "Bitta so‘z mos kelgani uchun TRUE deyish.",
+        "Paragraflarni tez ko‘zdan kechirib (scanning), ma’lumot turiga qarang: sabab, misol, taqqoslash, ta’rif.",
+        "Variantdagi so‘z matndagi so‘zga o‘xshashligiga aldanish."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Berilgan ma’lumot qaysi paragrafda ekanini topish.",
+       "r": "Strategiya: Matching Information"
+      },
+      {
+       "id": "ielts-r.20",
+       "q": "«Matching Information» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Ko‘plik va birlikni o‘zgartirib yozish.",
+        "Matnda bor, lekin savolga javob BERMAYDIGAN to‘g‘ri gap.",
+        "Imlo xatosi: ball berilmaydi.",
+        "Har bir gapdagi kalit ma’noni va uning ehtimoliy sinonimlarini belgilang."
+       ],
+       "a": 3,
+       "e": "To‘g‘ri yondashuv. Berilgan ma’lumot qaysi paragrafda ekanini topish.",
+       "r": "Strategiya: Matching Information"
+      },
+      {
+       "id": "ielts-r.21",
+       "q": "«Matching Information» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Aniq topa olmasangiz qoldirib keting va oxirida qaytib keling.",
+        "Matnda bor, lekin savolga javob BERMAYDIGAN to‘g‘ri gap.",
+        "Sonlarni va birliklarni noto‘g‘ri yozish.",
+        "Qiyin paragrafga yopishib qolish: o‘tkazib, oxirida qayting."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Berilgan ma’lumot qaysi paragrafda ekanini topish.",
+       "r": "Strategiya: Matching Information"
+      },
+      {
+       "id": "ielts-r.22",
+       "q": "«Matching Information» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "So‘roq so‘ziga qarang: who (odam), when (vaqt), how many (son).",
+        "Faqat bitta so‘zga qarab javob berish.",
+        "Avval sarlavhalarni o‘qing va har birining kalit g‘oyasini belgilang.",
+        "Ko‘rsatmadagi so‘z chegarasini o‘qing: NO MORE THAN TWO WORDS = ko‘pi bilan 2 so‘z (son ham so‘z hisoblanadi)."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Har bir gapdagi kalit ma’noni va uning ehtimoliy sinonimlarini belgilang.",
+       "r": "Strategiya: Matching Information"
+      },
+      {
+       "id": "ielts-r.23",
+       "q": "«Matching Information» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Savollar odatda matn tartibida keladi: oldingi javobdan keyingi joydan qidiring.",
+        "Savoldagi kalit so‘zni toping va sinonimlarini o‘ylang (increase = rise).",
+        "Bir nechta paragraf mos bo‘lganda eng aniq mosini tanlamaslik.",
+        "So‘z chegarasini tekshiring."
+       ],
+       "a": 2,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Har bir gapdagi kalit ma’noni va uning ehtimoliy sinonimlarini belgilang.",
+       "r": "Strategiya: Matching Information"
+      },
+      {
+       "id": "ielts-r.24",
+       "q": "«Matching Information» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Har savolga 1 daqiqa.",
+        "Har bir bo‘lim oldidan taxminan 30 soniya.",
+        "Har savolga 1,5-2 daqiqa.",
+        "6-8 daqiqa."
+       ],
+       "a": 3,
+       "e": "Tavsiya: 6-8 daqiqa.",
+       "r": "Strategiya: Matching Information"
+      },
+      {
+       "id": "ielts-r.25",
+       "q": "«Matching Information» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Savolni o‘z so‘zingiz bilan qayta ayting (paraphrase): matndagi ma’noni shunda topasiz.",
+        "Noto‘g‘ri variantlar ko‘pincha “eshitilgan, lekin rad etilgan” bo‘ladi: ularning rad etilishini kuting.",
+        "Imtihondan oldingi 2 kunda yangi narsa o‘rganmang: takrorlang va dam oling.",
+        "To‘xtab qolsangiz “What I’d also like to mention is…” kabi iboralar bilan davom eting."
+       ],
+       "a": 0,
+       "e": "Savolni o‘z so‘zingiz bilan qayta ayting (paraphrase): matndagi ma’noni shunda topasiz.",
+       "r": "Strategiya: Matching Information"
+      },
+      {
+       "id": "ielts-r.26",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Berilgan ma’lumot qaysi paragrafda ekanini topish.»",
+       "o": [
+        "Task 1: tendentsiya va taqqoslash tili",
+        "Matching Information",
+        "Multiple Choice (Reading)",
+        "Task 1: tuzilma va Overview (Academic)"
+       ],
+       "a": 1,
+       "e": "Matching Information: Berilgan ma’lumot qaysi paragrafda ekanini topish.",
+       "r": "Strategiya: Matching Information"
+      },
+      {
+       "id": "ielts-r.27",
+       "q": "«Sentence / Summary / Note / Table Completion» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Sarlavha paragrafdagi bitta tafsilotga mos, lekin asosiy g‘oyaga emas.",
+        "Matnda bor, lekin savolga javob BERMAYDIGAN to‘g‘ri gap.",
+        "Bo‘sh joy qaysi turdagi so‘z ekanini aniqlang (ot, sifat, son) va grammatik moslikni tekshiring.",
+        "NOT GIVEN bilan FALSE’ni aralashtirish: FALSE’da matn ANIQ qarama-qarshi gapni aytadi."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Bo‘sh joyni matndan olingan so‘z yoki sonlar bilan to‘ldirish.",
+       "r": "Strategiya: Sentence / Summary / Note / Table Completion"
+      },
+      {
+       "id": "ielts-r.28",
+       "q": "«Sentence / Summary / Note / Table Completion» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Qiyin paragrafga yopishib qolish: o‘tkazib, oxirida qayting.",
+        "Javobni o‘z so‘zingiz bilan yozish: matndagi so‘zni ishlating.",
+        "Matnda bor, lekin savolga javob BERMAYDIGAN to‘g‘ri gap.",
+        "Javobni matndan AYNAN ko‘chiring, imlosi to‘g‘ri bo‘lsin."
+       ],
+       "a": 3,
+       "e": "To‘g‘ri yondashuv. Bo‘sh joyni matndan olingan so‘z yoki sonlar bilan to‘ldirish.",
+       "r": "Strategiya: Sentence / Summary / Note / Table Completion"
+      },
+      {
+       "id": "ielts-r.29",
+       "q": "«Sentence / Summary / Note / Table Completion» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Javoblar odatda matn tartibida keladi.",
+        "Bir xil so‘zlarga aldanib qolish: sinonim va ma’noga qarang.",
+        "Qiyin paragrafga yopishib qolish: o‘tkazib, oxirida qayting.",
+        "O‘z bilimingiz bilan javob berish: faqat matnga tayaning."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Bo‘sh joyni matndan olingan so‘z yoki sonlar bilan to‘ldirish.",
+       "r": "Strategiya: Sentence / Summary / Note / Table Completion"
+      },
+      {
+       "id": "ielts-r.30",
+       "q": "«Sentence / Summary / Note / Table Completion» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Har bir variantni matn bilan solishtiring: noto‘g‘rilarini kesib tashlang.",
+        "So‘z chegarasidan oshib ketish: javob xato hisoblanadi.",
+        "Avval savolni o‘qing (variantlarni emas) va matnda o‘sha joyni toping.",
+        "“Choose TWO” bo‘lsa, ikkalasi ham matn bilan mos bo‘lishi kerak."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Ko‘rsatmadagi so‘z chegarasini o‘qing: NO MORE THAN TWO WORDS = ko‘pi bilan 2 so‘z (son ham so‘z hisoblanadi).",
+       "r": "Strategiya: Sentence / Summary / Note / Table Completion"
+      },
+      {
+       "id": "ielts-r.31",
+       "q": "«Sentence / Summary / Note / Table Completion» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "“Choose TWO” bo‘lsa, ikkalasi ham matn bilan mos bo‘lishi kerak.",
+        "Paragrafning birinchi va oxirgi gapini o‘qing: asosiy g‘oya odatda shu yerda.",
+        "Imlo xatosi: ball berilmaydi.",
+        "Savollar odatda matn tartibida keladi: oldingi javobdan keyingi joydan qidiring."
+       ],
+       "a": 2,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Ko‘rsatmadagi so‘z chegarasini o‘qing: NO MORE THAN TWO WORDS = ko‘pi bilan 2 so‘z (son ham so‘z hisoblanadi).",
+       "r": "Strategiya: Sentence / Summary / Note / Table Completion"
+      },
+      {
+       "id": "ielts-r.32",
+       "q": "«Sentence / Summary / Note / Table Completion»da ko‘p uchraydigan xato qaysi?",
+       "o": [
+        "Aniq topa olmasangiz qoldirib keting va oxirida qaytib keling.",
+        "Savoldagi kalit so‘zni toping va sinonimlarini o‘ylang (increase = rise).",
+        "Tafsilotga emas, umumiy g‘oyaga mos sarlavhani tanlang.",
+        "Ko‘plik va birlikni o‘zgartirib yozish."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Ko‘rsatmadagi so‘z chegarasini o‘qing: NO MORE THAN TWO WORDS = ko‘pi bilan 2 so‘z (son ham so‘z hisoblanadi).",
+       "r": "Strategiya: Sentence / Summary / Note / Table Completion"
+      },
+      {
+       "id": "ielts-r.33",
+       "q": "«Sentence / Summary / Note / Table Completion» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Har savolga 1-1,5 daqiqa.",
+        "Har savolga taxminan 1,5 daqiqa.",
+        "4-5 daqiqa.",
+        "1 daqiqa tayyorlanish + 1-2 daqiqa gapirish."
+       ],
+       "a": 0,
+       "e": "Tavsiya: Har savolga 1-1,5 daqiqa.",
+       "r": "Strategiya: Sentence / Summary / Note / Table Completion"
+      },
+      {
+       "id": "ielts-r.34",
+       "q": "«Sentence / Summary / Note / Table Completion» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Javoblar audio tartibida keladi: bitta savolda qolib ketsangiz, keyingisini yo‘qotmang.",
+        "Summary ko‘pincha matnning bir qismini qisqartirib beradi: avval o‘sha qismni toping, keyin bo‘shliqlarga qarang.",
+        "Ma’noni chuqurroq beradigan tuzilmalardan foydalaning: “There was a sharp rise in X, which then levelled off at Y”.",
+        "Rasmiy xatda tabiiy bog‘lovchilar: I am writing to enquire about…, I would be grateful if…"
+       ],
+       "a": 1,
+       "e": "Summary ko‘pincha matnning bir qismini qisqartirib beradi: avval o‘sha qismni toping, keyin bo‘shliqlarga qarang.",
+       "r": "Strategiya: Sentence / Summary / Note / Table Completion"
+      },
+      {
+       "id": "ielts-r.35",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Bo‘sh joyni matndan olingan so‘z yoki sonlar bilan to‘ldirish.»",
+       "o": [
+        "Multiple Choice (Listening)",
+        "Listening: umumiy qoidalar",
+        "Sentence / Summary / Note / Table Completion",
+        "General Training: xat yozish (Task 1)"
+       ],
+       "a": 2,
+       "e": "Sentence / Summary / Note / Table Completion: Bo‘sh joyni matndan olingan so‘z yoki sonlar bilan to‘ldirish.",
+       "r": "Strategiya: Sentence / Summary / Note / Table Completion"
+      },
+      {
+       "id": "ielts-r.36",
+       "q": "«Multiple Choice (Reading)» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Javobni o‘z so‘zingiz bilan yozish: matndagi so‘zni ishlating.",
+        "Bir xil so‘zlarga aldanib qolish: sinonim va ma’noga qarang.",
+        "O‘z bilimingiz bilan javob berish: faqat matnga tayaning.",
+        "“Choose TWO” bo‘lsa, ikkalasi ham matn bilan mos bo‘lishi kerak."
+       ],
+       "a": 3,
+       "e": "To‘g‘ri yondashuv. Savol va variantlar ichidan matnga to‘liq mos javobni tanlash.",
+       "r": "Strategiya: Multiple Choice (Reading)"
+      },
+      {
+       "id": "ielts-r.37",
+       "q": "«Multiple Choice (Reading)» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Avval savolni o‘qing (variantlarni emas) va matnda o‘sha joyni toping.",
+        "Bitta so‘z mos kelgani uchun TRUE deyish.",
+        "Imlo xatosi: ball berilmaydi.",
+        "Ko‘plik va birlikni o‘zgartirib yozish."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Savol va variantlar ichidan matnga to‘liq mos javobni tanlash.",
+       "r": "Strategiya: Multiple Choice (Reading)"
+      },
+      {
+       "id": "ielts-r.38",
+       "q": "«Multiple Choice (Reading)» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Faqat bitta so‘zga qarab javob berish.",
+        "Har bir variantni matn bilan solishtiring: noto‘g‘rilarini kesib tashlang.",
+        "Bir xil so‘zlarga aldanib qolish: sinonim va ma’noga qarang.",
+        "Qiyin paragrafga yopishib qolish: o‘tkazib, oxirida qayting."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Savol va variantlar ichidan matnga to‘liq mos javobni tanlash.",
+       "r": "Strategiya: Multiple Choice (Reading)"
+      },
+      {
+       "id": "ielts-r.39",
+       "q": "«Multiple Choice (Reading)» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Bir paragraf bir necha marta ishlatilishi mumkin, tartib matn tartibida emas.",
+        "Ishlatilgan sarlavhani kesib tashlang: ortiqcha sarlavhalar bor va har biri bir marta ishlatiladi.",
+        "Matnda bor, lekin savolga javob BERMAYDIGAN to‘g‘ri gap.",
+        "Bo‘sh joy qaysi turdagi so‘z ekanini aniqlang (ot, sifat, son) va grammatik moslikni tekshiring."
+       ],
+       "a": 2,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Avval savolni o‘qing (variantlarni emas) va matnda o‘sha joyni toping.",
+       "r": "Strategiya: Multiple Choice (Reading)"
+      },
+      {
+       "id": "ielts-r.40",
+       "q": "«Multiple Choice (Reading)» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Aniq topa olmasangiz qoldirib keting va oxirida qaytib keling.",
+        "Ma’no to‘liq mos bo‘lsa TRUE; matn aniq aksini aytsa FALSE; shu haqda hech narsa aytilmagan bo‘lsa NOT GIVEN.",
+        "Javobni matndan AYNAN ko‘chiring, imlosi to‘g‘ri bo‘lsin.",
+        "Variantdagi so‘z matndagi so‘zga o‘xshashligiga aldanish."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Avval savolni o‘qing (variantlarni emas) va matnda o‘sha joyni toping.",
+       "r": "Strategiya: Multiple Choice (Reading)"
+      },
+      {
+       "id": "ielts-r.41",
+       "q": "«Multiple Choice (Reading)» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Har savolga 1,5-2 daqiqa.",
+        "Eshitish oldidan 30 soniya: hammasini o‘qib chiqing.",
+        "Butun topshiriq uchun 6-8 daqiqa.",
+        "Har bir bo‘lim oldidan taxminan 30 soniya."
+       ],
+       "a": 0,
+       "e": "Tavsiya: Har savolga 1,5-2 daqiqa.",
+       "r": "Strategiya: Multiple Choice (Reading)"
+      },
+      {
+       "id": "ielts-r.42",
+       "q": "«Multiple Choice (Reading)» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Murakkab grammatika va kam uchraydigan so‘zlar aynan Part 3 da ko‘rinadi.",
+        "Noto‘g‘ri variantlar odatda “juda keng”, “juda tor” yoki matnga zid bo‘ladi: shu uch belgini qidiring.",
+        "Umumiy 8 uchun odatda to‘rt bo‘limning hammasi 7,5-8,5 oralig‘ida bo‘lishi kerak.",
+        "Kirishdagi tezisingiz savoldagi so‘zlar bilan emas, o‘z pozitsiyangizni aniq aytsin."
+       ],
+       "a": 1,
+       "e": "Noto‘g‘ri variantlar odatda “juda keng”, “juda tor” yoki matnga zid bo‘ladi: shu uch belgini qidiring.",
+       "r": "Strategiya: Multiple Choice (Reading)"
+      },
+      {
+       "id": "ielts-r.43",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Savol va variantlar ichidan matnga to‘liq mos javobni tanlash.»",
+       "o": [
+        "Matching Headings",
+        "Writing mezonlari: Band 7 dan 8 ga",
+        "Multiple Choice (Reading)",
+        "Ball hisoblash"
+       ],
+       "a": 2,
+       "e": "Multiple Choice (Reading): Savol va variantlar ichidan matnga to‘liq mos javobni tanlash.",
+       "r": "Strategiya: Multiple Choice (Reading)"
+      },
+      {
+       "id": "ielts-r.44",
+       "q": "«Short Answer va diagramma belgilash» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "So‘z chegarasidan oshib ketish: javob xato hisoblanadi.",
+        "Ko‘plik va birlikni o‘zgartirib yozish.",
+        "Variantdagi so‘z matndagi so‘zga o‘xshashligiga aldanish.",
+        "So‘z chegarasini tekshiring."
+       ],
+       "a": 3,
+       "e": "To‘g‘ri yondashuv. Savolga matndan qisqa javob topish yoki diagramma qismlarini nomlash.",
+       "r": "Strategiya: Short Answer va diagramma belgilash"
+      },
+      {
+       "id": "ielts-r.45",
+       "q": "«Short Answer va diagramma belgilash» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Diagrammada matnning tegishli qismini topib, belgilarni matndan oling.",
+        "So‘z chegarasidan oshib ketish: javob xato hisoblanadi.",
+        "NOT GIVEN bilan FALSE’ni aralashtirish: FALSE’da matn ANIQ qarama-qarshi gapni aytadi.",
+        "Bitta so‘z mos kelgani uchun TRUE deyish."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Savolga matndan qisqa javob topish yoki diagramma qismlarini nomlash.",
+       "r": "Strategiya: Short Answer va diagramma belgilash"
+      },
+      {
+       "id": "ielts-r.46",
+       "q": "«Short Answer va diagramma belgilash» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Faqat bitta so‘zga qarab javob berish.",
+        "So‘roq so‘ziga qarang: who (odam), when (vaqt), how many (son).",
+        "Imlo xatosi: ball berilmaydi.",
+        "Qiyin paragrafga yopishib qolish: o‘tkazib, oxirida qayting."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Savolga matndan qisqa javob topish yoki diagramma qismlarini nomlash.",
+       "r": "Strategiya: Short Answer va diagramma belgilash"
+      },
+      {
+       "id": "ielts-r.47",
+       "q": "«Short Answer va diagramma belgilash» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Savollar odatda matn tartibida keladi: oldingi javobdan keyingi joydan qidiring.",
+        "Tafsilotga emas, umumiy g‘oyaga mos sarlavhani tanlang.",
+        "Javobni o‘z so‘zingiz bilan yozish: matndagi so‘zni ishlating.",
+        "Ko‘rsatmadagi so‘z chegarasini o‘qing: NO MORE THAN TWO WORDS = ko‘pi bilan 2 so‘z (son ham so‘z hisoblanadi)."
+       ],
+       "a": 2,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: So‘roq so‘ziga qarang: who (odam), when (vaqt), how many (son).",
+       "r": "Strategiya: Short Answer va diagramma belgilash"
+      },
+      {
+       "id": "ielts-r.48",
+       "q": "«Short Answer va diagramma belgilash» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Paragrafning birinchi va oxirgi gapini o‘qing: asosiy g‘oya odatda shu yerda.",
+        "Har bir gapdagi kalit ma’noni va uning ehtimoliy sinonimlarini belgilang.",
+        "Ishlatilgan sarlavhani kesib tashlang: ortiqcha sarlavhalar bor va har biri bir marta ishlatiladi.",
+        "Sonlarni va birliklarni noto‘g‘ri yozish."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: So‘roq so‘ziga qarang: who (odam), when (vaqt), how many (son).",
+       "r": "Strategiya: Short Answer va diagramma belgilash"
+      },
+      {
+       "id": "ielts-r.49",
+       "q": "«Short Answer va diagramma belgilash» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Har savolga 1 daqiqa.",
+        "Butun topshiriq uchun 6-8 daqiqa.",
+        "5 reja, 30 yozish, 5 tekshirish.",
+        "4-5 daqiqa."
+       ],
+       "a": 0,
+       "e": "Tavsiya: Har savolga 1 daqiqa.",
+       "r": "Strategiya: Short Answer va diagramma belgilash"
+      },
+      {
+       "id": "ielts-r.50",
+       "q": "«Short Answer va diagramma belgilash» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "To‘xtab qolsangiz “What I’d also like to mention is…” kabi iboralar bilan davom eting.",
+        "Savol so‘zlari matnda sinonim bilan almashgan bo‘ladi: ikkala shaklni ham izlang.",
+        "Ma’noni chuqurroq beradigan tuzilmalardan foydalaning: “There was a sharp rise in X, which then levelled off at Y”.",
+        "Overview’ni kirishdan keyin darhol yozing: vaqt tugab qolsa ham eng muhim qism yozilgan bo‘ladi."
+       ],
+       "a": 1,
+       "e": "Savol so‘zlari matnda sinonim bilan almashgan bo‘ladi: ikkala shaklni ham izlang.",
+       "r": "Strategiya: Short Answer va diagramma belgilash"
+      },
+      {
+       "id": "ielts-r.51",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Savolga matndan qisqa javob topish yoki diagramma qismlarini nomlash.»",
+       "o": [
+        "Matching va Map / Plan labelling",
+        "Multiple Choice (Listening)",
+        "Short Answer va diagramma belgilash",
+        "Task 1: tendentsiya va taqqoslash tili"
+       ],
+       "a": 2,
+       "e": "Short Answer va diagramma belgilash: Savolga matndan qisqa javob topish yoki diagramma qismlarini nomlash.",
+       "r": "Strategiya: Short Answer va diagramma belgilash"
+      }
+     ]
+    },
+    {
+     "id": "ielts-l",
+     "name": "Listening",
+     "src": "IELTS strategiya",
+     "q": [
+      {
+       "id": "ielts-l.1",
+       "q": "«Form / Note / Table Completion (Listening)» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Audio boshlanishidan oldingi vaqtda bo‘shliqlarga qarang va nima kerakligini taxmin qiling: son, ism, sifat.",
+        "Chap va o‘ng tomonni adashtirish.",
+        "Sonlarni noto‘g‘ri yozish (13 va 30).",
+        "Bir javobda qolib, keyingi savolni o‘tkazib yuborish."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Eshitgan ma’lumotni shakl, jadval yoki yozuvdagi bo‘shliqlarga yozish.",
+       "r": "Strategiya: Form / Note / Table Completion (Listening)"
+      },
+      {
+       "id": "ielts-l.2",
+       "q": "«Form / Note / Table Completion (Listening)» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Chap va o‘ng tomonni adashtirish.",
+        "Ismlar harflab aytiladi: har harfni diqqat bilan yozing.",
+        "Joy nomi eshitilganda xaritada o‘sha joyni topishga vaqt ketkazish.",
+        "Bir javobda qolib, keyingi savolni o‘tkazib yuborish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Eshitgan ma’lumotni shakl, jadval yoki yozuvdagi bo‘shliqlarga yozish.",
+       "r": "Strategiya: Form / Note / Table Completion (Listening)"
+      },
+      {
+       "id": "ielts-l.3",
+       "q": "«Form / Note / Table Completion (Listening)» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Joy nomi eshitilganda xaritada o‘sha joyni topishga vaqt ketkazish.",
+        "Sonlarni noto‘g‘ri yozish (13 va 30).",
+        "So‘z chegarasini kuzating va imlosini to‘g‘ri yozing.",
+        "Bir javobda qolib, keyingi savolni o‘tkazib yuborish."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Eshitgan ma’lumotni shakl, jadval yoki yozuvdagi bo‘shliqlarga yozish.",
+       "r": "Strategiya: Form / Note / Table Completion (Listening)"
+      },
+      {
+       "id": "ielts-l.4",
+       "q": "«Form / Note / Table Completion (Listening)» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Matching’da savollar audio tartibida, lekin variantlar tartibda emas.",
+        "Javoblarni ko‘chirishda imlo va katta harflarni tekshiring.",
+        "Variantlar boshqa so‘zlar bilan ifodalanadi (paraphrase): ma’noga quloq soling.",
+        "Gapiruvchi o‘zini tuzatadi: “Actually, it’s the 15th”. Oxirgi variant to‘g‘ri."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Audio boshlanishidan oldingi vaqtda bo‘shliqlarga qarang va nima kerakligini taxmin qiling: son, ism, sifat.",
+       "r": "Strategiya: Form / Note / Table Completion (Listening)"
+      },
+      {
+       "id": "ielts-l.5",
+       "q": "«Form / Note / Table Completion (Listening)» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Tez yozishda imloni buzish.",
+        "Audio oldidan savol va variantlarni o‘qing, farqlarini belgilang.",
+        "Matching’da savollar audio tartibida, lekin variantlar tartibda emas.",
+        "Faqat BIR marta eshitiladi: pauzalarda keyingi savollarni o‘qib qo‘ying."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Audio boshlanishidan oldingi vaqtda bo‘shliqlarga qarang va nima kerakligini taxmin qiling: son, ism, sifat.",
+       "r": "Strategiya: Form / Note / Table Completion (Listening)"
+      },
+      {
+       "id": "ielts-l.6",
+       "q": "«Form / Note / Table Completion (Listening)»da ko‘p uchraydigan xato qaysi?",
+       "o": [
+        "Audio oldidan xaritada o‘zingizni yo‘naltiring: kirish joyi, yo‘nalish (north, left), yaqin joylar.",
+        "Ko‘plik -s ni tushirib qoldirish.",
+        "Turli aksentlarga (Britaniya, Avstraliya, Amerika) odatlaning: podkast va dikta bilan mashq qiling.",
+        "Yo‘nalish iboralarini kuzating: opposite, next to, between, on your left."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Audio boshlanishidan oldingi vaqtda bo‘shliqlarga qarang va nima kerakligini taxmin qiling: son, ism, sifat.",
+       "r": "Strategiya: Form / Note / Table Completion (Listening)"
+      },
+      {
+       "id": "ielts-l.7",
+       "q": "«Form / Note / Table Completion (Listening)» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Har bir bo‘lim oldidan taxminan 30 soniya.",
+        "Savolga javob bergach, darhol keyingi savolga o‘ting.",
+        "Eshitish oldidan 30 soniya: hammasini o‘qib chiqing.",
+        "4-5 daqiqa."
+       ],
+       "a": 2,
+       "e": "Tavsiya: Eshitish oldidan 30 soniya: hammasini o‘qib chiqing.",
+       "r": "Strategiya: Form / Note / Table Completion (Listening)"
+      },
+      {
+       "id": "ielts-l.8",
+       "q": "«Form / Note / Table Completion (Listening)» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Noto‘g‘ri variantlar odatda “juda keng”, “juda tor” yoki matnga zid bo‘ladi: shu uch belgini qidiring.",
+        "Savolni o‘z so‘zingiz bilan qayta ayting (paraphrase): matndagi ma’noni shunda topasiz.",
+        "Aniq talaffuz ko‘p urg‘uli tezlikdan muhimroq: tushunarli va tabiiy bo‘lsin.",
+        "Javoblar audio tartibida keladi: bitta savolda qolib ketsangiz, keyingisini yo‘qotmang."
+       ],
+       "a": 3,
+       "e": "Javoblar audio tartibida keladi: bitta savolda qolib ketsangiz, keyingisini yo‘qotmang.",
+       "r": "Strategiya: Form / Note / Table Completion (Listening)"
+      },
+      {
+       "id": "ielts-l.9",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Eshitgan ma’lumotni shakl, jadval yoki yozuvdagi bo‘shliqlarga yozish.»",
+       "o": [
+        "Form / Note / Table Completion (Listening)",
+        "Task 1: tuzilma va Overview (Academic)",
+        "Task 1: jarayon va xarita",
+        "Multiple Choice (Reading)"
+       ],
+       "a": 0,
+       "e": "Form / Note / Table Completion (Listening): Eshitgan ma’lumotni shakl, jadval yoki yozuvdagi bo‘shliqlarga yozish.",
+       "r": "Strategiya: Form / Note / Table Completion (Listening)"
+      },
+      {
+       "id": "ielts-l.10",
+       "q": "«Multiple Choice (Listening)» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Chap va o‘ng tomonni adashtirish.",
+        "Gapiruvchining YAKUNIY qarorini kuting.",
+        "Tez yozishda imloni buzish.",
+        "Gapiruvchi o‘zini tuzatadi: “Actually, it’s the 15th”. Oxirgi variant to‘g‘ri."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Eshitilgan ma’lumotga mos javobni tanlash.",
+       "r": "Strategiya: Multiple Choice (Listening)"
+      },
+      {
+       "id": "ielts-l.11",
+       "q": "«Multiple Choice (Listening)» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Gapiruvchi o‘zini tuzatadi: “Actually, it’s the 15th”. Oxirgi variant to‘g‘ri.",
+        "Sonlarni noto‘g‘ri yozish (13 va 30).",
+        "Audio oldidan savol va variantlarni o‘qing, farqlarini belgilang.",
+        "Yangi savolga o‘tganda eshitishni to‘xtatish."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Eshitilgan ma’lumotga mos javobni tanlash.",
+       "r": "Strategiya: Multiple Choice (Listening)"
+      },
+      {
+       "id": "ielts-l.12",
+       "q": "«Multiple Choice (Listening)» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Yangi savolga o‘tganda eshitishni to‘xtatish.",
+        "Gapiruvchi o‘zini tuzatadi: “Actually, it’s the 15th”. Oxirgi variant to‘g‘ri.",
+        "Tez yozishda imloni buzish.",
+        "Variantlar boshqa so‘zlar bilan ifodalanadi (paraphrase): ma’noga quloq soling."
+       ],
+       "a": 3,
+       "e": "To‘g‘ri yondashuv. Eshitilgan ma’lumotga mos javobni tanlash.",
+       "r": "Strategiya: Multiple Choice (Listening)"
+      },
+      {
+       "id": "ielts-l.13",
+       "q": "«Multiple Choice (Listening)» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Bir javobda qolib, keyingi savolni o‘tkazib yuborish.",
+        "Javoblarni ko‘chirishda imlo va katta harflarni tekshiring.",
+        "Yo‘nalish iboralarini kuzating: opposite, next to, between, on your left.",
+        "Manfiy ball yo‘q: bo‘sh qoldirmang, taxmin qiling."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Audio oldidan savol va variantlarni o‘qing, farqlarini belgilang.",
+       "r": "Strategiya: Multiple Choice (Listening)"
+      },
+      {
+       "id": "ielts-l.14",
+       "q": "«Multiple Choice (Listening)» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Yo‘nalish iboralarini kuzating: opposite, next to, between, on your left.",
+        "Variant tilga olinadi, lekin keyin rad etiladi: birinchi eshitilganini tanlamang.",
+        "Audio oldidan xaritada o‘zingizni yo‘naltiring: kirish joyi, yo‘nalish (north, left), yaqin joylar.",
+        "Matching’da savollar audio tartibida, lekin variantlar tartibda emas."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Audio oldidan savol va variantlarni o‘qing, farqlarini belgilang.",
+       "r": "Strategiya: Multiple Choice (Listening)"
+      },
+      {
+       "id": "ielts-l.15",
+       "q": "«Multiple Choice (Listening)» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Eshitish oldidan 30 soniya: hammasini o‘qib chiqing.",
+        "20 daqiqa: 3 daqiqa reja, 15 yozish, 2 tekshirish.",
+        "Savolga javob bergach, darhol keyingi savolga o‘ting.",
+        "1 daqiqa tayyorlanish + 1-2 daqiqa gapirish."
+       ],
+       "a": 2,
+       "e": "Tavsiya: Savolga javob bergach, darhol keyingi savolga o‘ting.",
+       "r": "Strategiya: Multiple Choice (Listening)"
+      },
+      {
+       "id": "ielts-l.16",
+       "q": "«Multiple Choice (Listening)» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "To‘xtab qolsangiz “What I’d also like to mention is…” kabi iboralar bilan davom eting.",
+        "Umumiy 8 uchun odatda to‘rt bo‘limning hammasi 7,5-8,5 oralig‘ida bo‘lishi kerak.",
+        "Aniq talaffuz ko‘p urg‘uli tezlikdan muhimroq: tushunarli va tabiiy bo‘lsin.",
+        "Noto‘g‘ri variantlar ko‘pincha “eshitilgan, lekin rad etilgan” bo‘ladi: ularning rad etilishini kuting."
+       ],
+       "a": 3,
+       "e": "Noto‘g‘ri variantlar ko‘pincha “eshitilgan, lekin rad etilgan” bo‘ladi: ularning rad etilishini kuting.",
+       "r": "Strategiya: Multiple Choice (Listening)"
+      },
+      {
+       "id": "ielts-l.17",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Eshitilgan ma’lumotga mos javobni tanlash.»",
+       "o": [
+        "Multiple Choice (Listening)",
+        "Speaking Part 1",
+        "Speaking Part 3",
+        "Matching Headings"
+       ],
+       "a": 0,
+       "e": "Multiple Choice (Listening): Eshitilgan ma’lumotga mos javobni tanlash.",
+       "r": "Strategiya: Multiple Choice (Listening)"
+      },
+      {
+       "id": "ielts-l.18",
+       "q": "«Matching va Map / Plan labelling» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Sonlarni noto‘g‘ri yozish (13 va 30).",
+        "Matching’da savollar audio tartibida, lekin variantlar tartibda emas.",
+        "Variant tilga olinadi, lekin keyin rad etiladi: birinchi eshitilganini tanlamang.",
+        "Bir javobda qolib, keyingi savolni o‘tkazib yuborish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Xarita yoki rejadagi joylarni nomlash, ma’lumotlarni moslashtirish.",
+       "r": "Strategiya: Matching va Map / Plan labelling"
+      },
+      {
+       "id": "ielts-l.19",
+       "q": "«Matching va Map / Plan labelling» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Variant tilga olinadi, lekin keyin rad etiladi: birinchi eshitilganini tanlamang.",
+        "Bir javobda qolib, keyingi savolni o‘tkazib yuborish.",
+        "Audio oldidan xaritada o‘zingizni yo‘naltiring: kirish joyi, yo‘nalish (north, left), yaqin joylar.",
+        "Tez yozishda imloni buzish."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Xarita yoki rejadagi joylarni nomlash, ma’lumotlarni moslashtirish.",
+       "r": "Strategiya: Matching va Map / Plan labelling"
+      },
+      {
+       "id": "ielts-l.20",
+       "q": "«Matching va Map / Plan labelling» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Yangi savolga o‘tganda eshitishni to‘xtatish.",
+        "Bir javobda qolib, keyingi savolni o‘tkazib yuborish.",
+        "Variant tilga olinadi, lekin keyin rad etiladi: birinchi eshitilganini tanlamang.",
+        "Yo‘nalish iboralarini kuzating: opposite, next to, between, on your left."
+       ],
+       "a": 3,
+       "e": "To‘g‘ri yondashuv. Xarita yoki rejadagi joylarni nomlash, ma’lumotlarni moslashtirish.",
+       "r": "Strategiya: Matching va Map / Plan labelling"
+      },
+      {
+       "id": "ielts-l.21",
+       "q": "«Matching va Map / Plan labelling» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Joy nomi eshitilganda xaritada o‘sha joyni topishga vaqt ketkazish.",
+        "Javoblarni ko‘chirishda imlo va katta harflarni tekshiring.",
+        "Variantlar boshqa so‘zlar bilan ifodalanadi (paraphrase): ma’noga quloq soling.",
+        "Audio oldidan savol va variantlarni o‘qing, farqlarini belgilang."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Audio oldidan xaritada o‘zingizni yo‘naltiring: kirish joyi, yo‘nalish (north, left), yaqin joylar.",
+       "r": "Strategiya: Matching va Map / Plan labelling"
+      },
+      {
+       "id": "ielts-l.22",
+       "q": "«Matching va Map / Plan labelling» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Faqat BIR marta eshitiladi: pauzalarda keyingi savollarni o‘qib qo‘ying.",
+        "Chap va o‘ng tomonni adashtirish.",
+        "So‘z chegarasini kuzating va imlosini to‘g‘ri yozing.",
+        "Ismlar harflab aytiladi: har harfni diqqat bilan yozing."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Audio oldidan xaritada o‘zingizni yo‘naltiring: kirish joyi, yo‘nalish (north, left), yaqin joylar.",
+       "r": "Strategiya: Matching va Map / Plan labelling"
+      },
+      {
+       "id": "ielts-l.23",
+       "q": "«Matching va Map / Plan labelling» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Eshitish oldidan 30 soniya: hammasini o‘qib chiqing.",
+        "20 daqiqa.",
+        "Bir joyni topa olmasangiz, davom eting: keyingi nuqta yo‘nalishni oydinlashtiradi.",
+        "1 daqiqa tayyorlanish + 1-2 daqiqa gapirish."
+       ],
+       "a": 2,
+       "e": "Tavsiya: Bir joyni topa olmasangiz, davom eting: keyingi nuqta yo‘nalishni oydinlashtiradi.",
+       "r": "Strategiya: Matching va Map / Plan labelling"
+      },
+      {
+       "id": "ielts-l.24",
+       "q": "«Matching va Map / Plan labelling» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Har bir g‘oyani chuqur rivojlantiring (sabab → natija → real misol): 2 ta puxta g‘oya 4 ta yuzaki g‘oyadan yaxshi.",
+        "Umumiy 8 uchun odatda to‘rt bo‘limning hammasi 7,5-8,5 oralig‘ida bo‘lishi kerak.",
+        "Rasmiy xatda tabiiy bog‘lovchilar: I am writing to enquire about…, I would be grateful if…",
+        "Har bir nuqta oldingisiga nisbatan aytiladi: yo‘lni barmog‘ingiz bilan kuzatib boring."
+       ],
+       "a": 3,
+       "e": "Har bir nuqta oldingisiga nisbatan aytiladi: yo‘lni barmog‘ingiz bilan kuzatib boring.",
+       "r": "Strategiya: Matching va Map / Plan labelling"
+      },
+      {
+       "id": "ielts-l.25",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Xarita yoki rejadagi joylarni nomlash, ma’lumotlarni moslashtirish.»",
+       "o": [
+        "Matching va Map / Plan labelling",
+        "Task 2: insho turlari",
+        "Sentence / Summary / Note / Table Completion",
+        "Ball hisoblash"
+       ],
+       "a": 0,
+       "e": "Matching va Map / Plan labelling: Xarita yoki rejadagi joylarni nomlash, ma’lumotlarni moslashtirish.",
+       "r": "Strategiya: Matching va Map / Plan labelling"
+      },
+      {
+       "id": "ielts-l.26",
+       "q": "«Listening: umumiy qoidalar» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Bir javobda qolib, keyingi savolni o‘tkazib yuborish.",
+        "Turli aksentlarga (Britaniya, Avstraliya, Amerika) odatlaning: podkast va dikta bilan mashq qiling.",
+        "Variant tilga olinadi, lekin keyin rad etiladi: birinchi eshitilganini tanlamang.",
+        "Chap va o‘ng tomonni adashtirish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Listening bo‘limlari bo‘yicha umumiy usullar.",
+       "r": "Strategiya: Listening: umumiy qoidalar"
+      },
+      {
+       "id": "ielts-l.27",
+       "q": "«Listening: umumiy qoidalar» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Chap va o‘ng tomonni adashtirish.",
+        "Bir javobda qolib, keyingi savolni o‘tkazib yuborish.",
+        "Har doim bir-ikki savol oldinda bo‘ling.",
+        "Gapiruvchi o‘zini tuzatadi: “Actually, it’s the 15th”. Oxirgi variant to‘g‘ri."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Listening bo‘limlari bo‘yicha umumiy usullar.",
+       "r": "Strategiya: Listening: umumiy qoidalar"
+      },
+      {
+       "id": "ielts-l.28",
+       "q": "«Listening: umumiy qoidalar» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Variant tilga olinadi, lekin keyin rad etiladi: birinchi eshitilganini tanlamang.",
+        "Gapiruvchi o‘zini tuzatadi: “Actually, it’s the 15th”. Oxirgi variant to‘g‘ri.",
+        "Ko‘plik -s ni tushirib qoldirish.",
+        "Faqat BIR marta eshitiladi: pauzalarda keyingi savollarni o‘qib qo‘ying."
+       ],
+       "a": 3,
+       "e": "To‘g‘ri yondashuv. Listening bo‘limlari bo‘yicha umumiy usullar.",
+       "r": "Strategiya: Listening: umumiy qoidalar"
+      },
+      {
+       "id": "ielts-l.29",
+       "q": "«Listening: umumiy qoidalar» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Sonlarni noto‘g‘ri yozish (13 va 30).",
+        "Audio boshlanishidan oldingi vaqtda bo‘shliqlarga qarang va nima kerakligini taxmin qiling: son, ism, sifat.",
+        "Matching’da savollar audio tartibida, lekin variantlar tartibda emas.",
+        "So‘z chegarasini kuzating va imlosini to‘g‘ri yozing."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Faqat BIR marta eshitiladi: pauzalarda keyingi savollarni o‘qib qo‘ying.",
+       "r": "Strategiya: Listening: umumiy qoidalar"
+      },
+      {
+       "id": "ielts-l.30",
+       "q": "«Listening: umumiy qoidalar» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Gapiruvchining YAKUNIY qarorini kuting.",
+        "Yangi savolga o‘tganda eshitishni to‘xtatish.",
+        "Matching’da savollar audio tartibida, lekin variantlar tartibda emas.",
+        "Yo‘nalish iboralarini kuzating: opposite, next to, between, on your left."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Faqat BIR marta eshitiladi: pauzalarda keyingi savollarni o‘qib qo‘ying.",
+       "r": "Strategiya: Listening: umumiy qoidalar"
+      },
+      {
+       "id": "ielts-l.31",
+       "q": "«Listening: umumiy qoidalar» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "20 daqiqa.",
+        "20 daqiqa: 3 daqiqa reja, 15 yozish, 2 tekshirish.",
+        "Har bir bo‘lim oldidan taxminan 30 soniya.",
+        "Butun topshiriq uchun 6-8 daqiqa."
+       ],
+       "a": 2,
+       "e": "Tavsiya: Har bir bo‘lim oldidan taxminan 30 soniya.",
+       "r": "Strategiya: Listening: umumiy qoidalar"
+      },
+      {
+       "id": "ielts-l.32",
+       "q": "«Listening: umumiy qoidalar» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Overview’ni kirishdan keyin darhol yozing: vaqt tugab qolsa ham eng muhim qism yozilgan bo‘ladi.",
+        "8 ball uchun “kam uchraydigan so‘z” ko‘p emas, TO‘G‘RI va tabiiy qo‘llanishi muhim (collocation).",
+        "Noto‘g‘ri variantlar odatda “juda keng”, “juda tor” yoki matnga zid bo‘ladi: shu uch belgini qidiring.",
+        "Dikta (eshitib yozish) va shadowing (takrorlash) eshitish aniqligini tez oshiradi."
+       ],
+       "a": 3,
+       "e": "Dikta (eshitib yozish) va shadowing (takrorlash) eshitish aniqligini tez oshiradi.",
+       "r": "Strategiya: Listening: umumiy qoidalar"
+      },
+      {
+       "id": "ielts-l.33",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Listening bo‘limlari bo‘yicha umumiy usullar.»",
+       "o": [
+        "Listening: umumiy qoidalar",
+        "Ball hisoblash",
+        "Task 2: insho turlari",
+        "Speaking Part 3"
+       ],
+       "a": 0,
+       "e": "Listening: umumiy qoidalar: Listening bo‘limlari bo‘yicha umumiy usullar.",
+       "r": "Strategiya: Listening: umumiy qoidalar"
+      }
+     ]
+    },
+    {
+     "id": "ielts-w1",
+     "name": "Writing Task 1",
+     "src": "IELTS strategiya",
+     "q": [
+      {
+       "id": "ielts-w1.1",
+       "q": "«Task 1: tuzilma va Overview (Academic)» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Hamma sonni yozmang: muhim va tipik ma’lumotlarni tanlang. Birliklarni (%, million) yozing.",
+        "Ton aralashib ketishi.",
+        "Xaritada hamma narsani sanash, asosiy o‘zgarishlarni ajratmaslik.",
+        "Passiv zamon o‘rniga “people do” yozish."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Grafik, jadval yoki diagrammadagi ma’lumotni 150+ so‘zda tasvirlash (20 daqiqa).",
+       "r": "Strategiya: Task 1: tuzilma va Overview (Academic)"
+      },
+      {
+       "id": "ielts-w1.2",
+       "q": "«Task 1: tuzilma va Overview (Academic)» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Ton aralashib ketishi.",
+        "Overview: 2-3 ta eng muhim tendentsiya yoki xususiyat (sonlarsiz!). Bu bo‘lim bo‘lmasa, ball keskin tushadi.",
+        "Passiv zamon o‘rniga “people do” yozish.",
+        "Bandlardan birini o‘tkazib yuborish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Grafik, jadval yoki diagrammadagi ma’lumotni 150+ so‘zda tasvirlash (20 daqiqa).",
+       "r": "Strategiya: Task 1: tuzilma va Overview (Academic)"
+      },
+      {
+       "id": "ielts-w1.3",
+       "q": "«Task 1: tuzilma va Overview (Academic)» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Passiv zamon o‘rniga “people do” yozish.",
+        "Ton aralashib ketishi.",
+        "2 ta asosiy paragraf: tegishli ma’lumotlarni guruhlab, solishtirib tasvirlang.",
+        "Bandlardan birini o‘tkazib yuborish."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Grafik, jadval yoki diagrammadagi ma’lumotni 150+ so‘zda tasvirlash (20 daqiqa).",
+       "r": "Strategiya: Task 1: tuzilma va Overview (Academic)"
+      },
+      {
+       "id": "ielts-w1.4",
+       "q": "«Task 1: tuzilma va Overview (Academic)» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Zamon ma’lumot davriga mos: o‘tgan yillar - past; kelajak yillar - will/is projected to.",
+        "Yo‘nalishlar: to the north of, adjacent to, in the north-east.",
+        "Vaziyatni va kimga yozayotganingizni aniqlang: rasmiy (Dear Sir or Madam / Yours faithfully), tanish bo‘lmagan odam (Dear Mr Smith / Yours sincerely), do‘st (Hi Sam).",
+        "Overview’ning yo‘qligi."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Kirish: mavzuni o‘z so‘zingiz bilan qayta ayting (paraphrase).",
+       "r": "Strategiya: Task 1: tuzilma va Overview (Academic)"
+      },
+      {
+       "id": "ielts-w1.5",
+       "q": "«Task 1: tuzilma va Overview (Academic)» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Hamma sonni ketma-ket sanab chiqish.",
+        "Xarita: avval-keyin farqini tasvirlang: was replaced by, was demolished, was converted into, a new road was built.",
+        "Vaziyatni va kimga yozayotganingizni aniqlang: rasmiy (Dear Sir or Madam / Yours faithfully), tanish bo‘lmagan odam (Dear Mr Smith / Yours sincerely), do‘st (Hi Sam).",
+        "Qisqa kirish (maqsad), asosiy qism, yakun (qanday harakat kutilayotgani)."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Kirish: mavzuni o‘z so‘zingiz bilan qayta ayting (paraphrase).",
+       "r": "Strategiya: Task 1: tuzilma va Overview (Academic)"
+      },
+      {
+       "id": "ielts-w1.6",
+       "q": "«Task 1: tuzilma va Overview (Academic)»da ko‘p uchraydigan xato qaysi?",
+       "o": [
+        "O‘zgarish: rise, increase, climb; fall, decline, plummet; fluctuate; remain stable; peak at; level off.",
+        "Fikr yoki sabab qo‘shish: faqat ma’lumotni tasvirlang.",
+        "Darajasi: sharply, dramatically, steadily, gradually, slightly.",
+        "Vaziyatni va kimga yozayotganingizni aniqlang: rasmiy (Dear Sir or Madam / Yours faithfully), tanish bo‘lmagan odam (Dear Mr Smith / Yours sincerely), do‘st (Hi Sam)."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Kirish: mavzuni o‘z so‘zingiz bilan qayta ayting (paraphrase).",
+       "r": "Strategiya: Task 1: tuzilma va Overview (Academic)"
+      },
+      {
+       "id": "ielts-w1.7",
+       "q": "«Task 1: tuzilma va Overview (Academic)» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Butun topshiriq uchun 6-8 daqiqa.",
+        "Har savolga 1,5-2 daqiqa.",
+        "20 daqiqa: 3 daqiqa reja, 15 yozish, 2 tekshirish.",
+        "Har bir bo‘lim oldidan taxminan 30 soniya."
+       ],
+       "a": 2,
+       "e": "Tavsiya: 20 daqiqa: 3 daqiqa reja, 15 yozish, 2 tekshirish.",
+       "r": "Strategiya: Task 1: tuzilma va Overview (Academic)"
+      },
+      {
+       "id": "ielts-w1.8",
+       "q": "«Task 1: tuzilma va Overview (Academic)» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Rasmiy xatda tabiiy bog‘lovchilar: I am writing to enquire about…, I would be grateful if…",
+        "Avval osonlarini yeching: qolgan sarlavhalar soni kamayadi va qiyinlari aniq bo‘lib qoladi.",
+        "To‘xtab qolsangiz “What I’d also like to mention is…” kabi iboralar bilan davom eting.",
+        "Overview’ni kirishdan keyin darhol yozing: vaqt tugab qolsa ham eng muhim qism yozilgan bo‘ladi."
+       ],
+       "a": 3,
+       "e": "Overview’ni kirishdan keyin darhol yozing: vaqt tugab qolsa ham eng muhim qism yozilgan bo‘ladi.",
+       "r": "Strategiya: Task 1: tuzilma va Overview (Academic)"
+      },
+      {
+       "id": "ielts-w1.9",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Grafik, jadval yoki diagrammadagi ma’lumotni 150+ so‘zda tasvirlash (20 daqiqa).»",
+       "o": [
+        "Task 1: tuzilma va Overview (Academic)",
+        "True / False / Not Given",
+        "Matching Information",
+        "Imtihon kuni va vaqtni boshqarish"
+       ],
+       "a": 0,
+       "e": "Task 1: tuzilma va Overview (Academic): Grafik, jadval yoki diagrammadagi ma’lumotni 150+ so‘zda tasvirlash (20 daqiqa).",
+       "r": "Strategiya: Task 1: tuzilma va Overview (Academic)"
+      },
+      {
+       "id": "ielts-w1.10",
+       "q": "«Task 1: tendentsiya va taqqoslash tili» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Passiv zamon o‘rniga “people do” yozish.",
+        "Taxminiy son: approximately, just under, roughly, nearly. Nisbat: a quarter, one in five.",
+        "Bandlardan birini o‘tkazib yuborish.",
+        "Hamma sonni ketma-ket sanab chiqish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Ma’lumotni aniq va xilma-xil so‘zlar bilan ifodalash.",
+       "r": "Strategiya: Task 1: tendentsiya va taqqoslash tili"
+      },
+      {
+       "id": "ielts-w1.11",
+       "q": "«Task 1: tendentsiya va taqqoslash tili» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Overview’ning yo‘qligi.",
+        "Hamma sonni ketma-ket sanab chiqish.",
+        "Taqqoslash: twice as high as, considerably lower than, the highest proportion, by contrast.",
+        "Fikr yoki sabab qo‘shish: faqat ma’lumotni tasvirlang."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Ma’lumotni aniq va xilma-xil so‘zlar bilan ifodalash.",
+       "r": "Strategiya: Task 1: tendentsiya va taqqoslash tili"
+      },
+      {
+       "id": "ielts-w1.12",
+       "q": "«Task 1: tendentsiya va taqqoslash tili» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Ton aralashib ketishi.",
+        "Hamma sonni ketma-ket sanab chiqish.",
+        "Xaritada hamma narsani sanash, asosiy o‘zgarishlarni ajratmaslik.",
+        "Zamon ma’lumot davriga mos: o‘tgan yillar - past; kelajak yillar - will/is projected to."
+       ],
+       "a": 3,
+       "e": "To‘g‘ri yondashuv. Ma’lumotni aniq va xilma-xil so‘zlar bilan ifodalash.",
+       "r": "Strategiya: Task 1: tendentsiya va taqqoslash tili"
+      },
+      {
+       "id": "ielts-w1.13",
+       "q": "«Task 1: tendentsiya va taqqoslash tili» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Bir xil so‘zni takrorlash (rise, rise, rise).",
+        "Topshiriqdagi 3 ta bandning HAMMASINI yoriting.",
+        "2 ta asosiy paragraf: tegishli ma’lumotlarni guruhlab, solishtirib tasvirlang.",
+        "Vaziyatni va kimga yozayotganingizni aniqlang: rasmiy (Dear Sir or Madam / Yours faithfully), tanish bo‘lmagan odam (Dear Mr Smith / Yours sincerely), do‘st (Hi Sam)."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: O‘zgarish: rise, increase, climb; fall, decline, plummet; fluctuate; remain stable; peak at; level off.",
+       "r": "Strategiya: Task 1: tendentsiya va taqqoslash tili"
+      },
+      {
+       "id": "ielts-w1.14",
+       "q": "«Task 1: tendentsiya va taqqoslash tili» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Jarayon: bosqichlarni ketma-ket so‘zlar bilan bog‘lang: First, Next, Subsequently, Finally. Ko‘pincha passiv zamon: is heated, is then filtered.",
+        "Zamonni adashtirish.",
+        "Yo‘nalishlar: to the north of, adjacent to, in the north-east.",
+        "Hamma sonni yozmang: muhim va tipik ma’lumotlarni tanlang. Birliklarni (%, million) yozing."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: O‘zgarish: rise, increase, climb; fall, decline, plummet; fluctuate; remain stable; peak at; level off.",
+       "r": "Strategiya: Task 1: tendentsiya va taqqoslash tili"
+      },
+      {
+       "id": "ielts-w1.15",
+       "q": "«Task 1: tendentsiya va taqqoslash tili» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Har bir g‘oyani chuqur rivojlantiring (sabab → natija → real misol): 2 ta puxta g‘oya 4 ta yuzaki g‘oyadan yaxshi.",
+        "Savol so‘zlari matnda sinonim bilan almashgan bo‘ladi: ikkala shaklni ham izlang.",
+        "Ma’noni chuqurroq beradigan tuzilmalardan foydalaning: “There was a sharp rise in X, which then levelled off at Y”.",
+        "Aniq talaffuz ko‘p urg‘uli tezlikdan muhimroq: tushunarli va tabiiy bo‘lsin."
+       ],
+       "a": 2,
+       "e": "Ma’noni chuqurroq beradigan tuzilmalardan foydalaning: “There was a sharp rise in X, which then levelled off at Y”.",
+       "r": "Strategiya: Task 1: tendentsiya va taqqoslash tili"
+      },
+      {
+       "id": "ielts-w1.16",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Ma’lumotni aniq va xilma-xil so‘zlar bilan ifodalash.»",
+       "o": [
+        "Writing mezonlari: Band 7 dan 8 ga",
+        "Speaking Part 2 (Cue card)",
+        "Form / Note / Table Completion (Listening)",
+        "Task 1: tendentsiya va taqqoslash tili"
+       ],
+       "a": 3,
+       "e": "Task 1: tendentsiya va taqqoslash tili: Ma’lumotni aniq va xilma-xil so‘zlar bilan ifodalash.",
+       "r": "Strategiya: Task 1: tendentsiya va taqqoslash tili"
+      },
+      {
+       "id": "ielts-w1.17",
+       "q": "«Task 1: jarayon va xarita» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Overview: bosqichlar soni va asosiy g‘oya (boshidan oxirigacha nima bo‘ladi).",
+        "Bir xil so‘zni takrorlash (rise, rise, rise).",
+        "Fikr yoki sabab qo‘shish: faqat ma’lumotni tasvirlang.",
+        "Hamma sonni ketma-ket sanab chiqish."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Process diagrammasi yoki xarita o‘zgarishini tasvirlash.",
+       "r": "Strategiya: Task 1: jarayon va xarita"
+      },
+      {
+       "id": "ielts-w1.18",
+       "q": "«Task 1: jarayon va xarita» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Overview’ning yo‘qligi.",
+        "Xarita: avval-keyin farqini tasvirlang: was replaced by, was demolished, was converted into, a new road was built.",
+        "Fikr yoki sabab qo‘shish: faqat ma’lumotni tasvirlang.",
+        "Ton aralashib ketishi."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Process diagrammasi yoki xarita o‘zgarishini tasvirlash.",
+       "r": "Strategiya: Task 1: jarayon va xarita"
+      },
+      {
+       "id": "ielts-w1.19",
+       "q": "«Task 1: jarayon va xarita» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Ton aralashib ketishi.",
+        "Bir xil so‘zni takrorlash (rise, rise, rise).",
+        "Jarayon: bosqichlarni ketma-ket so‘zlar bilan bog‘lang: First, Next, Subsequently, Finally. Ko‘pincha passiv zamon: is heated, is then filtered.",
+        "Overview’ning yo‘qligi."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Process diagrammasi yoki xarita o‘zgarishini tasvirlash.",
+       "r": "Strategiya: Task 1: jarayon va xarita"
+      },
+      {
+       "id": "ielts-w1.20",
+       "q": "«Task 1: jarayon va xarita» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Taqqoslash: twice as high as, considerably lower than, the highest proportion, by contrast.",
+        "2 ta asosiy paragraf: tegishli ma’lumotlarni guruhlab, solishtirib tasvirlang.",
+        "Topshiriqdagi 3 ta bandning HAMMASINI yoriting.",
+        "Passiv zamon o‘rniga “people do” yozish."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Jarayon: bosqichlarni ketma-ket so‘zlar bilan bog‘lang: First, Next, Subsequently, Finally. Ko‘pincha passiv zamon: is heated, is then filtered.",
+       "r": "Strategiya: Task 1: jarayon va xarita"
+      },
+      {
+       "id": "ielts-w1.21",
+       "q": "«Task 1: jarayon va xarita» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Xaritada hamma narsani sanash, asosiy o‘zgarishlarni ajratmaslik.",
+        "O‘zgarish: rise, increase, climb; fall, decline, plummet; fluctuate; remain stable; peak at; level off.",
+        "Qisqa kirish (maqsad), asosiy qism, yakun (qanday harakat kutilayotgani).",
+        "Topshiriqdagi 3 ta bandning HAMMASINI yoriting."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Jarayon: bosqichlarni ketma-ket so‘zlar bilan bog‘lang: First, Next, Subsequently, Finally. Ko‘pincha passiv zamon: is heated, is then filtered.",
+       "r": "Strategiya: Task 1: jarayon va xarita"
+      },
+      {
+       "id": "ielts-w1.22",
+       "q": "«Task 1: jarayon va xarita» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Har savolga 1 daqiqa.",
+        "20 daqiqa.",
+        "Savolga javob bergach, darhol keyingi savolga o‘ting.",
+        "Har savolga taxminan 1,5 daqiqa."
+       ],
+       "a": 1,
+       "e": "Tavsiya: 20 daqiqa.",
+       "r": "Strategiya: Task 1: jarayon va xarita"
+      },
+      {
+       "id": "ielts-w1.23",
+       "q": "«Task 1: jarayon va xarita» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Rasmiy xatda tabiiy bog‘lovchilar: I am writing to enquire about…, I would be grateful if…",
+        "Noto‘g‘ri variantlar ko‘pincha “eshitilgan, lekin rad etilgan” bo‘ladi: ularning rad etilishini kuting.",
+        "Jarayon tilida turli tuzilmalardan foydalaning: “Once the water has been filtered, it is stored…”.",
+        "Savol so‘zlari matnda sinonim bilan almashgan bo‘ladi: ikkala shaklni ham izlang."
+       ],
+       "a": 2,
+       "e": "Jarayon tilida turli tuzilmalardan foydalaning: “Once the water has been filtered, it is stored…”.",
+       "r": "Strategiya: Task 1: jarayon va xarita"
+      },
+      {
+       "id": "ielts-w1.24",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Process diagrammasi yoki xarita o‘zgarishini tasvirlash.»",
+       "o": [
+        "Task 1: tendentsiya va taqqoslash tili",
+        "Matching Headings",
+        "Task 1: tuzilma va Overview (Academic)",
+        "Task 1: jarayon va xarita"
+       ],
+       "a": 3,
+       "e": "Task 1: jarayon va xarita: Process diagrammasi yoki xarita o‘zgarishini tasvirlash.",
+       "r": "Strategiya: Task 1: jarayon va xarita"
+      },
+      {
+       "id": "ielts-w1.25",
+       "q": "«General Training: xat yozish (Task 1)» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Vaziyatni va kimga yozayotganingizni aniqlang: rasmiy (Dear Sir or Madam / Yours faithfully), tanish bo‘lmagan odam (Dear Mr Smith / Yours sincerely), do‘st (Hi Sam).",
+        "Zamonni adashtirish.",
+        "Bir xil so‘zni takrorlash (rise, rise, rise).",
+        "Xaritada hamma narsani sanash, asosiy o‘zgarishlarni ajratmaslik."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Vaziyat bo‘yicha rasmiy, yarim rasmiy yoki norasmiy xat (150+ so‘z).",
+       "r": "Strategiya: General Training: xat yozish (Task 1)"
+      },
+      {
+       "id": "ielts-w1.26",
+       "q": "«General Training: xat yozish (Task 1)» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Zamonni adashtirish.",
+        "Tonni saqlang: rasmiy xatda qisqartmalar (I’m) va norasmiy so‘zlarsiz.",
+        "Xaritada hamma narsani sanash, asosiy o‘zgarishlarni ajratmaslik.",
+        "Bir xil so‘zni takrorlash (rise, rise, rise)."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Vaziyat bo‘yicha rasmiy, yarim rasmiy yoki norasmiy xat (150+ so‘z).",
+       "r": "Strategiya: General Training: xat yozish (Task 1)"
+      },
+      {
+       "id": "ielts-w1.27",
+       "q": "«General Training: xat yozish (Task 1)» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Fikr yoki sabab qo‘shish: faqat ma’lumotni tasvirlang.",
+        "Overview’ning yo‘qligi.",
+        "Topshiriqdagi 3 ta bandning HAMMASINI yoriting.",
+        "Xaritada hamma narsani sanash, asosiy o‘zgarishlarni ajratmaslik."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Vaziyat bo‘yicha rasmiy, yarim rasmiy yoki norasmiy xat (150+ so‘z).",
+       "r": "Strategiya: General Training: xat yozish (Task 1)"
+      },
+      {
+       "id": "ielts-w1.28",
+       "q": "«General Training: xat yozish (Task 1)» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "2 ta asosiy paragraf: tegishli ma’lumotlarni guruhlab, solishtirib tasvirlang.",
+        "Taxminiy son: approximately, just under, roughly, nearly. Nisbat: a quarter, one in five.",
+        "Taqqoslash: twice as high as, considerably lower than, the highest proportion, by contrast.",
+        "Ton aralashib ketishi."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Vaziyatni va kimga yozayotganingizni aniqlang: rasmiy (Dear Sir or Madam / Yours faithfully), tanish bo‘lmagan odam (Dear Mr Smith / Yours sincerely), do‘st (Hi Sam).",
+       "r": "Strategiya: General Training: xat yozish (Task 1)"
+      },
+      {
+       "id": "ielts-w1.29",
+       "q": "«General Training: xat yozish (Task 1)» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Bandlardan birini o‘tkazib yuborish.",
+        "Zamon ma’lumot davriga mos: o‘tgan yillar - past; kelajak yillar - will/is projected to.",
+        "Overview: 2-3 ta eng muhim tendentsiya yoki xususiyat (sonlarsiz!). Bu bo‘lim bo‘lmasa, ball keskin tushadi.",
+        "2 ta asosiy paragraf: tegishli ma’lumotlarni guruhlab, solishtirib tasvirlang."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Vaziyatni va kimga yozayotganingizni aniqlang: rasmiy (Dear Sir or Madam / Yours faithfully), tanish bo‘lmagan odam (Dear Mr Smith / Yours sincerely), do‘st (Hi Sam).",
+       "r": "Strategiya: General Training: xat yozish (Task 1)"
+      },
+      {
+       "id": "ielts-w1.30",
+       "q": "«General Training: xat yozish (Task 1)» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "20 daqiqa: 3 daqiqa reja, 15 yozish, 2 tekshirish.",
+        "20 daqiqa.",
+        "Har savolga taxminan 1,5 daqiqa.",
+        "6-8 daqiqa."
+       ],
+       "a": 1,
+       "e": "Tavsiya: 20 daqiqa.",
+       "r": "Strategiya: General Training: xat yozish (Task 1)"
+      },
+      {
+       "id": "ielts-w1.31",
+       "q": "«General Training: xat yozish (Task 1)» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Aniq talaffuz ko‘p urg‘uli tezlikdan muhimroq: tushunarli va tabiiy bo‘lsin.",
+        "Umumiy 8 uchun odatda to‘rt bo‘limning hammasi 7,5-8,5 oralig‘ida bo‘lishi kerak.",
+        "Rasmiy xatda tabiiy bog‘lovchilar: I am writing to enquire about…, I would be grateful if…",
+        "Ma’noni chuqurroq beradigan tuzilmalardan foydalaning: “There was a sharp rise in X, which then levelled off at Y”."
+       ],
+       "a": 2,
+       "e": "Rasmiy xatda tabiiy bog‘lovchilar: I am writing to enquire about…, I would be grateful if…",
+       "r": "Strategiya: General Training: xat yozish (Task 1)"
+      },
+      {
+       "id": "ielts-w1.32",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Vaziyat bo‘yicha rasmiy, yarim rasmiy yoki norasmiy xat (150+ so‘z).»",
+       "o": [
+        "Ball hisoblash",
+        "Speaking Part 2 (Cue card)",
+        "Sentence / Summary / Note / Table Completion",
+        "General Training: xat yozish (Task 1)"
+       ],
+       "a": 3,
+       "e": "General Training: xat yozish (Task 1): Vaziyat bo‘yicha rasmiy, yarim rasmiy yoki norasmiy xat (150+ so‘z).",
+       "r": "Strategiya: General Training: xat yozish (Task 1)"
+      }
+     ]
+    },
+    {
+     "id": "ielts-w2",
+     "name": "Writing Task 2",
+     "src": "IELTS strategiya",
+     "q": [
+      {
+       "id": "ielts-w2.1",
+       "q": "«Task 2: umumiy tuzilma» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "3 daqiqa tekshirish: artikllar, fe’l zamoni, ko‘plik, imlo.",
+        "Mavzudan chetga chiqish.",
+        "Mexanik bog‘lovchilar ro‘yxati.",
+        "Ikkinchi savolga javob bermaslik."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Berilgan mavzu bo‘yicha 250+ so‘zlik insho (40 daqiqa). Task 2 umumiy yozish ballining 2/3 qismini beradi.",
+       "r": "Strategiya: Task 2: umumiy tuzilma"
+      },
+      {
+       "id": "ielts-w2.2",
+       "q": "«Task 2: umumiy tuzilma» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Mexanik bog‘lovchilar ro‘yxati.",
+        "2 ta asosiy paragraf: har birida PEEL: Point (g‘oya), Explain (tushuntirish), Example (misol), Link (savolga bog‘lash).",
+        "Ikkinchi savolga javob bermaslik.",
+        "Murakkab so‘z ishlatib, ma’noni buzish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Berilgan mavzu bo‘yicha 250+ so‘zlik insho (40 daqiqa). Task 2 umumiy yozish ballining 2/3 qismini beradi.",
+       "r": "Strategiya: Task 2: umumiy tuzilma"
+      },
+      {
+       "id": "ielts-w2.3",
+       "q": "«Task 2: umumiy tuzilma» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Savol turiga mos kelmaydigan tuzilma.",
+        "Mavzudan chetga chiqish.",
+        "5 daqiqa reja: savol turini aniqlang, o‘z pozitsiyangizni va 2 ta asosiy g‘oyani belgilang.",
+        "Mexanik bog‘lovchilar ro‘yxati."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Berilgan mavzu bo‘yicha 250+ so‘zlik insho (40 daqiqa). Task 2 umumiy yozish ballining 2/3 qismini beradi.",
+       "r": "Strategiya: Task 2: umumiy tuzilma"
+      },
+      {
+       "id": "ielts-w2.4",
+       "q": "«Task 2: umumiy tuzilma» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Task Response: savolning HAMMA qismiga javob, g‘oyalar to‘liq rivojlangan, pozitsiya aniq.",
+        "Lexical Resource (band 8): keng va aniq so‘z boyligi, kam uchraydigan so‘zlar va birikmalar, kam xatolar.",
+        "Har inshoni to‘rt mezon bo‘yicha o‘zingiz baholab, eng zaif mezonga e’tibor bering.",
+        "250 so‘zdan kam yozish."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: 5 daqiqa reja: savol turini aniqlang, o‘z pozitsiyangizni va 2 ta asosiy g‘oyani belgilang.",
+       "r": "Strategiya: Task 2: umumiy tuzilma"
+      },
+      {
+       "id": "ielts-w2.5",
+       "q": "«Task 2: umumiy tuzilma» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Savolning BIR qismiga javob berish.",
+        "Problem/Solution: muammolar va ularning aniq yechimlari, har biriga bir paragraf.",
+        "Opinion (To what extent do you agree?): butun inshoda bitta aniq pozitsiyani saqlang.",
+        "Discussion (Discuss both views and give your opinion): ikkala nuqtai nazarni adolatli yoriting va o‘z fikringizni ayting."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: 5 daqiqa reja: savol turini aniqlang, o‘z pozitsiyangizni va 2 ta asosiy g‘oyani belgilang.",
+       "r": "Strategiya: Task 2: umumiy tuzilma"
+      },
+      {
+       "id": "ielts-w2.6",
+       "q": "«Task 2: umumiy tuzilma»da ko‘p uchraydigan xato qaysi?",
+       "o": [
+        "Coherence & Cohesion: mantiqiy paragraflar; bog‘lovchilar tabiiy (har gapga “Moreover” emas).",
+        "Yodlangan shablon va gaplar: examiner tanib oladi va bahoni pasaytiradi.",
+        "Discussion (Discuss both views and give your opinion): ikkala nuqtai nazarni adolatli yoriting va o‘z fikringizni ayting.",
+        "Grammar (band 8): turli murakkab tuzilmalar (shart, nisbiy gap, passiv), gaplarning ko‘pchiligi xatosiz."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: 5 daqiqa reja: savol turini aniqlang, o‘z pozitsiyangizni va 2 ta asosiy g‘oyani belgilang.",
+       "r": "Strategiya: Task 2: umumiy tuzilma"
+      },
+      {
+       "id": "ielts-w2.7",
+       "q": "«Task 2: umumiy tuzilma» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "1 daqiqa tayyorlanish + 1-2 daqiqa gapirish.",
+        "Har savolga 1-1,5 daqiqa.",
+        "5 reja, 30 yozish, 5 tekshirish.",
+        "20 daqiqa."
+       ],
+       "a": 2,
+       "e": "Tavsiya: 5 reja, 30 yozish, 5 tekshirish.",
+       "r": "Strategiya: Task 2: umumiy tuzilma"
+      },
+      {
+       "id": "ielts-w2.8",
+       "q": "«Task 2: umumiy tuzilma» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Aniq talaffuz ko‘p urg‘uli tezlikdan muhimroq: tushunarli va tabiiy bo‘lsin.",
+        "Dikta (eshitib yozish) va shadowing (takrorlash) eshitish aniqligini tez oshiradi.",
+        "Imtihondan oldingi 2 kunda yangi narsa o‘rganmang: takrorlang va dam oling.",
+        "Har bir g‘oyani chuqur rivojlantiring (sabab → natija → real misol): 2 ta puxta g‘oya 4 ta yuzaki g‘oyadan yaxshi."
+       ],
+       "a": 3,
+       "e": "Har bir g‘oyani chuqur rivojlantiring (sabab → natija → real misol): 2 ta puxta g‘oya 4 ta yuzaki g‘oyadan yaxshi.",
+       "r": "Strategiya: Task 2: umumiy tuzilma"
+      },
+      {
+       "id": "ielts-w2.9",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Berilgan mavzu bo‘yicha 250+ so‘zlik insho (40 daqiqa). Task 2 umumiy yozish ballining 2/3 qismini beradi.»",
+       "o": [
+        "Task 2: umumiy tuzilma",
+        "Speaking: ravonlik, talaffuz, so‘z boyligi",
+        "Short Answer va diagramma belgilash",
+        "Multiple Choice (Listening)"
+       ],
+       "a": 0,
+       "e": "Task 2: umumiy tuzilma: Berilgan mavzu bo‘yicha 250+ so‘zlik insho (40 daqiqa). Task 2 umumiy yozish ballining 2/3 qismini beradi.",
+       "r": "Strategiya: Task 2: umumiy tuzilma"
+      },
+      {
+       "id": "ielts-w2.10",
+       "q": "«Task 2: insho turlari» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Savolning BIR qismiga javob berish.",
+        "Advantages/Disadvantages (yoki outweigh): ikkalasini yoritib, qaysi biri ustunligini ayting.",
+        "Mexanik bog‘lovchilar ro‘yxati.",
+        "Mavzudan chetga chiqish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Har bir insho turi o‘z tuzilmasini talab qiladi.",
+       "r": "Strategiya: Task 2: insho turlari"
+      },
+      {
+       "id": "ielts-w2.11",
+       "q": "«Task 2: insho turlari» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Savolning BIR qismiga javob berish.",
+        "Murakkab so‘z ishlatib, ma’noni buzish.",
+        "Two-part question: ikkala savolga alohida paragrafda javob bering.",
+        "Mavzudan chetga chiqish."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Har bir insho turi o‘z tuzilmasini talab qiladi.",
+       "r": "Strategiya: Task 2: insho turlari"
+      },
+      {
+       "id": "ielts-w2.12",
+       "q": "«Task 2: insho turlari» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Savolning BIR qismiga javob berish.",
+        "Yodlangan shablon va gaplar: examiner tanib oladi va bahoni pasaytiradi.",
+        "Mavzudan chetga chiqish.",
+        "Opinion (To what extent do you agree?): butun inshoda bitta aniq pozitsiyani saqlang."
+       ],
+       "a": 3,
+       "e": "To‘g‘ri yondashuv. Har bir insho turi o‘z tuzilmasini talab qiladi.",
+       "r": "Strategiya: Task 2: insho turlari"
+      },
+      {
+       "id": "ielts-w2.13",
+       "q": "«Task 2: insho turlari» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Savol turiga mos kelmaydigan tuzilma.",
+        "Task Response: savolning HAMMA qismiga javob, g‘oyalar to‘liq rivojlangan, pozitsiya aniq.",
+        "Grammar (band 8): turli murakkab tuzilmalar (shart, nisbiy gap, passiv), gaplarning ko‘pchiligi xatosiz.",
+        "Xulosa: tezisni boshqacha so‘zlar bilan takrorlang, yangi g‘oya qo‘shmang."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Opinion (To what extent do you agree?): butun inshoda bitta aniq pozitsiyani saqlang.",
+       "r": "Strategiya: Task 2: insho turlari"
+      },
+      {
+       "id": "ielts-w2.14",
+       "q": "«Task 2: insho turlari» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "5 daqiqa reja: savol turini aniqlang, o‘z pozitsiyangizni va 2 ta asosiy g‘oyani belgilang.",
+        "Ikkinchi savolga javob bermaslik.",
+        "Lexical Resource (band 8): keng va aniq so‘z boyligi, kam uchraydigan so‘zlar va birikmalar, kam xatolar.",
+        "Task Response: savolning HAMMA qismiga javob, g‘oyalar to‘liq rivojlangan, pozitsiya aniq."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Opinion (To what extent do you agree?): butun inshoda bitta aniq pozitsiyani saqlang.",
+       "r": "Strategiya: Task 2: insho turlari"
+      },
+      {
+       "id": "ielts-w2.15",
+       "q": "«Task 2: insho turlari» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Savol so‘zlari matnda sinonim bilan almashgan bo‘ladi: ikkala shaklni ham izlang.",
+        "Har bir nuqta oldingisiga nisbatan aytiladi: yo‘lni barmog‘ingiz bilan kuzatib boring.",
+        "Kirishdagi tezisingiz savoldagi so‘zlar bilan emas, o‘z pozitsiyangizni aniq aytsin.",
+        "Jarayon tilida turli tuzilmalardan foydalaning: “Once the water has been filtered, it is stored…”."
+       ],
+       "a": 2,
+       "e": "Kirishdagi tezisingiz savoldagi so‘zlar bilan emas, o‘z pozitsiyangizni aniq aytsin.",
+       "r": "Strategiya: Task 2: insho turlari"
+      },
+      {
+       "id": "ielts-w2.16",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Har bir insho turi o‘z tuzilmasini talab qiladi.»",
+       "o": [
+        "Listening: umumiy qoidalar",
+        "Task 2: umumiy tuzilma",
+        "True / False / Not Given",
+        "Task 2: insho turlari"
+       ],
+       "a": 3,
+       "e": "Task 2: insho turlari: Har bir insho turi o‘z tuzilmasini talab qiladi.",
+       "r": "Strategiya: Task 2: insho turlari"
+      },
+      {
+       "id": "ielts-w2.17",
+       "q": "«Writing mezonlari: Band 7 dan 8 ga» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Har inshoni to‘rt mezon bo‘yicha o‘zingiz baholab, eng zaif mezonga e’tibor bering.",
+        "Savol turiga mos kelmaydigan tuzilma.",
+        "Ikkinchi savolga javob bermaslik.",
+        "250 so‘zdan kam yozish."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Examiner to‘rt mezon bo‘yicha baholaydi: Task Response, Coherence & Cohesion, Lexical Resource, Grammatical Range & Accuracy.",
+       "r": "Strategiya: Writing mezonlari: Band 7 dan 8 ga"
+      },
+      {
+       "id": "ielts-w2.18",
+       "q": "«Writing mezonlari: Band 7 dan 8 ga» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Savol turiga mos kelmaydigan tuzilma.",
+        "Coherence & Cohesion: mantiqiy paragraflar; bog‘lovchilar tabiiy (har gapga “Moreover” emas).",
+        "Ikkinchi savolga javob bermaslik.",
+        "Savolning BIR qismiga javob berish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Examiner to‘rt mezon bo‘yicha baholaydi: Task Response, Coherence & Cohesion, Lexical Resource, Grammatical Range & Accuracy.",
+       "r": "Strategiya: Writing mezonlari: Band 7 dan 8 ga"
+      },
+      {
+       "id": "ielts-w2.19",
+       "q": "«Writing mezonlari: Band 7 dan 8 ga» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "250 so‘zdan kam yozish.",
+        "Yodlangan shablon va gaplar: examiner tanib oladi va bahoni pasaytiradi.",
+        "Lexical Resource (band 8): keng va aniq so‘z boyligi, kam uchraydigan so‘zlar va birikmalar, kam xatolar.",
+        "Savol turiga mos kelmaydigan tuzilma."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Examiner to‘rt mezon bo‘yicha baholaydi: Task Response, Coherence & Cohesion, Lexical Resource, Grammatical Range & Accuracy.",
+       "r": "Strategiya: Writing mezonlari: Band 7 dan 8 ga"
+      },
+      {
+       "id": "ielts-w2.20",
+       "q": "«Writing mezonlari: Band 7 dan 8 ga» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "2 ta asosiy paragraf: har birida PEEL: Point (g‘oya), Explain (tushuntirish), Example (misol), Link (savolga bog‘lash).",
+        "5 daqiqa reja: savol turini aniqlang, o‘z pozitsiyangizni va 2 ta asosiy g‘oyani belgilang.",
+        "Xulosa: tezisni boshqacha so‘zlar bilan takrorlang, yangi g‘oya qo‘shmang.",
+        "Murakkab so‘z ishlatib, ma’noni buzish."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Task Response: savolning HAMMA qismiga javob, g‘oyalar to‘liq rivojlangan, pozitsiya aniq.",
+       "r": "Strategiya: Writing mezonlari: Band 7 dan 8 ga"
+      },
+      {
+       "id": "ielts-w2.21",
+       "q": "«Writing mezonlari: Band 7 dan 8 ga» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Mexanik bog‘lovchilar ro‘yxati.",
+        "Discussion (Discuss both views and give your opinion): ikkala nuqtai nazarni adolatli yoriting va o‘z fikringizni ayting.",
+        "Problem/Solution: muammolar va ularning aniq yechimlari, har biriga bir paragraf.",
+        "Opinion (To what extent do you agree?): butun inshoda bitta aniq pozitsiyani saqlang."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Task Response: savolning HAMMA qismiga javob, g‘oyalar to‘liq rivojlangan, pozitsiya aniq.",
+       "r": "Strategiya: Writing mezonlari: Band 7 dan 8 ga"
+      },
+      {
+       "id": "ielts-w2.22",
+       "q": "«Writing mezonlari: Band 7 dan 8 ga»da ko‘p uchraydigan xato qaysi?",
+       "o": [
+        "Xulosa: tezisni boshqacha so‘zlar bilan takrorlang, yangi g‘oya qo‘shmang.",
+        "Mavzudan chetga chiqish.",
+        "Discussion (Discuss both views and give your opinion): ikkala nuqtai nazarni adolatli yoriting va o‘z fikringizni ayting.",
+        "Kirish: mavzuni paraphrase qiling + tezis (pozitsiya)."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Task Response: savolning HAMMA qismiga javob, g‘oyalar to‘liq rivojlangan, pozitsiya aniq.",
+       "r": "Strategiya: Writing mezonlari: Band 7 dan 8 ga"
+      },
+      {
+       "id": "ielts-w2.23",
+       "q": "«Writing mezonlari: Band 7 dan 8 ga» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Har bir g‘oyani chuqur rivojlantiring (sabab → natija → real misol): 2 ta puxta g‘oya 4 ta yuzaki g‘oyadan yaxshi.",
+        "Noto‘g‘ri variantlar odatda “juda keng”, “juda tor” yoki matnga zid bo‘ladi: shu uch belgini qidiring.",
+        "8 ball uchun “kam uchraydigan so‘z” ko‘p emas, TO‘G‘RI va tabiiy qo‘llanishi muhim (collocation).",
+        "Overview’ni kirishdan keyin darhol yozing: vaqt tugab qolsa ham eng muhim qism yozilgan bo‘ladi."
+       ],
+       "a": 2,
+       "e": "8 ball uchun “kam uchraydigan so‘z” ko‘p emas, TO‘G‘RI va tabiiy qo‘llanishi muhim (collocation).",
+       "r": "Strategiya: Writing mezonlari: Band 7 dan 8 ga"
+      },
+      {
+       "id": "ielts-w2.24",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Examiner to‘rt mezon bo‘yicha baholaydi: Task Response, Coherence & Cohesion, Lexical Resource, Grammatical Range & Accuracy.»",
+       "o": [
+        "Short Answer va diagramma belgilash",
+        "Task 2: insho turlari",
+        "Speaking: ravonlik, talaffuz, so‘z boyligi",
+        "Writing mezonlari: Band 7 dan 8 ga"
+       ],
+       "a": 3,
+       "e": "Writing mezonlari: Band 7 dan 8 ga: Examiner to‘rt mezon bo‘yicha baholaydi: Task Response, Coherence & Cohesion, Lexical Resource, Grammatical Range & Accuracy.",
+       "r": "Strategiya: Writing mezonlari: Band 7 dan 8 ga"
+      }
+     ]
+    },
+    {
+     "id": "ielts-s",
+     "name": "Speaking",
+     "src": "IELTS strategiya",
+     "q": [
+      {
+       "id": "ielts-s.1",
+       "q": "«Speaking Part 1» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "O‘tgan, hozirgi va kelasi zamonlarni mavzuga qarab ishlating.",
+        "Faqat bitta zamonda gapirish.",
+        "1 daqiqada to‘xtab qolish.",
+        "“Um…” ni haddan ziyod ko‘p ishlatish."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Tanish mavzular (uy, ish, hobbi) bo‘yicha 4-5 daqiqalik suhbat.",
+       "r": "Strategiya: Speaking Part 1"
+      },
+      {
+       "id": "ielts-s.2",
+       "q": "«Speaking Part 1» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "1 daqiqada to‘xtab qolish.",
+        "Har javobda 2-3 gap: Javob + Sabab + Misol.",
+        "“Um…” ni haddan ziyod ko‘p ishlatish.",
+        "Shaxsiy hayot haqida emas, umumiy jamiyat haqida gapirish kerakligini unutish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Tanish mavzular (uy, ish, hobbi) bo‘yicha 4-5 daqiqalik suhbat.",
+       "r": "Strategiya: Speaking Part 1"
+      },
+      {
+       "id": "ielts-s.3",
+       "q": "«Speaking Part 1» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Shaxsiy hayot haqida emas, umumiy jamiyat haqida gapirish kerakligini unutish.",
+        "1 daqiqada to‘xtab qolish.",
+        "Yodlangan javoblardan qoching: examiner buni sezadi.",
+        "Faqat bitta zamonda gapirish."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Tanish mavzular (uy, ish, hobbi) bo‘yicha 4-5 daqiqalik suhbat.",
+       "r": "Strategiya: Speaking Part 1"
+      },
+      {
+       "id": "ielts-s.4",
+       "q": "«Speaking Part 1» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Savollarning hammasini yoriting; kerak bo‘lsa zamonlarni aralashtiring (past hodisa + hozirgi fikr).",
+        "Tuzilma: tanishtirish → tafsilot → his-tuyg‘u va sabab → yakun.",
+        "Tayyorlanish vaqtida kalit so‘zlarni yozing (to‘liq gaplar emas): kim, nima, qayerda, qachon, nega.",
+        "“Yes”, “No” bilan tugatish."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Har javobda 2-3 gap: Javob + Sabab + Misol.",
+       "r": "Strategiya: Speaking Part 1"
+      },
+      {
+       "id": "ielts-s.5",
+       "q": "«Speaking Part 1» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Savolni noto‘g‘ri tushunib, boshqa mavzuda gapirish.",
+        "Ravonlik: me’yoriy tezlikda gapiring, o‘zingizni silliq tuzating, bog‘lovchilarni ishlating (well, actually, to be honest).",
+        "Vaqtni to‘ldiring: examiner to‘xtatguncha gapiring.",
+        "Taxmin qiling: “It might lead to…”, “If governments invested…, would…”."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Har javobda 2-3 gap: Javob + Sabab + Misol.",
+       "r": "Strategiya: Speaking Part 1"
+      },
+      {
+       "id": "ielts-s.6",
+       "q": "«Speaking Part 1» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "5 reja, 30 yozish, 5 tekshirish.",
+        "4-5 daqiqa.",
+        "Har savolga 1 daqiqa.",
+        "6-8 daqiqa."
+       ],
+       "a": 1,
+       "e": "Tavsiya: 4-5 daqiqa.",
+       "r": "Strategiya: Speaking Part 1"
+      },
+      {
+       "id": "ielts-s.7",
+       "q": "«Speaking Part 1» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Noto‘g‘ri variantlar ko‘pincha “eshitilgan, lekin rad etilgan” bo‘ladi: ularning rad etilishini kuting.",
+        "Avval osonlarini yeching: qolgan sarlavhalar soni kamayadi va qiyinlari aniq bo‘lib qoladi.",
+        "Javobga qisqa shaxsiy voqea qo‘shing: bu tabiiy va ishonarli eshitiladi.",
+        "Imtihondan oldingi 2 kunda yangi narsa o‘rganmang: takrorlang va dam oling."
+       ],
+       "a": 2,
+       "e": "Javobga qisqa shaxsiy voqea qo‘shing: bu tabiiy va ishonarli eshitiladi.",
+       "r": "Strategiya: Speaking Part 1"
+      },
+      {
+       "id": "ielts-s.8",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Tanish mavzular (uy, ish, hobbi) bo‘yicha 4-5 daqiqalik suhbat.»",
+       "o": [
+        "True / False / Not Given",
+        "Task 1: tuzilma va Overview (Academic)",
+        "Multiple Choice (Listening)",
+        "Speaking Part 1"
+       ],
+       "a": 3,
+       "e": "Speaking Part 1: Tanish mavzular (uy, ish, hobbi) bo‘yicha 4-5 daqiqalik suhbat.",
+       "r": "Strategiya: Speaking Part 1"
+      },
+      {
+       "id": "ielts-s.9",
+       "q": "«Speaking Part 2 (Cue card)» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Tayyorlanish vaqtida kalit so‘zlarni yozing (to‘liq gaplar emas): kim, nima, qayerda, qachon, nega.",
+        "Shaxsiy hayot haqida emas, umumiy jamiyat haqida gapirish kerakligini unutish.",
+        "Savolni noto‘g‘ri tushunib, boshqa mavzuda gapirish.",
+        "Juda tez yoki “mashina kabi” yodlangan gapirish."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. 1 daqiqa tayyorlanib, 1-2 daqiqa uzluksiz gapirish.",
+       "r": "Strategiya: Speaking Part 2 (Cue card)"
+      },
+      {
+       "id": "ielts-s.10",
+       "q": "«Speaking Part 2 (Cue card)» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Juda tez yoki “mashina kabi” yodlangan gapirish.",
+        "Tuzilma: tanishtirish → tafsilot → his-tuyg‘u va sabab → yakun.",
+        "“Yes”, “No” bilan tugatish.",
+        "Shaxsiy hayot haqida emas, umumiy jamiyat haqida gapirish kerakligini unutish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. 1 daqiqa tayyorlanib, 1-2 daqiqa uzluksiz gapirish.",
+       "r": "Strategiya: Speaking Part 2 (Cue card)"
+      },
+      {
+       "id": "ielts-s.11",
+       "q": "«Speaking Part 2 (Cue card)» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Savolni noto‘g‘ri tushunib, boshqa mavzuda gapirish.",
+        "Shaxsiy hayot haqida emas, umumiy jamiyat haqida gapirish kerakligini unutish.",
+        "Vaqtni to‘ldiring: examiner to‘xtatguncha gapiring.",
+        "Qisqa, asoslanmagan javob."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. 1 daqiqa tayyorlanib, 1-2 daqiqa uzluksiz gapirish.",
+       "r": "Strategiya: Speaking Part 2 (Cue card)"
+      },
+      {
+       "id": "ielts-s.12",
+       "q": "«Speaking Part 2 (Cue card)» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Fikringizni bilmasangiz ham javob bering: “That’s an interesting question. I’d say…”.",
+        "Yodlangan javoblardan qoching: examiner buni sezadi.",
+        "Har javobda 2-3 gap: Javob + Sabab + Misol.",
+        "Faqat bitta zamonda gapirish."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Tayyorlanish vaqtida kalit so‘zlarni yozing (to‘liq gaplar emas): kim, nima, qayerda, qachon, nega.",
+       "r": "Strategiya: Speaking Part 2 (Cue card)"
+      },
+      {
+       "id": "ielts-s.13",
+       "q": "«Speaking Part 2 (Cue card)» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "1 daqiqada to‘xtab qolish.",
+        "Fikringizni sabab bilan asoslang: PEEL (Point, Explain, Example, Link).",
+        "Grammatika: shart gaplar, nisbiy gaplar, murakkab tuzilmalarni sinab ko‘ring.",
+        "Taqqoslang: o‘tmish va hozir, shahar va qishloq, yoshlar va keksalar."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Tayyorlanish vaqtida kalit so‘zlarni yozing (to‘liq gaplar emas): kim, nima, qayerda, qachon, nega.",
+       "r": "Strategiya: Speaking Part 2 (Cue card)"
+      },
+      {
+       "id": "ielts-s.14",
+       "q": "«Speaking Part 2 (Cue card)» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Butun topshiriq uchun 6-8 daqiqa.",
+        "1 daqiqa tayyorlanish + 1-2 daqiqa gapirish.",
+        "Bir joyni topa olmasangiz, davom eting: keyingi nuqta yo‘nalishni oydinlashtiradi.",
+        "6-8 daqiqa."
+       ],
+       "a": 1,
+       "e": "Tavsiya: 1 daqiqa tayyorlanish + 1-2 daqiqa gapirish.",
+       "r": "Strategiya: Speaking Part 2 (Cue card)"
+      },
+      {
+       "id": "ielts-s.15",
+       "q": "«Speaking Part 2 (Cue card)» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Noto‘g‘ri variantlar odatda “juda keng”, “juda tor” yoki matnga zid bo‘ladi: shu uch belgini qidiring.",
+        "Imtihondan oldingi 2 kunda yangi narsa o‘rganmang: takrorlang va dam oling.",
+        "To‘xtab qolsangiz “What I’d also like to mention is…” kabi iboralar bilan davom eting.",
+        "Savol so‘zlari matnda sinonim bilan almashgan bo‘ladi: ikkala shaklni ham izlang."
+       ],
+       "a": 2,
+       "e": "To‘xtab qolsangiz “What I’d also like to mention is…” kabi iboralar bilan davom eting.",
+       "r": "Strategiya: Speaking Part 2 (Cue card)"
+      },
+      {
+       "id": "ielts-s.16",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «1 daqiqa tayyorlanib, 1-2 daqiqa uzluksiz gapirish.»",
+       "o": [
+        "Sentence / Summary / Note / Table Completion",
+        "Task 2: insho turlari",
+        "Speaking: ravonlik, talaffuz, so‘z boyligi",
+        "Speaking Part 2 (Cue card)"
+       ],
+       "a": 3,
+       "e": "Speaking Part 2 (Cue card): 1 daqiqa tayyorlanib, 1-2 daqiqa uzluksiz gapirish.",
+       "r": "Strategiya: Speaking Part 2 (Cue card)"
+      },
+      {
+       "id": "ielts-s.17",
+       "q": "«Speaking Part 3» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "Taxmin qiling: “It might lead to…”, “If governments invested…, would…”.",
+        "“Yes”, “No” bilan tugatish.",
+        "1 daqiqada to‘xtab qolish.",
+        "Savolni noto‘g‘ri tushunib, boshqa mavzuda gapirish."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Mavzu bo‘yicha mavhum, chuqurroq muhokama (4-5 daqiqa).",
+       "r": "Strategiya: Speaking Part 3"
+      },
+      {
+       "id": "ielts-s.18",
+       "q": "«Speaking Part 3» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "“Yes”, “No” bilan tugatish.",
+        "Fikringizni bilmasangiz ham javob bering: “That’s an interesting question. I’d say…”.",
+        "Faqat bitta zamonda gapirish.",
+        "Savolni noto‘g‘ri tushunib, boshqa mavzuda gapirish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Mavzu bo‘yicha mavhum, chuqurroq muhokama (4-5 daqiqa).",
+       "r": "Strategiya: Speaking Part 3"
+      },
+      {
+       "id": "ielts-s.19",
+       "q": "«Speaking Part 3» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Savolni noto‘g‘ri tushunib, boshqa mavzuda gapirish.",
+        "“Um…” ni haddan ziyod ko‘p ishlatish.",
+        "Taqqoslang: o‘tmish va hozir, shahar va qishloq, yoshlar va keksalar.",
+        "Faqat bitta zamonda gapirish."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Mavzu bo‘yicha mavhum, chuqurroq muhokama (4-5 daqiqa).",
+       "r": "Strategiya: Speaking Part 3"
+      },
+      {
+       "id": "ielts-s.20",
+       "q": "«Speaking Part 3» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Savollarning hammasini yoriting; kerak bo‘lsa zamonlarni aralashtiring (past hodisa + hozirgi fikr).",
+        "Talaffuz: so‘z urg‘usi, gap urg‘usi, intonatsiya (shadowing bilan mashq qiling).",
+        "O‘tgan, hozirgi va kelasi zamonlarni mavzuga qarab ishlating.",
+        "Qisqa, asoslanmagan javob."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Fikringizni sabab bilan asoslang: PEEL (Point, Explain, Example, Link).",
+       "r": "Strategiya: Speaking Part 3"
+      },
+      {
+       "id": "ielts-s.21",
+       "q": "«Speaking Part 3» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Shaxsiy hayot haqida emas, umumiy jamiyat haqida gapirish kerakligini unutish.",
+        "Tuzilma: tanishtirish → tafsilot → his-tuyg‘u va sabab → yakun.",
+        "So‘z boyligi: so‘z topolmasangiz boshqacha ayting (paraphrase), iboralar me’yorida.",
+        "Savollarning hammasini yoriting; kerak bo‘lsa zamonlarni aralashtiring (past hodisa + hozirgi fikr)."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Fikringizni sabab bilan asoslang: PEEL (Point, Explain, Example, Link).",
+       "r": "Strategiya: Speaking Part 3"
+      },
+      {
+       "id": "ielts-s.22",
+       "q": "«Speaking Part 3» uchun tavsiya etilgan vaqt qaysi?",
+       "o": [
+        "Butun topshiriq uchun 6-8 daqiqa.",
+        "4-5 daqiqa.",
+        "20 daqiqa: 3 daqiqa reja, 15 yozish, 2 tekshirish.",
+        "Har savolga 1-1,5 daqiqa."
+       ],
+       "a": 1,
+       "e": "Tavsiya: 4-5 daqiqa.",
+       "r": "Strategiya: Speaking Part 3"
+      },
+      {
+       "id": "ielts-s.23",
+       "q": "«Speaking Part 3» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Savolni o‘z so‘zingiz bilan qayta ayting (paraphrase): matndagi ma’noni shunda topasiz.",
+        "Noto‘g‘ri variantlar ko‘pincha “eshitilgan, lekin rad etilgan” bo‘ladi: ularning rad etilishini kuting.",
+        "Murakkab grammatika va kam uchraydigan so‘zlar aynan Part 3 da ko‘rinadi.",
+        "Imtihondan oldingi 2 kunda yangi narsa o‘rganmang: takrorlang va dam oling."
+       ],
+       "a": 2,
+       "e": "Murakkab grammatika va kam uchraydigan so‘zlar aynan Part 3 da ko‘rinadi.",
+       "r": "Strategiya: Speaking Part 3"
+      },
+      {
+       "id": "ielts-s.24",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Mavzu bo‘yicha mavhum, chuqurroq muhokama (4-5 daqiqa).»",
+       "o": [
+        "Short Answer va diagramma belgilash",
+        "True / False / Not Given",
+        "Imtihon kuni va vaqtni boshqarish",
+        "Speaking Part 3"
+       ],
+       "a": 3,
+       "e": "Speaking Part 3: Mavzu bo‘yicha mavhum, chuqurroq muhokama (4-5 daqiqa).",
+       "r": "Strategiya: Speaking Part 3"
+      },
+      {
+       "id": "ielts-s.25",
+       "q": "«Speaking: ravonlik, talaffuz, so‘z boyligi» savol turida qaysi harakat TO‘G‘RI?",
+       "o": [
+        "So‘z boyligi: so‘z topolmasangiz boshqacha ayting (paraphrase), iboralar me’yorida.",
+        "1 daqiqada to‘xtab qolish.",
+        "Qisqa, asoslanmagan javob.",
+        "Savolni noto‘g‘ri tushunib, boshqa mavzuda gapirish."
+       ],
+       "a": 0,
+       "e": "To‘g‘ri yondashuv. Speaking’da 4 mezon: Fluency & Coherence, Lexical Resource, Grammar, Pronunciation.",
+       "r": "Strategiya: Speaking: ravonlik, talaffuz, so‘z boyligi"
+      },
+      {
+       "id": "ielts-s.26",
+       "q": "«Speaking: ravonlik, talaffuz, so‘z boyligi» bo‘yicha qaysi maslahat to‘g‘ri?",
+       "o": [
+        "Shaxsiy hayot haqida emas, umumiy jamiyat haqida gapirish kerakligini unutish.",
+        "Talaffuz: so‘z urg‘usi, gap urg‘usi, intonatsiya (shadowing bilan mashq qiling).",
+        "Faqat bitta zamonda gapirish.",
+        "Savolni noto‘g‘ri tushunib, boshqa mavzuda gapirish."
+       ],
+       "a": 1,
+       "e": "To‘g‘ri yondashuv. Speaking’da 4 mezon: Fluency & Coherence, Lexical Resource, Grammar, Pronunciation.",
+       "r": "Strategiya: Speaking: ravonlik, talaffuz, so‘z boyligi"
+      },
+      {
+       "id": "ielts-s.27",
+       "q": "«Speaking: ravonlik, talaffuz, so‘z boyligi» ustida ishlaganda nimani qilish kerak?",
+       "o": [
+        "Faqat bitta zamonda gapirish.",
+        "“Yes”, “No” bilan tugatish.",
+        "Grammatika: shart gaplar, nisbiy gaplar, murakkab tuzilmalarni sinab ko‘ring.",
+        "Shaxsiy hayot haqida emas, umumiy jamiyat haqida gapirish kerakligini unutish."
+       ],
+       "a": 2,
+       "e": "To‘g‘ri yondashuv. Speaking’da 4 mezon: Fluency & Coherence, Lexical Resource, Grammar, Pronunciation.",
+       "r": "Strategiya: Speaking: ravonlik, talaffuz, so‘z boyligi"
+      },
+      {
+       "id": "ielts-s.28",
+       "q": "«Speaking: ravonlik, talaffuz, so‘z boyligi» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Yodlangan javoblardan qoching: examiner buni sezadi.",
+        "Vaqtni to‘ldiring: examiner to‘xtatguncha gapiring.",
+        "O‘tgan, hozirgi va kelasi zamonlarni mavzuga qarab ishlating.",
+        "“Um…” ni haddan ziyod ko‘p ishlatish."
+       ],
+       "a": 3,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Ravonlik: me’yoriy tezlikda gapiring, o‘zingizni silliq tuzating, bog‘lovchilarni ishlating (well, actually, to be honest).",
+       "r": "Strategiya: Speaking: ravonlik, talaffuz, so‘z boyligi"
+      },
+      {
+       "id": "ielts-s.29",
+       "q": "«Speaking: ravonlik, talaffuz, so‘z boyligi» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Juda tez yoki “mashina kabi” yodlangan gapirish.",
+        "Fikringizni bilmasangiz ham javob bering: “That’s an interesting question. I’d say…”.",
+        "Bir so‘zli javob bermang; ortiqcha uzun gapirib ketmang.",
+        "Savollarning hammasini yoriting; kerak bo‘lsa zamonlarni aralashtiring (past hodisa + hozirgi fikr)."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Ravonlik: me’yoriy tezlikda gapiring, o‘zingizni silliq tuzating, bog‘lovchilarni ishlating (well, actually, to be honest).",
+       "r": "Strategiya: Speaking: ravonlik, talaffuz, so‘z boyligi"
+      },
+      {
+       "id": "ielts-s.30",
+       "q": "«Speaking: ravonlik, talaffuz, so‘z boyligi» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Dikta (eshitib yozish) va shadowing (takrorlash) eshitish aniqligini tez oshiradi.",
+        "Aniq talaffuz ko‘p urg‘uli tezlikdan muhimroq: tushunarli va tabiiy bo‘lsin.",
+        "Murakkab grammatika va kam uchraydigan so‘zlar aynan Part 3 da ko‘rinadi.",
+        "To‘xtab qolsangiz “What I’d also like to mention is…” kabi iboralar bilan davom eting."
+       ],
+       "a": 1,
+       "e": "Aniq talaffuz ko‘p urg‘uli tezlikdan muhimroq: tushunarli va tabiiy bo‘lsin.",
+       "r": "Strategiya: Speaking: ravonlik, talaffuz, so‘z boyligi"
+      },
+      {
+       "id": "ielts-s.31",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Speaking’da 4 mezon: Fluency & Coherence, Lexical Resource, Grammar, Pronunciation.»",
+       "o": [
+        "True / False / Not Given",
+        "Short Answer va diagramma belgilash",
+        "Speaking: ravonlik, talaffuz, so‘z boyligi",
+        "Matching Information"
+       ],
+       "a": 2,
+       "e": "Speaking: ravonlik, talaffuz, so‘z boyligi: Speaking’da 4 mezon: Fluency & Coherence, Lexical Resource, Grammar, Pronunciation.",
+       "r": "Strategiya: Speaking: ravonlik, talaffuz, so‘z boyligi"
+      }
+     ]
+    },
+    {
+     "id": "ielts-g",
+     "name": "Imtihon kuni va ball",
+     "src": "IELTS strategiya",
+     "q": [
+      {
+       "id": "ielts-g.1",
+       "q": "«Imtihon kuni va vaqtni boshqarish» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Qiyin savolda qolib ketish.",
+        "Jadvallar test variantiga qarab biroz farq qilishi mumkin.",
+        "Writing va Speaking’ni examiner mezonlar bo‘yicha baholaydi.",
+        "Listening (40 savoldan) taxminan: 39-40 = 9; 37-38 = 8,5; 35-36 = 8; 32-34 = 7,5; 30-31 = 7; 26-29 = 6,5; 23-25 = 6."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Hujjatlar (pasport) va kerakli narsalarni oldindan tayyorlang, erta keling.",
+       "r": "Strategiya: Imtihon kuni va vaqtni boshqarish"
+      },
+      {
+       "id": "ielts-g.2",
+       "q": "«Imtihon kuni va vaqtni boshqarish» bo‘yicha qaysi xatoga yo‘l qo‘ymaslik kerak?",
+       "o": [
+        "Jadvallar test variantiga qarab biroz farq qilishi mumkin.",
+        "Task 1 ga ko‘p vaqt sarflab Task 2 ga vaqt qoldirmaslik.",
+        "Umumiy ball: to‘rt bo‘limning o‘rtachasi, eng yaqin 0,5 ga yaxlitlanadi (x.25 → x.5, x.75 → keyingi butun ball).",
+        "Academic Reading taxminan: 39-40 = 9; 37-38 = 8,5; 35-36 = 8; 33-34 = 7,5; 30-32 = 7; 27-29 = 6,5; 23-26 = 6."
+       ],
+       "a": 1,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Hujjatlar (pasport) va kerakli narsalarni oldindan tayyorlang, erta keling.",
+       "r": "Strategiya: Imtihon kuni va vaqtni boshqarish"
+      },
+      {
+       "id": "ielts-g.3",
+       "q": "«Imtihon kuni va vaqtni boshqarish» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Ma’noni chuqurroq beradigan tuzilmalardan foydalaning: “There was a sharp rise in X, which then levelled off at Y”.",
+        "Dikta (eshitib yozish) va shadowing (takrorlash) eshitish aniqligini tez oshiradi.",
+        "Imtihondan oldingi 2 kunda yangi narsa o‘rganmang: takrorlang va dam oling.",
+        "Cheklov so‘zlariga e’tibor bering: only, always, mainly, all, never ma’noni butunlay o‘zgartiradi."
+       ],
+       "a": 2,
+       "e": "Imtihondan oldingi 2 kunda yangi narsa o‘rganmang: takrorlang va dam oling.",
+       "r": "Strategiya: Imtihon kuni va vaqtni boshqarish"
+      },
+      {
+       "id": "ielts-g.4",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Imtihon kuni xatolarning oldini olish.»",
+       "o": [
+        "Task 1: jarayon va xarita",
+        "General Training: xat yozish (Task 1)",
+        "Speaking: ravonlik, talaffuz, so‘z boyligi",
+        "Imtihon kuni va vaqtni boshqarish"
+       ],
+       "a": 3,
+       "e": "Imtihon kuni va vaqtni boshqarish: Imtihon kuni xatolarning oldini olish.",
+       "r": "Strategiya: Imtihon kuni va vaqtni boshqarish"
+      },
+      {
+       "id": "ielts-g.5",
+       "q": "«Ball hisoblash» savol turida qaysi harakat XATO (odatiy tuzoq)?",
+       "o": [
+        "Faqat bitta bo‘limga yopishib qolish: umumiy ball o‘rtacha.",
+        "Listening va Reading: manfiy ball yo‘q, hammasiga javob yozing.",
+        "Listening/Reading’da imlo, katta harflar va so‘z chegarasini tekshiring.",
+        "Reading’da 3 ta passage uchun 60 daqiqa: har biriga ~20 daqiqa, javoblarni alohida ko‘chirish vaqti yo‘q."
+       ],
+       "a": 0,
+       "e": "Bu keng tarqalgan xato. To‘g‘ri yondashuv: Umumiy ball: to‘rt bo‘limning o‘rtachasi, eng yaqin 0,5 ga yaxlitlanadi (x.25 → x.5, x.75 → keyingi butun ball).",
+       "r": "Strategiya: Ball hisoblash"
+      },
+      {
+       "id": "ielts-g.6",
+       "q": "«Ball hisoblash» bo‘yicha Band 8+ uchun maslahat qaysi?",
+       "o": [
+        "Savol so‘zlari matnda sinonim bilan almashgan bo‘ladi: ikkala shaklni ham izlang.",
+        "Umumiy 8 uchun odatda to‘rt bo‘limning hammasi 7,5-8,5 oralig‘ida bo‘lishi kerak.",
+        "Javobga qisqa shaxsiy voqea qo‘shing: bu tabiiy va ishonarli eshitiladi.",
+        "Savolni o‘z so‘zingiz bilan qayta ayting (paraphrase): matndagi ma’noni shunda topasiz."
+       ],
+       "a": 1,
+       "e": "Umumiy 8 uchun odatda to‘rt bo‘limning hammasi 7,5-8,5 oralig‘ida bo‘lishi kerak.",
+       "r": "Strategiya: Ball hisoblash"
+      },
+      {
+       "id": "ielts-g.7",
+       "q": "Quyidagi ta’rif qaysi savol turiga tegishli? «Umumiy ball va Listening/Reading ballari qanday chiqadi.»",
+       "o": [
+        "General Training: xat yozish (Task 1)",
+        "Sentence / Summary / Note / Table Completion",
+        "Ball hisoblash",
+        "Task 1: jarayon va xarita"
+       ],
+       "a": 2,
+       "e": "Ball hisoblash: Umumiy ball va Listening/Reading ballari qanday chiqadi.",
+       "r": "Strategiya: Ball hisoblash"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
