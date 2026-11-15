@@ -407,3 +407,10 @@ button,.nav,.top,.tabs2,.seg,.chip,.tool,.sktile,.qp,.item{-webkit-user-select:n
 .dtx{font:18px/1.7 Georgia,serif;margin:8px 0}
 .dok{color:var(--ok);font-weight:700}
 .dno{color:var(--bad);font-weight:700;text-decoration:underline wavy;text-underline-offset:4px}
+
+/* ---------- yangilash tugmasi ---------- */
+.ib.upd{position:relative}
+.ib.upd.has::after{content:"";position:absolute;top:5px;right:5px;width:11px;height:11px;border-radius:50%;background:#f43f5e;box-shadow:0 0 0 2px #5b3df5;animation:blink 1.2s infinite}
+.ib.spin svg{animation:spin .8s linear infinite}
+[data-a="upd"].has .bd,.set[data-a="upd"].has b::after{content:"";}
+.set[data-a="upd"].has b::after{content:" · yangi versiya bor";color:#f43f5e;font-size:12px;font-weight:800}

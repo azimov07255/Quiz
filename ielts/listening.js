@@ -102,7 +102,7 @@ function result(t) {
   const inner = '<div class="lsticky">' + player(t, 'practice') + '</div><div class="res anim"><div class="lbl">Taxminiy band</div><div class="big">' + IE.bandTxt(rec.band) + '</div><div class="mu" style="margin-top:8px">' + rec.raw + ' / ' + rec.tot + ' to‘g‘ri (' + pc + '%)</div></div>' +
     '<div class="pad"><details class="card tr"><summary>' + ic('doc') + ' Transkript (' + t.tr.length + ' abzats) — bosib shu joydan tinglang</summary>' + t.tr.map((p, i) => '<p class="trp' + (wrong.has(i) ? ' wr' : '') + '" data-a="lgo" data-t="' + Math.max(0, p.t - 0.5) + '"><b>' + mmss(p.t) + '</b> ' + esc(p.x) + '</p>').join('') + '</details>' +
     '<p class="mu xs" style="margin:10px 2px">Qizil chiziq — xato javob berilgan joylar.</p></div>' + html +
-    '<div class="pad" style="margin-top:8px"><div class="two"><button class="btn ghost" data-go="listening">Boshqa audio</button><button class="btn" data-a="lretry" data-id="' + t.id + '">Qayta urinish</button></div>' +
+    '<div class="pad" style="margin-top:8px"><div class="two"><button class="btn ghost" data-go="' + (IE.mockActive && IE.mockActive() ? 'mock' : 'listening') + '">' + (IE.mockActive && IE.mockActive() ? 'Mock testga qaytish' : 'Boshqa audio') + '</button><button class="btn" data-a="lretry" data-id="' + t.id + '">Qayta urinish</button></div>' +
     '<p class="mu xs c" style="margin-top:14px">Audio: <a href="' + esc(t.credit.url) + '" target="_blank" rel="noopener" style="color:var(--pl)">' + esc(t.credit.name) + '</a> — ommaviy mulk.</p></div>';
   const o = sub('Natija', 'listening', inner); o.mount = () => { wirePlayer(t, 'practice'); }; return o;
 }

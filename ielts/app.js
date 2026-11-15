@@ -63,7 +63,7 @@ IE.draw = (anim = true) => {
   const r = (location.hash.replace(/^#\/?/, '') || 'home').split('/'), fn = IE.routes[r[0]] || IE.routes.home; let o;
   try { o = fn(r.slice(1)); } catch (e) { console.error(e); o = { h: '<div class="empty" style="padding-top:30vh">Xatolik: ' + esc(e.message) + '<br><button class="btn sm" data-go="home" style="margin-top:12px">Bosh sahifa</button></div>', sub: true }; }
   document.body.classList.toggle('chatpage', r[0] === 'chat'); if (r[0] !== 'chat') document.body.classList.remove('kb');
-  app.className = anim ? 'anim' : ''; app.innerHTML = o.h; if (o.mount) o.mount(); window.scrollTo(0, r[0] === 'chat' ? 0 : y);
+  app.className = anim ? 'anim' : ''; app.innerHTML = o.h; if (o.mount) o.mount(); if (IE.paintUpd) IE.paintUpd(); window.scrollTo(0, r[0] === 'chat' ? 0 : y);
 };
 IE.curRoute = (location.hash.replace(/^#\/?/, '') || 'home'); IE.prevRoute = '';
 window.addEventListener('hashchange', () => {
@@ -109,13 +109,36 @@ async function boot() {
     IE.draw(true); IE.sync().catch(() => {});
   } finally { booting = false; }
 }
+let swReg = null; IE.updReady = false;
+const paintUpd = () => $$('[data-a="upd"]').forEach(b => b.classList.toggle('has', IE.updReady));
+IE.paintUpd = paintUpd;
+const banner = w => { if (!w || $('.upd')) return; const d = document.createElement('div'); d.className = 'upd'; d.innerHTML = '<span>Yangi versiya tayyor</span><button>Yangilash</button>'; d.querySelector('button').onclick = () => w.postMessage({ type: 'SKIP_WAITING' }); document.body.appendChild(d); };
+const readyWorker = reg => new Promise(res => {
+  if (reg.waiting) return res(reg.waiting);
+  const w = reg.installing; if (!w) return res(null);
+  const t = setTimeout(() => res(reg.waiting || null), 9000);
+  w.addEventListener('statechange', () => { if (w.state === 'installed') { clearTimeout(t); res(reg.waiting || w); } else if (w.state === 'redundant') { clearTimeout(t); res(null); } });
+});
+/** Yangilanishni tekshiradi. manual=true: foydalanuvchi tugmani bosgan — topilsa darrov o‘rnatiladi, topilmasa xabar beradi. */
+IE.checkUpdate = async manual => {
+  if (!swReg) { if (manual) { IE.toast('Yangilanmoqda…'); setTimeout(() => location.reload(), 400); } return; }
+  const btns = $$('[data-a="upd"]'); if (manual) btns.forEach(b => b.classList.add('spin'));
+  let w = null;
+  try { await swReg.update(); w = await readyWorker(swReg); } catch (e) { if (manual) IE.toast(navigator.onLine ? 'Tekshirib bo‘lmadi' : 'Internet yo‘q'); }
+  btns.forEach(b => b.classList.remove('spin'));
+  if (w && navigator.serviceWorker.controller) { IE.updReady = true; paintUpd(); if (manual) { IE.toast('Yangi versiya topildi — yangilanmoqda…'); w.postMessage({ type: 'SKIP_WAITING' }); } else banner(w); }
+  else if (manual && IE.updReady === false) IE.toast('Sizda eng so‘nggi versiya (v' + IE.APP_VERSION + ')');
+};
+A.upd = () => { if (IE.updReady && swReg && swReg.waiting) { IE.toast('Yangilanmoqda…'); swReg.waiting.postMessage({ type: 'SKIP_WAITING' }); } else IE.checkUpdate(true); };
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   navigator.serviceWorker.register('sw.js').then(reg => {
-    const ask = w => { if (!w || $('.upd')) return; const d = document.createElement('div'); d.className = 'upd'; d.innerHTML = '<span>Yangi versiya tayyor</span><button>Yangilash</button>'; d.querySelector('button').onclick = () => w.postMessage({ type: 'SKIP_WAITING' }); document.body.appendChild(d); };
-    if (reg.waiting && navigator.serviceWorker.controller) ask(reg.waiting);
-    reg.addEventListener('updatefound', () => { const w = reg.installing; if (w) w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) ask(w); }); });
+    swReg = reg;
+    if (reg.waiting && navigator.serviceWorker.controller) { IE.updReady = true; banner(reg.waiting); paintUpd(); }
+    reg.addEventListener('updatefound', () => { const w = reg.installing; if (w) w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) { IE.updReady = true; paintUpd(); banner(w); } }); });
+    setInterval(() => IE.checkUpdate(false), 20 * 60 * 1000);
   }).catch(() => {});
   let rl = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!rl) { rl = true; location.reload(); } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) IE.checkUpdate(false); });
 }
 IE.boot = boot;
 boot();
