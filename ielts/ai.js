@@ -77,30 +77,76 @@ A.wai = async el => {
   } catch (e) { const b = $('#aires'); if (b) b.innerHTML = '<div class="card c"><p class="sm" style="color:var(--bad);font-weight:600">' + esc(e.message) + '</p><button class="btn sm" style="margin-top:8px" data-a="wai" data-ts="' + ts + '">Qayta urinish</button></div>'; }
 };
 
-/* ---------- Dictionary ---------- */
+/* ---------- Dictionary: ochiq lug‘at (darhol) + AI tarjima (keyin) ---------- */
+const DC = 'ielts:dc';
+const dcGet = w => (lsGet(DC, {}) || {})[w.toLowerCase()];
+const dcSet = (w, v) => { const m = lsGet(DC, {}) || {}; m[w.toLowerCase()] = v; const k = Object.keys(m); if (k.length > 300) delete m[k[0]]; lsSet(DC, m); };
+async function freeDict(w) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const r = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(w.toLowerCase()), { signal: ctl.signal });
+    if (r.status === 404) return { nf: true };
+    if (!r.ok) throw new Error('lug‘at ' + r.status);
+    const arr = await r.json(); if (!Array.isArray(arr) || !arr.length) return { nf: true };
+    const ph = [], meanings = [], okU = x => (/^https:\/\/[^\s"'<>]{5,300}$/.test(String(x || '')) ? String(x) : '');
+    arr.slice(0, 3).forEach(en => {
+      (en.phonetics || []).forEach(p => ph.push({ t: String(p.text || ''), a: okU(p.audio) }));
+      if (en.phonetic) ph.push({ t: String(en.phonetic), a: '' });
+      (en.meanings || []).slice(0, 4).forEach(m => meanings.push({ pos: String(m.partOfSpeech || ''), defs: (m.definitions || []).slice(0, 3).map(d => ({ d: String(d.definition || '').slice(0, 240), ex: String(d.example || '').slice(0, 200) })), syn: (m.synonyms || []).slice(0, 6).map(String) }));
+    });
+    const uk = ph.find(p => /-uk\.mp3/i.test(p.a)), us = ph.find(p => /-us\.mp3/i.test(p.a)), any = ph.find(p => p.t) || { t: '' };
+    return { ipaUK: (uk && uk.t) || '', ipaUS: (us && us.t) || '', ipa: any.t, auUK: (uk && uk.a) || '', auUS: (us && us.a) || '', meanings: meanings.slice(0, 5) };
+  } finally { clearTimeout(t); }
+}
+const fromAI = r => ({ ipa: r.ipa || '', ipaUK: '', ipaUS: '', auUK: '', auUS: '', ai: true, meanings: [{ pos: r.pos || '', defs: [{ d: r.def || '', ex: (r.ex || [])[0] || '' }], syn: r.syn || [] }] });
+const uzHTML = d => d.uz ? '<div style="font-size:19px;font-weight:800;color:var(--pl)">' + esc(d.uz) + '</div>' + (d.note ? '<div class="tip8" style="margin-top:10px">' + esc(d.note) + '</div>' : '')
+  : d.uzBusy ? '<div class="mu sm row" style="gap:8px"><span class="typing" style="padding:0;display:inline-flex"><i></i><i></i><i></i></span> O‘zbekcha tarjima tayyorlanmoqda…</div>'
+    : '<div class="mu sm">' + (d.uzErr ? esc(d.uzErr) + ' ' : '') + '<button class="chip" data-a="dtr">Tarjimani qayta urinish</button></div>';
 R.dict = () => {
-  const d = V.dict || (V.dict = { q: '', res: null, busy: false, err: '' }), r = d.res;
-  const my = r && S().my.some(x => x.id === 'my:' + String(r.w).toLowerCase());
-  const o = { h: '<header class="top"><button class="ib" data-go="tools" aria-label="Orqaga">' + ic('back') + '</button><h1>Dictionary</h1></header><div class="scr sub"><div class="pad"><div class="row" style="gap:8px"><input class="search" id="dq" style="margin:0" placeholder="Inglizcha so‘z yoki ibora…" value="' + esc(d.q) + '" autocapitalize="off" spellcheck="false"><button class="btn" style="min-width:56px;padding:0 16px" data-a="dsearch" aria-label="Qidirish">' + ic('search') + '</button></div>' +
+  const d = V.dict || (V.dict = { q: '' }), f = d.free;
+  const my = f && S().my.some(x => x.id === 'my:' + d.q.toLowerCase());
+  const ipaBtn = (lbl, t, u) => t || u ? '<button class="chip" data-a="daud" data-u="' + esc(u) + '">' + ic('spk') + ' ' + lbl + (t ? ' ' + esc(t) : '') + '</button>' : '';
+  const card = f ? '<div class="card" style="margin-top:14px"><div class="row"><div style="flex:1"><div style="font-size:28px;font-weight:900;word-break:break-word">' + esc(d.q) + '</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">' +
+    (f.ipaUK || f.ipaUS || f.auUK || f.auUS ? ipaBtn('UK', f.ipaUK, f.auUK) + ipaBtn('US', f.ipaUS, f.auUS) : ipaBtn('', f.ipa, '')) + '</div></div></div>' +
+    '<div id="uzb" style="margin-top:14px">' + uzHTML(d) + '</div>' +
+    f.meanings.map(m => '<h4 class="dh">' + esc(m.pos || 'ma’no') + '</h4>' + m.defs.map((x, i) => '<p class="df">' + (x.d ? '<b>' + (i + 1) + '.</b> ' + esc(x.d) : '') + (x.ex ? '<em>“' + esc(x.ex) + '”</em>' : '') + '</p>').join('') +
+      (m.syn && m.syn.length ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">' + m.syn.map(x => '<span class="chip">' + esc(x) + '</span>').join('') + '</div>' : '')).join('') +
+    '<button class="btn block' + (my ? ' ghost' : '') + '" style="margin-top:16px"' + (my ? ' disabled' : ' data-a="dadd"') + '>' + (my ? ic('check') + ' Lug‘atingizda bor' : ic('star') + ' Mening so‘zlarimga qo‘shish') + '</button></div>' : '';
+  return { h: '<header class="top"><button class="ib" data-go="tools" aria-label="Orqaga">' + ic('back') + '</button><h1>Dictionary</h1></header><div class="scr sub"><div class="pad"><div class="row" style="gap:8px"><input class="search" id="dq" style="margin:0" placeholder="Inglizcha so‘z yoki ibora…" value="' + esc(d.q) + '" autocapitalize="off" spellcheck="false"><button class="btn" style="min-width:56px;padding:0 16px" data-a="dsearch" aria-label="Qidirish">' + ic('search') + '</button></div>' +
     (d.busy ? '<div class="card c" style="margin-top:14px"><div class="bub ai typing" style="margin:0 auto;display:inline-flex"><i></i><i></i><i></i></div></div>' : '') +
-    (d.err ? '<div class="card c" style="margin-top:14px"><p class="sm" style="color:var(--bad);font-weight:600">' + esc(d.err) + '</p></div>' : '') +
-    (r ? '<div class="card" style="margin-top:14px"><div class="row"><div style="flex:1"><div style="font-size:26px;font-weight:900">' + esc(r.w) + '</div><div class="mu sm">' + esc(r.pos || '') + (r.ipa ? ' · ' + esc(r.ipa) : '') + '</div></div><button class="ib" data-a="say" data-t="' + esc(r.w) + '" aria-label="Eshitish">' + ic('spk') + '</button></div>' +
-      '<div style="margin-top:12px;font-size:18px;font-weight:800;color:var(--pl)">' + esc(r.uz) + '</div><p class="sm" style="margin-top:6px;line-height:1.5">' + esc(r.def || '') + '</p>' +
-      (r.ex && r.ex.length ? '<h4 class="dh">Misollar</h4>' + r.ex.map(x => '<p class="exs">“' + esc(x) + '”</p>').join('') : '') +
-      (r.syn && r.syn.length ? '<h4 class="dh">Sinonimlar</h4><div style="display:flex;gap:6px;flex-wrap:wrap">' + r.syn.map(x => '<span class="chip">' + esc(x) + '</span>').join('') + '</div>' : '') +
-      (r.note ? '<div class="tip8" style="margin-top:12px">' + esc(r.note) + '</div>' : '') +
-      '<button class="btn block' + (my ? ' ghost' : '') + '" style="margin-top:14px"' + (my ? ' disabled' : ' data-a="dadd"') + '>' + (my ? ic('check') + ' Lug‘atingizda bor' : ic('star') + ' Mening so‘zlarimga qo‘shish') + '</button></div>' : '') +
-    (!r && !d.busy && !d.err ? '<div class="empty">' + bd('search', 'A') + 'Istalgan so‘zni yozing — ma’nosi, misollari va sinonimlari chiqadi.</div>' : '') + '</div></div>', sub: true };
-  return o;
+    (d.err ? '<div class="card c" style="margin-top:14px"><p class="sm" style="color:var(--bad);font-weight:600">' + esc(d.err) + '</p></div>' : '') + card +
+    (!f && !d.busy && !d.err ? '<div class="empty">' + bd('search', 'A') + 'Istalgan so‘zni yozing — ta’rifi, talaffuzi, misollari va o‘zbekcha tarjimasi chiqadi.</div>' : '') + '</div></div>', sub: true };
 };
+async function translate(d) {
+  d.uzBusy = true; d.uzErr = ''; const put = () => { const b = $('#uzb'); if (b && V.dict === d) b.innerHTML = uzHTML(d); }; put();
+  try {
+    const hint = d.free.meanings.slice(0, 3).map(m => m.pos + ': ' + ((m.defs[0] || {}).d || '')).join(' | ').slice(0, 480);
+    const out = (await call({ action: 'dict', word: d.q, hint })).result || {};
+    d.uz = out.uz || ''; d.note = out.note || ''; if (d.uz) dcSet(d.q, { uz: d.uz, note: d.note });
+  } catch (e) { d.uzErr = e.message; }
+  d.uzBusy = false; put();
+}
+A.dtr = () => { if (V.dict && V.dict.free && !V.dict.uzBusy) translate(V.dict); };
 A.dsearch = async () => {
-  const inp = $('#dq'), d = V.dict || (V.dict = {}), w = inp ? inp.value.trim() : ''; if (!w || d.busy) return;
-  d.q = w; d.busy = true; d.err = ''; d.res = null; IE.draw(false);
-  try { d.res = (await call({ action: 'dict', word: w })).result; if (d.res && !d.res.w) d.res.w = w; IE.touchDay(); IE.save(); } catch (e) { d.err = e.message; }
-  d.busy = false; if (location.hash === '#/dict') IE.draw(false);
+  const inp = $('#dq'), w = inp ? inp.value.trim().replace(/\s+/g, ' ') : '';
+  if (!w || (V.dict && V.dict.busy)) return;
+  if (!/^[A-Za-z][A-Za-z' -]{0,58}$/.test(w)) return IE.toast('Faqat inglizcha harflar kiriting');
+  const d = V.dict = { q: w, busy: true, err: '' }; IE.draw(false);
+  const cached = dcGet(w);
+  let fr = null; if (!w.includes(' ')) { try { fr = await freeDict(w); } catch (e) { fr = null; } }
+  if (V.dict !== d) return;
+  if (fr && !fr.nf) {
+    d.free = fr; d.busy = false; if (cached && cached.uz) { d.uz = cached.uz; d.note = cached.note || ''; }
+    if (location.hash === '#/dict') IE.draw(false); if (!d.uz) translate(d); IE.touchDay(); return;
+  }
+  if (cached && cached.free) { d.free = cached.free; d.uz = cached.uz; d.note = cached.note || ''; d.busy = false; if (location.hash === '#/dict') IE.draw(false); return; }
+  try { const r = (await call({ action: 'dict', word: w })).result; d.free = fromAI(r); d.uz = r.uz || ''; d.note = r.note || ''; dcSet(w, { uz: d.uz, note: d.note, free: d.free }); IE.touchDay(); } catch (e) { d.err = e.message; }
+  d.busy = false; if (location.hash === '#/dict' && V.dict === d) IE.draw(false);
 };
+A.daud = el => { const u = el.dataset.u; if (u) { try { new Audio(u).play().catch(() => IE.say(V.dict.q)); return; } catch (e) { /* TTS */ } } IE.say(V.dict.q); };
 A.dadd = () => {
-  const r = V.dict && V.dict.res; if (!r) return;
-  const id = 'my:' + String(r.w).toLowerCase(); if (!S().my.some(x => x.id === id)) { S().my.push({ id, w: r.w, uz: r.uz, def: r.def, ex: (r.ex || [])[0] || '', pos: r.pos || '', ts: Date.now() }); IE.save(); IE.toast('Qo‘shildi'); IE.draw(false); }
+  const d = V.dict; if (!d || !d.free) return; const m = d.free.meanings[0] || { defs: [] }, df = m.defs[0] || {};
+  const id = 'my:' + d.q.toLowerCase(); if (S().my.some(x => x.id === id)) return;
+  S().my.push({ id, w: d.q, uz: d.uz || '', def: df.d || '', ex: df.ex || '', pos: m.pos || '', ts: Date.now() }); IE.save(); IE.toast('Qo‘shildi'); IE.draw(false);
 };
 })();

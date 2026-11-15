@@ -68,11 +68,14 @@ async function groq(system: string, msgs: Msg[], asJson: boolean, temp: number):
   }
   throw new Error('groq [' + errs.join('; ') + ']')
 }
-async function ask(system: string, msgs: Msg[], asJson = false, temp = 0.6): Promise<string> {
+async function ask(system: string, msgs: Msg[], asJson = false, temp = 0.6, fast = false): Promise<string> {
   if (!GEMINI && !GROQ) throw new Error('nokey')
-  let g = ''
-  if (GEMINI) { try { return await gemini(system, msgs, asJson, temp) } catch (e) { g = String((e as Error).message); console.error(g); if (!GROQ) throw e } }
-  try { return await groq(system, msgs, asJson, temp) } catch (e) { const q = String((e as Error).message); console.error(q); throw new Error(g ? g + ' | ' + q : q) }
+  const errs: string[] = []
+  for (const p of (fast && GROQ ? ['groq', 'gemini'] : ['gemini', 'groq'])) {
+    if ((p === 'gemini' && !GEMINI) || (p === 'groq' && !GROQ)) continue
+    try { return p === 'gemini' ? await gemini(system, msgs, asJson, temp) : await groq(system, msgs, asJson, temp) } catch (e) { const m = String((e as Error).message); console.error(m); errs.push(m) }
+  }
+  throw new Error(errs.join(' | '))
 }
 const parse = (t: string) => { try { return JSON.parse(t) } catch { const m = t.match(/\{[\s\S]*\}/); if (m) { try { return JSON.parse(m[0]) } catch { /* pastda */ } } return null } }
 const clip = (s: unknown, n: number) => String(s ?? '').slice(0, n)
@@ -93,6 +96,8 @@ Return ONLY valid JSON with this exact shape:
  "next":string}
 Scores are in 0.5 steps between 3 and 9. "overall" is the average rounded to the nearest 0.5. "quote" must be an EXACT short fragment from the essay (English); "fix" is the improved English version. "strengths", "why", "upgrade" and "next" must be written in UZBEK (Latin script), concise. Give 4-6 issues ordered by importance. "upgrade" is a rewritten stronger version (in English) of the weakest paragraph, max 90 words. "next" is the single most useful next step.`
 
+const DICT_LITE = `You translate English vocabulary for an Uzbek-speaking IELTS student. You get a word and its English dictionary definitions. Return ONLY JSON: {"uz":string,"note":string}. "uz" = the most useful Uzbek (Latin script) equivalents, 1-3 short items separated by commas, matching the definitions. "note" = one very short Uzbek usage tip or common collocation (or empty string).`
+
 const DICT = `You are an English-Uzbek learner dictionary for IELTS students. Return ONLY JSON: {"w":string,"pos":string,"ipa":string,"uz":string,"def":string,"ex":[string,string],"syn":[string,string,string],"note":string}.
 "uz" = concise Uzbek (Latin script) meaning(s); "def" = simple English definition; "ex" = two natural example sentences (IELTS-level); "syn" = up to 3 synonyms; "note" = one short Uzbek tip about usage or collocations (or empty string).`
 
@@ -110,7 +115,8 @@ Deno.serve(async (req) => {
   }
   if (!['chat', 'writing', 'dict'].includes(action)) return json({ error: 'Noma’lum amal' }, 400)
   if (!GEMINI && !GROQ) return json({ error: 'AI hali sozlanmagan (kalit qo‘yilmagan). Ilova egasiga ayting.' }, 503)
-  const { error: hitErr } = await sb.rpc('ielts_ai_hit', { p_limit: LIMIT })
+  if (action === 'dict') { const { data: okI } = await sb.rpc('can_ielts'); if (!okI) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403) }
+  const { error: hitErr } = action === 'dict' ? { error: null } : await sb.rpc('ielts_ai_hit', { p_limit: LIMIT })
   if (hitErr) return json({ error: /limit/i.test(hitErr.message) ? hitErr.message : 'IELTS uchun ruxsat yo‘q' }, /limit/i.test(hitErr.message) ? 429 : 403)
   try {
     if (action === 'chat') {
@@ -118,7 +124,7 @@ Deno.serve(async (req) => {
       const msgs: Msg[] = raw.map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: clip(m.content, 1500) } as Msg)).filter((m) => m.content.trim())
       if (!msgs.length || msgs[msgs.length - 1].role !== 'user') msgs.push({ role: 'user', content: 'Hi! Let’s start a Part 1 practice. Please ask me the first question.' })
       const extra = b.topic ? `\nCurrent practice topic: ${clip(b.topic, 80)}.` : ''
-      return json({ reply: (await ask(TUTOR + extra, msgs, false, 0.7)).trim() })
+      return json({ reply: (await ask(TUTOR + extra, msgs, false, 0.7, true)).trim() })
     }
     if (action === 'writing') {
       const text = clip(b.text, 6000).trim(), prompt = clip(b.prompt, 600).trim()
@@ -129,7 +135,8 @@ Deno.serve(async (req) => {
     }
     const w = clip(b.word, 60).trim()
     if (!w) return json({ error: 'So‘z kiriting' }, 400)
-    const out = parse(await ask(DICT, [{ role: 'user', content: w }], true, 0.2))
+    const hint = clip(b.hint, 500).trim()
+    const out = parse(await ask(hint ? DICT_LITE : DICT, [{ role: 'user', content: hint ? `Word: ${w}\nEnglish definitions: ${hint}` : w }], true, 0.2, true))
     if (!out) return json({ error: 'AI javobi tushunarsiz. Qayta urinib ko‘ring.' }, 502)
     return json({ result: out })
   } catch (e) {

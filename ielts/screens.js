@@ -373,7 +373,7 @@ function vocCards(id) {
   }
   const w = f.q[f.i], o = sub('Flesh-karta', back, '<div class="pad"><div class="prog" style="margin:6px 0 6px"><i style="width:' + (f.i / f.q.length * 100) + '%"></i></div><div class="mu xs b c" style="margin-bottom:10px">' + (f.i + 1) + ' / ' + f.q.length + '</div>' +
     '<div class="fc' + (f.flip ? ' flip' : '') + '" data-a="fcflip"><div class="in"><div class="f a"><h2>' + esc(w.w) + '</h2>' + (w.pos ? '<small>' + esc(w.pos) + '</small>' : '') + '<button class="spk" data-a="say" data-t="' + esc(w.w) + '" aria-label="Eshitish">' + ic('spk') + '</button><small style="margin-top:14px">Bosing — ma’nosini ko‘ring</small></div>' +
-    '<div class="f z"><h3>' + esc(w.uz) + '</h3>' + (w.def ? '<p>' + esc(w.def) + '</p>' : '') + (w.ex ? '<em>“' + esc(w.ex) + '”</em>' : '') + '</div></div></div>' +
+    '<div class="f z"><h3>' + esc(w.uz || w.def) + '</h3>' + (w.def ? '<p>' + esc(w.def) + '</p>' : '') + (w.ex ? '<em>“' + esc(w.ex) + '”</em>' : '') + '</div></div></div>' +
     '<div id="fcb">' + fcBtns(f.flip) + '</div></div>');
   return o;
 }

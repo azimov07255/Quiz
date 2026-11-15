@@ -311,3 +311,5 @@ audio{width:100%;margin-top:10px}
 .iss .now{color:var(--ok);font-weight:700;margin:3px 0}
 .iss .why2{color:var(--mu);font-size:13px}
 .exs{margin:6px 0;font-size:14.5px;line-height:1.5;font-style:italic}
+
+.df{margin:6px 0;font-size:14.5px;line-height:1.5}.df em{display:block;color:var(--mu);font-size:13.5px;margin-top:2px}

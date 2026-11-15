@@ -16,6 +16,7 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
     const ctx = await br.newContext({ ...devices['iPhone 13'], serviceWorkers: 'block', permissions: ['microphone'], colorScheme: dark ? 'dark' : 'light' }), pg = await ctx.newPage(), state = { posted: null };
     pg.on('pageerror', e => errs.push(e.message)); pg.on('console', m => { if (m.type() === 'error' && !/Failed to load resource|net::ERR/.test(m.text())) errs.push(m.text()); });
     await ctx.addInitScript(() => { localStorage.setItem('testlar:session:v1', JSON.stringify({ access_token: 'x', refresh_token: 'y', expires_at: Math.floor(Date.now() / 1000) + 99999, user: { id: 'u1', email: 'sinov@testlar.internal' } })); });
+    await ctx.route('https://api.dictionaryapi.dev/**', route => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify([{ word: 'resilient', phonetics: [{ text: '/rɪˈzɪliənt/', audio: 'https://api.dictionaryapi.dev/media/pronunciations/en/resilient-uk.mp3' }, { text: '/rəˈzɪljənt/', audio: 'https://api.dictionaryapi.dev/media/pronunciations/en/resilient-us.mp3' }], meanings: [{ partOfSpeech: 'adjective', definitions: [{ definition: 'Able to recover quickly from difficulties.', example: 'Children are often remarkably resilient.' }], synonyms: ['tough', 'flexible'] }] }]) }));
     await ctx.route(SB + '/**', async route => {
       const u = route.request().url(), m = route.request().method(), j = b => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(b) });
       if (u.includes('/rest/v1/profiles')) return j([PROFILE(groups)]);
@@ -24,6 +25,7 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
         const b = JSON.parse(route.request().postData() || '{}'); state.ai = (state.ai || []).concat(b.action);
         if (b.action === 'chat') return j({ reply: 'Nice to meet you! Where are you from?\n\n💡 Tuzatish: "I am student" → "I am a student" (artikl).' });
         if (b.action === 'writing') return j({ result: { tr: 6.5, cc: 7, lr: 6.5, gra: 6, overall: 6.5, strengths: ['Aniq tuzilma', 'Yaxshi bog‘lovchilar', 'Pozitsiya aniq'], issues: [{ quote: 'word word', fix: 'a better phrase', why: 'Takror.' }], upgrade: 'A stronger paragraph.', next: 'Ko‘proq misol keltiring.' } });
+        if (b.action === 'dict' && b.hint) return j({ result: { uz: 'chidamli, bardoshli', note: 'be resilient to…' } });
         if (b.action === 'dict') return j({ result: { w: b.word, pos: 'noun', ipa: '/test/', uz: 'sinov', def: 'a test', ex: ['A first example.', 'A second example.'], syn: ['trial', 'exam'], note: 'Eslatma.' } });
       }
       return j({});
@@ -85,7 +87,7 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
   await A.fill('#ci', 'I am student'); await A.click('[data-a="csend"]'); await A.waitForFunction(() => document.querySelectorAll('.bub.ai').length === 2); await shot(A, '24-chat');
   await A.goto(base + '#/writing/h/' + (await A.evaluate(() => IE.S().writes[0].ts))); await A.waitForSelector('[data-a="wai"]'); await A.click('[data-a="wai"]'); await A.waitForSelector('.airs'); ok((await A.innerText('.sc.all b')) === '6.5', 'Writing AI bahosi: overall 6.5'); await shot(A, '25-writing-ai');
   ok(await A.evaluate(() => IE.S().writes[0].ai.overall === 6.5), 'baho yozuvga saqlandi');
-  await A.goto(base + '#/dict'); await A.fill('#dq', 'resilient'); await A.press('#dq', 'Enter'); await A.waitForSelector('[data-a="dadd"]'); await shot(A, '26-dict'); await A.click('[data-a="dadd"]');
+  await A.goto(base + '#/dict'); await A.fill('#dq', 'resilient'); await A.press('#dq', 'Enter'); await A.waitForSelector('.df'); ok((await A.innerText('#uzb')).length >= 0, 'ta’rif darhol chiqdi'); await A.waitForFunction(() => document.querySelector('#uzb').innerText.includes('chidamli')); ok(true, 'o‘zbekcha tarjima keyin qo‘shildi'); await A.waitForSelector('[data-a="dadd"]'); await shot(A, '26-dict'); await A.click('[data-a="dadd"]');
   ok(await A.evaluate(() => IE.S().my.length === 1), 'so‘z “Mening so‘zlarim”ga qo‘shildi'); await A.goto(base + '#/vocab'); await A.waitForSelector('[data-go="vocab/t/my"]'); ok(true, 'Mening so‘zlarim ko‘rinadi');
   console.log('9. Ruxsat: guruhsiz foydalanuvchi');
   const { pg: B } = await mk([]); await B.goto(base); await B.waitForSelector('.lockc'); ok((await B.innerText('.lockc')).includes('Ruxsat'), 'guruhsiz: “Ruxsat kerak” ekrani'); await shot(B, '21-lock');
