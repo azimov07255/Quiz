@@ -29,7 +29,7 @@ async function gemini(system: string, msgs: Msg[], asJson: boolean, temp: number
     const j = await r.json().catch(() => ({}))
     const t = j?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('') || ''
     if (r.ok && t) return t
-    last = `gemini ${m} ${r.status}`
+    last = `gemini ${m} ${r.status}: ${String(j?.error?.message || j?.promptFeedback?.blockReason || 'bo‘sh javob').slice(0, 110)}`
     if (r.status === 401 || r.status === 403) break
   }
   throw new Error(last)
@@ -41,13 +41,14 @@ async function groq(system: string, msgs: Msg[], asJson: boolean, temp: number):
   })
   const j = await r.json().catch(() => ({}))
   const t = j?.choices?.[0]?.message?.content || ''
-  if (!r.ok || !t) throw new Error('groq ' + r.status)
+  if (!r.ok || !t) throw new Error(`groq ${QMODEL} ${r.status}: ${String(j?.error?.message || 'bo‘sh javob').slice(0, 110)}`)
   return t
 }
 async function ask(system: string, msgs: Msg[], asJson = false, temp = 0.6): Promise<string> {
   if (!GEMINI && !GROQ) throw new Error('nokey')
-  if (GEMINI) { try { return await gemini(system, msgs, asJson, temp) } catch (e) { if (!GROQ) throw e } }
-  return await groq(system, msgs, asJson, temp)
+  let g = ''
+  if (GEMINI) { try { return await gemini(system, msgs, asJson, temp) } catch (e) { g = String((e as Error).message); console.error(g); if (!GROQ) throw e } }
+  try { return await groq(system, msgs, asJson, temp) } catch (e) { const q = String((e as Error).message); console.error(q); throw new Error(g ? g + ' | ' + q : q) }
 }
 const parse = (t: string) => { try { return JSON.parse(t) } catch { const m = t.match(/\{[\s\S]*\}/); if (m) { try { return JSON.parse(m[0]) } catch { /* pastda */ } } return null } }
 const clip = (s: unknown, n: number) => String(s ?? '').slice(0, n)
@@ -109,6 +110,6 @@ Deno.serve(async (req) => {
     return json({ result: out })
   } catch (e) {
     const m = String((e as Error).message || e)
-    return json({ error: m === 'nokey' ? 'AI sozlanmagan.' : 'AI vaqtincha band yoki kvota tugagan. Birozdan keyin urinib ko‘ring.' }, 502)
+    return json({ error: m === 'nokey' ? 'AI sozlanmagan.' : 'AI xatosi — ' + m.slice(0, 260) }, 502)
   }
 })
