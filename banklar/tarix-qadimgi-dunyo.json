@@ -353,10 +353,10 @@
        "id": "qd01.27",
        "q": "Teshiktosh g‘ori qaysi davr madaniyatining jahonga mashhur yodgorligi hisoblanadi?",
        "o": [
-        "Eneolit davri",
+        "Eneolit davri (mil. avv. 4–3-mingyillik)",
         "O‘rta paleolit (mil. avv. 100–40-mingyillik)",
-        "Neolit davri",
-        "Bronza davri"
+        "Neolit davri (mil. avv. 6–4-mingyillik)",
+        "Bronza davri (mil. avv. 3–2-mingyillik)"
        ],
        "a": 1,
        "e": "G‘ordan tosh qurollar, tog‘ echkisi, kiyik, yovvoyi ot, qoplon, quyon va qushlarning suyaklari topilgan.",
@@ -620,10 +620,10 @@
        "id": "qd02.12",
        "q": "Quyidagilardan qaysi biri ishlab chiqaruvchi xo‘jalikka kiradi?",
        "o": [
-        "Termachilik",
-        "Ovchilik",
+        "Termachilik va yig‘uvchilik",
+        "Ovchilik va baliqchilik",
         "Dehqonchilik va chorvachilik",
-        "Baliqchilik"
+        "Yovvoyi o‘simlik mevalarini terish"
        ],
        "a": 2,
        "e": "Termachilik, ovchilik, baliqchilik – o‘zlashtiruvchi xo‘jalik.",
@@ -737,10 +737,10 @@
        "id": "qd02.21",
        "q": "Nima sababdan patriarxat davri boshlandi?",
        "o": [
-        "Omoch bilan yer haydash, dehqonchilik, chorvachilik va hunarmandchilik mahsulotlari bilan ta’minlash erkaklar qo‘liga o‘tgani uchun",
-        "Erkaklar uy yumushlari bilan band bo‘lgani uchun",
-        "Urug‘lar o‘rtasida urushlar to‘xtagani uchun",
-        "Ayollar ovchilik va jangga ketgani uchun"
+        "Omoch bilan yer haydash, dehqonchilik va chorvachilik erkaklar qo‘liga o‘tgani uchun",
+        "Erkaklar faqat uy yumushlari bilan band bo‘lib qolgani uchun",
+        "Urug‘lar o‘rtasidagi urushlar to‘xtab, ayollar kuchaygani uchun",
+        "Ayollar ovchilik va jangga ketib, erkaklar uyda qolgani uchun"
        ],
        "a": 0,
        "e": "Uy xo‘jaligi yumushlari ayollar zimmasida qolgan, qarindoshchilik esa erkak nomi bilan belgilanadigan bo‘lgan.",
@@ -1095,10 +1095,10 @@
        "id": "qd03.15",
        "q": "Falastin va Suriya qanday boyliklarga boy bo‘lgan?",
        "o": [
-        "Marjon va dur-gavharga",
-        "Yog‘och va smolaga",
+        "Faqat tuz va neftga hamda dengiz mahsulotlariga",
+        "Yog‘och va smola, shuningdek marjon va dur-gavharga",
         "Mis va temir rudasiga hamda boshqa foydali qazilmalarga",
-        "Faqat oltin va kumushga"
+        "Faqat oltin va kumush konlariga hamda qimmatbaho toshlarga"
        ],
        "a": 2,
        "e": "Misrliklar bu mamlakatlardan hunarmandlar yasagan nodir buyumlar va qimmatbaho toshlarni olib kelgan.",
@@ -1375,10 +1375,10 @@
        "id": "qd04.1",
        "q": "Qadimgi yunonlar misrliklar yozuvini qanday atashgan?",
        "o": [
-        "Mixxat",
-        "Papirus",
-        "Iyerogliflar (“muqaddas bitiklar”)",
-        "Alifbo"
+        "Mixxat yozuvi, ya’ni “xanjarsimon bitiklar”",
+        "Papirus yozuvi, ya’ni “nil qamishi bitiklari”",
+        "Iyerogliflar",
+        "Alifbo yozuvi, ya’ni “harflar tizimi”"
        ],
        "a": 2,
        "e": "Dastlab har bir so‘z rasm ko‘rinishida yozilgan; yozuv “ma’budlar kalomi” deb ham nomlangan.",
@@ -1453,10 +1453,10 @@
        "id": "qd04.7",
        "q": "Iyerogliflarni o‘qishga qaysi topilma sababchi bo‘ldi?",
        "o": [
-        "Tutanxamon maqbarasidagi papirus",
-        "Xufu piramidasi devoridagi yozuvlar",
-        "Rozett shahri yaqinidagi toshga misr va yunon tillarida yozilgan bir xil ma’noli bitik",
-        "Behistun qoyasidagi uch tilli bitik"
+        "Tutanxamon maqbarasidan topilgan papirus o‘rami",
+        "Xufu piramidasi devoridagi qadimiy yozuvlar",
+        "Rozett shahri yaqinida topilgan, misr va yunon tillarida yozilgan bir xil ma’noli bitikli tosh",
+        "Behistun qoyasidagi uch tilli mixxat bitigi"
        ],
        "a": 2,
        "e": "Yunon tilidan tarjima qiyinchilik tug‘dirmagan, matnlarni taqqoslab har bir iyeroglif ma’nosi aniqlangan.",
@@ -1889,10 +1889,10 @@
        "id": "qd05.5",
        "q": "Xammurapi qonunlari matnlari qayerga yozib qo‘yilgan?",
        "o": [
-        "Ibodatxona eshiklariga",
-        "Papirus varaqlariga",
+        "Ibodatxona eshiklariga, hammaga ko‘rinadigan qilib",
+        "Papirus varaqlariga, kohinlar xonalarida saqlash uchun",
         "Mamlakatning barcha shaharlaridagi tosh ustunlarga",
-        "Sopol idishlarga"
+        "Sopol idishlarga, shahar xazinasida saqlash uchun"
        ],
        "a": 2,
        "e": "Qonunlar ma’budlar xohish-irodasi sifatida talqin etilgan, shuning uchun so‘zsiz bajarilgan.",
@@ -2188,10 +2188,10 @@
        "id": "qd05.28",
        "q": "Barcha forslarni mil. avv. 558-yilda o‘z hokimiyati ostida kim birlashtirdi?",
        "o": [
-        "Kiaksar",
+        "Midiya hukmdori Kiaksar (Siyaksar)",
         "Ahamoniylar sulolasidan Kir II",
-        "Doro I",
-        "Kambiz II"
+        "Ahamoniylar sulolasidan Doro I",
+        "Ahamoniylar sulolasidan Kambiz II"
        ],
        "a": 1,
        "e": "Kir II Midiya podsholigini bo‘ysundirib, ulkan lashkar tuzgan va istilolarni davom ettirgan.",
@@ -2521,9 +2521,9 @@
        "q": "Hindistonda tabaqalardan birortasiga mansub bo‘lmaganlar qanday atalgan?",
        "o": [
         "“Chandal” (“hazar qilinadiganlar”)",
-        "“Ahamoniy”",
-        "“Satrap”",
-        "“Nomarx”"
+        "“Ahamoniy” (“oliy zotlilar”)",
+        "“Satrap” (“mamlakat qo‘riqchilari”)",
+        "“Nomarx” (“viloyat hukmdorlari”)"
        ],
        "a": 0,
        "e": "Chandallar kastalarga mansub odamlar bilan bir uyda yashay olmagan va ular bilan bir dasturxonga o‘tirish taqiqlangan.",
@@ -3047,10 +3047,10 @@
        "id": "qd07.16",
        "q": "Qadimiy shaharlarda ichki qal’a qanday joylashgan edi?",
        "o": [
-        "Shahar chekkasida, daryo bo‘yida",
-        "Boshqa xom g‘ishtdan qurilgan binolardan ancha balandda, ulkan qo‘rg‘on sifatida",
-        "Yer ostida, g‘or shaklida",
-        "Shahar markazida, bozor ostida"
+        "Shahar chekkasida, daryo bo‘yida, past joyda",
+        "Boshqa binolardan ancha balandda, ulkan qo‘rg‘on sifatida",
+        "Yer ostida, g‘or shaklida qurilgan, ko‘rinmaydigan",
+        "Shahar markazida, bozor maydoni ostida"
        ],
        "a": 1,
        "e": "Qo‘rg‘onda turli xonalardan iborat katta saroy joylashgan.",
@@ -3060,10 +3060,10 @@
        "id": "qd07.17",
        "q": "Qadimiy shahar darvozasiga kirish yo‘lini nima to‘sib turgan?",
        "o": [
-        "Baland tosh devor",
-        "Sopol minoralar",
+        "Baland tosh devor va uning ustidagi qorovul minorasi",
+        "Sopol minoralar va ularning ustidagi nayzalar",
         "Suv bilan to‘ldirilgan chuqur – xandaq",
-        "Temir panjara"
+        "Temir va bronzadan yasalgan katta panjara"
        ],
        "a": 2,
        "e": "Devorning burjlari va o‘q otish uchun shinaklari bo‘lgan.",
@@ -3177,10 +3177,10 @@
        "id": "qd07.26",
        "q": "Ktesiy hikoyasida Ossuriya podshosining Baqtriyaga yurishi qanday yakunlangan?",
        "o": [
-        "Ossuriya Baqtra shahrini bosib olgan",
-        "Baqtriya Ossuriyaga o‘lpon to‘lagan",
-        "Baqtriyaliklar ossuriyaliklarni chekinishga majbur qilib, yuz ming nafar dushman qo‘shinini qirgan",
-        "Ikki davlat sulh tuzgan"
+        "Ossuriya Baqtra shahrini qamal qilib, bosib olgan",
+        "Baqtriya Ossuriyaga har yili katta o‘lpon to‘lab turgan",
+        "Baqtriyaliklar ossuriyaliklarni chekinishga majbur qilib, ko‘p dushman qo‘shinini qirgan",
+        "Ikki davlat qattiq jangdan keyin o‘zaro sulh tuzgan"
        ],
        "a": 2,
        "e": "Nin Baqtriyaga o‘tish mushkulligi va daralar torligi tufayli qo‘shinlarini bir necha qismga bo‘lgan.",
@@ -3568,10 +3568,10 @@
        "id": "qd09.1",
        "q": "Qadimgi Yunoniston deb nima atalgan?",
        "o": [
-        "Hind daryosi vodiysidagi davlatlar",
-        "Dajla va Frot oralig‘idagi shahar-davlatlar",
-        "Bolqon yarimoroli va O‘rta Yer dengizi orollarini o‘z ichiga olgan qadimgi yunon davlatlarining umumiy nomi",
-        "Nil vodiysidagi davlatlar majmuasi"
+        "Hind daryosi vodiysidagi qadimiy davlatlar majmuasi",
+        "Dajla va Frot oralig‘idagi shahar-davlatlar majmuasi",
+        "Bolqon yarimoroli va O‘rta Yer dengizi orollaridagi yunon davlatlarining umumiy nomi",
+        "Nil vodiysida joylashgan qadimiy davlatlar majmuasi"
        ],
        "a": 2,
        "e": "Shimol tarafdan tashqari, Qadimgi Yunonistonni O‘rta Yer va Egey dengizlari o‘rab turgan.",
@@ -3685,10 +3685,10 @@
        "id": "qd09.10",
        "q": "Qadimgi yunon qo‘shinlarining asosini qaysi jangchilar tashkil etgan?",
        "o": [
-        "Otliq kamonchilar",
+        "Otliq kamonchilar va nayzadorlar bo‘linmalari",
         "Og‘ir qurollangan askarlar – goplitlar",
-        "Dengiz piyodalari",
-        "Jang aravalari"
+        "Dengiz piyodalari va eshkakchilar guruhlari",
+        "Jang aravalariga mingan harbiy zodagonlar"
        ],
        "a": 1,
        "e": "Barcha shahar-davlatlar o‘z qo‘shinlariga ega bo‘lgan.",
@@ -3965,10 +3965,10 @@
        "id": "qd10.1",
        "q": "Qadimgi yunonlar nima uchun o‘z vatanini tark etib, begona yurtlarga ko‘chib ketishga majbur bo‘lgan?",
        "o": [
-        "Nil toshqini ekinlarni yo‘q qilgani uchun",
-        "Zodagonlardan qarzdor bo‘lib qolgan, yer va mulkiga ega bo‘lmagan ko‘plab odamlar omadini sinab ko‘rish uchun",
-        "Kohinlar ularni ibodatxonadan haydagani uchun",
-        "Fors shohi ularni majburan ko‘chirgani uchun"
+        "Nil toshqini ekinlarni yo‘q qilgani, ocharchilik boshlangani uchun",
+        "Qarzdor bo‘lib qolgan, yer va mulkka ega bo‘lmagan ko‘plab odamlar omadini sinash uchun",
+        "Kohinlar ularni ibodatxonalardan haydab yuborgani uchun",
+        "Fors shohi qo‘shinlari ularni majburan ko‘chirgani uchun"
        ],
        "a": 1,
        "e": "Olis yo‘l xavfli bo‘lgan, shuning uchun jo‘nab ketishdan oldin ma’budlarga qurbonliklar bag‘ishlangan.",
@@ -3991,10 +3991,10 @@
        "id": "qd10.3",
        "q": "Yunon ko‘chmanchilari qayerlarga o‘rnashgan?",
        "o": [
-        "Sitsiliya oroli sohili, Apennin yarimoroli janubi hamda O‘rta Yer va Qora dengiz bo‘ylariga",
-        "Hind va Gang daryolari vodiylariga",
-        "Dajla va Frot oralig‘iga",
-        "Nil vodiysi va Sinay yarimoroliga"
+        "Sitsiliya, Apennin yarimoroli janubi, O‘rta Yer va Qora dengiz bo‘ylariga",
+        "Hind va Gang daryolari vodiylari va Hindiston sohillariga",
+        "Dajla va Frot oralig‘i, Eron tog‘liklari va Kavkazga",
+        "Nil vodiysi, Sinay yarimoroli va Arabiston sohillariga"
        ],
        "a": 0,
        "e": "Koloniyalar sekin-asta shahar-davlatlarga aylangan.",
@@ -4108,10 +4108,10 @@
        "id": "qd10.12",
        "q": "Drakont qonunlarini yozish uchun unga kim murojaat qilgan?",
        "o": [
-        "Adolat qaror topishini xohlagan ikkala tomon – zodagonlar ham, oddiy xalq ham",
-        "Sparta podshosi",
-        "Fors shohi",
-        "Faqat zodagonlar"
+        "Adolat qaror topishini istagan ikkala tomon – zodagonlar ham, oddiy xalq ham",
+        "Sparta podshosi Afinani o‘ziga bo‘ysundirish uchun",
+        "Fors shohi yunon shaharlarini boshqarish uchun",
+        "Faqat zodagonlar o‘z manfaatlarini himoya qilish uchun"
        ],
        "a": 0,
        "e": "Ular hammani huquq va majburiyatda tenglashtiruvchi qonunlar yozishni iltimos qilgan.",
@@ -4238,9 +4238,9 @@
        "id": "qd10.22",
        "q": "Perikl hukmronligi davrida Akropolda qurilgan mashhur inshoot qaysi?",
        "o": [
-        "Piramida",
-        "Zikkurat",
-        "Ishtar darvozasi",
+        "Piramida – fir’avnning mahobatli tosh maqbarasi",
+        "Zikkurat – zinapoyali baland ibodatxona-minora",
+        "Ishtar darvozasi – Bobil shahrining kirish darvozasi",
         "Parfenon – ma’buda Afina ibodatxonasi"
        ],
        "a": 3,
@@ -4564,10 +4564,10 @@
        "id": "qd12.3",
        "q": "Harbiy ta’limning ikkinchi yilida yigitlar nima bilan shug‘ullangan?",
        "o": [
-        "Hammasi koloniyalarga yuborilgan",
-        "Hammasi Akropolda ibodatxona qurgan",
-        "Ayrimlari Attika chegara qal’alarida xizmat o‘tagan, boshqalari Pirey portida dengizchilik asoslarini o‘rgangan",
-        "Hammasi Sparta qo‘shini tarkibida xizmat qilgan"
+        "Hammasi koloniyalarga yuborilib, yangi yerlarni o‘zlashtirgan",
+        "Hammasi Akropolda ibodatxona qurilishida ishlagan",
+        "Ayrimlari Attika chegara qal’alarida xizmat o‘tagan, boshqalari Pirey portida dengizchilik o‘rgangan",
+        "Hammasi Sparta qo‘shini tarkibida xizmat qilgan va jang qilgan"
        ],
        "a": 2,
        "e": "Mudofaa zarurati tug‘ilsa, 30 yoshga to‘lmagan barcha erkaklar qurol-yarog‘ bilan ko‘rikka kelishi shart bo‘lgan.",
@@ -4629,10 +4629,10 @@
        "id": "qd12.8",
        "q": "Olimpiya o‘yinlarida kimlar ishtirok etishi mumkin bo‘lgan?",
        "o": [
-        "Faqat Afina fuqarolari",
-        "Qullar ham, ozodlar ham",
-        "Jinoyat sodir etmagan, sha’niga dog‘ tushirmagan ozod yunonlar",
-        "Faqat zodagonlar"
+        "Faqat Afina shahrining fuqarolari va ularning bolalari",
+        "Qullar ham, ozodlar ham, shuningdek chet elliklar",
+        "Jinoyat qilmagan, sha’niga dog‘ tushirmagan ozod yunonlar",
+        "Faqat zodagonlar oilasidan chiqqan ozod yunonlar"
        ],
        "a": 2,
        "e": "G‘oliblar muqaddas zaytun daraxti novdalaridan to‘qilgan gulchambar bilan taqdirlangan.",
@@ -4642,10 +4642,10 @@
        "id": "qd12.9",
        "q": "Olimpiya g‘oliblari nima bilan taqdirlangan?",
        "o": [
-        "Yer va qullar bilan",
-        "Marmar haykallar bilan",
+        "Yer, qullar va chorva mollari bilan",
+        "Marmardan yasalgan haykal va tangalar bilan",
         "Muqaddas zaytun novdalaridan to‘qilgan gulchambar bilan",
-        "Oltin tojlar bilan"
+        "Sof oltindan yasalgan toj va qimmatbaho toshlar bilan"
        ],
        "a": 2,
        "e": "Uch karra g‘alaba qozongan sportchi Olimpiya shahrida o‘z haykalini o‘rnattirishga haqli bo‘lgan.",
@@ -4681,10 +4681,10 @@
        "id": "qd12.12",
        "q": "Rivoyatga ko‘ra, Troya urushining sababi nima edi?",
        "o": [
-        "Troyaliklar Olimpiya o‘yinlarini buzgani",
-        "Troya podshosining o‘g‘li Paris Sparta podshosining rafiqasi Sohibjamol Yelenani o‘g‘irlab ketgani",
-        "Yunonlar elchisini troyaliklar o‘ldirgani",
-        "Troya podshosi Afinaga o‘lpon to‘lamagani"
+        "Troyaliklar Olimpiya o‘yinlari qoidalarini buzgani",
+        "Troya podshosining o‘g‘li Paris Sparta podshosining rafiqasi Yelenani o‘g‘irlab ketgani",
+        "Yunonlar elchisini troyaliklar o‘ldirib yuborgani",
+        "Troya podshosi Afinaga o‘lpon to‘lashdan bosh tortgani"
        ],
        "a": 1,
        "e": "Sparta podshosi qasos olishga ahd qilib, barcha spartaliklarni urushga chaqirgan.",
@@ -4708,9 +4708,9 @@
        "q": "“Iliada” va “Odisseya” dostonlarini kim yozgan?",
        "o": [
         "Qadimgi yunon shoiri Gomer",
-        "Gerodot",
-        "Sofokl",
-        "Aristofan"
+        "Qadimgi yunon tarixchisi Gerodot",
+        "Qadimgi yunon dramaturgi Sofokl",
+        "Qadimgi yunon komediyanavisi Aristofan"
        ],
        "a": 0,
        "e": "“Iliada” Troya urushining oxirgi yili haqida.",
@@ -4876,10 +4876,10 @@
        "id": "qd12.27",
        "q": "Demokrit atrofimizdagi hamma narsa nimadan tashkil topgan, degan g‘oyani ilgari surgan?",
        "o": [
-        "Havo va tuproqdan",
-        "Olovdan",
+        "To‘rt unsur – havo, tuproq, suv va olovdan",
+        "Yagona boshlang‘ich modda – olovdan",
         "Ko‘zga ko‘rinmaydigan mayda zarralar – atomlardan",
-        "Suvdan"
+        "Yagona boshlang‘ich modda – suvdan"
        ],
        "a": 2,
        "e": "Frakiyalik Demokrit Geraklit fikriga e’tiroz bildirgan.",
@@ -5007,9 +5007,9 @@
        "q": "Afsonalardagi sikloplar qanday mavjudotlar?",
        "o": [
         "Peshanasida bitta ko‘zi bo‘lgan bahaybat mavjudotlar",
-        "Ko‘zga ko‘rinmas ruhlar",
-        "Yarim ot, yarim odam",
-        "Yarim qush, yarim ayol"
+        "Ko‘zga ko‘rinmas, daryolarda yashovchi ruhlar",
+        "Yarim ot, yarim odam bo‘lgan o‘rmon mavjudotlari",
+        "Yarim qush, yarim ayol bo‘lgan dengiz mavjudotlari"
        ],
        "a": 0,
        "e": "Kentavrlar – yarim ot, yarim odam; sirenalar – yarim qush, yarim ayol.",
@@ -5208,10 +5208,10 @@
        "id": "qd13.15",
        "q": "Qaram xalqlar soliq sifatida nimalarni topshirgan?",
        "o": [
-        "Faqat oltin va qimmatbaho toshlar",
-        "Faqat qullar va qurol-yarog‘",
-        "Kumush, chorva mollari, hunarmandchilik buyumlari, kiyim-kechak, matolar va hayvon terilari",
-        "Faqat don va meva"
+        "Faqat oltin va qimmatbaho toshlar, kumushsiz",
+        "Faqat qullar va qurol-yarog‘, har yili",
+        "Kumush, chorva mollari, hunarmandchilik buyumlari, matolar va hayvon terilari",
+        "Faqat don va meva mahsulotlari, har yili"
        ],
        "a": 2,
        "e": "Bundan tashqari, qaram xalqlar saroy va ibodatxonalar qurilishiga safarbar etilgan.",
@@ -5592,10 +5592,10 @@
        "id": "qd14.14",
        "q": "Bosqinchilarga qarshi qo‘zg‘olonga kim boshchilik qildi?",
        "o": [
-        "Bess",
+        "Marg‘iyonalik qo‘zg‘olonchi va yolg‘onchi shoh Frada",
         "Iste’dodli lashkarboshi Spitaman",
-        "Frada",
-        "Oksiart"
+        "Fors satrapi va Doro III ning qarindoshi Bess",
+        "Baqtriya hukmdori va Spitamanning qaynotasi Oksiart"
        ],
        "a": 1,
        "e": "Sug‘diyona xalqiga tez orada baqtriyaliklar va saklar qo‘shilgan.",
@@ -5709,10 +5709,10 @@
        "id": "qd14.23",
        "q": "Aleksandr O‘rta Osiyoda qaysi hududlarni bo‘ysundira oldi?",
        "o": [
-        "Faqat Surxon vohasini",
-        "Xorazm, Toshkent vohasi va Farg‘onani",
-        "Butun O‘rta Osiyoni, Xorazmgacha",
-        "Marg‘iyona, Baqtriya, Sug‘diyona va Bekobod bilan Xo‘jand orasidagi Sirdaryo bo‘ylarini"
+        "Faqat Surxon vohasi va Termiz atroflarini",
+        "Xorazm, Toshkent vohasi va butun Farg‘ona vodiysini",
+        "Butun O‘rta Osiyoni, shu jumladan Xorazmgacha",
+        "Marg‘iyona, Baqtriya, Sug‘diyona va Sirdaryo bo‘ylarini (Bekobod–Xo‘jand oralig‘i)"
        ],
        "a": 3,
        "e": "Xorazm, Toshkent vohasi va Farg‘ona mustaqilligicha qolgan.",
@@ -5872,10 +5872,10 @@
        "id": "qd15.5",
        "q": "Salavkiylar davlatida mudofaa va qo‘shinlarni tashkil etish bilan kimlar shug‘ullangan?",
        "o": [
-        "Meteklar",
+        "Meteklar – chet ellik savdogarlar, qo‘shin boshlig‘i",
         "Sobiq lashkarboshilardan tayinlangan strateglar",
-        "Kohinlar",
-        "Nomarxlar"
+        "Kohinlar – ibodatxona ruhoniylari, qo‘shin boshlig‘i",
+        "Nomarxlar – viloyat hukmdorlari, Misrdan kelganlar"
        ],
        "a": 1,
        "e": "O‘rta Osiyo viloyatlari satrapiyalarga ajratilgan.",
@@ -5937,10 +5937,10 @@
        "id": "qd15.10",
        "q": "Quyidagi shaharlardan qaysilari Salavkiylar davrida yirik shahar va madaniyat markazlariga aylandi?",
        "o": [
-        "Baqtra, Maroqanda, Marg‘iyona Antioxiyasi (Marv) va Termiz",
-        "Memfis, Fiva va Sakkara",
-        "Persepol, Suza va Ekbatana",
-        "Uruk, Ur va Lagash"
+        "Baqtra, Maroqanda, Marv va Termiz",
+        "Memfis, Fiva, Sakkara va Aleksandriya",
+        "Persepol, Suza, Ekbatana va Pasargada",
+        "Uruk, Ur, Lagash va Nippur"
        ],
        "a": 0,
        "e": "Bu yerlarda yangi qal’alar va shaharlar bunyod etilgan, savdo, dehqonchilik va hunarmandchilik rivojlangan.",
@@ -5989,10 +5989,10 @@
        "id": "qd15.14",
        "q": "Yunon-Baqtriya davlati tarixini kim boshlab berdi?",
        "o": [
-        "Yevtidem, Parfiya hukmdori",
-        "Antiox, Suriya noibi",
-        "Diodot, o‘zini podsho deb e’lon qilgan Baqtriya shaharlari hukmdori",
-        "Salavk, Bobil hukmdori"
+        "Yevtidem – Parfiya podsholigining hukmdori",
+        "Antiox – Salavkiylarning Baqtriyadagi noibi",
+        "Diodot – o‘zini podsho deb e’lon qilgan Baqtriya hukmdori",
+        "Salavk – Bobil va Suriyaning hukmdori"
        ],
        "a": 2,
        "e": "Diodotdan keyin hokimiyat Yevtidemga o‘tgan.",
@@ -6015,10 +6015,10 @@
        "id": "qd15.16",
        "q": "Yunon-Baqtriya podsholigi qaysi hukmdor davrida eng katta sarhadlarga ega bo‘ldi?",
        "o": [
-        "Demetriy (Yevtidemning o‘g‘li)",
-        "Yevtidem",
-        "Mitridat I",
-        "Diodot"
+        "Demetriy – Yevtidemning o‘g‘li",
+        "Yevtidem – Diodotdan keyingi hukmdor",
+        "Mitridat I – Parfiya podshosi",
+        "Diodot – podsholikka asos solgan hukmdor"
        ],
        "a": 0,
        "e": "Hindistonning bir qismi shu davlatga qo‘shib olingan.",
@@ -6028,10 +6028,10 @@
        "id": "qd15.17",
        "q": "Yunon-Baqtriya davlatining kuchsizlanishiga nima sabab bo‘ldi?",
        "o": [
-        "Rim legionlarining hujumi",
-        "Fors shohlarining ittifoqi",
-        "Nil toshqinlari va ocharchilik",
-        "Parfiyada Mitridat I hokimiyatga kelgach, Baqtriyaga harbiy tazyiq kuchaygani va tinimsiz urushlar"
+        "Rim legionlarining Baqtriyaga bostirib kirishi",
+        "Fors shohlarining Parfiya bilan tuzgan ittifoqi",
+        "Nil toshqinlari tufayli ocharchilik boshlangani, aholi ko‘chgani",
+        "Parfiyada Mitridat I hokimiyatga kelgach, harbiy tazyiq kuchaygani va tinimsiz urushlar"
        ],
        "a": 3,
        "e": "Bundan foydalangan ko‘chmanchi yuechji qabilalari davlatni bosib olgan.",
@@ -6139,10 +6139,10 @@
        "id": "qd16.4",
        "q": "Xorazm shaharlari qanday qurilgan?",
        "o": [
-        "Mustahkam mudofaa devorlari bilan o‘ralgan, burchaklarida burjlar bo‘lgan, markazdan o‘tgan ko‘cha shaharni ikki qismga bo‘lgan",
-        "Aylana shaklida, markazida yagona minora bo‘lgan",
-        "Er osti xonalari va g‘orlardan iborat",
-        "Devorsiz, daryo bo‘yida tarqoq joylashgan"
+        "Mustahkam devorlar bilan o‘ralgan, burchaklarida burjlar bo‘lgan, markazdan ko‘cha o‘tgan",
+        "Aylana shaklida, markazida yagona baland minora turgan",
+        "Yer osti xonalari va g‘orlardan iborat, tog‘ yon bag‘rida",
+        "Devorsiz, daryo bo‘yida tarqoq joylashgan, ochiq maydonli"
        ],
        "a": 0,
        "e": "Markaziy maydonda muhtasham saroy va ibodatxonalar joylashgan.",
@@ -6308,10 +6308,10 @@
        "id": "qd16.17",
        "q": "Xorazmlik kohin-astronomlar nimalarni aniq bilgan?",
        "o": [
-        "Amudaryo suv sathining ko‘tarilishi vaqti hamda ekin ekish, ko‘chat o‘tqazish va hosil yig‘ish mavsumlari muddati",
-        "Dengiz to‘lqinlari va ularning balandligi",
-        "Fir’avnlar tarixi va maqbaralar joylashuvi",
-        "Faqat harbiy yurishlar muddati"
+        "Amudaryo suv sathi ko‘tarilishi vaqti, ekin ekish va hosil yig‘ish mavsumlari",
+        "Dengiz to‘lqinlari va ularning balandligi, shamol yo‘nalishi",
+        "Fir’avnlar tarixi va maqbaralar joylashgan o‘rin",
+        "Faqat harbiy yurishlar muddati va dushman qo‘shini soni"
        ],
        "a": 0,
        "e": "Ular Misr kohinlari Nil toshqini vaqtini bilgani singari xizmat qilgan.",
@@ -6420,9 +6420,9 @@
        "q": "Qang‘ davlatining poytaxti qanday nomlangan?",
        "o": [
         "Qang‘diz (Xitoy manbalarida Bityan)",
-        "Maroqanda",
-        "Ershi",
-        "Baqtra"
+        "Maroqanda (Xitoy manbalarida Samarqand)",
+        "Ershi (Xitoy manbalarida Davan poytaxti)",
+        "Baqtra (Xitoy manbalarida Daxya poytaxti)"
        ],
        "a": 0,
        "e": "Poytaxt Toshkent vohasida joylashgan.",
@@ -6432,10 +6432,10 @@
        "id": "qd17.5",
        "q": "Arxeologlarning aniqlashicha, Qang‘ davlati poytaxti – Qang‘diz qaysi shahar-qal’asi o‘rnida bo‘lgan?",
        "o": [
-        "Surxondaryodagi Kampirtepa",
-        "Toshkent vohasining Oqqo‘rg‘on tumanidagi Qanqa shahar-qal’asi",
-        "Xorazmdagi Tuproqqal’a",
-        "Samarqanddagi Afrosiyob"
+        "Surxondaryodagi Kampirtepa shahar-qal’asi",
+        "Toshkent vohasidagi Qanqa shahar-qal’asi",
+        "Xorazmdagi Tuproqqal’a shahar-qal’asi",
+        "Samarqand yaqinidagi Afrosiyob shahar-qal’asi"
        ],
        "a": 1,
        "e": "Qanqa mil. avv. III asrda bunyod etilgan.",
@@ -6537,9 +6537,9 @@
        "q": "Qang‘ dashtlarida ko‘chmanchi qabilalar nima bilan shug‘ullangan?",
        "o": [
         "Qo‘y-echki va tuya boqish hamda yilqichilik bilan",
-        "Baliqchilik bilan",
-        "Fil boqish bilan",
-        "Dengiz savdosi bilan"
+        "Baliqchilik va dengiz qirg‘oqlarida ovchilik bilan",
+        "Fil boqish va yovvoyi hayvonlarni o‘rgatish bilan",
+        "Dengiz savdosi va kemasozlik bilan"
        ],
        "a": 0,
        "e": "Ular charmdan poyabzal tikib, jun matolaridan kiyim va gilam tayyorlashgan.",
@@ -6549,10 +6549,10 @@
        "id": "qd17.14",
        "q": "Ziroatkorlar va chorvadorlar o‘zaro nima bilan ayirboshlashgan?",
        "o": [
-        "Faqat qurol-yarog‘ bilan",
-        "Faqat qullar bilan",
+        "Faqat qurol-yarog‘ va temir buyumlar bilan",
+        "Faqat qullar va asirlar bilan, mahsulotsiz",
         "Qishloq xo‘jalik va hunarmandchilik mahsulotlari bilan",
-        "Faqat tangalar bilan"
+        "Faqat oltin va kumush tangalar bilan, mahsulotsiz"
        ],
        "a": 2,
        "e": "Bu ichki savdoni rivojlantirgan.",
@@ -6654,9 +6654,9 @@
        "q": "Davan davlati xalqaro savdoda nima bilan ayniqsa mashhur edi?",
        "o": [
         "Farg‘onaning zotdor otlari",
-        "Fil suyagi",
-        "Papirus",
-        "Zaytun moyi"
+        "Hindistondan keltirilgan fil suyagi va pillasi",
+        "Misrdan keltirilgan papirus va qamish qog‘ozi",
+        "Zaytun moyi va O‘rta Yer dengizi mahsulotlari"
        ],
        "a": 0,
        "e": "Xitoy hukmdorlari bu otlarni o‘zlariga jalb qilgan.",
@@ -6692,10 +6692,10 @@
        "id": "qd17.25",
        "q": "Xitoy imperatori nima uchun “samoviy otlar”ga muhtoj edi?",
        "o": [
-        "Dengiz savdosi uchun",
-        "Faqat dehqonchilik uchun",
-        "Qurilish materiallarini tashish uchun",
-        "O‘zining ilohiy nasl-nasabi va zavol bilmasligini ko‘rsatish, samoga chiqishda otlar qo‘shilgan aravaga erishish uchun"
+        "Faqat dengiz savdosida ishlatish uchun",
+        "Faqat dehqonchilikda unumdor yer haydash uchun",
+        "Qurilish materiallari va toshlarni tashish uchun",
+        "O‘zining ilohiy nasl-nasabini ko‘rsatish, samoga chiqishda otli aravaga erishish uchun"
        ],
        "a": 3,
        "e": "Yilnomada shunday yozilgan.",
@@ -6842,10 +6842,10 @@
        "id": "qd18.1",
        "q": "Yunon-Baqtriya davlatini mil. avv. 140–130-yillar oralig‘ida qaysi qabilalar bosib oldi?",
        "o": [
-        "Massagetlar",
-        "Parfiyaliklar",
+        "Ko‘chmanchi massaget qabilalari, To‘maris avlodlari",
+        "Parfiya podsholigining Mitridat boshchiligidagi qo‘shini",
         "Ko‘chmanchi yuechji qabilalari",
-        "Saklar"
+        "Ko‘chmanchi sak qabilalari, Qang‘ davlati asoschilari"
        ],
        "a": 2,
        "e": "Yuechjilar Baqtriya yerlariga kelib o‘rnashgan.",
@@ -6881,10 +6881,10 @@
        "id": "qd18.4",
        "q": "Kudzula Kadfiz davrida Kushon davlatiga qaysi hududlar qo‘shib olindi?",
        "o": [
-        "Xorazm va Farg‘ona",
-        "Misr va Suriya",
-        "Rim va Karfagen",
-        "Afg‘oniston va Hindiston viloyati – Kashmir"
+        "Xorazm va Farg‘ona, Sirdaryo bo‘ylari",
+        "Misr va Suriya viloyatlari, O‘rta Yer dengizi qirg‘og‘i",
+        "Rim va Karfagen yerlari, G‘arbiy Yevropa",
+        "Afg‘oniston va Hindistonning Kashmir viloyati"
        ],
        "a": 3,
        "e": "Davlat keyin Vima Kadfiz davrida yanada kengaygan.",
@@ -7024,10 +7024,10 @@
        "id": "qd18.15",
        "q": "Quyidagilardan qaysilari Kushon davlati yodgorliklari hisoblanadi?",
        "o": [
-        "Afrosiyob, Ur, Uruk",
-        "Memfis, Fiva, Sakkara",
-        "Persepol, Suza, Bisutun",
-        "Xolchayon, Dalvarzintepa, qadimiy Termiz, Zartepa, Kampirtepa"
+        "Afrosiyob, Ur, Uruk va Mohenjodaro",
+        "Memfis, Fiva, Sakkara va Gizadagi Sfinks",
+        "Persepol, Suza, Bisutun va Pasargada",
+        "Xolchayon, Dalvarzintepa, Termiz, Zartepa va Kampirtepa"
        ],
        "a": 3,
        "e": "Ularni o‘rganish jarayonida aniqlangan topilmalar hunarmandchilik yuksak darajada taraqqiy etganini tasdiqlaydi.",
@@ -7167,10 +7167,10 @@
        "id": "qd18.26",
        "q": "Kushon shaharlari qanday tuzilishga ega edi?",
        "o": [
-        "Hunarmandlar mahallalariga va turarjoy mavzelariga ajratilgan, saroy va ibodatxonalar bo‘lgan",
-        "Faqat tog‘ g‘orlaridan iborat",
-        "Faqat qal’alardan iborat, aholisiz",
-        "Yagona maydondan iborat, devorlarsiz"
+        "Hunarmandlar mahallalari va turarjoy mavzelariga ajratilgan, saroy-ibodatxonali",
+        "Faqat tog‘ g‘orlaridan iborat, devorsiz, rejasiz",
+        "Faqat qal’alardan iborat, aholisiz va hunarmandsiz",
+        "Yagona maydondan iborat, devorlarsiz va minorasiz"
        ],
        "a": 0,
        "e": "Shaharlar mudofaa devorlari bilan o‘ralgan.",
@@ -7193,10 +7193,10 @@
        "id": "qd18.28",
        "q": "Dalvarzintepadan qanday buyum topilgan, bu kandakorlik taraqqiyotini ko‘rsatadi?",
        "o": [
-        "Oltin tojlar",
-        "Mixxatli lavhalar",
+        "Oltindan yasalgan shohona tojlar va marjon taqinchoqlar",
+        "Mixxatli sopol lavhalar va ularning yozuvlari",
         "Fil suyagidan yasalgan shaxmat donalari",
-        "Papirus o‘ramlari"
+        "Papirus o‘ramlari va ularga yozilgan matnlar"
        ],
        "a": 2,
        "e": "Kandakorlik yuqori darajada rivojlangan.",
@@ -7206,10 +7206,10 @@
        "id": "qd18.29",
        "q": "Kushon san’atida qanday uslublar muvofiqlashgan?",
        "o": [
-        "Mahalliy an’analar, Qadimgi Sharq va Qadimgi Yunoniston ellinistik san’ati uslublari",
-        "Faqat Xitoy uslubi",
-        "Faqat Misr uslubi",
-        "Faqat Rim uslubi"
+        "Mahalliy an’analar, Qadimgi Sharq va ellinistik yunon san’ati uslublari",
+        "Faqat Xitoy uslubi, boshqa ta’sirlarsiz",
+        "Faqat Misr uslubi, boshqa ta’sirlarsiz",
+        "Faqat Rim uslubi, boshqa ta’sirlarsiz"
        ],
        "a": 0,
        "e": "Bu uslub devoriy tasvirlar va haykaltaroshlikda ko‘rinadi.",
@@ -7304,10 +7304,10 @@
        "id": "qd19.6",
        "q": "Sug‘diyonadan Xitoyga nimalar olib borilgan?",
        "o": [
-        "Paxta matolari va chigit",
+        "Paxta matolari va chigit, shuningdek, tuya va yilqi",
         "Junli matolar, gilamlar, zeb-ziynat buyumlari va qimmatbaho toshlar",
-        "Ipak, guruch va chinni",
-        "Zotli otlar va lojuvard"
+        "Ipak, guruch va chinni, shuningdek, qog‘oz va choy",
+        "Zotli otlar va lojuvard, shuningdek, tuya va yong‘oq"
        ],
        "a": 1,
        "e": "Baqtriyadan tuyalar, Farg‘onadan zotli otlar olib borilgan.",
@@ -7343,10 +7343,10 @@
        "id": "qd19.9",
        "q": "Hindistondan O‘rta Osiyo viloyatlariga qanday mahsulotlar kelgan?",
        "o": [
-        "Tuyalar va otlar",
-        "Uzum va anor",
+        "Tuyalar va zotli otlar, shuningdek, junli matolar",
+        "Uzum va anor, shuningdek, yong‘oq va ipak qurti",
         "Paxtadan tayyorlangan matolar va chigit",
-        "Guruch va ipak"
+        "Guruch va ipak matolar, shuningdek, qog‘oz va choy"
        ],
        "a": 2,
        "e": "Xitoydan guruch keltirilgan.",
@@ -7369,9 +7369,9 @@
        "id": "qd19.11",
        "q": "O‘rta Osiyodan Xitoyga qanday mahsulotlar yetkazilgan?",
        "o": [
-        "Paxta matolari",
-        "Guruch va chinni",
-        "Neft va tuz",
+        "Paxta matolari va chigit, hamda zeb-ziynat",
+        "Guruch, chinni va ipak matolar, ham qog‘oz",
+        "Neft, tuz va kumush quyma, hamda sopol idish",
         "Uzum, yong‘oq, anor va boshqa dehqonchilik mahsulotlari"
        ],
        "a": 3,
@@ -7382,10 +7382,10 @@
        "id": "qd19.12",
        "q": "Xitoy imperatori U-Di Chjan Szyanni nima maqsadda elchi qilib yubordi?",
        "o": [
-        "Xitoyning shimolini vayron qilgan hun qabilalariga qarshi kurashda ittifoqchi va hamkorlar topish uchun",
-        "Tuyalarni sotib olish uchun",
-        "Yangi shahar qurish uchun",
-        "Ipak yo‘lini rasman ochish uchun"
+        "Hunlarga qarshi kurashda ittifoqchi va hamkorlar topish uchun",
+        "Tuyalarni, zotli otlarni va uzumni sotib olish uchun",
+        "Yangi poytaxt shahar qurish va uni obod qilish uchun",
+        "Ipak yo‘lini rasman ochish va savdo yo‘llarini tuzish uchun"
        ],
        "a": 0,
        "e": "Elchi hunlar qo‘liga asir tushgan.",
@@ -7636,10 +7636,10 @@
        "id": "qd20.10",
        "q": "Etrusklar yunon koloniyalariga qarshi kurashda qaysi shahar-davlat bilan ittifoq tuzdi?",
        "o": [
-        "Afina",
+        "Qadimgi yunon shahar-davlati – Afina",
         "Finikiya koloniyasi – Karfagen",
-        "Bobil",
-        "Sparta"
+        "Mesopotamiyadagi qudratli shahar – Bobil",
+        "Dorilar shahri – Sparta, yunon shahar-davlati"
        ],
        "a": 1,
        "e": "Karfagen Afrikaning shimoliy sohilida joylashgan.",
@@ -7649,10 +7649,10 @@
        "id": "qd20.11",
        "q": "Etrusklar va karfagenliklar bilan yunonlar o‘rtasidagi kurash qanday yakunlandi?",
        "o": [
-        "Dastlab etrusklar va karfagenliklar g‘alaba qozondi, keyin yunon qo‘shini ularni quruqlik va dengizda tor-mor qildi",
-        "Hech kim g‘alaba qozonmadi",
-        "Etrusklar va karfagenliklar yunonlarni to‘liq yengdi",
-        "Yunonlar dastlab, keyin ham mag‘lub bo‘ldi"
+        "Dastlab g‘alaba qozonib, keyin yunon qo‘shinidan quruqlik va dengizda tor-mor bo‘ldi",
+        "Hech kim hal qiluvchi g‘alabaga erisha olmadi",
+        "Etrusklar va karfagenliklar yunonlarni to‘liq yengib chiqdi",
+        "Yunonlar dastlab ham, keyin ham mag‘lub bo‘ldi"
        ],
        "a": 0,
        "e": "Darslikda dastlabki g‘alaba, keyingi mag‘lubiyat ta’kidlanadi.",
@@ -7714,10 +7714,10 @@
        "id": "qd20.16",
        "q": "Bugungi kunda Rim shahrining timsoli hisoblangan tasvir nima?",
        "o": [
-        "Buzoqcha",
-        "Burgut",
+        "Rimning ramzi bo‘lgan buzoqcha tasviri",
+        "Rimning ramzi bo‘lgan qanotli burgut",
         "Egizaklarni emizgan ona bo‘ri",
-        "Sher"
+        "Rimning ramzi bo‘lgan tojdor sher"
        ],
        "a": 2,
        "e": "Bu tasvir afsona bilan bog‘liq.",
@@ -7792,10 +7792,10 @@
        "id": "qd20.22",
        "q": "Rim respublikasi qachon asos solindi?",
        "o": [
-        "Mil. avv. 323-yilda",
-        "Mil. avv. 27-yilda",
-        "Mil. avv. 753-yilda",
-        "Mil. avv. 509-yilda podsho hokimiyati ag‘darilgach"
+        "Mil. avv. 323-yilda, Aleksandr vafot etganda",
+        "Mil. avv. 27-yilda, Oktavian hokimiyatga kelganda",
+        "Mil. avv. 753-yilda, shaharga asos solinganda",
+        "Mil. avv. 509-yilda, podsho hokimiyati ag‘darilgach"
        ],
        "a": 3,
        "e": "Respublika – hokimiyat bir kishi qo‘lida bo‘lmaydigan boshqaruv shakli.",
@@ -7956,9 +7956,9 @@
        "q": "Oq rang nomzod uchun nimani bildirgan?",
        "o": [
         "Uning vijdoni libosidek beg‘ubor va pokiza ekanini",
-        "Din ulug‘ligini",
-        "Quldorlik huquqini",
-        "Harbiy qudratni"
+        "Uning din peshvosi, kohin ekanligini",
+        "Uning boy quldorligini va ko‘p qullari borligini",
+        "Uning harbiy qudrati va jang qobiliyatini"
        ],
        "a": 0,
        "e": "Bu odat zamonaviy “kandidat” atamasiga asos bo‘lgan.",
@@ -8007,10 +8007,10 @@
        "id": "qd21.16",
        "q": "Urush boshlanganda yoki xalq qo‘zg‘olonida Rimda kim tayinlangan?",
        "o": [
-        "Liktor",
-        "Ikki yangi konsul",
+        "Liktorlar va ularning boshlig‘i – katta liktor",
+        "Konsullardan keyin saylangan ikki yangi konsul",
         "Diktator va uning o‘rinbosari – otliq qo‘shinlar boshlig‘i",
-        "Xalq tribuni"
+        "Xalq tribuni va uning ikkita yordamchisi"
        ],
        "a": 2,
        "e": "Diktator cheklanmagan hokimiyatga ega bo‘lgan.",
@@ -8046,10 +8046,10 @@
        "id": "qd21.19",
        "q": "Liktorlarning xivich bog‘lamasi nimaning alomati bo‘lgan?",
        "o": [
-        "Tinchlik ramzi",
-        "Dehqonchilik belgisi",
-        "Konsulning jinoyatchilarni jazolash huquqiga egaligining",
-        "Boylikning belgisi"
+        "Tinchlik va farovonlik ramzining, mo‘l hosil belgisi",
+        "Dehqonchilik va hosil bayrami belgisining, ramzi",
+        "Konsulning jinoyatchilarni jazolash huquqi borligining",
+        "Boylik va mol-mulk ko‘pligining, quldorlik alomati"
        ],
        "a": 2,
        "e": "Bog‘lamaning o‘rtasida boltacha bo‘lgan.",
@@ -8098,10 +8098,10 @@
        "id": "qd21.23",
        "q": "“Veto” so‘zi nimani anglatadi va kimlar uni ishlatishi mumkin bo‘lgan?",
        "o": [
-        "“Hurmat”; liktorlar",
-        "“Roziman”; konsullar",
-        "“Taqiqlayman”; xalq tribuni, shunda qonun qabul qilinmagan",
-        "“Urush”; diktator"
+        "“Hurmat”; liktorlar qo‘llagan",
+        "“Roziman”; konsullar qo‘llagan",
+        "“Taqiqlayman”; xalq tribuni qo‘llagan",
+        "“Urush”; diktator qo‘llagan"
        ],
        "a": 2,
        "e": "Veto qo‘yilsa, qonun qabul qilinmagan.",
@@ -8163,10 +8163,10 @@
        "id": "qd21.28",
        "q": "“12 jadval qonunlari” nimani e’lon qildi, lekin nimani qonunlashtirdi?",
        "o": [
-        "Qullarni ozod qildi, ammo mulkni tortib oldi",
-        "Xususiy mulkni daxlsiz deb e’lon qildi, ammo plebeylar va patritsiylar tengsizligini qonunlashtirdi",
-        "Hamma uchun tenglik o‘rnatdi",
-        "Faqat diniy qoidalarni belgiladi"
+        "Qullarni ozod qilib, boylarning mulkini tortib oldi",
+        "Xususiy mulkni daxlsiz deb e’lon qilib, patritsiy-plebey tengsizligini qonunlashtirdi",
+        "Hamma uchun to‘liq tenglik o‘rnatib, imtiyozlarni bekor qildi",
+        "Faqat diniy qoidalarni belgilab, mulkka daxl qilmadi"
        ],
        "a": 1,
        "e": "Bu qonunlar asosan boylarga qulay edi.",
@@ -8209,10 +8209,10 @@
        "id": "qd22.2",
        "q": "Rim shaharlarida qaysi binolar bo‘lgan?",
        "o": [
-        "Faqat saroylar va qal’alar",
-        "Faqat bozorlar va omborlar",
-        "Jamoat va turarjoy binolari, ibodatxonalar, hammomlar, savdo rastalari va dorixonalar",
-        "Faqat ibodatxonalar"
+        "Faqat saroylar va qal’alar, qamoqxonalar va omborlar",
+        "Faqat bozorlar va omborlar, qullar uchun barakalar",
+        "Jamoat va turarjoy binolari, ibodatxonalar, hammomlar, rastalar, dorixonalar",
+        "Faqat ibodatxonalar va qurbongohlar, ruhoniylar uylari"
        ],
        "a": 2,
        "e": "Shaharlar chiroyli va obod bo‘lgan.",
@@ -8235,10 +8235,10 @@
        "id": "qd22.4",
        "q": "Badavlat rimliklarning uylarida qanday qulayliklar bo‘lgan?",
        "o": [
-        "Dengiz suvi quvurlari",
-        "Markaziy isitish tizimi – isitiladigan pollar va quvurlar orqali oqib keladigan suv",
-        "Elektr yoritgichlar",
-        "Faqat tandir va o‘choq"
+        "Dengiz suvi quvurlari va issiq suvli hovuzlar",
+        "Markaziy isitish tizimi: isitiladigan pollar va quvurlar orqali oqib kelgan suv",
+        "Elektr yoritgichlar va markaziy isitish batareyalari",
+        "Faqat tandir va o‘choq, quvursiz suv va isitishsiz"
        ],
        "a": 1,
        "e": "Uylar mozaikalar bilan bezatilgan.",
@@ -8287,10 +8287,10 @@
        "id": "qd22.8",
        "q": "Rim shaharlari markazidagi forumda nimalar joylashgan edi?",
        "o": [
-        "Faqat qabristonlar",
-        "Faqat qal’a va qamoqxona",
-        "Bozor maydoni, xalq yig‘ilishlari uchun joy va markaziy ibodatxona",
-        "Gladiator maktablari"
+        "Faqat qabristonlar va maqbaralar hamda haykallar",
+        "Faqat qal’a va qamoqxona hamda harbiy omborlar",
+        "Bozor maydoni, xalq yig‘ilishlari joyi va markaziy ibodatxona",
+        "Gladiator maktablari va ularning mashq maydonlari"
        ],
        "a": 2,
        "e": "Forum – shahar markazi.",
@@ -8300,9 +8300,9 @@
        "id": "qd22.9",
        "q": "Suv shaharga qanday inshoot orqali oqib kelgan?",
        "o": [
-        "Kanal-ariq orqali, ochiq",
-        "Dengiz yo‘li orqali",
-        "Faqat quduqlar orqali",
+        "Ochiq kanal-ariq – daryodan yer ustidan o‘tgan",
+        "Dengiz yo‘li – kemalar orqali tashilgan suv",
+        "Faqat shahar maydonidagi quduqlar – qo‘lda tortilgan",
         "Akveduk – bir necha qavatli ko‘prikka o‘xshash inshoot"
        ],
        "a": 3,
@@ -8352,10 +8352,10 @@
        "id": "qd22.13",
        "q": "Rimlik ayollar qanday kiyingan?",
        "o": [
-        "Faqat charm kiyim kiygan",
-        "Turli rangdagi ko‘ylaklar kiyib, bosh va yelkalariga ro‘mol tashlab yurgan",
-        "Faqat oq toga kiygan",
-        "Erkaklar kabi kiyingan"
+        "Faqat qalin charm kiyim kiyib, bosh yalang yurgan",
+        "Turli rangli ko‘ylak kiyib, bosh va yelkasiga ro‘mol tashlagan",
+        "Faqat oppoq toga kiyib, boshiga tojsiz yurgan",
+        "Erkaklar kabi toga kiyib, qurol-yarog‘ taqqan"
        ],
        "a": 1,
        "e": "Libos jamiyatdagi mavqeni bildirgan.",
@@ -8508,10 +8508,10 @@
        "id": "qd22.25",
        "q": "Pontifiklar nimalarni tuzishardi?",
        "o": [
-        "Shahar rejasini",
-        "Qonunlar majmuasini",
+        "Shahar rejasini va yo‘llar xaritasini chizgan",
+        "Davlat qonunlarining yozma majmuasini tuzgan",
         "Bayramlar taqvimi, marosimlar va tantanalar tartibini",
-        "Soliq ro‘yxatini"
+        "Soliqlar ro‘yxatini va qullar hisobini yuritgan"
        ],
        "a": 2,
        "e": "Marosimlar qat’iy belgilangan qoidalar bo‘yicha o‘tkazilgan.",
@@ -8534,10 +8534,10 @@
        "id": "qd22.27",
        "q": "Avgurlar nimaga qarab bashorat qilgan?",
        "o": [
-        "Yulduzlarga va oy tutilishiga",
-        "Qushlar parvoziga, momaqaldiroq, chaqmoq, muqaddas qushlarga sepilgan donlar va aks-sadoga",
-        "Faqat tush ta’biriga",
-        "Daryo oqimiga"
+        "Yulduzlar holati va oy tutilishiga qarab",
+        "Qushlar parvozi, momaqaldiroq-chaqmoq, muqaddas qushlarga sepilgan donlar, aks-sado",
+        "Faqat odamlarning tushlarini ta’bir qilib",
+        "Daryo oqimi va suvdagi baliqlar harakatiga qarab"
        ],
        "a": 1,
        "e": "Alomatlar ko‘ngildagidek bo‘lmasa, ishlar kechiktirilgan.",
@@ -8606,10 +8606,10 @@
        "id": "qd23.3",
        "q": "Erkin rimliklar tasavvuricha, qul kim edi?",
        "o": [
-        "Teng huquqli fuqaro",
-        "Butunlay quldorning ixtiyorida bo‘lgan buyumdek",
-        "Erkin hunarmand",
-        "Davlat xizmatchisi"
+        "Teng huquqli fuqaro – o‘z mulkiga ega kishi",
+        "Butunlay quldorning ixtiyorida bo‘lgan buyum",
+        "Erkin hunarmand – o‘z ustaxonasi bor kishi",
+        "Davlat xizmatchisi – maosh oluvchi mansabdor"
        ],
        "a": 1,
        "e": "Qullarning qadri bo‘lmagan.",
@@ -8672,9 +8672,9 @@
        "q": "Kolonlar yerdan foydalanganlik uchun nima bilan to‘lov bergan?",
        "o": [
         "O‘zlari yetishtirgan mahsulotlar bilan",
-        "Oltin bilan",
-        "Qurol bilan",
-        "Qullar bilan"
+        "Sof oltin va kumush tangalar bilan, pul ko‘rinishida",
+        "Harbiy xizmat va qurol-yarog‘ topshirish bilan",
+        "Qullar yetkazib berish bilan, har yili ikki nafar"
        ],
        "a": 0,
        "e": "Ular yerga qancha yaxshi ishlov bersa, hosilning shuncha ko‘p ulushi o‘zlariga nasib etgan.",
@@ -8684,10 +8684,10 @@
        "id": "qd23.9",
        "q": "“Kulbali qullar” kimlar edi?",
        "o": [
-        "Qamoqda saqlanadigan qullar",
-        "Gladiatorlik maktabi qullari",
-        "O‘z mehnat qurollari, urug‘ligi va oilasi bo‘lib, kichik yerni mustaqil yuritishga ruxsat berilgan qullar",
-        "Saroy xizmatchilari"
+        "Qamoqda saqlanib, og‘ir ishlarga solinadigan qullar",
+        "Gladiatorlik maktabida o‘qitiladigan jangchi qullar",
+        "O‘z qurollari, urug‘i, oilasi bo‘lib, kichik yerni mustaqil yuritgan qullar",
+        "Saroy xizmatida bo‘lgan, ozod qilingan qullar"
        ],
        "a": 2,
        "e": "Ular ham yerdan foydalangani uchun haq to‘lagan, ammo taqdiri xo‘jayinlar qo‘lida bo‘lgan.",
@@ -8697,10 +8697,10 @@
        "id": "qd23.10",
        "q": "“Kulbali qullar” va kolonlar mavqei qanday edi?",
        "o": [
-        "Eng boy tabaqa bo‘lgan",
-        "Qullar va kolonlar Rimning eng mazlum aholisi bo‘lib qolavergan",
-        "Senatda ishtirok etgan",
-        "Hukmron tabaqa bo‘lgan"
+        "Rimning eng boy tabaqasi – patritsiylar bo‘lgan",
+        "Rimning eng mazlum aholisi bo‘lib qolavergan",
+        "Senatda ishtirok etib, qonun qabul qilishgan",
+        "Hukmron tabaqa bo‘lib, quldorlarni boshqarishgan"
        ],
        "a": 1,
        "e": "Ular birgalikda quldorlarga qarshi kurash boshlagan.",
@@ -8788,10 +8788,10 @@
        "id": "qd23.17",
        "q": "To‘r va changak bilan qurollangan gladiator qanday jang qilgan?",
        "o": [
-        "Kamon va o‘q bilan uzoqdan otgan",
-        "Qilich va qalqon bilan himoyalangan",
-        "Raqibini to‘r bilan o‘rab tashlab, changak (uch ayrili nayza) bilan o‘ldirishi mumkin bo‘lgan",
-        "Otda va nayza bilan jang qilgan"
+        "Kamon va o‘q bilan uzoqdan raqibni nishonga olgan",
+        "Qilich va qalqon bilan to‘liq himoyalanib jang qilgan",
+        "Raqibini to‘r bilan o‘rab, changak – uch ayrili nayza bilan o‘ldirgan",
+        "Otda va nayza bilan, uzoqdan zarba berib jang qilgan"
        ],
        "a": 2,
        "e": "U o‘zini hech narsa bilan himoya qila olmagan.",
@@ -8801,10 +8801,10 @@
        "id": "qd23.18",
        "q": "Gladiatorlar yana kimlar bilan janglar o‘tkazgan?",
        "o": [
-        "Hech qanday hayvon bilan",
-        "Yovvoyi arslonlar, qoplonlar va darg‘azab ho‘kizlar bilan",
-        "Fillar va timsohlar bilan",
-        "Faqat itlar bilan"
+        "Hech qanday hayvon bilan jang qilmaganlar",
+        "Yovvoyi arslon, qoplon va darg‘azab ho‘kizlar bilan",
+        "Fillar va timsohlar bilan, daryo bo‘ylarida",
+        "Faqat itlar va bo‘rilar bilan, ochiq maydonda"
        ],
        "a": 1,
        "e": "Janglar tomoshabinlarni qiziqtirish uchun uyushtirilgan.",
@@ -8866,10 +8866,10 @@
        "id": "qd23.23",
        "q": "Spartak Vezuviy tog‘ida qamalda qolganda qanday rejani amalga oshirdi?",
        "o": [
-        "Uzum novdalaridan narvon to‘qib, ko‘rinmaydigan tarafdan pastga tushib, rimliklarni orqadan tor-mor etdi",
-        "Tun bo‘yi yashirinib ketdi",
-        "Dengiz orqali qochib ketdi",
-        "Oltin evaziga sulh tuzdi"
+        "Uzum novdalaridan narvon to‘qib, orqadan tushib, rimliklarni tor-mor etdi",
+        "Tun bo‘yi yashirinib, tongda xavfsiz qochib ketdi",
+        "Dengiz orqali kemalarda Sitsiliyaga qochib ketdi",
+        "Oltin evaziga rimliklar bilan sulh tuzib ketdi"
        ],
        "a": 0,
        "e": "Rimliklar uch ming kishilik qo‘shin bilan lager tikkan edi.",
@@ -8892,10 +8892,10 @@
        "id": "qd23.25",
        "q": "Spartak qo‘zg‘oloni qachon va qanday yakunlandi?",
        "o": [
-        "Mil. avv. 71-yil bahorida hal qiluvchi jangda lashkari tor-mor etildi, Spartakning o‘zi halok bo‘ldi",
-        "Mil. avv. 49-yilda Rimga kirdi",
-        "Mil. avv. 44-yilda sulh tuzildi",
-        "Mil. avv. 74-yilda Spartak g‘alaba qozondi"
+        "Mil. avv. 71-yilda lashkari tor-mor etilib, Spartak halok bo‘ldi",
+        "Mil. avv. 49-yilda Spartak Rimga kirib, hokim bo‘ldi",
+        "Mil. avv. 44-yilda sulh tuzilib, qullar ozod bo‘ldi",
+        "Mil. avv. 74-yilda Spartak butunlay g‘alaba qozondi"
        ],
        "a": 0,
        "e": "Qo‘zg‘olon taxminan uch yil davom etgan.",
@@ -8912,10 +8912,10 @@
        "id": "qd24.1",
        "q": "Qullar qo‘zg‘olonlari quldorlarni qanday vaziyatga solib qo‘ydi?",
        "o": [
-        "Respublikani mustahkamladi",
-        "Qattiq qo‘rquvga; kuchli hokimiyat – harbiy diktatura zarurati ko‘ndalang turdi",
-        "Senatning kuchayishiga olib keldi",
-        "Qullarni ozod qilishga undadi"
+        "Respublikani mustahkamlab, Senat kuchini oshirdi",
+        "Qattiq qo‘rquvga; kuchli harbiy diktatura zarur bo‘lib qoldi",
+        "Quldorlarni tinchlantirib, xavotirlarini yo‘qotdi",
+        "Qullarni ozod qilib, ularga yer berishga undadi"
        ],
        "a": 1,
        "e": "Bu respublikaning qulashi sabablaridan biri edi.",
@@ -8938,10 +8938,10 @@
        "id": "qd24.3",
        "q": "Mil. avv. I asrda qanday kuch haqiqiy kuchga aylandi?",
        "o": [
-        "Senatorlar",
-        "Kohinlar",
-        "Muntazam yollanma qo‘shinlarga tayanuvchi harbiy boshliqlar",
-        "Xalq tribunlari"
+        "Senatorlar, ya’ni qadimgi Senat a’zolari",
+        "Kohinlar, ya’ni ibodatxona ruhoniylari",
+        "Yollanma qo‘shinlarga tayangan harbiy boshliqlar",
+        "Xalq tribunlari, ya’ni xalq vakillari"
        ],
        "a": 2,
        "e": "Ular respublika hokimiyatini zaiflashtirgan.",
@@ -9042,9 +9042,9 @@
        "id": "qd24.11",
        "q": "Sezar Pompeyni yengishida nima hal qiluvchi ahamiyat kasb etdi?",
        "o": [
-        "Dengiz floti",
-        "Gladiatorlar yordami",
-        "Misr yordami",
+        "Rim dengiz floti, Karfagen kemalari bilan birga",
+        "Gladiatorlar yordami va Spartak tarafdorlari",
+        "Misr malikasining yordami va xazinasi, hamda floti",
         "Rim aholisining qo‘llab-quvvatlashi; Pompey qo‘shinlari Ispaniyada edi"
        ],
        "a": 3,
@@ -9055,10 +9055,10 @@
        "id": "qd24.12",
        "q": "Sezar qanday unvonga erishdi?",
        "o": [
-        "Xalq tribuni",
-        "Konsul",
-        "Rim imperatori va diktatori – cheklanmagan hokimiyatga ega hukmdori",
-        "Faqat qo‘mondon"
+        "Xalq tribuni – veto huquqiga ega mansabdor",
+        "Rim konsuli – bir yilga saylangan mansabdor",
+        "Rim imperatori va diktatori – cheklanmagan hokimiyat egasi",
+        "Faqat qo‘mondon – hokimiyat huquqisiz sarkarda"
        ],
        "a": 2,
        "e": "Uning xohish-irodasi Rim uchun qonun kuchiga ega bo‘lgan.",
@@ -9068,10 +9068,10 @@
        "id": "qd24.13",
        "q": "Sezar hukmronligi davrida nimalar o‘zgardi?",
        "o": [
-        "Xalq majlisi kengaydi",
-        "Respublika tiklandi",
-        "Senat kuchaydi",
-        "Hech qanday saylovsiz mansabdorlarni tayinladi, Senat va Xalq majlisiga hisob bermay qo‘ydi"
+        "Xalq majlisi kengayib, plebeylar huquqi oshdi",
+        "Respublika tiklanib, konsullar saylovi qaytdi",
+        "Senat kuchaydi va qonunlarni mustaqil qabul qildi",
+        "Mansabdorlarni saylovsiz tayinladi, Senat va Xalq majlisiga hisob bermadi"
        ],
        "a": 3,
        "e": "Bu Senatdagi norozilikka sabab bo‘lgan.",
@@ -9082,9 +9082,9 @@
        "q": "Sezarga qarshi fitnaga kim boshchilik qildi?",
        "o": [
         "Brut – Sezarning yaqin do‘stlaridan biri",
-        "Mark Antoniy",
-        "Pompey",
-        "Oktavian"
+        "Mark Antoniy – Sezarning sodiq tarafdori",
+        "Pompey – Sezarning sobiq raqibi, sarkarda",
+        "Oktavian – Sezarning yosh jiyani va vorisi"
        ],
        "a": 0,
        "e": "Fitnachilar senatorlar edi.",
@@ -9094,10 +9094,10 @@
        "id": "qd24.15",
        "q": "Yuliy Sezar qayerda va qanday o‘ldirildi?",
        "o": [
-        "Jangda, dushman qo‘lida",
-        "Senatdagi majlis paytida fitnachilarning xanjar zarbalaridan",
-        "Zahar ichib",
-        "Qamoqda"
+        "Jangda, Galliyada dushman nayzasidan halok bo‘ldi",
+        "Senatdagi majlisda fitnachilarning xanjar zarbalaridan",
+        "Zahar ichib, kasallikdan ayol saroyida vafot etdi",
+        "Qamoqxonada, Pompey buyrug‘i bilan o‘ldirildi"
        ],
        "a": 1,
        "e": "Fitnachilar Senatga avvalgi mavqeini qaytarmoqchi edi.",
@@ -9374,10 +9374,10 @@
        "id": "qd25.5",
        "q": "Dastlab yunonlar kimlarni “varvarlar” deb atashgan?",
        "o": [
-        "Tillari o‘zlariga tushunarli bo‘lmagan barcha qabila va xalqlarni",
-        "Faqat sharqiy xalqlarni",
-        "Faqat ko‘chmanchilarni",
-        "Faqat dengiz qaroqchilarini"
+        "Tillari o‘zlariga tushunarsiz bo‘lgan barcha qabila va xalqlarni",
+        "Faqat sharqiy qullar va jangchilarni, askarlarni",
+        "Faqat ko‘chmanchi chorvador qabilalarni, dashtliklarni",
+        "Faqat dengiz qaroqchilarini va ularning kemalarini"
        ],
        "a": 0,
        "e": "Keyinchalik rimliklar madaniy taraqqiyotning quyi pog‘onasidagi xalqlarni shunday nomlagan.",
@@ -9439,10 +9439,10 @@
        "id": "qd25.10",
        "q": "Rim imperiyasi nima uchun G‘arbiy va Sharqiy qismlarga bo‘lindi?",
        "o": [
-        "Qullar qo‘zg‘oloni tufayli",
-        "Ulkan imperiyani Konstantinopoldan turib boshqarish mushkul bo‘lgani va imperator Feodosiy o‘limidan so‘ng ikki o‘g‘li o‘rtasida bo‘lib olingani uchun",
-        "Karfagen g‘alaba qozonganidan",
-        "Gotlar bosib olganidan"
+        "Qullar qo‘zg‘oloni G‘arbni ikkiga ajratgani tufayli",
+        "Ulkan imperiyani Konstantinopoldan boshqarish mushkulligi va Feodosiy vorislari taqsimi",
+        "Karfagen g‘alaba qozonib, G‘arbni egallagani tufayli",
+        "Gotlar butun imperiyani bosib olgani tufayli"
        ],
        "a": 1,
        "e": "Bo‘linish 395-yilda bo‘lgan.",
@@ -9530,10 +9530,10 @@
        "id": "qd25.17",
        "q": "Germanlar Rim madaniy yodgorliklariga nisbatan qanday munosabatda bo‘ldi?",
        "o": [
-        "Ularni qayta tikladi",
-        "Ularni Konstantinopolga olib ketdi",
-        "Savodsiz bo‘lgani uchun ularning go‘zalligini baholay olmay, shafqatsizlarcha yo‘q qildi",
-        "Ularni diqqat bilan asrab qoldirdi"
+        "Ularni mohirlik bilan qayta tikladi va yangiladi",
+        "Ularni Konstantinopolga olib borib, muzeyda saqladi",
+        "Savodsiz bo‘lib, go‘zalligini baholamay, shafqatsizlarcha yo‘q qildi",
+        "Ularni diqqat bilan asrab, kelajak avlodlarga qoldirdi"
        ],
        "a": 2,
        "e": "Rim ibodatxonalari va kutubxonalari toshlari qo‘rg‘on devorlarini mustahkamlash uchun ishlatilgan.",
@@ -9784,10 +9784,10 @@
        "id": "qd26.10",
        "q": "Rimda o‘rta maktab qanday atalgan va unda nimalar o‘qitilgan?",
        "o": [
-        "Gimnasiya; faqat jang san’ati",
-        "Sirk; faqat sport",
-        "Akademiya; faqat falsafa",
-        "Grammatika; tarix, geografiya, geometriya, musiqa va astronomiya"
+        "Gimnasiya: faqat jang san’ati va sport mashqlari",
+        "Sirk: faqat jang aravalari poygasi va sport",
+        "Akademiya: faqat falsafa va notiqlik san’ati",
+        "Grammatika: tarix, geografiya, geometriya, musiqa, astronomiya"
        ],
        "a": 3,
        "e": "Ko‘pchilik o‘qish, yozish va hisoblashni o‘rganib, ta’limni yakunlagan.",
@@ -9823,10 +9823,10 @@
        "id": "qd26.13",
        "q": "“Barcha yo‘llar Rimga boradi” maqoli nimani bildiradi?",
        "o": [
-        "Barcha yo‘llar yopiq bo‘lgan",
-        "Faqat dengiz yo‘li ishlagan",
+        "Barcha yo‘llar yopiq bo‘lgan, Rimga kirish taqiqlangan",
+        "Faqat dengiz yo‘li ishlagan, quruqlik yo‘llari bo‘lmagan",
         "Rimdan hamma tomonga yo‘llar o‘tkazilgan, Rim yirik markaz bo‘lgan",
-        "Yo‘llar faqat tog‘da bo‘lgan"
+        "Yo‘llar faqat tog‘larda bo‘lgan, tekislikda yo‘llar bo‘lmagan"
        ],
        "a": 2,
        "e": "O‘rmonlar, tog‘lar va botqoqlar orqali yo‘llar o‘tkazilgan.",
@@ -9836,10 +9836,10 @@
        "id": "qd26.14",
        "q": "Rim suv quvurlari qanday qurilgan edi?",
        "o": [
-        "Nasoslar yordamida",
-        "Nishablik asosida – tog‘dagi buloqlardan suvning o‘zi oqib kelgan",
-        "Shamol tegirmonlari yordamida",
-        "Qullar tashib kelgan"
+        "Nasoslar yordamida: suv mexanik kuch bilan ko‘tarilgan",
+        "Nishablik asosida: tog‘ buloqlaridan suv o‘zi oqib kelgan",
+        "Shamol tegirmonlari yordamida: suv shamol kuchi bilan oqqan",
+        "Qullar tashib kelgan: suv chelakda qo‘lda yetkazilgan"
        ],
        "a": 1,
        "e": "Jarlar, daralar va vodiylardan o‘tkazish uchun akveduklar qurilgan.",
@@ -9966,9 +9966,9 @@
        "id": "qd26.24",
        "q": "Rivoyatlarga ko‘ra, Iso qaysi shaharda tug‘ilgan?",
        "o": [
-        "Rimda",
-        "Aleksandriyada",
-        "Konstantinopolda",
+        "Italiyadagi Rim shahrida, Tibr bo‘yida",
+        "Misrdagi Aleksandriya shahrida, Nil bo‘yida",
+        "Vizantiyadagi Konstantinopol shahrida, Bosforda",
         "Falastindagi Vifleyem (Baytlahm) shahrida"
        ],
        "a": 3,
@@ -10044,10 +10044,10 @@
        "id": "qd26.30",
        "q": "Rim hukmdorlari xristianlarga nisbatan qanday munosabatda bo‘lgan?",
        "o": [
-        "Ularni Senatga chaqirgan",
-        "Ta’qib etib, yirtqich hayvonlar changaliga tashlagan va qiynoqqa solgan",
-        "Ularni qo‘llab-quvvatlagan",
-        "Ularga e’tibor bermagan"
+        "Ularni Senatga chaqirib, yuqori lavozim bergan",
+        "Ta’qib qilib, yirtqich hayvonlarga tashlagan va qiynoqqa solgan",
+        "Ularni qo‘llab-quvvatlab, ibodatxonalar qurib bergan",
+        "Ularga e’tibor bermagan, ular erkin ibodat qilgan"
        ],
        "a": 1,
        "e": "Bu odamlar noroziligiga sabab bo‘lgan.",
@@ -10116,10 +10116,10 @@
        "id": "qd27.4",
        "q": "Amfiteatr nima?",
        "o": [
-        "Yopiq jamoat hammomi",
-        "Sahna atrofida tomoshabinlar o‘tirishiga mo‘ljallangan qurilmalar bilan qurshalgan tomsiz katta inshoot",
-        "Suv keltiruvchi ko‘prik",
-        "Piramidaga o‘xshash maqbara"
+        "Yopiq jamoat hammomi, basseyn va sport zali bor bino",
+        "Sahna atrofida tomoshabinlar o‘rindiqlari bo‘lgan tomsiz katta inshoot",
+        "Shaharga suv olib keluvchi, ustida anhori bor baland ko‘prik",
+        "Fir’avnlar uchun qurilgan mahobatli tosh maqbara"
        ],
        "a": 1,
        "e": "Kolizey eng katta amfiteatr bo‘lgan.",
@@ -10129,10 +10129,10 @@
        "id": "qd27.5",
        "q": "Animizm nima?",
        "o": [
-        "Inson atrofidagi muhitda jonlar va ruhlarning mavjudligiga ishonish",
-        "Quyosh va olovga sig‘inish",
-        "Ajdodlarga sig‘inish",
-        "Bitta xudoga ishonish"
+        "Inson atrofidagi muhitda jon va ruhlar mavjudligiga ishonish",
+        "Faqat quyosh va olovga sig‘inish, ularga ibodat qilish",
+        "Faqat o‘lgan ajdodlarga sig‘inish va qurbonlik qilish",
+        "Faqat bitta xudoga ishonish, boshqa xudolarni tan olmaslik"
        ],
        "a": 0,
        "e": "Bu eng qadimgi diniy e’tiqod shakllaridan biri.",
@@ -10194,10 +10194,10 @@
        "id": "qd27.10",
        "q": "Falanga nima?",
        "o": [
-        "Qal’a mudofaa devori",
-        "Og‘ir qurollangan askarlarning bir necha (odatda 9 yoki 16) qator saf tortishi",
-        "Dengiz floti jang tartibi",
-        "Yengil qurollangan otliqlar guruhi"
+        "Qal’a devori va uning mudofaa minoralari tizimi",
+        "Og‘ir qurollangan askarlarning 9 yoki 16 qatorli safi",
+        "Dengiz floti kemalarining jang tartibidagi safi",
+        "Yengil qurollangan otliqlarning keng yoyilgan guruhi"
        ],
        "a": 1,
        "e": "Falanga yunon va makedon qo‘shinlarining asosiy jang tuzilmasi bo‘lgan.",
@@ -10233,10 +10233,10 @@
        "id": "qd27.13",
        "q": "Goplit kim?",
        "o": [
-        "Qadimgi Yunoniston va yunon-makedon armiyalarining og‘ir qurollangan piyoda jangchisi",
-        "Spartaning qul-dehqoni",
-        "Yengil qurollangan kamonchi",
-        "Rim sarkardasi"
+        "Qadimgi yunon va makedon qo‘shinlarining og‘ir qurollangan piyodasi",
+        "Spartaning qul-dehqoni, ilot – yerni ishlovchi",
+        "Qadimgi yunon qo‘shinlarining yengil qurollangan kamonchisi",
+        "Qadimgi Rim legionining sarkardasi – konsul"
        ],
        "a": 0,
        "e": "Goplitlar falanga saflarida jang qilgan.",
@@ -10246,10 +10246,10 @@
        "id": "qd27.14",
        "q": "Ibodatxona nima?",
        "o": [
-        "Jamoat hammomi",
-        "Muqaddas deb e’lon qilingan, odamlar xudolarga sig‘inadigan bino yoki joy",
-        "Hukmdorning shaxsiy saroyi",
-        "Mudofaa qal’asi"
+        "Barcha uchun ochiq jamoat hammomi va basseyni",
+        "Muqaddas deb e’lon qilingan, xudolarga sig‘inish uchun bino yoki joy",
+        "Hukmdorning shaxsiy saroyi, qarorgohi va mulki",
+        "Shaharni himoya qiluvchi mudofaa qal’asi va minorasi"
        ],
        "a": 1,
        "e": "Ibodatxonalarda kohinlar xizmat qilgan.",
@@ -10298,10 +10298,10 @@
        "id": "qd27.18",
        "q": "Iyerogliflar nima?",
        "o": [
-        "Qadimgi yunonlar misrliklar yozuvini shunday atagan; “muqaddas bitiklar” ma’nosini anglatadi",
-        "Shumerlarning mixxat yozuvi",
-        "Fenikiya alifbosi",
-        "Xitoy ierogliflari"
+        "Misrliklar yozuvi; yunonlar “muqaddas bitiklar” deb atagan",
+        "Shumerlarning mixxat yozuvi; “xanjarsimon bitiklar” deb atalgan",
+        "Finikiyaliklarning harfli yozuvi; “tijorat belgilari” deb atalgan",
+        "Xitoyliklarning rasm yozuvi; “osmon belgilari” deb atalgan"
        ],
        "a": 0,
        "e": "Iyerogliflarni Shampolyon o‘qib bergan.",
@@ -10337,10 +10337,10 @@
        "id": "qd27.21",
        "q": "Koloniyalar nima?",
        "o": [
-        "Qadimgi davrlarda o‘z yurtini tark etgan odamlar tomonidan yangi yerlarda asos solingan manzilgoh va shaharlar",
-        "Savdo yo‘llaridagi karvonsaroylar",
-        "Shaharlarning mudofaa devorlari",
-        "Qullar yashaydigan hududlar"
+        "O‘z yurtini tark etganlar yangi yerlarda asos solgan manzilgoh va shaharlar",
+        "Savdo yo‘llaridagi karvonlar to‘xtaydigan ombor-saroylar",
+        "Shaharlarni himoya qiluvchi mudofaa devorlari va minoralar",
+        "Qullar yashaydigan, ish bilan band bo‘lgan alohida hududlar"
        ],
        "a": 0,
        "e": "Yunonlar Qora dengiz va Italiya sohillarida koloniyalar qurgan.",
@@ -10350,9 +10350,9 @@
        "id": "qd27.22",
        "q": "Konsul kim edi?",
        "o": [
-        "Rim hukmdori – umrbod saylangan podsho",
-        "Respublika davrida Rimdagi oliy siyosiy lavozim; har yili saylangan ikki nafar, Senat va armiyaga rahbarlik qilgan",
-        "Gladiatorlar boshlig‘i",
+        "Rim hukmdori, umrbod saylangan podsho va qo‘mondon",
+        "Respublika davrida Rimdagi oliy lavozim; ikki nafar, yil davomida boshqargan",
+        "Gladiatorlar boshlig‘i, ularni o‘qitgan sarkarda",
         "Qashshoq rimliklar manfaatini ifoda etgan mansabdor"
        ],
        "a": 1,
@@ -10415,10 +10415,10 @@
        "id": "qd27.27",
        "q": "Nomarx kim edi?",
        "o": [
-        "Mesopotamiya kohini",
+        "Mesopotamiyadagi zikkurat ibodatxonasi kohini",
         "Qadimgi Misrdagi ilk davlat – nomning hukmdori",
-        "Misr fir’avni",
-        "Misr sarkardasi"
+        "Misr davlatining birlashgan fir’avni, oliy hukmdor",
+        "Misr qo‘shinining oliy sarkardasi, qo‘mondon"
        ],
        "a": 1,
        "e": "“Nom”lar – Misrdagi ilk davlatlar.",
@@ -10428,10 +10428,10 @@
        "id": "qd27.28",
        "q": "Papirus nima?",
        "o": [
-        "Poyasi yozuv materiali tayyorlash uchun ishlatiladigan qamish",
-        "Mum qoplangan taxtacha",
-        "Sopol lavha",
-        "Charm o‘rami"
+        "Poyasidan yozuv materiali tayyorlanadigan qamish o‘simligi",
+        "Mum qoplangan, stil bilan yoziladigan taxtacha",
+        "Pishirilgan loydan yasalgan sopol yozuv lavhasi",
+        "Hayvon terisidan tayyorlangan yozuv o‘rami, charm"
        ],
        "a": 0,
        "e": "Misrda papirusga yozishgan.",
@@ -10454,10 +10454,10 @@
        "id": "qd27.30",
        "q": "Polis nima?",
        "o": [
-        "“Xalq”",
-        "“Maydon”",
+        "Yunoncha “xalq” (fuqarolar jamoasi)",
+        "Yunoncha “maydon” (xalq yig‘ilishi joyi)",
         "Yunoncha “shahar” (shahar-davlat)",
-        "“Hokimiyat”"
+        "Yunoncha “hokimiyat” (davlat boshqaruvi)"
        ],
        "a": 2,
        "e": "Yunonistonda polislar mustaqil shahar-davlatlar bo‘lgan.",
@@ -10506,10 +10506,10 @@
        "id": "qd27.34",
        "q": "“Varvar” so‘zi dastlab kimni anglatgan?",
        "o": [
-        "Faqat dengiz qaroqchisi",
-        "Yunon tilida so‘zlashmaydigan har qanday chet mamlakatlik kishi",
-        "Faqat jangchi",
-        "Faqat qul"
+        "Faqat dengiz qaroqchisi, kemalarni talovchi kishi",
+        "Yunon tilida so‘zlashmaydigan chet mamlakat kishisi",
+        "Faqat jangchi, Sparta qo‘shinining askari",
+        "Faqat qul, xo‘jayinga qaram bo‘lgan kishi"
        ],
        "a": 1,
        "e": "Keyinchalik madaniylashmagan odamlarga nisbatan ishlatilgan.",
@@ -10519,10 +10519,10 @@
        "id": "qd27.35",
        "q": "Sivilizatsiya nima?",
        "o": [
-        "Ibtidoiy jamoa tuzumi",
-        "Faqat harbiy kuch rivoji",
-        "Qadimdagi jamiyat taraqqiyotining ancha yuksak darajasi: shaharlar, yozuv va davlatlarning rivojlanishi",
-        "Faqat dehqonchilikka o‘tish davri"
+        "Ibtidoiy jamoa tuzumi va urug‘ jamoalari davri",
+        "Faqat harbiy kuch rivoji va qo‘shinlar kengayishi",
+        "Jamiyat taraqqiyotining yuksak darajasi: shaharlar, yozuv va davlatlar rivoji",
+        "Faqat dehqonchilikka o‘tish davri va uning natijalari"
        ],
        "a": 2,
        "e": "Darslikda sivilizatsiya ilk shahar-davlatlar bilan bog‘lanadi.",
