@@ -101,13 +101,13 @@ function normUnit(kind, raw, label, which) {
 const answerTxt = (g, q) => g.type === 'mcq' ? 'ABCDEFGHIJ'[q.a] + ' — ' + (q.o[q.a] || '') : Array.isArray(q.a) ? q.a.join(' / ') : q.a;
 
 /* ---------- audio (qurilmada) ---------- */
-IE.camAudio = async (id, file) => {
+IE.camAudio = async (id, file, quiet) => {
   const t = store.listening.find(x => x.id === id); if (!t) return;
   const dur = await new Promise(res => { const a = new Audio(), u = URL.createObjectURL(file); a.preload = 'metadata'; a.onloadedmetadata = () => { res(isFinite(a.duration) ? Math.round(a.duration) : 0); URL.revokeObjectURL(u); }; a.onerror = () => { res(-1); URL.revokeObjectURL(u); }; a.src = u; });
   if (dur < 0) return IE.toast('Bu audio fayl ochilmadi (mp3/m4a/wav bo‘lsin)');
   await IE.idbSet('camaud:' + id, { buf: await file.arrayBuffer(), type: file.type || 'audio/mpeg' });
   t.dur = dur; t.mt = Date.now(); t.cau = 0; await persist(); const live = D.listening.tests.find(x => x.id === id); if (live) { if (live.audio) { try { URL.revokeObjectURL(live.audio); } catch (e) { /* */ } } live.dur = dur; live.audio = ''; live.noaudio = false; }
-  IE.toast('Audio saqlandi (' + Math.floor(dur / 60) + ':' + String(dur % 60).padStart(2, '0') + ')'); IE.draw(false);
+  if (!quiet) { IE.toast('Audio saqlandi (' + Math.floor(dur / 60) + ':' + String(dur % 60).padStart(2, '0') + ')'); IE.draw(false); }
 };
 /** Listening ochilganda: IDB dagi audioni blob-URL ga aylantiradi. */
 IE.camEnsure = async t => {
@@ -174,6 +174,7 @@ IE.camChange = el => {
   const f = el.files && el.files[0]; if (!f) return false;
   if (el.id === 'camj') { el.value = ''; IE.camJson(f); return true; }
   if (el.id === 'camaf4') { attachMany(el); return true; }
+  if (el.id === 'camzip') { el.value = ''; readZip(f); return true; }
   if (el.id === 'camaf') { const id = el.dataset.id; el.value = ''; IE.camAudio(id, f); return true; }
   if (el.id === 'camaf0') { readForm(); V.cam.audio = f; IE.draw(false); return true; }
   return false;
@@ -207,9 +208,10 @@ function bookAuto() {
     '<div class="fld"><label>Qisqa nomi (testlar nomida)</label><input id="cbnm" value="' + esc(c.nm != null ? c.nm : shortName(bk)) + '" maxlength="30"></div>' +
     (c.busy ? '<div class="mu sm row" style="gap:8px"><div class="spin sm"></div> <span id="cbbusy">' + esc(c.busy) + '</span></div>' : '<button class="btn block" data-a="cbmap">' + ic('spark') + ' ' + (c.map ? 'Strukturani qayta aniqlash' : 'Kitob strukturasini aniqlash') + '</button>') +
     (c.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(c.err) + '</p>' : '') + '</div>';
+  const zipC = books.length ? zipHTML() : '';
   const info = !c.map ? '<div class="card" style="margin-top:12px"><b>Bu qanday ishlaydi</b><ol class="sm mu" style="margin:8px 0 0 18px;line-height:1.7"><li>Kitobni tanlang — ilova barcha betlarni o‘qib, qaysi bet qaysi Test/Passage/Part ekanini AI bilan aniqlaydi.</li><li>Natijani tekshiring (kerak bo‘lsa bet raqamlarini tuzating).</li><li>“Test 1 ni qo‘shish” — 3 ta Reading + 4 ta Listening ketma-ket tayyorlanadi (har biri ~1 daqiqa).</li><li>Listening audiolarini (4 ta mp3) birdan tanlab biriktirasiz.</li></ol></div>' : '';
   const tests = c.map ? (c.map.length ? c.map.map(t => testCard(t, anyRun)).join('') : '<div class="card empty" style="margin-top:12px">Testlar topilmadi. Kitob skaner qilingan bo‘lsa, avval Kitoblar → Qidirish → “Hammasini OCR qilish”ni bajaring.</div>') : '';
-  return sub('Kitobdan avtomatik', 'cambridge', '<div class="pad">' + top + info + tests + '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Writing va Speaking tez kunda qo‘shiladi. AI bet oralig‘ini noto‘g‘ri topishi mumkin — “Sahifalarni tekshirish”da tuzating.</p></div>');
+  return sub('Kitobdan avtomatik', 'cambridge', '<div class="pad">' + top + info + tests + zipC + '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Writing va Speaking tez kunda qo‘shiladi. AI bet oralig‘ini noto‘g‘ri topishi mumkin — “Sahifalarni tekshirish”da tuzating.</p></div>');
 }
 function testCard(t, busy) {
   const c = cb(), run = c.run && c.run.n === t.n ? c.run : null, have = [...store.reading, ...store.listening].filter(u => u.grp === c.book + ':' + t.n), nUnits = t.R.filter(r => rng(r.q)).length + t.L.filter(l => rng(l.q)).length;
@@ -222,8 +224,9 @@ function testCard(t, busy) {
   const ls = store.listening.filter(u => u.grp === c.book + ':' + t.n).sort((a, b) => a.sn - b.sn);
   const needAud = ls.filter(u => !(u.dur > 0)).length;
   const aud = ls.length ? '<label class="btn ghost block" style="margin-top:10px">' + ic('head') + ' ' + (needAud ? 'Audiolarni birdan tanlash (' + ls.length + ' ta mp3)' : 'Audiolarni almashtirish') + '<input type="file" accept="audio/*,.mp3,.m4a,.wav" multiple id="camaf4" data-n="' + t.n + '" hidden></label><div class="sm mu" style="margin-top:4px">Fayllar nomi bo‘yicha tartiblanadi: 1-fayl → Section 1 … ' + (needAud ? '<b>' + needAud + ' ta audio yetishmaydi.</b>' : 'Hammasi biriktirilgan.') + '</div>' : '';
+  const toTr = ls.filter(u => u.dur > 0 && !u.ttr).length, trAll = ls.length && ls.every(u => u.dur > 0) ? '<button class="btn ghost block" style="margin-top:8px"' + (toTr ? ' data-a="camtrall" data-n="' + t.n + '"' : ' disabled') + '>' + ic('wave') + ' ' + (toTr ? 'Vaqtli transkript (AI): ' + toTr + ' ta' : 'Transkriptlar tayyor ✓') + '</button>' : '';
   return '<div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between"><b style="font-size:17px">Test ' + t.n + '</b><span class="chip">' + nUnits + '/7 qism topildi' + (have.length ? ' · ' + have.length + ' qo‘shilgan' : '') + '</span></div>' + fields + runH +
-    (run && run.active ? '' : '<button class="btn block" style="margin-top:12px"' + (busy || !nUnits ? ' disabled' : ' data-a="cbrun" data-n="' + t.n + '"') + '>' + ic('spark') + ' ' + (run && run.items.some(i => i.st === 'err') ? 'Xatolarni qayta urinish' : have.length ? 'Yetishmaganlarini qo‘shish' : 'Test ' + t.n + ' ni qo‘shish') + '</button>') + aud + '</div>';
+    (run && run.active ? '' : '<button class="btn block" style="margin-top:12px"' + (busy || !nUnits ? ' disabled' : ' data-a="cbrun" data-n="' + t.n + '"') + '>' + ic('spark') + ' ' + (run && run.items.some(i => i.st === 'err') ? 'Xatolarni qayta urinish' : have.length ? 'Yetishmaganlarini qo‘shish' : 'Test ' + t.n + ' ni qo‘shish') + '</button>') + aud + trAll + '</div>';
 }
 A.cbmap = async () => {
   readMap(); const c = cb(), books = IE.bookList(), book = c.book || (books[0] || {}).id; if (!book) return; c.err = ''; c.map = null; c.run = null;
@@ -255,7 +258,7 @@ A.cbrun = async el => {
       it.msg = 'AI tayyorlamoqda… (30–90 soniya)'; redraw();
       const out = await IE.ai({ action: 'camimport', kind: it.k === 'r' ? 'reading' : 'listening', which: it.i, text, key, script });
       const { unit } = normUnit(it.k, out.result, it.label, it.i); unit.grp = c.book + ':' + n; unit.sn = it.i;
-      store[it.k === 'r' ? 'reading' : 'listening'].push(unit); await persist(); inject(); it.st = 'ok';
+      store[it.k === 'r' ? 'reading' : 'listening'].push(unit); await persist(); inject(); it.st = 'ok'; if (it.k === 'l') await applyStage(unit, true);
     } catch (e) { it.st = 'err'; it.err = e.message || 'Xatolik'; if (/limit/i.test(it.err)) { redraw(); break; } }
     redraw();
   }
@@ -270,6 +273,129 @@ async function attachMany(el) {
   IE.toast('Audiolar saqlanmoqda…'); for (let i = 0; i < ls.length; i++) await IE.camAudio(ls[i].id, files[i]);
   IE.toast('Audiolar biriktirildi: ' + files.map((f, i) => 'S' + (i + 1) + ' ← ' + f.name.slice(0, 18)).join(', ').slice(0, 120));
 }
+
+
+/* ---------- Audio ZIP: fayl nomidan Test/Section aniqlanadi ---------- */
+const loadFflate = () => window.fflate ? Promise.resolve(window.fflate) : (V.ffP || (V.ffP = new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'vendor/fflate/fflate.js'; sc.onload = () => res(window.fflate); sc.onerror = () => { V.ffP = null; rej(new Error('ZIP kutubxonasi yuklanmadi')); }; document.head.appendChild(sc); })));
+const concat = ch => { let n = 0; ch.forEach(c => { n += c.length; }); const o = new Uint8Array(n); let k = 0; ch.forEach(c => { o.set(c, k); k += c.length; }); return o; };
+const AUD = /\.(mp3|m4a|wav|aac|ogg)$/i, mimeOf = n => /\.m4a$|\.aac$/i.test(n) ? 'audio/mp4' : /\.wav$/i.test(n) ? 'audio/wav' : /\.ogg$/i.test(n) ? 'audio/ogg' : 'audio/mpeg';
+const natCmp = (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+/** Fayl yo‘lidan Test va Part ni topadi (0 — topilmadi). */
+function parseTrack(path) {
+  const low = String(path).replace(/\\/g, '/'), base = low.split('/').pop();
+  const tn = /test[\s_.\-]*0*(\d{1,2})/i.exec(low), pn = /(?:part|section|sec)[\s_.\-]*0*([1-4])(?!\d)/i.exec(base) || /(?:part|section)[\s_.\-]*0*([1-4])(?!\d)/i.exec(low);
+  return { n: tn ? +tn[1] : 0, part: pn ? +pn[1] : 0 };
+}
+const stageKey = (book, n, part) => 'camstage:' + book + ':' + n + ':' + part;
+/** Tayyor bo‘lgan (yoki keyin tuziladigan) Section uchun saqlab qo‘yilgan audioni biriktiradi. */
+async function applyStage(unit, quiet) {
+  if (!unit || !unit.grp) return false; const [book, n] = unit.grp.split(':'), key = stageKey(book, n, unit.sn);
+  let r = null; try { r = await IE.idbGet(key); } catch (e) { /* */ } if (!r || !r.buf) return false;
+  await IE.camAudio(unit.id, new Blob([r.buf], { type: r.type || 'audio/mpeg' }), quiet); try { await IE.idbDel(key); } catch (e) { /* */ } return true;
+}
+async function readZip(file) {
+  const c = cb(); c.err = ''; c.zip = { busy: 'ZIP ochilmoqda…', rows: [] }; IE.draw(false);
+  const book = c.book, seq = []; let ff;
+  try {
+    ff = await loadFflate();
+    const pend = []; const uz = new ff.Unzip(); uz.register(ff.UnzipInflate); uz.register(ff.UnzipPassThrough);
+    uz.onfile = ent => {
+      const name = ent.name; if (!AUD.test(name) || /(^|\/)(__MACOSX|\.)/.test(name) || /\/\._/.test('/' + name)) return;
+      const ch = []; ent.ondata = (err, data, final) => { if (err) return; ch.push(data); if (final) pend.push({ name, data: concat(ch) }); }; ent.start();
+    };
+    const CH = 4 * 1048576;
+    for (let o = 0; o < file.size; o += CH) {
+      uz.push(new Uint8Array(await file.slice(o, o + CH).arrayBuffer()), o + CH >= file.size);
+      while (pend.length) { const f = pend.shift(), i = seq.length; seq.push({ name: f.name, size: f.data.length }); await IE.idbSet('camzip:' + book + ':' + i, { buf: f.data.buffer.slice(f.data.byteOffset, f.data.byteOffset + f.data.byteLength), type: mimeOf(f.name) }); c.zip.busy = 'O‘qilmoqda: ' + seq.length + ' ta audio topildi…'; const e = $('#czbusy'); if (e) e.textContent = c.zip.busy; }
+      const e = $('#czbusy'); if (e) e.textContent = 'ZIP o‘qilmoqda: ' + Math.min(100, Math.round((o + CH) / file.size * 100)) + '% · ' + seq.length + ' ta audio';
+    }
+  } catch (e) { c.zip = null; c.err = 'ZIP o‘qilmadi: ' + (e.message || 'xato'); return IE.draw(false); }
+  if (!seq.length) { c.zip = null; c.err = 'ZIP ichida audio fayl (mp3/m4a/wav) topilmadi.'; return IE.draw(false); }
+  // nomdan aniqlash, bo‘lmasa tartib raqami bo‘yicha (16 ta = 4 test × 4 part)
+  const sorted = seq.map((f, i) => Object.assign({ i }, f, parseTrack(f.name))).sort((a, b) => natCmp(a.name, b.name));
+  if (sorted.some(f => !f.n || !f.part) && sorted.length % 4 === 0) sorted.forEach((f, k) => { if (!f.n || !f.part) { f.n = Math.floor(k / 4) + 1; f.part = k % 4 + 1; f.guess = true; } });
+  const seen = new Set(); sorted.forEach(f => { if (f.n && f.part) { const k = f.n + ':' + f.part; if (seen.has(k)) f.dup = true; seen.add(k); } });
+  c.zip.rows = sorted; c.zip.busy = 'Biriktirilmoqda…'; IE.draw(false);
+  for (const f of sorted) { if (f.n && f.part && !f.dup) await place(f, true); }
+  c.zip.busy = ''; const ok = sorted.filter(f => f.done).length; IE.toast(ok + ' ta audio joylashtirildi' + (sorted.length - ok ? ', ' + (sorted.length - ok) + ' tasi qo‘lda' : '')); IE.draw(false);
+}
+/** zip yozuvini (camzip:) Section audiosi sifatida joylashtiradi: unit bor bo‘lsa biriktiradi, yo‘q bo‘lsa kutish omboriga qo‘yadi. */
+async function place(f, quiet) {
+  const c = cb(), r = await IE.idbGet('camzip:' + c.book + ':' + f.i); if (!r) return;
+  const unit = store.listening.find(u => u.grp === c.book + ':' + f.n && u.sn === f.part);
+  if (unit) await IE.camAudio(unit.id, new Blob([r.buf], { type: r.type }), true); else await IE.idbSet(stageKey(c.book, f.n, f.part), r);
+  await IE.idbDel('camzip:' + c.book + ':' + f.i); f.done = unit ? 'att' : 'stage'; if (!quiet) IE.draw(false);
+}
+A.czset = async el => { const c = cb(), f = c.zip && c.zip.rows.find(x => x.i === +el.dataset.i); if (!f) return; const v = el.value.split(':'); if (v.length !== 2) return; f.n = +v[0]; f.part = +v[1]; f.dup = false; await place(f); IE.toast('Joylashtirildi'); };
+const zipHTML = () => {
+  const c = cb(), z = c.zip, opts = (sel) => '<option value="">Tanlang…</option>' + [1, 2, 3, 4].flatMap(n => [1, 2, 3, 4].map(p => '<option value="' + n + ':' + p + '"' + (sel === n + ':' + p ? ' selected' : '') + '>Test ' + n + ' · Section ' + p + '</option>')).join('');
+  return '<div class="card" style="margin-top:12px"><div class="row">' + bd('head', 'L') + '<div style="flex:1"><b>Audio ZIP</b><div class="sm mu">Kitobning audio arxivi (zip). Fayl nomlaridan Test va Section o‘zi aniqlanadi.</div></div></div>' +
+    (z && z.busy ? '<div class="mu sm row" style="gap:8px;margin-top:10px"><div class="spin sm"></div> <span id="czbusy">' + esc(z.busy) + '</span></div>' : '<label class="btn block" style="margin-top:10px">' + ic('down') + ' ZIP tanlash<input type="file" accept=".zip,application/zip,application/x-zip-compressed" id="camzip" hidden></label>') +
+    (z && z.rows.length ? '<div class="lst" style="margin-top:10px">' + z.rows.map(f => '<div class="item" style="padding:8px 12px"><div class="tx" style="min-width:0"><b style="font-size:13px;white-space:normal;word-break:break-all">' + esc(f.name.split('/').pop()) + '</b><span>' + (f.done ? 'Test ' + f.n + ' · Section ' + f.part + (f.guess ? ' (tartib bo‘yicha taxmin)' : '') + (f.done === 'stage' ? ' · kutilmoqda: shu Test tuzilgach avtomatik biriktiriladi' : ' · biriktirildi') : (f.dup ? 'Takror (shu Section allaqachon bor)' : 'Aniqlanmadi — tanlang')) + '</span></div>' + (f.done ? '<span class="chip ok">✓</span>' : '<select class="sel" style="width:auto;max-width:150px" data-a="czset" data-i="' + f.i + '" onchange="IE.act.czset(this)">' + opts('') + '</select>') + '</div>').join('') + '</div>' : '') + '</div>';
+};
+
+
+/* ---------- Vaqtli transkript: AI audioni eshitadi (chunk), audioscript bilan moslanadi ---------- */
+const b64Of = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(blob); });
+function splitMp3(u8, max) {
+  if (u8.length <= max) return [[0, u8.length]];
+  const out = []; let st = 0;
+  while (st < u8.length) { let e = Math.min(u8.length, st + max); if (e < u8.length) { for (let k = e; k < Math.min(u8.length - 1, e + 8192); k++) { if (u8[k] === 0xFF && (u8[k + 1] & 0xE0) === 0xE0 && ((u8[k + 1] >> 1) & 3) !== 0) { e = k; break; } } } out.push([st, e]); st = e; }
+  return out;
+}
+const cw = x => String(x || '').toLowerCase().replace(/[’‘]/g, '\'').replace(/[^a-z0-9']/g, '');
+/** Audioscript abzatslariga vaqt qo‘yadi: Whisper so‘zlari bilan eng uzun umumiy ketma-ketlik (LCS). */
+function alignScript(trs, words) {
+  const S = []; trs.forEach((p, j) => String(p.x).split(/\s+/).map(cw).filter(Boolean).forEach(w => S.push({ w, p: j })));
+  const W = words.filter(x => x.w), n = W.length, m = S.length; if (!n || !m || n > 4200 || m > 4200) return null;
+  const w1 = m + 1, L = new Uint16Array((n + 1) * w1);
+  for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++) L[i * w1 + j] = W[i - 1].w === S[j - 1].w ? L[(i - 1) * w1 + j - 1] + 1 : Math.max(L[(i - 1) * w1 + j], L[i * w1 + j - 1]);
+  const tm = new Array(m).fill(null); let i = n, j = m, hit = 0;
+  while (i > 0 && j > 0) { if (W[i - 1].w === S[j - 1].w && L[i * w1 + j] === L[(i - 1) * w1 + j - 1] + 1) { tm[j - 1] = W[i - 1].t; hit++; i--; j--; } else if (L[(i - 1) * w1 + j] >= L[i * w1 + j - 1]) i--; else j--; }
+  if (hit / m < 0.35) return null;
+  const t = trs.map(() => null); S.forEach((x, k) => { if (t[x.p] == null && tm[k] != null) t[x.p] = tm[k]; });
+  let last = -1; for (let k = 0; k < t.length; k++) { if (t[k] != null) { last = k; continue; } let nx = k; while (nx < t.length && t[nx] == null) nx++; const a = last >= 0 ? t[last] : 0, b = nx < t.length ? t[nx] : a + 6 * (nx - last); for (let q = k; q < nx; q++) t[q] = a + (b - a) * (q - last) / (nx - last); k = nx - 1; last = nx - 1; }
+  for (let k = 1; k < t.length; k++) if (t[k] < t[k - 1]) t[k] = t[k - 1];
+  return trs.map((p, k) => ({ t: Math.round(t[k] * 10) / 10, x: p.x }));
+}
+async function transcribeUnit(u, prog) {
+  const rec = await IE.idbGet('camaud:' + u.id); if (!rec || !rec.buf) throw new Error('Audio fayl yo‘q');
+  const u8 = new Uint8Array(rec.buf), isMp3 = /mpeg|mp3/.test(rec.type || '');
+  if (!isMp3 && u8.length > 6.2e6) throw new Error('Katta audio uchun mp3 kerak (m4a/wav bo‘laklab bo‘lmaydi)');
+  const parts = isMp3 ? splitMp3(u8, 6 * 1048576) : [[0, u8.length]]; let off = 0; const words = [], cues = [];
+  for (let i = 0; i < parts.length; i++) {
+    prog('AI audioni eshitmoqda: ' + (i + 1) + '/' + parts.length + '…');
+    const out = await IE.ai({ action: 'audiotr', audio: await b64Of(new Blob([u8.subarray(parts[i][0], parts[i][1])], { type: rec.type || 'audio/mpeg' })), mime: rec.type || 'audio/mpeg' });
+    let mx = 0; (out.cues || []).forEach(c => {
+      mx = Math.max(mx, c.e || 0); cues.push({ t: c.s + off, x: c.t });
+      if (c.w && c.w.length) c.w.forEach(w => words.push({ w: cw(w[0]), t: w[1] + off })); else { const ws = String(c.t).split(/\s+/).map(cw).filter(Boolean); ws.forEach((w, k) => words.push({ w, t: c.s + off + (c.e - c.s) * k / ws.length })); }
+    });
+    off += out.dur || mx;
+  }
+  if (!cues.length) throw new Error('Audiodan matn chiqmadi');
+  const al = u.tr && u.tr.length ? alignScript(u.tr, words) : null;
+  u.tr = al || cues.map(c => ({ t: Math.round(c.t * 10) / 10, x: c.x })); u.ttr = al ? 2 : 1;       // 2 — audioscript vaqtga moslangan, 1 — AI matni
+  u.groups.forEach(g => g.qs.forEach(q => { if (q.p != null && u.tr[q.p]) q.t = Math.max(0, u.tr[q.p].t - 0.5); }));
+  u.mt = Date.now(); return u.ttr;
+}
+V.camtr = V.camtr || {};
+IE.camTrBtn = t => {
+  const b = V.camtr[t.id];
+  return '<div class="card" style="margin-top:12px"><div class="row">' + bd('wave', 'L') + '<div style="flex:1"><b>Vaqtli transkript</b><div class="sm mu">' + (t.ttr ? 'Tayyor: natijada har abzatsdan tinglash mumkin.' + (t.ttr === 1 ? ' (AI matni — audioscript yo‘q)' : '') : 'AI audioni eshitib, transkriptni vaqtlari bilan tuzadi (1–2 daqiqa).') + '</div></div></div>' +
+    (b && b.busy ? '<div class="mu sm row" style="gap:8px;margin-top:10px"><div class="spin sm"></div> ' + esc(b.msg || '') + '</div>' : (b && b.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:8px">' + esc(b.err) + '</p>' : '') + '<button class="btn sm' + (t.ttr ? ' ghost' : '') + ' block" style="margin-top:10px" data-a="camtr" data-id="' + esc(t.id) + '">' + ic('spark') + ' ' + (t.ttr ? 'Qayta tuzish' : 'Vaqtli transkript tuzish') + '</button>') + '</div>';
+};
+async function runTr(id) {
+  const u = store.listening.find(x => x.id === id); if (!u) return; const b = V.camtr[id] = { busy: true, msg: 'Boshlanmoqda…' }; const redraw = () => { if (/^(listening|cambridge)/.test(IE.curRoute || '') && !$('#sheet')) IE.draw(false); }; redraw();
+  try { await transcribeUnit(u, m => { b.msg = m; redraw(); }); await persist(); inject(); b.busy = false; b.err = ''; IE.toast('Transkript tayyor'); }
+  catch (e) { b.busy = false; b.err = e.message || 'Xato'; }
+  redraw();
+}
+A.camtr = el => runTr(el.dataset.id);
+A.camtrall = async el => {
+  const c = cb(), n = +el.dataset.n, ls = store.listening.filter(u => u.grp === c.book + ':' + n).sort((a, b) => a.sn - b.sn);
+  for (const u of ls) { if (u.dur > 0 && !u.ttr) { await runTr(u.id); if ((V.camtr[u.id] || {}).err) break; } }
+  IE.toast('Test ' + n + ': transkriptlar ' + (ls.every(u => u.ttr) ? 'tayyor' : 'to‘liq emas'));
+};
 
 /* ---------- import formasi ---------- */
 const st = () => V.cam || (V.cam = {});

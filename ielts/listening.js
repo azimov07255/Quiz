@@ -37,6 +37,7 @@ function intro(t) {
     '<button class="item' + (m === 'practice' ? ' sel' : '') + '" data-a="lmode" data-v="practice">' + bd('play', 'S', 'sm') + '<div class="tx"><b>Mashq rejimi</b><span style="white-space:normal;display:block">To‘xtatish, 10 soniya orqaga, tezlikni o‘zgartirish mumkin</span></div>' + (m === 'practice' ? '<span class="go" style="color:var(--ok)">' + ic('check') + '</span>' : '') + '</button>' +
     '<button class="item' + (m === 'exam' ? ' sel' : '') + '" data-a="lmode" data-v="exam">' + bd('clock', 'W', 'sm') + '<div class="tx"><b>Imtihon rejimi</b><span style="white-space:normal;display:block">Haqiqiy imtihondagidek: audio bir marta, to‘xtatib va o‘tkazib bo‘lmaydi</span></div>' + (m === 'exam' ? '<span class="go" style="color:var(--ok)">' + ic('check') + '</span>' : '') + '</button></div>' +
     '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Quloqchin taqing. Savollarni audio davomida to‘ldiring; transkript faqat tugagach ochiladi.</p>' +
+    (t.priv && t.audio && IE.camTrBtn ? IE.camTrBtn(t) : '') +
     (t.priv && !t.audio ? IE.camAttach(t) : '<button class="btn block" style="margin-top:12px" data-a="lstart" data-id="' + t.id + '">' + ic('play') + ' Boshlash</button>') +
     creditP(t, 16, ' (voanews.com) — AQSh hukumati materiali, ommaviy mulk.') + '</div>';
   return sub(t.topic.split(' · ')[1] || t.title, 'listening', inner);

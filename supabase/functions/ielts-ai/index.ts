@@ -197,7 +197,8 @@ async function whisper(bytes: Uint8Array, name: string, ct: string): Promise<any
     const st = Number(sg.start) || 0, en = Number(sg.end) || st
     return { s: r2(st), e: r2(en), t: String(sg.text || '').replace(/\s+/g, ' ').trim(), w: words.filter((w: any) => Number(w.start) >= st - 0.15 && Number(w.start) < en + 0.05).slice(0, 90).map((w: any) => [String(w.word || '').slice(0, 40), r2(w.start), r2(w.end)]) }
   }).filter((c: any) => c.t)
-  if (!cues.length && String(j.text || '').trim()) return [{ s: 0, e: r2(j.duration), t: String(j.text).trim(), w: [] }]
+  if (!cues.length && String(j.text || '').trim()) { const one: any = [{ s: 0, e: r2(j.duration), t: String(j.text).trim(), w: [] }]; one.dur = r2(j.duration); return one }
+  ;(cues as any).dur = r2(j.duration)
   return cues
 }
 async function geminiTranscribe(bytes: Uint8Array, ct: string): Promise<any[]> {
@@ -273,6 +274,18 @@ async function material(action: string, b: any, sb: any, json: (o: unknown, s?: 
       if (!out || typeof out.overall !== 'number') return json({ error: 'AI bahosi tushunarsiz. Qayta urinib ko‘ring.' }, 502)
       return json({ result: out, transcript, words, wpm })
     }
+    if (action === 'audiotr') {
+      const raw = String(b.audio || ''); if (raw.length < 1500) return json({ error: 'Audio bo‘sh yoki juda qisqa.' }, 400)
+      if (raw.length > 11000000) return json({ error: 'Audio bo‘lagi juda katta.' }, 413)
+      const { error: lim } = await sb.rpc('ielts_ai_hit', { p_limit: LIMIT })
+      if (lim) return json({ error: /limit/i.test(lim.message) ? lim.message : 'IELTS uchun ruxsat yo‘q' }, /limit/i.test(lim.message) ? 429 : 403)
+      let bytes: Uint8Array; try { bytes = Uint8Array.from(atob(raw), (c) => c.charCodeAt(0)) } catch { return json({ error: 'Audio formati noto‘g‘ri.' }, 400) }
+      const mime = String(b.mime || 'audio/mpeg').split(';')[0].slice(0, 40), errs: string[] = []; let cues: any[] | null = null
+      if (GROQ) { try { cues = await whisper(bytes, 'part.' + extOf(mime), mime) } catch (e) { errs.push(String((e as Error).message)); console.error(errs[errs.length - 1]) } }
+      if (!cues && GEMINI) { try { cues = await geminiTranscribe(bytes, mime) } catch (e) { errs.push(String((e as Error).message)); console.error(errs[errs.length - 1]) } }
+      if (!cues || !cues.length) return json({ error: 'Audio matnga aylanmadi — ' + errs.join(' | ').slice(0, 260) }, 502)
+      return json({ cues: cues.slice(0, 700), dur: (cues as any).dur || r2(cues[cues.length - 1].e) })
+    }
     if (action === 'analyze') {
       const text = clip(b.text, 5500).trim(); if (text.length < 300) return json({ error: 'Matn tahlil uchun juda qisqa.' }, 400)
       const { error: lim } = await sb.rpc('ielts_ai_hit', { p_limit: LIMIT })
@@ -324,7 +337,7 @@ Deno.serve(async (req) => {
     const { data: own } = await sb.rpc('is_owner')
     return json({ ok: true, gemini: !!GEMINI, groq: !!GROQ, limit: own ? null : LIMIT, owner: !!own, models: gm })
   }
-  if (['feed', 'article', 'transcript', 'analyze', 'speaking', 'camimport', 'cammap'].includes(action)) return await material(action, b, sb, json)
+  if (['feed', 'article', 'transcript', 'analyze', 'speaking', 'camimport', 'cammap', 'audiotr'].includes(action)) return await material(action, b, sb, json)
   if (!['chat', 'writing', 'dict'].includes(action)) return json({ error: 'Noma’lum amal' }, 400)
   if (!GEMINI && !GROQ) return json({ error: 'AI hali sozlanmagan (kalit qo‘yilmagan). Ilova egasiga ayting.' }, 503)
   if (action === 'dict') { const { data: okI } = await sb.rpc('can_ielts'); if (!okI) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403) }
