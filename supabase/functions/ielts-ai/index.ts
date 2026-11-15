@@ -16,28 +16,70 @@ const GMODELS = [Deno.env.get('GEMINI_MODEL'), 'gemini-2.5-flash', 'gemini-2.0-f
 type Msg = { role: 'user' | 'assistant'; content: string }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
-async function gemini(system: string, msgs: Msg[], asJson: boolean, temp: number): Promise<string> {
-  const errs: string[] = []
-  outer: for (const m of GMODELS) {
-    for (let a = 0; a < 2; a++) {
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
-        method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': GEMINI },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: system }] },
-          contents: msgs.map((x) => ({ role: x.role === 'assistant' ? 'model' : 'user', parts: [{ text: x.content }] })),
-          generationConfig: { temperature: temp, maxOutputTokens: 2048, ...(asJson ? { responseMimeType: 'application/json' } : {}) },
-        }),
-      })
-      const j = await r.json().catch(() => ({}))
-      const t = j?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('') || ''
-      if (r.ok && t) return t
-      errs.push(`${m} ${r.status}${a === 0 ? ': ' + String(j?.error?.message || j?.promptFeedback?.blockReason || 'bo‘sh javob').slice(0, 60) : ''}`)
-      if (r.status === 401 || r.status === 403) break outer
-      if ((r.status === 503 || r.status === 429) && a === 0) { await sleep(900); continue }
+
+// ---- Gemini: kalit uchun ochiq Flash modellarini o‘zi topadi; limiti tugagan modeldan keyingisiga o‘tadi ----
+let GCACHE_M: { models: string[]; at: number } | null = null
+const BADM = /image|tts|audio|live|vision|embed|robot|computer|imagen|veo|learnlm|gemma|aqa/i
+async function candidates(): Promise<string[]> {
+  if (!GCACHE_M || Date.now() - GCACHE_M.at > 3600e3) {
+    const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': GEMINI } })
+    const j = await r.json().catch(() => ({}))
+    const parsed = ((j.models || []) as any[])
+      .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
+      .map((m) => String(m.name).replace('models/', '')).filter((n) => !BADM.test(n))
+      .map((n) => { const m = /^gemini-(\d+(?:\.\d+)?)-flash(-lite)?(-preview)?/.exec(n); return m ? { n, v: parseFloat(m[1]), lite: !!m[2], prev: !!m[3] } : null })
+      .filter(Boolean) as { n: string; v: number; lite: boolean; prev: boolean }[]
+    parsed.sort((a, b) => b.v - a.v || Number(a.prev) - Number(b.prev) || Number(b.lite) - Number(a.lite))
+    GCACHE_M = { models: parsed.map((x) => x.n).slice(0, 6), at: Date.now() }
+  }
+  const env = Deno.env.get('GEMINI_MODEL')
+  const base = GCACHE_M.models.length ? GCACHE_M.models : GMODELS
+  return env ? [env, ...base.filter((m) => m !== env)] : base
+}
+const THINK: Array<Record<string, unknown> | null> = [{ thinkingLevel: 'minimal' }, { thinkingLevel: 'low' }, { thinkingBudget: 0 }, null]
+const OKT: Record<string, number> = {}
+const GOOD = { m: '' }
+const SLOW = new Map<string, number>(), DEAD = new Map<string, number>()
+const slowFor = (m: string, ms: number) => SLOW.set(m, Date.now() + ms)
+// Kunlik limiti tugagan model Google limiti yangilanguncha (≈08:05 UTC) oxiriga suriladi
+function deadUntilReset(m: string) { const n = new Date(); const at = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate(), 8, 5); DEAD.set(m, n.getTime() < at ? at : at + 86400e3) }
+const isLite = (m: string) => /-lite/.test(m)
+function ordered(models: string[], light: boolean): string[] {
+  const now = Date.now(), slow = (m: string) => (SLOW.get(m) || 0) > now, dead = (m: string) => (DEAD.get(m) || 0) > now
+  const first = GOOD.m && models.includes(GOOD.m) && !slow(GOOD.m) && !dead(GOOD.m) ? [GOOD.m] : []
+  const all = [...first, ...models.filter((m) => !first.includes(m) && !slow(m)), ...models.filter((m) => !first.includes(m) && slow(m))]
+  const live = all.filter((m) => !dead(m)), gone = all.filter(dead)
+  return [...(light ? [...live.filter(isLite), ...live.filter((m) => !isLite(m))] : live), ...gone]
+}
+/** Bitta so‘rov turli Gemini modellarida ketma-ket sinaladi; birinchi muvaffaqiyatli matn qaytariladi. */
+async function geminiRun(body: Record<string, unknown>, gen: Record<string, unknown>, light = false): Promise<string> {
+  const models = ordered(await candidates().catch(() => GMODELS), light).slice(0, 6), errs: string[] = []
+  for (const m of models) {
+    let r: Response | null = null, j: any = {}
+    for (let k = OKT[m] ?? 0; k < THINK.length; k++) {
+      const th = THINK[k], ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 60000)
+      try {
+        r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', 'x-goog-api-key': GEMINI }, body: JSON.stringify({ ...body, generationConfig: { ...gen, ...(th ? { thinkingConfig: th } : {}) } }) })
+      } catch { r = null; clearTimeout(to); break } finally { clearTimeout(to) }
+      j = await r.json().catch(() => ({}))
+      if (r.status === 400 && /think/i.test(String(j?.error?.message || ''))) continue
+      if (r.ok) OKT[m] = k
       break
     }
+    if (!r) { errs.push(`${m} vaqt`); slowFor(m, 60e3); continue }
+    const t = j?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('') || ''
+    if (r.ok && t) { GOOD.m = m; return t }
+    errs.push(`${m} ${r.status}${r.ok ? ' bo‘sh' : ''}`)
+    if (r.status === 429) { const raw = JSON.stringify(j?.error || {}); if (/PerDay/i.test(raw) || /limit:\s*0\b/.test(String(j?.error?.message || ''))) deadUntilReset(m); else { const w = /"retryDelay":"(\d+(?:\.\d+)?)s"/.exec(raw); slowFor(m, Math.min(120, w ? Math.ceil(parseFloat(w[1])) : 60) * 1000) } continue }
+    if (r.status === 404) { DEAD.set(m, Date.now() + 3600e3); continue }
+    if (r.status === 503 || r.status === 500 || r.status === 504) { slowFor(m, 45e3); continue }
+    if (r.status === 401 || r.status === 403) break
   }
   throw new Error('gemini [' + errs.join('; ') + ']')
+}
+async function gemini(system: string, msgs: Msg[], asJson: boolean, temp: number, light = false): Promise<string> {
+  return await geminiRun({ systemInstruction: { parts: [{ text: system }] }, contents: msgs.map((x) => ({ role: x.role === 'assistant' ? 'model' : 'user', parts: [{ text: x.content }] })) },
+    { temperature: temp, maxOutputTokens: 2048, ...(asJson ? { responseMimeType: 'application/json' } : {}) }, light)
 }
 let GCACHE: { ids: string[]; at: number } | null = null
 async function groqModels(): Promise<string[]> {
@@ -74,7 +116,7 @@ async function ask(system: string, msgs: Msg[], asJson = false, temp = 0.6, fast
   const errs: string[] = []
   for (const p of (fast && GROQ ? ['groq', 'gemini'] : ['gemini', 'groq'])) {
     if ((p === 'gemini' && !GEMINI) || (p === 'groq' && !GROQ)) continue
-    try { return p === 'gemini' ? await gemini(system, msgs, asJson, temp) : await groq(system, msgs, asJson, temp) } catch (e) { const m = String((e as Error).message); console.error(m); errs.push(m) }
+    try { return p === 'gemini' ? await gemini(system, msgs, asJson, temp, fast) : await groq(system, msgs, asJson, temp) } catch (e) { const m = String((e as Error).message); console.error(m); errs.push(m) }
   }
   throw new Error(errs.join(' | '))
 }
@@ -132,22 +174,10 @@ async function whisper(bytes: Uint8Array, name: string, ct: string): Promise<any
 async function geminiTranscribe(bytes: Uint8Array, ct: string): Promise<any[]> {
   const mime = /mpeg|mp3/.test(ct) || !ct ? 'audio/mp3' : ct.split(';')[0]
   const prompt = 'Transcribe this English audio verbatim. Split it into natural sentences. Return ONLY JSON: {"cues":[{"s":start_seconds,"e":end_seconds,"t":"sentence text"}]}. Timestamps are seconds from the start of the audio (numbers with one decimal), strictly increasing. Do not add speaker names or any commentary.'
-  const errs: string[] = []
-  for (const m of GMODELS) {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
-      method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': GEMINI },
-      body: JSON.stringify({ contents: [{ parts: [{ inlineData: { mimeType: mime, data: b64(bytes) } }, { text: prompt }] }], generationConfig: { temperature: 0, maxOutputTokens: 16000, responseMimeType: 'application/json' } }),
-    })
-    const j = await r.json().catch(() => ({}))
-    const t = j?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('') || ''
-    if (r.ok && t) {
-      const o = parse(t); const cues = (Array.isArray(o) ? o : o?.cues || []).map((c: any) => ({ s: r2(c.s), e: r2(c.e), t: String(c.t || '').replace(/\s+/g, ' ').trim(), w: [] })).filter((c: any) => c.t && isFinite(c.s))
-      if (cues.length) return cues
-      errs.push(`${m}: bo‘sh natija`)
-    } else errs.push(`${m} ${r.status}`)
-    if (r.status === 401 || r.status === 403) break
-  }
-  throw new Error('gemini audio [' + errs.join('; ') + ']')
+  const t = await geminiRun({ contents: [{ parts: [{ inlineData: { mimeType: mime, data: b64(bytes) } }, { text: prompt }] }] }, { temperature: 0, maxOutputTokens: 16000, responseMimeType: 'application/json' })
+  const o = parse(t); const cues = (Array.isArray(o) ? o : o?.cues || []).map((c: any) => ({ s: r2(c.s), e: r2(c.e), t: String(c.t || '').replace(/\s+/g, ' ').trim(), w: [] })).filter((c: any) => c.t && isFinite(c.s))
+  if (!cues.length) throw new Error('gemini audio: bo‘sh natija')
+  return cues
 }
 const ANALYZE = `You are an English teacher preparing an IELTS reading/listening lesson for an Uzbek-speaking student from the given TEXT. Return ONLY valid JSON:
 {"level":"Band 6–7",
@@ -239,7 +269,9 @@ Deno.serve(async (req) => {
   if (action === 'health') {
     const { data, error } = await sb.rpc('can_ielts')
     if (error || !data) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403)
-    return json({ ok: true, gemini: !!GEMINI, groq: !!GROQ, limit: LIMIT })
+    const gm = GEMINI ? ordered(await candidates().catch(() => GMODELS), false) : []
+    const { data: own } = await sb.rpc('is_owner')
+    return json({ ok: true, gemini: !!GEMINI, groq: !!GROQ, limit: own ? null : LIMIT, owner: !!own, models: gm })
   }
   if (['feed', 'article', 'transcript', 'analyze', 'speaking'].includes(action)) return await material(action, b, sb, json)
   if (!['chat', 'writing', 'dict'].includes(action)) return json({ error: 'Noma’lum amal' }, 400)
