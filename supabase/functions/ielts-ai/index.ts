@@ -168,6 +168,15 @@ Rules:
 - LISTENING only: "p" = 0-based index into "tr" of the paragraph containing the answer, or omit if unknown.
 - Keep passage/audioscript text verbatim (fix only hyphenation at line breaks, repeated headers and page numbers).`
 
+const CAMMAP = `You analyse the structure of a published "Cambridge IELTS Academic" practice-test book (for example Cambridge IELTS 18) from a list of its PDF pages. For every page you get its PDF page number "p" and "t" = the beginning and the end of its extracted text. Find, for each of the 4 tests, the PDF page ranges (inclusive) of:
+- each LISTENING part 1-4: the question pages (they start with the words LISTENING / PART n / Questions 1-10 ... and continue until the next part or until READING starts),
+- the AUDIOSCRIPT pages of each listening part (in the appendix "Audioscripts", usually headed "Test n" / "Part n" / "Track"),
+- each READING passage 1-3: the passage text and its questions (they start with READING PASSAGE n "You should spend about 20 minutes on Questions ...") and continue until the next passage or until WRITING starts,
+- the ANSWER KEY pages for listening and for reading of each test (appendix "Listening and Reading answer keys", headed "Test n" with "LISTENING" and "READING" sections).
+Do NOT include Writing, Speaking, blank pages, answer sheets or ads in the unit ranges. Ranges of different units must not overlap. Use only what is supported by the page texts; if you cannot find something use null for it. Return ONLY valid JSON:
+{"book":string,"tests":[{"n":1,"listening":[{"part":1,"q":[first,last],"s":[first,last]|null}],"reading":[{"passage":1,"q":[first,last]}],"key":{"listening":[first,last]|null,"reading":[first,last]|null}}]}
+Include every test you can find (usually 4), ordered by n.`
+
 // ---------- Materiallar: RSS ro‘yxat, maqola matni, audio transkripsiyasi, tahlil ----------
 const b64 = (u: Uint8Array) => { let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000)); return btoa(s) }
 const r2 = (x: unknown) => Math.round(Number(x) * 100) / 100
@@ -284,6 +293,16 @@ async function material(action: string, b: any, sb: any, json: (o: unknown, s?: 
       if (!out || !Array.isArray(out.groups) || !out.groups.length) return json({ error: 'AI matnni tushunmadi. Sahifa oralig‘ini tekshirib, qayta urinib ko‘ring.' }, 502)
       return json({ result: out })
     }
+    if (action === 'cammap') {
+      const pages: any[] = Array.isArray(b.pages) ? b.pages.slice(0, 450) : [], total = Math.min(450, Math.max(1, parseInt(b.total, 10) || pages.length))
+      if (pages.length < 20) return json({ error: 'Kitob juda qisqa yoki matni o‘qilmadi.' }, 400)
+      const { error: lim } = await sb.rpc('ielts_ai_hit', { p_limit: LIMIT })
+      if (lim) return json({ error: /limit/i.test(lim.message) ? lim.message : 'IELTS uchun ruxsat yo‘q' }, /limit/i.test(lim.message) ? 429 : 403)
+      const listing = pages.map((x) => `[${parseInt(x.p, 10) || 0}] ${clip(x.t, 240).replace(/\s+/g, ' ')}`).join('\n').slice(0, 75000)
+      const out = parse(await ask(CAMMAP, [{ role: 'user', content: `TOTAL PAGES: ${total}\n\n${listing}` }], true, 0.1, false, 8000))
+      if (!out || !Array.isArray(out.tests)) return json({ error: 'AI kitob tuzilishini tushunmadi. Qayta urinib ko‘ring.' }, 502)
+      return json({ result: out })
+    }
     return json({ error: 'Noma’lum amal' }, 400)
   } catch (e) {
     if (e instanceof ArtErr) return json({ error: e.message }, e.status)
@@ -305,7 +324,7 @@ Deno.serve(async (req) => {
     const { data: own } = await sb.rpc('is_owner')
     return json({ ok: true, gemini: !!GEMINI, groq: !!GROQ, limit: own ? null : LIMIT, owner: !!own, models: gm })
   }
-  if (['feed', 'article', 'transcript', 'analyze', 'speaking', 'camimport'].includes(action)) return await material(action, b, sb, json)
+  if (['feed', 'article', 'transcript', 'analyze', 'speaking', 'camimport', 'cammap'].includes(action)) return await material(action, b, sb, json)
   if (!['chat', 'writing', 'dict'].includes(action)) return json({ error: 'Noma’lum amal' }, 400)
   if (!GEMINI && !GROQ) return json({ error: 'AI hali sozlanmagan (kalit qo‘yilmagan). Ilova egasiga ayting.' }, 503)
   if (action === 'dict') { const { data: okI } = await sb.rpc('can_ielts'); if (!okI) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403) }

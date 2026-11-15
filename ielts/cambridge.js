@@ -124,14 +124,15 @@ const rowH = (k, x) => {
   const nq = nqs(x.groups), noAud = k === 'l' && !(x.dur > 0);
   return '<div class="item" style="padding:8px 8px 8px 12px"><button class="row" style="flex:1;min-width:0;text-align:left" data-go="' + (k === 'r' ? 'reading/' + x.id + '/run' : 'listening/' + x.id) + '">' + bd(k === 'r' ? 'book' : 'head', k === 'r' ? 'R' : 'L', 'sm') + '<div class="tx"><b>' + esc(x.cam || x.title) + '</b><span>' + esc(x.title) + ' · ' + nq + ' savol' + (noAud ? ' · <b style="color:var(--warn)">audio yo‘q</b>' : '') + '</span></div></button><button class="ib" data-a="camdel" data-k="' + k + '" data-id="' + x.id + '" aria-label="O‘chirish">' + ic('trash') + '</button></div>';
 };
-R.cambridge = a => a[0] === 'new' ? form(a[1] === 'l' ? 'l' : 'r') : hub();
+R.cambridge = a => a[0] === 'new' ? form(a[1] === 'l' ? 'l' : 'r') : a[0] === 'book' ? bookAuto() : hub();
 function hub() {
   const rd = store.reading, ls = store.listening;
   return sub('Cambridge IELTS', 'practice', '<div class="pad"><div class="card rise"><div class="row">' + bd('book', 'R', 'lg') + '<div style="flex:1"><b style="font-size:16px">Shaxsiy Cambridge testlari</b><div class="sm mu">Kitobingiz (PDF) sahifalaridan Reading passage va Listening section tuzing — keyin oddiy testdek yechasiz (band, tahlil, tarix).</div></div></div></div>' +
-    '<div class="two" style="margin-top:12px"><button class="btn" data-go="cambridge/new/r">' + ic('plus') + ' Reading</button><button class="btn" data-go="cambridge/new/l">' + ic('plus') + ' Listening</button></div>' +
+    '<button class="aibn rise" style="margin-top:12px" data-go="cambridge/book">' + bd('spark', 'A', 'lg') + '<div style="flex:1"><h3>Kitobdan hammasini avtomatik</h3><p>Test 1, 2, 3, 4 — Reading va Listening bir bosishda.</p></div><span class="go">' + ic('next') + '</span></button>' +
+    '<div class="sm mu" style="margin:14px 2px 6px">Yoki bittalab qo‘shish:</div><div class="two"><button class="btn ghost" data-go="cambridge/new/r">' + ic('plus') + ' Reading</button><button class="btn ghost" data-go="cambridge/new/l">' + ic('plus') + ' Listening</button></div>' +
     '<div class="card" style="margin-top:12px"><div class="row">' + bd('doc', 'T') + '<div style="flex:1"><b>JSON fayldan yuklash</b><div class="sm mu">Tayyor test faylingiz bo‘lsa — to‘g‘ridan-to‘g‘ri yuklang (Reading va Listening birga bo‘lishi mumkin).</div></div></div><div class="two" style="margin-top:10px"><label class="btn sm" style="text-align:center">' + ic('down') + ' JSON tanlash<input type="file" accept=".json,application/json,text/plain" id="camj" hidden></label><button class="btn sm ghost" data-a="camtpl">Namuna formati</button></div></div>' +
     '<div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap"><button class="chip' + (cloudOn() ? ' on' : '') + '" data-a="camcl">' + ic('cloud') + ' Bulut: ' + (cloudOn() ? 'yoqilgan' : 'o‘chiq') + '</button>' + (cloudOn() ? '<button class="chip" data-a="camsyn">' + ic('refresh') + ' Sinxronlash</button>' : '') + '</div>' +
-    (!rd.length && !ls.length ? '<div class="card rise" style="margin-top:14px"><b style="font-size:16px">Testlar hozircha yo‘q — o‘zingiz qo‘shasiz</b><div class="sm mu" style="margin:6px 0 10px">Cambridge matnlari ilovada tayyor emas (mualliflik huquqi). Kitobingizdan 3 qadamda olinadi:</div>' +
+    (!rd.length && !ls.length ? '<div class="card rise" style="margin-top:14px"><b style="font-size:16px">Testlar hozircha yo‘q — o‘zingiz qo‘shasiz</b><div class="sm mu" style="margin:6px 0 10px">Cambridge matnlari ilovada tayyor emas (mualliflik huquqi). Kitobingizdan olinadi — eng oson yo‘li: Kitoblarga PDF yuklang, keyin yuqoridagi “Kitobdan hammasini avtomatik” tugmasini bosing.</div>' +
       '<div class="lst"><button class="item" data-go="books"><span class="qn">1</span><div class="tx"><b>Kitob PDF’ini yuklang</b><span>Kitoblar → PDF tanlash (telefondagi fayl)</span></div><span class="go">' + ic('next') + '</span></button>' +
       '<button class="item" data-go="cambridge/new/r"><span class="qn">2</span><div class="tx"><b>Reading qo‘shing</b><span>Passage va javoblar kaliti bet raqamlarini kiriting</span></div><span class="go">' + ic('next') + '</span></button>' +
       '<button class="item" data-go="cambridge/new/l"><span class="qn">3</span><div class="tx"><b>Listening qo‘shing</b><span>Section bet raqamlari + mp3 audio</span></div><span class="go">' + ic('next') + '</span></button></div></div>' : '') +
@@ -172,10 +173,103 @@ A.camtpl = () => {
 IE.camChange = el => {
   const f = el.files && el.files[0]; if (!f) return false;
   if (el.id === 'camj') { el.value = ''; IE.camJson(f); return true; }
+  if (el.id === 'camaf4') { attachMany(el); return true; }
   if (el.id === 'camaf') { const id = el.dataset.id; el.value = ''; IE.camAudio(id, f); return true; }
   if (el.id === 'camaf0') { readForm(); V.cam.audio = f; IE.draw(false); return true; }
   return false;
 };
+
+
+/* ---------- Kitobdan hammasini avtomatik: struktura xaritasi + Test bo‘yicha batch ---------- */
+const cb = () => V.cb || (V.cb = { step: 'pick', busy: '', err: '', map: null, run: null });
+const rng = t => { const m = String(t || '').match(/(\d+)\s*[-–—]\s*(\d+)/) || String(t || '').match(/^\s*(\d+)\s*$/); if (!m) return null; const a = +m[1], b = +(m[2] || m[1]); return b >= a ? [a, b] : null; };
+const R2 = (x, tot) => Array.isArray(x) && x.length === 2 && +x[0] >= 1 && +x[1] >= +x[0] && +x[1] <= tot ? (+x[0]) + '-' + (+x[1]) : '';
+function mapFrom(res, tot) {
+  return (Array.isArray(res && res.tests) ? res.tests : []).map(t => ({
+    n: +t.n,
+    L: [1, 2, 3, 4].map(p => { const f = (t.listening || []).find(x => +x.part === p) || {}; return { part: p, q: R2(f.q, tot), s: R2(f.s, tot) }; }),
+    R: [1, 2, 3].map(i => { const f = (t.reading || []).find(x => +x.passage === i) || {}; return { passage: i, q: R2(f.q, tot) }; }),
+    kl: R2(t.key && t.key.listening, tot), kr: R2(t.key && t.key.reading, tot) })).filter(t => t.n >= 1 && t.n <= 12).sort((a, b) => a.n - b.n);
+}
+function readMap() {
+  const c = cb(); if (!c.map) return; const v = id => { const e = $('#' + id); return e ? e.value : null; };
+  const nm = v('cbnm'); if (nm != null) c.nm = nm; const bk = v('cbk2'); if (bk) c.book = bk;
+  c.map.forEach(t => { t.L.forEach(l => { const q = v('cbL' + t.n + '_' + l.part + 'q'), sc = v('cbL' + t.n + '_' + l.part + 's'); if (q != null) l.q = q; if (sc != null) l.s = sc; }); t.R.forEach(r => { const q = v('cbR' + t.n + '_' + r.passage + 'q'); if (q != null) r.q = q; }); const kl = v('cbKL' + t.n), kr = v('cbKR' + t.n); if (kl != null) t.kl = kl; if (kr != null) t.kr = kr; });
+}
+const shortName = b => { const m = b && /cambridge[^\d]{0,30}(\d{1,2})/i.exec(b.t); return m ? 'Cambridge ' + m[1] : (b ? b.t.slice(0, 28) : 'Cambridge'); };
+const stI = { wait: '<span class="mu">·</span>', run: '<div class="spin sm" style="margin:0"></div>', ok: '<span class="chip ok">' + '✓' + '</span>', skip: '<span class="chip">allaqachon bor</span>', err: '<span class="chip" style="color:var(--bad)">xato</span>' };
+function bookAuto() {
+  const c = cb(), books = IE.bookList ? IE.bookList() : [];
+  if (!c.book || !books.some(b => b.id === c.book)) c.book = books[0] && books[0].id;
+  const bk = books.find(b => b.id === c.book), anyRun = c.run && c.run.active;
+  const top = !books.length ? '<div class="card c">' + bd('book', 'R', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<b>Avval kitob qo‘shing</b><p class="mu sm" style="margin:6px 0 12px">Cambridge IELTS kitobingiz PDF’ini “Kitoblar” bo‘limiga yuklang.</p><button class="btn" data-go="books">Kitoblarga o‘tish</button></div>' :
+    '<div class="card"><div class="fld"><label>Kitob</label><select id="cbk2">' + books.map(b => '<option value="' + b.id + '"' + (b.id === c.book ? ' selected' : '') + '>' + esc(b.t) + ' (' + b.pg + ' bet)</option>').join('') + '</select></div>' +
+    '<div class="fld"><label>Qisqa nomi (testlar nomida)</label><input id="cbnm" value="' + esc(c.nm != null ? c.nm : shortName(bk)) + '" maxlength="30"></div>' +
+    (c.busy ? '<div class="mu sm row" style="gap:8px"><div class="spin sm"></div> <span id="cbbusy">' + esc(c.busy) + '</span></div>' : '<button class="btn block" data-a="cbmap">' + ic('spark') + ' ' + (c.map ? 'Strukturani qayta aniqlash' : 'Kitob strukturasini aniqlash') + '</button>') +
+    (c.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(c.err) + '</p>' : '') + '</div>';
+  const info = !c.map ? '<div class="card" style="margin-top:12px"><b>Bu qanday ishlaydi</b><ol class="sm mu" style="margin:8px 0 0 18px;line-height:1.7"><li>Kitobni tanlang — ilova barcha betlarni o‘qib, qaysi bet qaysi Test/Passage/Part ekanini AI bilan aniqlaydi.</li><li>Natijani tekshiring (kerak bo‘lsa bet raqamlarini tuzating).</li><li>“Test 1 ni qo‘shish” — 3 ta Reading + 4 ta Listening ketma-ket tayyorlanadi (har biri ~1 daqiqa).</li><li>Listening audiolarini (4 ta mp3) birdan tanlab biriktirasiz.</li></ol></div>' : '';
+  const tests = c.map ? (c.map.length ? c.map.map(t => testCard(t, anyRun)).join('') : '<div class="card empty" style="margin-top:12px">Testlar topilmadi. Kitob skaner qilingan bo‘lsa, avval Kitoblar → Qidirish → “Hammasini OCR qilish”ni bajaring.</div>') : '';
+  return sub('Kitobdan avtomatik', 'cambridge', '<div class="pad">' + top + info + tests + '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Writing va Speaking tez kunda qo‘shiladi. AI bet oralig‘ini noto‘g‘ri topishi mumkin — “Sahifalarni tekshirish”da tuzating.</p></div>');
+}
+function testCard(t, busy) {
+  const c = cb(), run = c.run && c.run.n === t.n ? c.run : null, have = [...store.reading, ...store.listening].filter(u => u.grp === c.book + ':' + t.n), nUnits = t.R.filter(r => rng(r.q)).length + t.L.filter(l => rng(l.q)).length;
+  const inp = (id, v, ph) => '<input id="' + id + '" class="fill" style="margin:0;padding:8px 10px" placeholder="' + ph + '" value="' + esc(v || '') + '" inputmode="text" autocapitalize="off">';
+  const fields = '<details style="margin-top:10px"><summary class="b" style="cursor:pointer">Sahifalarni tekshirish / tuzatish</summary><div class="sm mu" style="margin:6px 0">Format: 12-15 (PDF bet raqami). Listening’da ikkinchi maydon — audioscript.</div><div class="lst">' +
+    t.R.map(r => '<div class="item" style="padding:8px 12px"><span class="qn">R' + r.passage + '</span>' + inp('cbR' + t.n + '_' + r.passage + 'q', r.q, 'savollar') + '</div>').join('') +
+    t.L.map(l => '<div class="item" style="padding:8px 12px"><span class="qn">L' + l.part + '</span>' + inp('cbL' + t.n + '_' + l.part + 'q', l.q, 'savollar') + inp('cbL' + t.n + '_' + l.part + 's', l.s, 'audioscript') + '</div>').join('') +
+    '<div class="item" style="padding:8px 12px"><span class="qn">K</span>' + inp('cbKR' + t.n, t.kr, 'Reading kaliti') + inp('cbKL' + t.n, t.kl, 'Listening kaliti') + '</div></div></details>';
+  const runH = run ? '<div class="lst" style="margin-top:10px">' + run.items.map(it => '<div class="item" style="padding:8px 12px"><span class="qn">' + (it.k === 'r' ? 'R' : 'L') + it.i + '</span><div class="tx"><b style="font-size:14px">' + (it.k === 'r' ? 'Passage ' : 'Section ') + it.i + '</b><span style="white-space:normal">' + (it.st === 'err' ? esc(it.err || '') : it.st === 'run' ? esc(it.msg || 'Tayyorlanmoqda…') : '') + '</span></div>' + stI[it.st] + '</div>').join('') + '</div>' : '';
+  const ls = store.listening.filter(u => u.grp === c.book + ':' + t.n).sort((a, b) => a.sn - b.sn);
+  const needAud = ls.filter(u => !(u.dur > 0)).length;
+  const aud = ls.length ? '<label class="btn ghost block" style="margin-top:10px">' + ic('head') + ' ' + (needAud ? 'Audiolarni birdan tanlash (' + ls.length + ' ta mp3)' : 'Audiolarni almashtirish') + '<input type="file" accept="audio/*,.mp3,.m4a,.wav" multiple id="camaf4" data-n="' + t.n + '" hidden></label><div class="sm mu" style="margin-top:4px">Fayllar nomi bo‘yicha tartiblanadi: 1-fayl → Section 1 … ' + (needAud ? '<b>' + needAud + ' ta audio yetishmaydi.</b>' : 'Hammasi biriktirilgan.') + '</div>' : '';
+  return '<div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between"><b style="font-size:17px">Test ' + t.n + '</b><span class="chip">' + nUnits + '/7 qism topildi' + (have.length ? ' · ' + have.length + ' qo‘shilgan' : '') + '</span></div>' + fields + runH +
+    (run && run.active ? '' : '<button class="btn block" style="margin-top:12px"' + (busy || !nUnits ? ' disabled' : ' data-a="cbrun" data-n="' + t.n + '"') + '>' + ic('spark') + ' ' + (run && run.items.some(i => i.st === 'err') ? 'Xatolarni qayta urinish' : have.length ? 'Yetishmaganlarini qo‘shish' : 'Test ' + t.n + ' ni qo‘shish') + '</button>') + aud + '</div>';
+}
+A.cbmap = async () => {
+  readMap(); const c = cb(), books = IE.bookList(), book = c.book || (books[0] || {}).id; if (!book) return; c.err = ''; c.map = null; c.run = null;
+  try {
+    c.busy = 'Kitob o‘qilmoqda…'; IE.draw(false);
+    const { n, snips, empty } = await IE.bookSnips(book, (p, tot) => { c.busy = 'Kitob o‘qilmoqda: ' + p + '/' + tot + ' bet'; const e = $('#cbbusy'); if (e) e.textContent = c.busy; });
+    if (empty > n * 0.5) throw new Error('Kitobning ko‘p betida matn qatlami yo‘q (skaner). Avval Kitoblar → shu kitob → Qidirish → “Hammasini OCR qilish”ni bajaring.');
+    c.busy = 'AI struktura xaritasini tuzmoqda… (20–60 soniya)'; IE.draw(false);
+    const out = await IE.ai({ action: 'cammap', pages: snips, total: n });
+    c.map = mapFrom(out.result, n); if (!c.map.length) c.err = 'AI testlarni topa olmadi. Bu Cambridge IELTS test kitobimi? Bo‘lmasa, bittalab qo‘shing.';
+  } catch (e) { c.err = e.message || 'Xatolik'; }
+  c.busy = ''; IE.draw(false);
+};
+A.cbrun = async el => {
+  readMap(); const c = cb(), n = +el.dataset.n, t = c.map && c.map.find(x => x.n === n); if (!t || (c.run && c.run.active)) return;
+  const bk = IE.bookList().find(b => b.id === c.book), bn = (c.nm || shortName(bk)).trim() || 'Cambridge', items = [];
+  t.R.forEach(r => items.push({ k: 'r', i: r.passage, q: rng(r.q), key: rng(t.kr), st: 'wait' })); t.L.forEach(l => items.push({ k: 'l', i: l.part, q: rng(l.q), s: rng(l.s), key: rng(t.kl), st: 'wait' }));
+  items.forEach(it => { it.label = bn + ' · Test ' + n + ' · ' + (it.k === 'r' ? 'Passage ' : 'Section ') + it.i; });
+  const run = c.run = { n, items, active: true }, cache = {}, redraw = () => { if ((IE.curRoute || '') === 'cambridge/book' && !$('#sheet')) IE.draw(false); };
+  const txt = async (r, msg, it) => { const k = r[0] + '-' + r[1]; if (!cache[k]) cache[k] = await IE.bookText(c.book, r[0], r[1], (i, tot, o) => { it.msg = msg + (o ? ' (OCR) ' : ' ') + i + '/' + tot; redraw(); }); return cache[k]; };
+  redraw();
+  for (const it of items) {
+    if (!it.q) { it.st = 'skip'; it.err = ''; continue; }
+    if ([...store.reading, ...store.listening].some(u => u.cam === it.label)) { it.st = 'skip'; continue; }
+    it.st = 'run'; it.msg = 'Matn olinmoqda…'; redraw();
+    try {
+      if (!it.key) throw new Error('Javoblar kaliti sahifalari kiritilmagan');
+      const text = await txt(it.q, 'Savollar', it), key = await txt(it.key, 'Kalit', it), script = it.k === 'l' && it.s ? await txt(it.s, 'Audioscript', it) : '';
+      it.msg = 'AI tayyorlamoqda… (30–90 soniya)'; redraw();
+      const out = await IE.ai({ action: 'camimport', kind: it.k === 'r' ? 'reading' : 'listening', which: it.i, text, key, script });
+      const { unit } = normUnit(it.k, out.result, it.label, it.i); unit.grp = c.book + ':' + n; unit.sn = it.i;
+      store[it.k === 'r' ? 'reading' : 'listening'].push(unit); await persist(); inject(); it.st = 'ok';
+    } catch (e) { it.st = 'err'; it.err = e.message || 'Xatolik'; if (/limit/i.test(it.err)) { redraw(); break; } }
+    redraw();
+  }
+  run.active = false; const ok = items.filter(i => i.st === 'ok').length, bad = items.filter(i => i.st === 'err').length;
+  IE.toast(bad ? ok + ' ta tayyor, ' + bad + ' tasida xato' : (ok ? 'Test ' + n + ' tayyor — ' + ok + ' qism qo‘shildi' : 'Yangi qism qo‘shilmadi')); redraw();
+};
+/** 4 ta audio faylni nomi bo‘yicha tartiblab Section 1..4 ga biriktiradi. */
+async function attachMany(el) {
+  const c = cb(), n = +el.dataset.n, files = [...el.files].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true })); el.value = '';
+  const ls = store.listening.filter(u => u.grp === c.book + ':' + n).sort((a, b) => a.sn - b.sn);
+  if (files.length !== ls.length) return IE.toast(ls.length + ' ta audio tanlang (hozir ' + files.length + ' ta tanlandi)');
+  IE.toast('Audiolar saqlanmoqda…'); for (let i = 0; i < ls.length; i++) await IE.camAudio(ls[i].id, files[i]);
+  IE.toast('Audiolar biriktirildi: ' + files.map((f, i) => 'S' + (i + 1) + ' ← ' + f.name.slice(0, 18)).join(', ').slice(0, 120));
+}
 
 /* ---------- import formasi ---------- */
 const st = () => V.cam || (V.cam = {});

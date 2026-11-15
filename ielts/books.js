@@ -352,6 +352,29 @@ IE.bookHome = () => {
 
 /* ---------- boshqa modullar uchun: kitob ro‘yxati va sahifa matni (Cambridge import) ---------- */
 IE.bookList = () => books();
+async function openRaw(id) {
+  const bk = bookOf(id); if (!bk) throw new Error('Kitob topilmadi');
+  let buf = await IE.idbGet('book:' + id);
+  if (!buf) { if (!bk.cloud) throw new Error('Fayl bu qurilmada yo‘q'); buf = await cloudGet(id); await IE.idbSet('book:' + id, buf); locAdd(id); }
+  const pdf = await lib(); return pdf.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise;
+}
+/** Butun kitobning har bir beti boshi/oxiri (struktura aniqlash uchun). Matn qidiruv indeksiga ham keshlanadi. */
+IE.bookSnips = async (id, prog) => {
+  const doc = await openRaw(id);
+  try {
+    const n = doc.numPages; let c = null; try { c = await IE.idbGet('bkidx:' + id); } catch (e) { /* */ }
+    const idx = c && c.n === n && Array.isArray(c.t) ? c.t.slice() : new Array(n + 1).fill(null); let ocr = {}; try { ocr = (await IE.idbGet('bkocr:' + id)) || {}; } catch (e) { /* */ }
+    let dirty = false;
+    for (let p = 1; p <= n; p++) {
+      if (idx[p] == null) { try { const pg = await doc.getPage(p), tc = await pg.getTextContent(); idx[p] = tc.items.map(i => i.str || '').join(' ').replace(/\s+/g, ' ').trim(); } catch (e) { idx[p] = ''; } dirty = true; }
+      if (!idx[p] && ocr[p]) idx[p] = String(ocr[p]).replace(/\s+/g, ' ');
+      if (prog && (p % 10 === 0 || p === n)) { prog(p, n); await new Promise(r => setTimeout(r, 0)); }
+    }
+    if (dirty) { try { await IE.idbSet('bkidx:' + id, { n, t: idx }); } catch (e) { /* */ } }
+    const snips = [], empty = []; for (let p = 1; p <= n; p++) { const t = idx[p] || ''; if (t.length < 15) empty.push(p); snips.push({ p, t: t.length <= 230 ? t : t.slice(0, 170) + ' … ' + t.slice(-60) }); }
+    return { n, snips, empty: empty.length };
+  } finally { try { doc.destroy(); } catch (e) { /* */ } }
+};
 /** Kitobning a..b betlari matni (matn qatlami; bo‘lmasa OCR). prog(i, n, 'ocr'?) — jarayon. */
 IE.bookText = async (id, a, b, prog) => {
   const bk = bookOf(id); if (!bk) throw new Error('Kitob topilmadi');
