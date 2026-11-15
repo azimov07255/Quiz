@@ -2,7 +2,7 @@
    Savol banki: IndexedDB. Natijalar/xatolar/sozlamalar: localStorage. Hech qanday server yoki kalit yo‘q. */
 (() => {
 'use strict';
-const APP_VERSION = '1.7.0';   // sw.js dagi VERSION bilan bir xil bo‘lsin
+const APP_VERSION = '1.7.1';   // sw.js dagi VERSION bilan bir xil bo‘lsin
 
 // ───────────── yordamchilar ─────────────
 const $ = (s, r = document) => r.querySelector(s);
@@ -156,13 +156,13 @@ const persist = () => { try { localStorage.setItem(LS, JSON.stringify(S)); saveF
 const markDirty = ids => { const d = new Set(lsGet(KD, [])); ids.forEach(i => d.add(i)); lsSet(KD, [...d]); const x = lsGet(KX, []).filter(i => !ids.includes(i)); lsSet(KX, x); };
 const markDeleted = id => { const x = new Set(lsGet(KX, [])); x.add(id); lsSet(KX, [...x]); lsSet(KD, lsGet(KD, []).filter(i => i !== id)); };
 
-// Login: “ozod1” kabi oddiy login yoki email. Oddiy login ichkarida login@<loginDomain> ko‘rinishida saqlanadi.
+// Login: “abdulaziz1” kabi oddiy login yoki email. Oddiy login ichkarida login@<loginDomain> ko‘rinishida saqlanadi.
 const LDOM = (window.TESTLAR_CONFIG && window.TESTLAR_CONFIG.loginDomain) || 'testlar.internal';
 const LOGIN_RE = /^[a-z0-9][a-z0-9._-]{2,31}$/, MAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const toEmail = v => { v = String(v || '').trim().toLowerCase(); return v.includes('@') ? v : v + '@' + LDOM; };
 const shownLogin = e => String(e || '').toLowerCase().endsWith('@' + LDOM) ? String(e).slice(0, -(LDOM.length + 1)) : String(e || '');
 const validLogin = v => { v = String(v || '').trim().toLowerCase(); return v.includes('@') ? MAIL_RE.test(v) : LOGIN_RE.test(v); };
-const LOGIN_HINT = 'Login 3–32 belgi: kichik harf, raqam, nuqta, chiziq (masalan ozod1) yoki to‘g‘ri email.';
+const LOGIN_HINT = 'Login 3–32 belgi: kichik harf, raqam, nuqta, chiziq (masalan abdulaziz1) yoki to‘g‘ri email.';
 function uzErr(e) {
   if (e && e.uz) return e.message;
   if (e && e.net) return 'Internetga ulanib bo‘lmadi. Ulanishni tekshirib, qayta urin.';
@@ -357,7 +357,7 @@ async function copyText(t) {
   try { const r = document.createRange(); r.selectNodeContents($('#credtxt')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); return document.execCommand('copy'); } catch (e) { return false; }
 }
 async function newUser() {
-  const v = await formSheet('Yangi foydalanuvchi', fld('name', 'Ism', { ph: 'Ism familiya' }) + fld('login', 'Login yoki email', { mode: 'email', ph: 'ozod1' }) + fld('password', 'Parol', { gen: true, value: genPw() }) + planChips('30') + fld('amount', 'To‘lov summasi (so‘m), ixtiyoriy', { mode: 'numeric', ph: '0' }), 'Hisob ochish');
+  const v = await formSheet('Yangi foydalanuvchi', fld('name', 'Ism', { ph: 'Ism familiya' }) + fld('login', 'Login yoki email', { mode: 'email', ph: 'abdulaziz1' }) + fld('password', 'Parol', { gen: true, value: genPw() }) + planChips('30') + fld('amount', 'To‘lov summasi (so‘m), ixtiyoriy', { mode: 'numeric', ph: '0' }), 'Hisob ochish');
   if (!v) return; const life = v.plan === 'life';
   try {
     const email = toEmail(v.login);
@@ -781,7 +781,7 @@ function setView() {
   <div class="card up" style="--i:4"><h2>${ic('moon')}Ko‘rinish</h2>${segHtml('theme', S.set.theme, [['auto', 'Avto'], ['light', 'Yorug‘'], ['dark', 'Qorong‘i']])}</div>`;
   if (TB) h += `<div class="card up" style="--i:5"><h2>${ic('calendar')}Imtihon sanalari</h2><p class="mu s">Sana qo‘ysang, ilova ko‘rilmagan savollarni kunlarga bo‘lib “kuniga N ta” reja chiqaradi.</p><div class="grp">${TB.subjects.map(s => `<div class="row"><span class="t"><b>${esc(s.name)}</b></span><input type="date" value="${esc(S.ex[s.id] || '')}" data-c="exam" data-id="${esc(s.id)}" aria-label="${esc(s.name)} imtihon sanasi"></div>`).join('')}</div></div>`;
   if (!lite) h += `<div class="card up" style="--i:6"><h2>${ic('download')}Zaxira</h2><p class="mu s">Natijalar, xatolar va savol banki bitta faylda. Telefonni almashtirsang, shu fayl bilan tiklaysan.</p><div class="in"><button class="btn" data-a="export">${ic('download')} Zaxira olish</button><button class="btn" data-a="pickBack">${ic('upload')} Tiklash</button></div></div>`;
-  h += `<div class="card up" style="--i:7"><h2>${ic('sparkle')}Ilova</h2><p class="mu s">Versiya ${APP_VERSION}. Yangilanish chiqsa, ilova o‘zi xabar beradi.</p><button class="btn" data-a="checkUpdate">${ic('refresh')} Yangilanishni tekshirish</button></div>
+  h += `<div class="card up" style="--i:7"><h2>${ic('sparkle')}Ilova</h2><p class="mu s">Versiya ${APP_VERSION}. Yangilanish chiqsa, ilova o‘zi xabar beradi.</p><p class="byline">BY AZIMOV</p><button class="btn" data-a="checkUpdate">${ic('refresh')} Yangilanishni tekshirish</button></div>
   <div class="card up" style="--i:8"><h2>${ic('trash')}Tozalash</h2><div class="in"><button class="btn danger" data-a="clrHist">Natijalar tarixi</button>${lite ? '' : '<button class="btn danger" data-a="reset">Hammasini o‘chirish</button>'}</div></div>`;
   return h;
 }
@@ -794,12 +794,12 @@ function authView() {
   ${A.signupOpen && !fg ? `<div class="seg" role="group"><button class="${up ? '' : 'on'}" data-a="authMode" data-m="in">Kirish</button><button class="${up ? 'on' : ''}" data-a="authMode" data-m="up">Ro‘yxatdan o‘tish</button></div>` : ''}
   <form id="${fg ? 'ff' : 'af'}" class="card" novalidate>
    ${up ? `<label class="fld"><span class="lb">Taklif kodi</span><input name="code" autocomplete="off" autocapitalize="none" spellcheck="false" value="${esc(f.code || '')}" placeholder="Ilova egasi bergan kod"></label><label class="fld"><span class="lb">Ism</span><input name="name" autocomplete="name" value="${esc(f.name)}" placeholder="Ismingiz"></label>` : ''}
-   <label class="fld"><span class="lb">${up ? 'Login (o‘zingiz o‘ylab toping)' : 'Login yoki email'}</span><input name="email" type="text" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" value="${esc(f.email)}" placeholder="${up ? 'masalan: dilnoza1' : 'ozod1 yoki email@manzil.uz'}"></label>
+   <label class="fld"><span class="lb">${up ? 'Login (o‘zingiz o‘ylab toping)' : 'Login yoki email'}</span><input name="email" type="text" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" value="${esc(f.email)}" placeholder="${up ? 'masalan: abdulaziz1' : 'abdulaziz1 yoki email@manzil.uz'}"></label>
    ${fg ? '' : `<label class="fld"><span class="lb">Parol</span><span class="pw"><input name="password" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" placeholder="${up ? 'Kamida 6 ta belgi' : 'Parol'}"><button type="button" class="eye" data-a="eye" aria-label="Parolni ko‘rsatish/yashirish">${ic('eye')}</button></span></label>`}
    ${A.err ? `<div class="note" role="alert">${ic('alert')}<span>${esc(A.err)}</span></div>` : ''}${A.info ? `<div class="note okn" role="status">${ic('ok')}<span>${esc(A.info)}</span></div>` : ''}
    <button class="big" type="submit" ${A.busy ? 'disabled' : ''}>${A.busy ? 'Kutilmoqda…' : fg ? 'Havola yuborish' : up ? 'Hisob ochish' : 'Kirish'}</button>
    ${fg ? `<button type="button" class="lnk" data-a="authMode" data-m="in">‹ Kirishga qaytish</button>` : m === 'in' ? `<button type="button" class="lnk" data-a="authMode" data-m="forgot">Parolni unutdingmi?</button>` : ''}
-  </form><p class="mu s" style="text-align:center">${fg ? 'Xat kelmasa (Spam papkasini ham tekshir), ilova egasidan yangi parol so‘ra.' : A.signupOpen ? 'Boshqa telefonda ham shu login bilan kirasan.' : 'Hisobni ilova egasi ochib beradi. Hisobing yo‘qmi? Egasiga yoz.'}</p></div>`;
+  </form><p class="byline" style="margin-top:18px">BY AZIMOV</p><p class="mu s" style="text-align:center">${fg ? 'Xat kelmasa (Spam papkasini ham tekshir), ilova egasidan yangi parol so‘ra.' : A.signupOpen ? 'Boshqa telefonda ham shu login bilan kirasan.' : 'Hisobni ilova egasi ochib beradi. Hisobing yo‘qmi? Egasiga yoz.'}</p></div>`;
 }
 function resetView() {
   return `<div class="authw up"><div class="alogo">${LOGO}</div><h1>Yangi parol</h1><p class="mu" style="margin:6px 0 18px">Yangi parolni kiriting va saqlang.</p>
@@ -887,7 +887,7 @@ async function checkUpdate() {
 }
 function hideSplash() {
   const e = $('#splash'); if (!e) return;
-  const wait = Math.max(0, (reduced() ? 500 : 1900) - performance.now());
+  const wait = Math.max(0, (reduced() ? 500 : 2400) - performance.now());
   setTimeout(() => { document.body.classList.remove('splashing'); e.classList.add('out'); V.anim = true; draw(true); setTimeout(() => e.remove(), 700); }, wait);
 }
 function draw(keepScroll = true) {
