@@ -435,3 +435,10 @@ button,.nav,.top,.tabs2,.seg,.chip,.tool,.sktile,.qp,.item{-webkit-user-select:n
 .bkch>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
 .bkch i{display:block;width:100%;min-height:3px;border-radius:6px 6px 3px 3px;background:linear-gradient(180deg,var(--p2),var(--p1))}
 .bkch small{font-size:10.5px;color:var(--mu);font-weight:700}
+
+.item.fresh{animation:fresh 3.5s ease}
+@keyframes fresh{0%,60%{box-shadow:0 0 0 3px var(--p2),var(--sh)}100%{box-shadow:var(--sh)}}
+.aimg.sm{flex:none;width:44px;height:44px;border-radius:12px;background-size:cover;background-position:center;background:var(--soft)}
+
+.bktx .w.hl,.bkr mark{background:rgba(250,204,21,.5);color:inherit;border-radius:4px;padding:0 1px}
+.bkr{align-items:flex-start;gap:10px;font-size:14.5px;line-height:1.5}

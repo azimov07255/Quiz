@@ -122,14 +122,14 @@ A.bkcloud = async el => {
 };
 A.bkuncloud = async el => { const b = bookOf(el.dataset.id); if (!b) return; IE.closeSheet(); if (!hasLocal(b.id)) return IE.toast('Fayl bu qurilmada yo‘q — avval ochib yuklab oling'); await cloudDel(b.id); b.cloud = false; touch(b); IE.save(true); IE.draw(false); IE.toast('Bulutdan olib tashlandi'); };
 A.bkunlocal = async el => { const b = bookOf(el.dataset.id); if (!b || !b.cloud) return; IE.closeSheet(); await IE.idbDel('book:' + b.id); locDel(b.id); if (V.bk && V.bk.id === b.id) V.bk = null; IE.draw(false); IE.toast('Qurilmadan olib tashlandi'); };
-A.bkdel = el => { const b = bookOf(el.dataset.id); if (!b) return; IE.ask('Kitob o‘chirilsinmi?', '«' + b.t + '» qurilma va bulutdan o‘chadi.', 'O‘chirish', async () => { await cloudDel(b.id); try { await IE.idbDel('book:' + b.id); } catch (e) { /* */ } locDel(b.id); b.del = 1; touch(b); if (V.bk && V.bk.id === b.id) V.bk = null; IE.save(true); IE.go('books'); }); };
+A.bkdel = el => { const b = bookOf(el.dataset.id); if (!b) return; IE.ask('Kitob o‘chirilsinmi?', '«' + b.t + '» qurilma va bulutdan o‘chadi.', 'O‘chirish', async () => { await cloudDel(b.id); try { await IE.idbDel('book:' + b.id); await IE.idbDel('bkocr:' + b.id); await IE.idbDel('bkidx:' + b.id); } catch (e) { /* */ } locDel(b.id); b.del = 1; touch(b); if (V.bk && V.bk.id === b.id) V.bk = null; IE.save(true); IE.go('books'); }); };
 
 /* ---------- o‘qish ---------- */
 async function openDoc(st) {
   try {
     let buf = await IE.idbGet('book:' + st.id);
     if (!buf) { st.msg = 'Bulutdan yuklanmoqda…'; paint(); const b = bookOf(st.id); if (!b || !b.cloud) throw new Error('Fayl bu qurilmada yo‘q'); buf = await cloudGet(st.id); await IE.idbSet('book:' + st.id, buf); locAdd(st.id); }
-    const pdf = await lib(); st.doc = await pdf.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise; st.status = 'ready';
+    const pdf = await lib(); st.doc = await pdf.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise; try { st.ocr = (await IE.idbGet('bkocr:' + st.id)) || {}; } catch (e) { st.ocr = {}; } st.status = 'ready';
   } catch (e) { st.status = 'err'; st.msg = e.message || 'Ochilmadi'; }
   if (V.bk === st) paint();
 }
@@ -139,13 +139,13 @@ function paint() { if ((IE.curRoute || '').startsWith('book/')) IE.draw(false); 
 R.book = a => {
   const id = a[0], b = bookOf(id); if (!b) return R.books([]);
   V.art = null;
-  if (!V.bk || V.bk.id !== id) { if (V.bk && V.bk.doc) try { V.bk.doc.destroy(); } catch (e) { /* */ } V.bk = { id, status: 'load', msg: '', view: 'text', p: Math.min(b.pg, Math.max(1, b.cur || 1)), txt: {}, z: 1, tok: 0 }; openDoc(V.bk); }
+  if (!V.bk || V.bk.id !== id) { if (V.bk && V.bk.doc) try { V.bk.doc.destroy(); } catch (e) { /* */ } V.bk = { id, status: 'load', msg: '', view: 'text', p: Math.min(b.pg, Math.max(1, b.cur || 1)), txt: {}, ocr: {}, z: 1, tok: 0 }; openDoc(V.bk); }
   const st = V.bk; if (a[1] === 'plan') { st.view = 'plan'; }
   if (st.status !== 'ready') return sub(b.t, 'books', st.status === 'err' ? '<div class="pad"><div class="card c">' + bd('book', 'W', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<b>Ochilmadi</b><p class="mu sm" style="margin:6px 0 12px">' + esc(st.msg) + '</p><button class="btn" data-go="books">Kitoblarga qaytish</button></div></div>' : '<div style="padding-top:34vh"><div class="spin"></div><p class="mu sm c" style="margin-top:10px">' + esc(st.msg || 'Ochilmoqda…') + '</p></div>');
-  const pct = Math.round((b.max || 0) / b.pg * 100), views = [['text', 'Matn'], ['page', 'Sahifa'], ['plan', 'Reja']];
+  const pct = Math.round((b.max || 0) / b.pg * 100), views = [['text', 'Matn'], ['page', 'Sahifa'], ['find', 'Qidirish'], ['plan', 'Reja']];
   const inner = '<div class="pad bkpad"><div class="card" style="padding:12px 14px"><div class="row" style="justify-content:space-between"><b style="font-size:14px">' + (b.max || 0) + ' / ' + b.pg + ' bet</b><span class="chip">' + pct + '%</span></div><div class="prog" style="margin-top:8px"><i style="width:' + pct + '%"></i></div></div>' +
     '<div class="seg" style="margin-top:12px">' + views.map(v => '<button class="' + (st.view === v[0] ? 'on' : '') + '" data-a="bkv" data-v="' + v[0] + '">' + v[1] + '</button>').join('') + '</div><div id="bkbody"></div></div>' +
-    (st.view === 'plan' ? '' : '<div class="bar bkbar" id="bkbar"></div>');
+    (st.view === 'plan' || st.view === 'find' ? '' : '<div class="bar bkbar" id="bkbar"></div>');
   const o = sub(b.t, 'books', inner);
   o.mount = () => { paintBody(); };
   return o;
@@ -164,11 +164,13 @@ function paintBar() { const x = $('#bkbar'); if (x && V.bk) x.innerHTML = barHTM
 function paintBody() {
   const st = curSt(), box = $('#bkbody'); if (!st || !box) return;
   if (st.view === 'plan') return void (box.innerHTML = planHTML());
+  if (st.view === 'find') return void findView(box);
   paintBar();
   if (st.view === 'page') return void pageView(box);
   textView(box);
 }
-const tokens = s => String(s).split(/([A-Za-z][A-Za-z’'-]*)/).map((x, i) => i % 2 ? '<span class="w" data-a="aword" data-w="' + esc(x.toLowerCase().replace(/’/g, '\'').replace(/^['-]+|['-]+$/g, '')) + '">' + esc(x) + '</span>' : esc(x)).join('');
+const hlTerms = () => (V.bk && V.bk.hl ? V.bk.hl.toLowerCase().split(/\s+/).filter(t => t.length > 1) : []);
+const tokens = s => { const ht = hlTerms(); return String(s).split(/([A-Za-z][A-Za-z’'-]*)/).map((x, i) => i % 2 ? '<span class="w' + (ht.length && ht.some(t => x.toLowerCase().includes(t)) ? ' hl' : '') + '" data-a="aword" data-w="' + esc(x.toLowerCase().replace(/’/g, '\'').replace(/^['-]+|['-]+$/g, '')) + '">' + esc(x) + '</span>' : esc(x)).join(''); };
 
 async function pageText(p) {
   const st = V.bk; if (st.txt[p]) return st.txt[p];
@@ -188,15 +190,93 @@ async function pageText(p) {
   });
   flush(); return st.txt[p] = paras;
 }
+/** Betning abzaslari: PDF matn qatlami, bo‘lmasa (OCR qilingan bo‘lsa) OCR matni; auto=true bo‘lsa kerak bo‘lganda OCR ishga tushadi. */
+async function pageParas(p, auto) {
+  let ps = []; try { ps = await pageText(p); } catch (e) { /* */ }
+  if (ps.join('').length >= 15) return ps;
+  const st = V.bk, o = st.ocr[p]; if (o != null) return ocrParas(o);
+  if (auto) return ocrParas(await ocrPage(p));
+  return [];
+}
 async function textView(box) {
-  const st = V.bk, p = st.p; box.innerHTML = '<div style="padding:40px 0"><div class="spin"></div></div>';
-  let paras; try { paras = await pageText(p); } catch (e) { paras = []; }
+  const st = V.bk, p = st.p, b = bookOf(st.id); box.innerHTML = '<div style="padding:40px 0"><div class="spin"></div><p class="mu sm c" id="ocrp" style="margin-top:10px"></p></div>';
+  let paras = [], err = '';
+  try { paras = await pageParas(p, !!(b && b.ocr)); } catch (e) { err = e.message || 'OCR ishlamadi'; }
   if (V.bk !== st || st.p !== p || st.view !== 'text' || !$('#bkbody')) return;
-  $('#bkbody').innerHTML = paras.length ? '<div class="bktx">' + paras.map(x => x.length < 70 && !/[.!?,;:]$/.test(x) ? '<h4>' + tokens(x) + '</h4>' : '<p>' + tokens(x) + '</p>').join('') + '</div><p class="hint" style="margin-top:14px">' + ic('eye') + ' So‘zni bossangiz — ma’nosi chiqadi va lug‘atingizga qo‘shiladi.</p>'
-    : '<div class="card c">' + bd('doc', 'R', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<b>Bu betda matn yo‘q</b><p class="mu sm" style="margin:6px 0 12px">Rasm yoki skaner qilingan bet bo‘lishi mumkin. Sahifa rejimida ko‘ring.</p><button class="btn" data-a="bkv" data-v="page">Sahifa rejimi</button></div>';
+  $('#bkbody').innerHTML = paras.length ? '<div class="bktx">' + paras.map(x => x.length < 70 && !/[.!?,;:]$/.test(x) ? '<h4>' + tokens(x) + '</h4>' : '<p>' + tokens(x) + '</p>').join('') + '</div><p class="hint" style="margin-top:14px">' + ic('eye') + ' So‘zni bossangiz — ma’nosi chiqadi va lug‘atingizga qo‘shiladi.' + (st.ocr[p] != null && (st.txt[p] || []).join('').length < 15 ? ' Matn OCR orqali tanildi — xatolar bo‘lishi mumkin.' : '') + '</p>'
+    : '<div class="card c">' + bd('doc', 'R', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<b>Bu betda matn qatlami yo‘q</b><p class="mu sm" style="margin:6px 0 12px">' + (err ? esc(err) + '. ' : 'Skaner qilingan bet bo‘lishi mumkin. ') + 'OCR bilan matnni tanib olish mumkin (bir marta ~3 MB yuklanadi, keyin offline ishlaydi).</p><button class="btn block" data-a="bkocr">' + ic('spark') + ' Matnni tanib olish (OCR)</button><button class="btn block ghost" style="margin-top:8px" data-a="bkv" data-v="page">Sahifa rejimi</button></div>';
   mark(p);
   if (p < st.doc.numPages) pageText(p + 1).catch(() => {});
 }
+A.bkocr = () => { const b = V.bk && bookOf(V.bk.id); if (!b) return; b.ocr = 1; touch(b); IE.save(); paintBody(); };
+
+/* ---------- OCR (tesseract.js, vendor/ — offline) ---------- */
+const absU = p => new URL(p, document.baseURI).href;
+const OCRT = { loading: 'Model yuklanmoqda', 'loading tesseract core': 'Dvigatel yuklanmoqda', 'initializing tesseract': 'Ishga tushmoqda', 'loading language traineddata': 'Til modeli yuklanmoqda', 'initializing api': 'Tayyorlanmoqda', 'recognizing text': 'Matn tanilmoqda' };
+const tess = () => V.tess || (V.tess = new Promise((res, rej) => {
+  const go = async () => { try { res(await window.Tesseract.createWorker('eng', 1, { workerPath: absU('vendor/tesseract/worker.min.js'), corePath: absU('vendor/tesseract/core'), langPath: absU('vendor/tesseract/lang'), logger: m => { const e = $('#ocrp'); if (e && m && m.status) e.textContent = (OCRT[m.status] || m.status) + (m.progress != null ? ' ' + Math.round(m.progress * 100) + '%' : ''); } })); } catch (e) { rej(e); } };
+  if (window.Tesseract) return go();
+  const sc = document.createElement('script'); sc.src = 'vendor/tesseract/tesseract.min.js'; sc.onload = go; sc.onerror = () => rej(new Error('OCR yuklanmadi (internet kerak)')); document.head.appendChild(sc);
+}).catch(e => { V.tess = null; throw e; }));
+const ocrParas = t => String(t || '').split(/\n{2,}/).map(x => x.replace(/([a-z])-\n(?=[a-z])/g, '$1').replace(/\s*\n\s*/g, ' ').replace(/\s+/g, ' ').trim()).filter(Boolean);
+let ocrSaveT = 0;
+const saveOcr = st => { clearTimeout(ocrSaveT); ocrSaveT = setTimeout(() => { IE.idbSet('bkocr:' + st.id, st.ocr).catch(() => {}); if (st.idx) IE.idbSet('bkidx:' + st.id, { n: st.doc.numPages, t: st.idx }).catch(() => {}); }, 1500); };
+function ocrPage(p) {
+  const st = V.bk; st.jobs = st.jobs || {};
+  if (st.ocr[p] != null) return Promise.resolve(st.ocr[p]);
+  return st.jobs[p] || (st.jobs[p] = (async () => {
+    try {
+      const w = await tess(), pg = await st.doc.getPage(p), v0 = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: Math.min(3, 2000 / v0.width) });
+      const cv = document.createElement('canvas'); cv.width = vp.width | 0; cv.height = vp.height | 0; await pg.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+      const r = await w.recognize(cv); cv.width = cv.height = 0;
+      const t = (r.data.text || '').trim(); st.ocr[p] = t; if (st.idx) st.idx[p] = t.replace(/\s+/g, ' '); saveOcr(st); return t;
+    } finally { delete st.jobs[p]; }
+  })());
+}
+
+/* ---------- qidiruv ---------- */
+function buildIdx(st) {
+  if (st.idx) return Promise.resolve(st.idx);
+  return st.idxP || (st.idxP = (async () => {
+    const n = st.doc.numPages; let c = null; try { c = await IE.idbGet('bkidx:' + st.id); } catch (e) { /* */ }
+    const idx = c && c.n === n && Array.isArray(c.t) ? c.t.slice() : new Array(n + 1).fill(null);
+    for (let p = 1; p <= n; p++) {
+      if (V.bk !== st) throw new Error('stop');
+      if (idx[p] == null) { try { const pg = await st.doc.getPage(p), tc = await pg.getTextContent(); idx[p] = tc.items.map(i => i.str || '').join(' ').replace(/\s+/g, ' ').trim(); } catch (e) { idx[p] = ''; } }
+      if (!idx[p] && st.ocr[p]) idx[p] = st.ocr[p].replace(/\s+/g, ' ');
+      if (p % 6 === 0 || p === n) { st.idxN = p; paintFind(); await new Promise(r => setTimeout(r, 0)); }
+    }
+    st.idx = idx; try { await IE.idbSet('bkidx:' + st.id, { n, t: idx }); } catch (e) { /* */ } paintFind(); return idx;
+  })().catch(e => { st.idxP = null; throw e; }));
+}
+function findView(box) {
+  const st = V.bk; box.innerHTML = '<div class="card"><input class="search" id="bks" data-in="bks" placeholder="Kitobdan so‘z yoki ibora qidiring…" value="' + esc(st.q || '') + '" autocapitalize="off" autocomplete="off" spellcheck="false"><div id="bkfs" class="sm mu" style="margin-top:10px"></div></div><div id="bkres" style="margin-top:12px"></div>';
+  paintFind(); if (!st.idx) buildIdx(st).catch(() => {});
+}
+const empties = st => { const r = []; if (st.idx) for (let p = 1; p < st.idx.length; p++) if (!st.idx[p] && st.ocr[p] == null) r.push(p); return r; };
+function paintFind() {
+  const st = V.bk, fs = $('#bkfs'), rs = $('#bkres'); if (!st || st.view !== 'find' || !fs || !rs) return;
+  const n = st.doc.numPages, em = empties(st), bt = st.batch;
+  fs.innerHTML = !st.idx ? '<div class="prog"><i style="width:' + Math.round((st.idxN || 0) / n * 100) + '%"></i></div><div style="margin-top:6px">Indekslanmoqda… ' + (st.idxN || 0) + ' / ' + n + '</div>'
+    : (n - em.length) + ' bet qidiruvga tayyor' + (bt ? '<div class="prog" style="margin-top:8px"><i style="width:' + Math.round(bt.i / bt.n * 100) + '%"></i></div><div style="margin-top:6px">OCR: ' + bt.i + ' / ' + bt.n + ' <button class="chip" data-a="bkocrstop">To‘xtatish</button></div>'
+      : (em.length ? '<div style="margin-top:8px"><b>' + em.length + ' bet matnsiz</b> (skaner). OCR bilan qidiruvga qo‘shish mumkin.</div><button class="btn sm" style="margin-top:8px" data-a="bkocrall">' + ic('spark') + ' Hammasini OCR qilish</button>' : ''));
+  if (!st.idx) { rs.innerHTML = ''; return; }
+  const q = (st.q || '').trim().toLowerCase();
+  if (q.length < 2) { rs.innerHTML = '<p class="hint">' + ic('eye') + ' Kamida 2 ta belgi yozing. Natijani bossangiz — o‘sha bet ochiladi va so‘z belgilanadi.</p>'; return; }
+  const out = []; for (let p = 1; p < st.idx.length && out.length < 80; p++) { const t = st.idx[p] || '', k = t.toLowerCase().indexOf(q); if (k < 0) continue; const a = Math.max(0, k - 55), z = Math.min(t.length, k + q.length + 70); out.push('<button class="item bkr" data-a="bkfp" data-p="' + p + '"><span class="chip">' + p + '-bet</span><span class="tx" style="white-space:normal">' + (a ? '…' : '') + esc(t.slice(a, k)) + '<mark>' + esc(t.slice(k, k + q.length)) + '</mark>' + esc(t.slice(k + q.length, z)) + (z < t.length ? '…' : '') + '</span></button>'); }
+  rs.innerHTML = out.length ? '<div class="lst">' + out.join('') + '</div>' + (out.length >= 80 ? '<p class="hint">Dastlabki 80 natija ko‘rsatildi.</p>' : '') : '<div class="card empty">“' + esc(st.q) + '” topilmadi.</div>';
+}
+IE.bks = el => { const st = V.bk; if (!st) return; st.q = el.value; clearTimeout(V.bksT); V.bksT = setTimeout(paintFind, 140); };
+A.bkfp = el => { const st = curSt(); if (!st) return; st.p = +el.dataset.p; st.hl = (st.q || '').trim(); setView('text'); };
+A.bkocrall = async () => {
+  const st = curSt(); if (!st || st.batch || !st.idx) return; const todo = empties(st); if (!todo.length) return;
+  const b = bookOf(st.id); if (b) { b.ocr = 1; touch(b); IE.save(); }
+  st.batch = { i: 0, n: todo.length, stop: false }; paintFind();
+  try { for (const p of todo) { if (st.batch.stop || V.bk !== st) break; await ocrPage(p); st.batch.i++; paintFind(); } } catch (e) { IE.toast('OCR to‘xtadi: ' + (e.message || '')); }
+  const done = st.batch ? st.batch.i : 0; st.batch = null; saveOcr(st); paintFind(); if (V.bk === st) IE.toast(done + ' bet OCR qilindi');
+};
+A.bkocrstop = () => { if (V.bk && V.bk.batch) V.bk.batch.stop = true; };
+
 async function pageView(box) {
   const st = V.bk, p = st.p, tok = ++st.tok;
   box.innerHTML = '<div class="bkpg" id="bkpg"><canvas id="bkcv"></canvas></div><div class="spin" id="bksp" style="margin-top:20px"></div>';
@@ -220,7 +300,7 @@ function mark(p) {
   touch(b); IE.saveLocal(); clearTimeout(V.bkT); V.bkT = setTimeout(() => IE.save(), 2500);
   const pr = $('.bkpad .prog i'), ch = $('.bkpad .chip'), bb = $('.bkpad .card b'); if (pr) pr.style.width = Math.round((b.max || 0) / b.pg * 100) + '%'; if (ch) ch.textContent = Math.round((b.max || 0) / b.pg * 100) + '%'; if (bb) bb.textContent = (b.max || 0) + ' / ' + b.pg + ' bet';
 }
-function setPage(p) { const st = curSt(), b = st && bookOf(st.id); if (!b) return; p = Math.max(1, Math.min(b.pg, p | 0)); if (p === st.p) return; st.p = p; st.tok++; window.scrollTo(0, 0); const sc = $('.scr'); if (sc) sc.scrollTop = 0; paintBody(); }
+function setPage(p) { const st = curSt(), b = st && bookOf(st.id); if (!b) return; if (p !== st.p) st.hl = ''; p = Math.max(1, Math.min(b.pg, p | 0)); if (p === st.p) return; st.p = p; st.tok++; window.scrollTo(0, 0); const sc = $('.scr'); if (sc) sc.scrollTop = 0; paintBody(); }
 A.bkgo = el => { const st = curSt(); if (st) setPage(st.p + (+el.dataset.d)); };
 A.bkz = el => { const st = curSt(); if (!st) return; st.z = Math.max(1, Math.min(3, st.z + (+el.dataset.d))); paintBody(); };
 A.bkjump = () => { const st = curSt(), b = st && bookOf(st.id); if (!b) return; IE.sheet('<h2>Betga o‘tish</h2><p class="mu sm" style="margin:4px 0 12px">1 – ' + b.pg + '</p><input id="bkjn" type="number" inputmode="numeric" min="1" max="' + b.pg + '" value="' + st.p + '" class="fill" style="font-size:20px;text-align:center;width:100%"><button class="btn block" style="margin-top:12px" data-a="bkjgo">O‘tish</button>'); setTimeout(() => { const i = $('#bkjn'); if (i) { i.focus(); i.select(); } }, 60); };
@@ -228,7 +308,7 @@ A.bkjgo = () => { const i = $('#bkjn'), v = i ? parseInt(i.value, 10) : 0; IE.cl
 /** Joriy bet (+ keyingi ikkitasi) matnini maqola/mashqqa aylantiradi: AI lug‘at, grammatika, savollar. */
 A.bkex = async () => {
   const st = curSt(), b = st && bookOf(st.id); if (!st) return; IE.toast('Matn tayyorlanmoqda…');
-  let text = ''; for (let p = st.p; p <= Math.min(b.pg, st.p + 2) && text.length < 6000; p++) { try { text += (await pageText(p)).join('\n\n') + '\n\n'; } catch (e) { /* */ } }
+  let text = ''; for (let p = st.p; p <= Math.min(b.pg, st.p + 2) && text.length < 6000; p++) { try { text += (await pageParas(p, !!b.ocr)).join('\n\n') + '\n\n'; } catch (e) { /* */ } }
   text = text.trim(); if (text.length < 300) return IE.toast('Bu betlarda yetarli matn yo‘q');
   if (IE.addArticle) IE.addArticle(b.t + ' — ' + st.p + '-bet', text.slice(0, 6500), '', '');
 };

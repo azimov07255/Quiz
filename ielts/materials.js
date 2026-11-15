@@ -55,41 +55,66 @@ function textHTML(m) {
 
 /* ---------- markaz (ro‘yxat + qo‘shish) ---------- */
 const net = () => V.net || (V.net = { url: '', busy: '', err: '', feed: null, paste: false });
+const SEEDK = 'ielts:seedpod:v1';
+/** Tayyor podkastlar: birinchi marta ochilganda mening podkastlarimga qo‘shiladi (keyin o‘chirsa bo‘ladi). */
+function seedPods() {
+  if (lsGet(SEEDK, 0) || !D.podcasts || !D.podcasts.items) return;
+  const lib = S().lib; let n = 0, t0 = Date.now() - 1e4;
+  D.podcasts.items.forEach((it, i) => { if (lib.some(x => x.id === it.id || x.au === it.au)) return; lib.push({ id: it.id, k: 'p', t: it.t.slice(0, 120), au: it.au, img: it.img || '', src: '', show: it.show || '', ts: t0 - i, an: 0 }); n++; });
+  lsSet(SEEDK, 1); if (n) IE.save(true);
+}
+const libRow = x => '<div class="item' + (V.newId === x.id ? ' fresh' : '') + '" style="padding:8px 8px 8px 12px"><button class="row" style="flex:1;min-width:0;text-align:left" data-go="article/' + x.id + '">' + (x.img && x.k === 'p' ? '<span class="aimg sm" style="background-image:url(\'' + esc(x.img) + '\')"></span>' : bd(x.k === 'p' ? 'head' : 'news', x.k === 'p' ? 'L' : 'R', 'sm')) + '<div class="tx"><b>' + esc(x.t) + '</b><span>' + esc(x.k === 'p' ? (x.show || 'Podkast') : 'Maqola') + (x.an ? ' · tahlil tayyor' : '') + '</span></div></button><button class="ib" data-a="ndel" data-id="' + x.id + '" aria-label="O‘chirish">' + ic('trash') + '</button></div>';
 R.articles = a => {
   const tab = a[0] === 'tab' ? a[1] : (V.atab || 'a'); V.atab = tab; const s = S();
+  if (tab === 'p') seedPods();
   const body = tab === 'a' ? '<div class="lst">' + D.articles.items.map(m => {
     const last = s.arts.filter(r => r.id === m.id).slice(-1)[0];
     return '<button class="acard rise" data-go="article/' + m.id + '"><div class="aimg" style="background-image:url(\'' + esc(m.img.src) + '\')"></div><div class="abody"><b>' + esc(m.title) + '</b><span>' + esc(m.topic) + '</span><div class="ameta"><span class="chip">' + esc(m.level) + '</span><span class="chip">' + ic('book') + ' ' + m.mins + ' daq</span><span class="chip">' + ic('head') + ' ' + mmss(m.dur) + '</span>' + (last ? '<span class="chip ok">' + last.raw + '/' + last.tot + '</span>' : '') + '</div></div></button>';
-  }).join('') + '</div><p class="hint" style="margin-top:14px">' + ic('bulb') + ' Audio — VOA Learning English; rasmlar — Wikimedia Commons (ommaviy mulk/CC). Matnni audio bilan birga kuzating, so‘zni bosing, lug‘at va grammatikani o‘rganing.</p>' : addHTML();
-  return sub('Articles & Podcasts', 'tools', '<div class="pad"><div class="tabs2" style="margin:0 0 14px"><button class="' + (tab === 'a' ? 'on' : '') + '" data-a="atabs" data-v="a">Maqolalar</button><button class="' + (tab === 'p' ? 'on' : '') + '" data-a="atabs" data-v="p">Podkast va havola</button></div>' + body + '</div>');
+  }).join('') + '</div><p class="hint" style="margin-top:14px">' + ic('bulb') + ' Audio — VOA Learning English; rasmlar — Wikimedia Commons (ommaviy mulk/CC). Matnni audio bilan birga kuzating, so‘zni bosing, lug‘at va grammatikani o‘rganing.</p>' + artAdd() : podsHTML();
+  return sub(tab === 'p' ? 'Podkastlar' : 'Maqolalar', 'tools', '<div class="pad"><div class="tabs2" style="margin:0 0 14px"><button class="' + (tab === 'a' ? 'on' : '') + '" data-a="atabs" data-v="a">Maqolalar</button><button class="' + (tab === 'p' ? 'on' : '') + '" data-a="atabs" data-v="p">Podkastlar</button></div>' + body + '</div>');
 };
-A.atabs = el => { V.atab = el.dataset.v; IE.draw(false); };
-const PRESETS = [['BBC 6 Minute English', 'https://podcasts.files.bbci.co.uk/p02pc9tn.rss']];
-function addHTML() {
-  const n = net(), lib = S().lib.slice().reverse();
-  return '<div class="card"><div class="row">' + bd('search', 'A') + '<div style="flex:1"><b>Internetdan qo‘shish</b><div class="sm mu">Podkast RSS havolasini yoki maqola havolasini qo‘ying. Podkast audiosi AI bilan transkripsiya qilinadi (1–3 daqiqa).</div></div></div>' +
-    '<div class="seg" style="margin-top:10px;padding-bottom:4px">' + PRESETS.map(p => '<button data-a="npre" data-u="' + esc(p[1]) + '">' + esc(p[0]) + '</button>').join('') + '</div>' +
-    '<input class="search" id="nfu" style="margin:6px 0 10px" placeholder="https://…" value="' + esc(n.url) + '" autocapitalize="off" spellcheck="false">' +
-    '<div class="two"><button class="btn sm" data-a="nfeed"' + (n.busy ? ' disabled' : '') + '>' + (n.busy === 'feed' ? 'Yuklanmoqda…' : 'Podkast ro‘yxati') + '</button><button class="btn sm ghost" data-a="nart"' + (n.busy ? ' disabled' : '') + '>' + (n.busy === 'art' ? 'Yuklanmoqda…' : 'Maqola') + '</button></div>' +
+A.atabs = el => IE.go('articles/tab/' + el.dataset.v);
+const presets = () => (D.podcasts && D.podcasts.shows ? D.podcasts.shows : []).map(x => [x.name, x.feed]);
+function podsHTML() {
+  const n = net(), mine = S().lib.filter(x => x.k === 'p').slice().reverse(), open = n.openP || n.feed || n.err || n.busy === 'feed';
+  const have = it => S().lib.some(x => x.au === it.au);
+  const mineH = '<div class="sec" style="margin-top:0"><h2>Mening podkastlarim</h2></div>' + (mine.length ? '<div class="lst">' + mine.map(libRow).join('') + '</div>' : '<div class="card empty">Hali podkast yo‘q.</div>');
+  const add = !open ? '<button class="btn block ghost" style="margin-top:16px" data-a="nopen">' + ic('search') + ' Podkast qidirish va qo‘shish</button>' :
+    '<div class="card" style="margin-top:16px"><div class="row">' + bd('search', 'A') + '<div style="flex:1"><b>Podkast qo‘shish</b><div class="sm mu">Tayyor manbani tanlang yoki RSS havolasini qo‘ying. Audio AI bilan transkripsiya qilinadi (1–3 daqiqa, bir marta).</div></div></div>' +
+    '<div class="seg" style="margin-top:10px;padding-bottom:4px">' + presets().map(p => '<button data-a="npre" data-u="' + esc(p[1]) + '">' + esc(p[0]) + '</button>').join('') + '</div>' +
+    '<input class="search" id="nfu" style="margin:6px 0 10px" placeholder="https://…  (RSS havola)" value="' + esc(n.url) + '" autocapitalize="off" spellcheck="false">' +
+    '<div class="two"><button class="btn sm" data-a="nfeed"' + (n.busy ? ' disabled' : '') + '>' + (n.busy === 'feed' ? 'Yuklanmoqda…' : 'Ro‘yxatni ochish') + '</button><button class="btn sm ghost" data-a="nclose">Yopish</button></div>' +
+    (n.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(n.err) + '</p>' : '') + '</div>' +
+    (n.feed ? '<div class="sec"><h2>' + esc(n.feed.title || 'Ro‘yxat') + '</h2></div><div class="lst">' + n.feed.items.map((it, i) => '<div class="item"><div class="tx"><b style="white-space:normal">' + esc(it.t) + '</b><span>' + esc(it.d.slice(0, 16)) + (it.dur ? ' · ' + esc(fmtDur(it.dur)) : '') + (it.au ? '' : ' · audio yo‘q') + '</span></div>' + (it.au && have(it) ? '<span class="chip ok">' + ic('check') + ' Qo‘shildi</span>' : '<button class="btn sm" data-a="nadd" data-i="' + i + '">Qo‘shish</button>') + '</div>').join('') + '</div>' : '');
+  return mineH + add;
+}
+function artAdd() {
+  const n = net(), mine = S().lib.filter(x => x.k !== 'p').slice().reverse(), open = n.openA || n.paste || n.busy === 'art';
+  return '<div class="sec"><h2>Mening maqolalarim</h2></div>' + (mine.length ? '<div class="lst">' + mine.map(libRow).join('') + '</div>' : '<div class="card empty">Hali maqola qo‘shilmagan.</div>') +
+    (!open ? '<button class="btn block ghost" style="margin-top:16px" data-a="naopen">' + ic('plus') + ' Maqola qo‘shish</button>' :
+    '<div class="card" style="margin-top:16px"><b>Maqola qo‘shish</b><div class="sm mu">Maqola havolasini qo‘ying yoki matnni qo‘lda kiriting — AI lug‘at, grammatika va savollar tuzadi.</div>' +
+    '<input class="search" id="nau" style="margin:10px 0" placeholder="https://…  (maqola havolasi)" value="' + esc(n.aurl || '') + '" autocapitalize="off" spellcheck="false">' +
+    '<div class="two"><button class="btn sm" data-a="nart"' + (n.busy ? ' disabled' : '') + '>' + (n.busy === 'art' ? 'Yuklanmoqda…' : 'Havoladan olish') + '</button><button class="btn sm ghost" data-a="nclose">Yopish</button></div>' +
     (n.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(n.err) + '</p>' : '') +
     '<button class="chip" style="margin-top:12px" data-a="npaste">' + ic('doc') + ' Matnni qo‘lda qo‘shish</button>' +
-    (n.paste ? '<div style="margin-top:10px"><input class="search" id="ptt" placeholder="Sarlavha" style="margin-bottom:8px"><textarea class="ed" id="ptx" style="min-height:140px;font:15px/1.5 -apple-system,sans-serif" placeholder="Inglizcha matnni shu yerga qo‘ying…"></textarea><button class="btn sm block" style="margin-top:8px" data-a="npadd">Qo‘shish</button></div>' : '') + '</div>' +
-    (n.feed ? '<div class="sec"><h2>' + esc(n.feed.title || 'Ro‘yxat') + '</h2></div><div class="lst">' + n.feed.items.map((it, i) => '<div class="item"><div class="tx"><b style="white-space:normal">' + esc(it.t) + '</b><span>' + esc(it.d.slice(0, 16)) + (it.dur ? ' · ' + esc(fmtDur(it.dur)) : '') + (it.au ? ' · audio' : ' · maqola') + '</span></div><button class="btn sm" data-a="nadd" data-i="' + i + '"' + (n.busy ? ' disabled' : '') + '>Qo‘shish</button></div>').join('') + '</div>' : '') +
-    '<div class="sec"><h2>Mening materiallarim</h2></div>' + (lib.length ? '<div class="lst">' + lib.map(x => '<div class="item" style="padding:8px 8px 8px 12px"><button class="row" style="flex:1;min-width:0;text-align:left" data-go="article/' + x.id + '">' + bd(x.k === 'p' ? 'head' : 'news', x.k === 'p' ? 'L' : 'R', 'sm') + '<div class="tx"><b>' + esc(x.t) + '</b><span>' + (x.k === 'p' ? 'Podkast' : 'Maqola') + (x.an ? ' · tahlil tayyor' : '') + '</span></div></button><button class="ib" data-a="ndel" data-id="' + x.id + '" aria-label="O‘chirish">' + ic('trash') + '</button></div>').join('') + '</div>' : '<div class="card empty">Hali hech narsa qo‘shilmagan.</div>');
+    (n.paste ? '<div style="margin-top:10px"><input class="search" id="ptt" placeholder="Sarlavha" style="margin-bottom:8px"><textarea class="ed" id="ptx" style="min-height:140px;font:15px/1.5 -apple-system,sans-serif" placeholder="Inglizcha matnni shu yerga qo‘ying…"></textarea><button class="btn sm block" style="margin-top:8px" data-a="npadd">Qo‘shish</button></div>' : '') + '</div>');
 }
-A.npre = el => { const n = net(); n.url = el.dataset.u; IE.draw(false); A.nfeed(); };
+A.nopen = () => { net().openP = true; IE.draw(false); };
+A.naopen = () => { net().openA = true; IE.draw(false); };
+A.nclose = () => { const n = net(); n.openP = n.openA = n.paste = false; n.feed = null; n.err = ''; IE.draw(false); };
+A.npre = el => { const n = net(); n.url = el.dataset.u; n.openP = true; IE.draw(false); A.nfeed(); };
 A.npaste = () => { net().paste = !net().paste; IE.draw(false); };
-const readUrl = () => { const i = $('#nfu'); return i ? i.value.trim() : ''; };
+const readUrl = id => { const i = $(id); return i ? i.value.trim() : ''; };
 A.nfeed = async () => {
-  const n = net(); n.url = readUrl() || n.url; if (!/^https?:\/\//i.test(n.url)) { n.err = 'To‘liq havola yozing (https:// bilan).'; return IE.draw(false); }
+  const n = net(); n.url = readUrl('#nfu') || n.url; if (!/^https?:\/\//i.test(n.url)) { n.err = 'To‘liq havola yozing (https:// bilan).'; return IE.draw(false); }
   n.busy = 'feed'; n.err = ''; IE.draw(false);
   try { n.feed = await IE.ai({ action: 'feed', url: n.url }); } catch (e) { n.err = e.message; n.feed = null; }
   n.busy = ''; if (location.hash.startsWith('#/articles')) IE.draw(false);
 };
 A.nart = async () => {
-  const n = net(); n.url = readUrl() || n.url; if (!/^https?:\/\//i.test(n.url)) { n.err = 'To‘liq havola yozing (https:// bilan).'; return IE.draw(false); }
+  const n = net(); n.aurl = readUrl('#nau') || n.aurl || ''; if (!/^https?:\/\//i.test(n.aurl)) { n.err = 'To‘liq havola yozing (https:// bilan).'; return IE.draw(false); }
   n.busy = 'art'; n.err = ''; IE.draw(false);
-  try { const d = await IE.ai({ action: 'article', url: n.url }); await addArticle(d.title, d.text, n.url, d.image); } catch (e) { n.err = e.message; }
+  try { const d = await IE.ai({ action: 'article', url: n.aurl }); await addArticle(d.title, d.text, n.aurl, d.image); } catch (e) { n.err = e.message; }
   n.busy = ''; if (location.hash.startsWith('#/articles')) IE.draw(false);
 };
 async function addArticle(title, text, src, image) {
@@ -99,9 +124,10 @@ async function addArticle(title, text, src, image) {
 A.npadd = async () => { const t = $('#ptt'), x = $('#ptx'); if (!x || x.value.trim().length < 300) return IE.toast('Matn kamida 300 belgi bo‘lsin'); await addArticle((t && t.value.trim()) || 'Mening matnim', x.value.trim(), '', ''); };
 A.nadd = async el => {
   const n = net(), it = n.feed && n.feed.items[+el.dataset.i]; if (!it) return;
-  if (!it.au) { if (!it.link) return IE.toast('Bu elementda havola yo‘q'); n.url = it.link; return A.nart(); }
+  if (!it.au) return IE.toast('Bu elementda audio yo‘q');
   if (S().lib.some(x => x.au === it.au)) return IE.toast('Bu podkast allaqachon qo‘shilgan');
-  const id = 'u' + Date.now(); S().lib.push({ id, k: 'p', t: it.t.slice(0, 120), au: it.au, img: it.img || n.feed.image || '', src: it.link || '', ts: Date.now(), an: 0 }); IE.touchDay(); IE.save(true); IE.go('article/' + id);
+  const id = 'u' + Date.now(); S().lib.push({ id, k: 'p', t: it.t.slice(0, 120), au: it.au, img: it.img || n.feed.image || '', src: it.link || '', show: (n.feed.title || '').slice(0, 60), ts: Date.now(), an: 0 }); V.newId = id; IE.touchDay(); IE.save(true);
+  IE.toast('Qo‘shildi — “Mening podkastlarim” ro‘yxatining tepasida'); IE.draw(false); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => { V.newId = null; }, 4000);
 };
 A.ndel = el => IE.ask('O‘chirilsinmi?', 'Material va uning tahlili o‘chadi.', 'O‘chirish', async () => { const id = el.dataset.id; S().lib = S().lib.filter(x => x.id !== id); delete V.mats[id]; try { await IE.idbDel('mat:' + id); localStorage.removeItem('ielts:art:' + id); } catch (e) { /* */ } IE.save(true); IE.draw(false); });
 

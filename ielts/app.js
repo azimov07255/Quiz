@@ -18,7 +18,7 @@ IE.uzErr = e => {
 /* ---------- ma’lumotlar va profil ---------- */
 async function loadData() {
   const f = n => fetch('data/' + n + '.json').then(r => { if (!r.ok) throw new Error(n); return r.json(); });
-  [D.reading, D.vocab, D.strategy, D.prompts, D.listening, D.articles] = await Promise.all([f('reading'), f('vocab8'), f('strategy'), f('prompts'), f('listening'), f('articles')]);
+  [D.reading, D.vocab, D.strategy, D.prompts, D.listening, D.articles, D.podcasts] = await Promise.all([f('reading'), f('vocab8'), f('strategy'), f('prompts'), f('listening'), f('articles'), f('podcasts').catch(() => ({ shows: [], items: [] }))]);
   await IE.loadCam();
 }
 const KP = 'ielts:profile';
@@ -82,7 +82,7 @@ document.addEventListener('click', e => {
 });
 const onIn = e => {
   const el = e.target, k = el.dataset && el.dataset.in; if (!k) return;
-  const m = { fill: IE.inp, sel: IE.inp, ed: IE.edInput, notes: IE.inpNotes, vs: IE.vsearch, pf: IE.pf, lseek: IE.lseek, afollow: IE.afollow, dct: IE.dct }[k]; if (m) m(el);
+  const m = { fill: IE.inp, sel: IE.inp, ed: IE.edInput, notes: IE.inpNotes, vs: IE.vsearch, pf: IE.pf, lseek: IE.lseek, afollow: IE.afollow, dct: IE.dct, bks: IE.bks }[k]; if (m) m(el);
 };
 document.addEventListener('input', onIn);
 document.addEventListener('change', e => {
