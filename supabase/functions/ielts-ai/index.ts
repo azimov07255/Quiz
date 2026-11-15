@@ -57,7 +57,7 @@ async function geminiRun(body: Record<string, unknown>, gen: Record<string, unkn
   for (const m of models) {
     let r: Response | null = null, j: any = {}
     for (let k = OKT[m] ?? 0; k < THINK.length; k++) {
-      const th = THINK[k], ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 60000)
+      const th = THINK[k], ctl = new AbortController(), to = setTimeout(() => ctl.abort(), Number((gen as any).maxOutputTokens) > 4000 ? 110000 : 60000)
       try {
         r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', 'x-goog-api-key': GEMINI }, body: JSON.stringify({ ...body, generationConfig: { ...gen, ...(th ? { thinkingConfig: th } : {}) } }) })
       } catch { r = null; clearTimeout(to); break } finally { clearTimeout(to) }
@@ -77,9 +77,9 @@ async function geminiRun(body: Record<string, unknown>, gen: Record<string, unkn
   }
   throw new Error('gemini [' + errs.join('; ') + ']')
 }
-async function gemini(system: string, msgs: Msg[], asJson: boolean, temp: number, light = false): Promise<string> {
+async function gemini(system: string, msgs: Msg[], asJson: boolean, temp: number, light = false, maxTok = 2048): Promise<string> {
   return await geminiRun({ systemInstruction: { parts: [{ text: system }] }, contents: msgs.map((x) => ({ role: x.role === 'assistant' ? 'model' : 'user', parts: [{ text: x.content }] })) },
-    { temperature: temp, maxOutputTokens: 2048, ...(asJson ? { responseMimeType: 'application/json' } : {}) }, light)
+    { temperature: temp, maxOutputTokens: maxTok, ...(asJson ? { responseMimeType: 'application/json' } : {}) }, light)
 }
 let GCACHE: { ids: string[]; at: number } | null = null
 async function groqModels(): Promise<string[]> {
@@ -96,12 +96,12 @@ async function groqModels(): Promise<string[]> {
   } catch { /* ro‘yxat olinmasa, standart tartib */ }
   return pref.slice(0, 3)
 }
-async function groq(system: string, msgs: Msg[], asJson: boolean, temp: number): Promise<string> {
+async function groq(system: string, msgs: Msg[], asJson: boolean, temp: number, maxTok = 2048): Promise<string> {
   const errs: string[] = []
   for (const model of await groqModels()) {
     const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + GROQ },
-      body: JSON.stringify({ model, temperature: temp, max_tokens: 2048, messages: [{ role: 'system', content: system }, ...msgs], ...(asJson ? { response_format: { type: 'json_object' } } : {}), ...(/gpt-oss/.test(model) ? { reasoning_effort: 'low' } : {}) }),
+      body: JSON.stringify({ model, temperature: temp, max_tokens: Math.min(maxTok, 8000), messages: [{ role: 'system', content: system }, ...msgs], ...(asJson ? { response_format: { type: 'json_object' } } : {}), ...(/gpt-oss/.test(model) ? { reasoning_effort: 'low' } : {}) }),
     })
     const j = await r.json().catch(() => ({}))
     const t = String(j?.choices?.[0]?.message?.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim()
@@ -111,12 +111,12 @@ async function groq(system: string, msgs: Msg[], asJson: boolean, temp: number):
   }
   throw new Error('groq [' + errs.join('; ') + ']')
 }
-async function ask(system: string, msgs: Msg[], asJson = false, temp = 0.6, fast = false): Promise<string> {
+async function ask(system: string, msgs: Msg[], asJson = false, temp = 0.6, fast = false, maxTok = 2048): Promise<string> {
   if (!GEMINI && !GROQ) throw new Error('nokey')
   const errs: string[] = []
   for (const p of (fast && GROQ ? ['groq', 'gemini'] : ['gemini', 'groq'])) {
     if ((p === 'gemini' && !GEMINI) || (p === 'groq' && !GROQ)) continue
-    try { return p === 'gemini' ? await gemini(system, msgs, asJson, temp, fast) : await groq(system, msgs, asJson, temp) } catch (e) { const m = String((e as Error).message); console.error(m); errs.push(m) }
+    try { return p === 'gemini' ? await gemini(system, msgs, asJson, temp, fast, maxTok) : await groq(system, msgs, asJson, temp, maxTok) } catch (e) { const m = String((e as Error).message); console.error(m); errs.push(m) }
   }
   throw new Error(errs.join(' | '))
 }
@@ -147,6 +147,26 @@ const DICT_CTX = `You explain English words and multi-word expressions for an Uz
 const DICT = `You are an English-Uzbek learner dictionary for IELTS students. Return ONLY JSON: {"w":string,"pos":string,"ipa":string,"uz":string,"def":string,"ex":[string,string],"syn":[string,string,string],"note":string}.
 "uz" = concise Uzbek (Latin script) meaning(s); "def" = simple English definition; "ex" = two natural example sentences (IELTS-level); "syn" = up to 3 synonyms; "note" = one short Uzbek tip about usage or collocations (or empty string).`
 
+
+const CAMIMPORT = `You convert text extracted from a PDF of a published IELTS Academic practice test into clean structured JSON for a study app. The text may contain page numbers, headers, column breaks and OCR noise: clean it silently. You are given the QUESTION PAGES text and the ANSWER KEY text (and for listening optionally the AUDIOSCRIPT). Extract ONLY the requested unit (one reading passage or one listening section). Never invent content that is not in the text; answers must come from the ANSWER KEY (use the passage/audioscript only to write explanations).
+Return ONLY valid JSON:
+{"title":string,"topic":string,
+ "paras":[{"k":string,"t":string}],          // READING ONLY: the full passage text split into paragraphs; k = the printed paragraph letter (A, B, ...) if the passage has lettered paragraphs, otherwise "1","2","3"...
+ "tr":[{"x":string}],                         // LISTENING ONLY: audioscript split into paragraphs/speaker turns ([] if no audioscript given)
+ "groups":[{"type":"heads"|"tfng"|"fill"|"mcq","title":string,"note":string,
+   "headings":[{"id":string,"t":string}],   // only for type heads: the list of headings with their roman numerals i, ii, iii ...
+   "qs":[{"n":number,"q":string,"para":string,"o":[string],"a":any,"why":string,"p":number}]}]}
+Rules:
+- "title" = the passage title (reading) or a short descriptive title of the section (listening). "topic" = 1-3 word English topic.
+- Group "title" like "Questions 1–5"; "note" = the official instruction line(s), shortened (e.g. "Choose the correct heading for paragraphs B–F from the list of headings below.").
+- type "heads" (matching headings): each q has "para" (the paragraph letter) and "a" = the roman numeral id from the ANSWER KEY (lowercase, e.g. "iv"); "q" may be "".
+- type "tfng" (True/False/Not Given or Yes/No/Not Given): "q" = the statement; "a" = "TRUE", "FALSE" or "NOT GIVEN" (convert YES→TRUE, NO→FALSE).
+- type "mcq": "q" = the question stem; "o" = the option texts WITHOUT their letters (A, B, C...); "a" = the 0-based index of the correct option. Use mcq also for matching tasks (matching information/features/endings/sentence endings, maps, labels): put the matching question/statement in "q" and the full list of choices in "o" (keep their letter order, e.g. "A  Dr Smith"), "a" = the 0-based index of the correct choice. For "Choose TWO letters" questions create one mcq per required answer, each with the same options and its own answer from the key.
+- type "fill" (sentence/summary/note/table/flow-chart completion, short-answer): "q" = the sentence or note line with the gap written as ______ (for a summary with numbered gaps write "Gap n: <context from the sentence>"); "a" = array of ALL acceptable answers from the key (alternatives separated by "/" or "or" in the key become separate entries; also include the numeric/spelled variants such as "5" and "five" when obvious).
+- Keep question numbers "n" exactly as printed in the test (1-40). Questions must be in numeric order; every question of the requested unit must be included, none from other units.
+- "why": ONE short sentence in UZBEK (Latin script) pointing to the evidence in the passage/audioscript (quote a few English words in quotes). If you cannot tell, use an empty string.
+- LISTENING only: "p" = 0-based index into "tr" of the paragraph containing the answer, or omit if unknown.
+- Keep passage/audioscript text verbatim (fix only hyphenation at line breaks, repeated headers and page numbers).`
 
 // ---------- Materiallar: RSS ro‘yxat, maqola matni, audio transkripsiyasi, tahlil ----------
 const b64 = (u: Uint8Array) => { let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000)); return btoa(s) }
@@ -252,6 +272,18 @@ async function material(action: string, b: any, sb: any, json: (o: unknown, s?: 
       if (!out || !Array.isArray(out.vocab) || !Array.isArray(out.qs)) return json({ error: 'AI tahlili tushunarsiz. Qayta urinib ko‘ring.' }, 502)
       return json({ result: out })
     }
+    if (action === 'camimport') {
+      const kind = b.kind === 'listening' ? 'listening' : 'reading', which = Math.max(1, Math.min(4, parseInt(b.which, 10) || 1))
+      const text = clip(b.text, 30000).trim(), key = clip(b.key, 14000).trim(), script = clip(b.script, 22000).trim()
+      if (text.length < 400) return json({ error: 'Test sahifalaridan matn deyarli chiqmadi — sahifa raqamlarini tekshiring (skaner bo‘lsa OCR yoqing).' }, 400)
+      if (key.length < 20) return json({ error: 'Javoblar kaliti sahifalaridan matn topilmadi.' }, 400)
+      const { error: lim } = await sb.rpc('ielts_ai_hit', { p_limit: LIMIT })
+      if (lim) return json({ error: /limit/i.test(lim.message) ? lim.message : 'IELTS uchun ruxsat yo‘q' }, /limit/i.test(lim.message) ? 429 : 403)
+      const unit = kind === 'reading' ? `READING PASSAGE ${which} (the ${which === 1 ? 'first' : which === 2 ? 'second' : 'third'} passage in the pages below)` : `LISTENING SECTION ${which} (questions ${(which - 1) * 10 + 1}-${which * 10})`
+      const out = parse(await ask(CAMIMPORT, [{ role: 'user', content: `REQUESTED UNIT: ${unit}\n\n=== QUESTION PAGES ===\n${text}\n\n=== ANSWER KEY ===\n${key}` + (script ? `\n\n=== AUDIOSCRIPT ===\n${script}` : '') }], true, 0.1, false, 14000))
+      if (!out || !Array.isArray(out.groups) || !out.groups.length) return json({ error: 'AI matnni tushunmadi. Sahifa oralig‘ini tekshirib, qayta urinib ko‘ring.' }, 502)
+      return json({ result: out })
+    }
     return json({ error: 'Noma’lum amal' }, 400)
   } catch (e) {
     if (e instanceof ArtErr) return json({ error: e.message }, e.status)
@@ -273,7 +305,7 @@ Deno.serve(async (req) => {
     const { data: own } = await sb.rpc('is_owner')
     return json({ ok: true, gemini: !!GEMINI, groq: !!GROQ, limit: own ? null : LIMIT, owner: !!own, models: gm })
   }
-  if (['feed', 'article', 'transcript', 'analyze', 'speaking'].includes(action)) return await material(action, b, sb, json)
+  if (['feed', 'article', 'transcript', 'analyze', 'speaking', 'camimport'].includes(action)) return await material(action, b, sb, json)
   if (!['chat', 'writing', 'dict'].includes(action)) return json({ error: 'Noma’lum amal' }, 400)
   if (!GEMINI && !GROQ) return json({ error: 'AI hali sozlanmagan (kalit qo‘yilmagan). Ilova egasiga ayting.' }, 503)
   if (action === 'dict') { const { data: okI } = await sb.rpc('can_ielts'); if (!okI) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403) }

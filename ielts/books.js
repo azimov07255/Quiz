@@ -172,9 +172,9 @@ function paintBody() {
 const hlTerms = () => (V.bk && V.bk.hl ? V.bk.hl.toLowerCase().split(/\s+/).filter(t => t.length > 1) : []);
 const tokens = s => { const ht = hlTerms(); return String(s).split(/([A-Za-z][A-Za-z’'-]*)/).map((x, i) => i % 2 ? '<span class="w' + (ht.length && ht.some(t => x.toLowerCase().includes(t)) ? ' hl' : '') + '" data-a="aword" data-w="' + esc(x.toLowerCase().replace(/’/g, '\'').replace(/^['-]+|['-]+$/g, '')) + '">' + esc(x) + '</span>' : esc(x)).join(''); };
 
-async function pageText(p) {
-  const st = V.bk; if (st.txt[p]) return st.txt[p];
-  const pg = await st.doc.getPage(p), tc = await pg.getTextContent(), lines = []; let cur = null;
+async function pageText(p) { const st = V.bk; if (st.txt[p]) return st.txt[p]; return st.txt[p] = await extractParas(st.doc, p); }
+async function extractParas(doc, p) {
+  const pg = await doc.getPage(p), tc = await pg.getTextContent(), lines = []; let cur = null;
   for (const it of tc.items) {
     if (!('str' in it)) continue; const y = it.transform[5], h = it.height || Math.abs(it.transform[3]) || 10;
     if (!cur || Math.abs(y - cur.y) > h * 0.5) { cur = { y, s: '' }; lines.push(cur); }
@@ -188,7 +188,7 @@ async function pageText(p) {
     if (pr && (gap > typ * 1.5 || (/[.!?:”"')]$/.test(pt) && pt.length < maxLen * 0.6))) flush();
     buf = buf ? (/[a-z]-$/.test(buf) && /^[a-z]/.test(t) ? buf.slice(0, -1) + t : buf + ' ' + t) : t;
   });
-  flush(); return st.txt[p] = paras;
+  flush(); return paras;
 }
 /** Betning abzaslari: PDF matn qatlami, bo‘lmasa (OCR qilingan bo‘lsa) OCR matni; auto=true bo‘lsa kerak bo‘lganda OCR ishga tushadi. */
 async function pageParas(p, auto) {
@@ -221,15 +221,17 @@ const tess = () => V.tess || (V.tess = new Promise((res, rej) => {
 const ocrParas = t => String(t || '').split(/\n{2,}/).map(x => x.replace(/([a-z])-\n(?=[a-z])/g, '$1').replace(/\s*\n\s*/g, ' ').replace(/\s+/g, ' ').trim()).filter(Boolean);
 let ocrSaveT = 0;
 const saveOcr = st => { clearTimeout(ocrSaveT); ocrSaveT = setTimeout(() => { IE.idbSet('bkocr:' + st.id, st.ocr).catch(() => {}); if (st.idx) IE.idbSet('bkidx:' + st.id, { n: st.doc.numPages, t: st.idx }).catch(() => {}); }, 1500); };
+async function ocrRaw(doc, p) {
+  const w = await tess(), pg = await doc.getPage(p), v0 = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: Math.min(3, 2000 / v0.width) });
+  const cv = document.createElement('canvas'); cv.width = vp.width | 0; cv.height = vp.height | 0; await pg.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+  const r = await w.recognize(cv); cv.width = cv.height = 0; return (r.data.text || '').trim();
+}
 function ocrPage(p) {
   const st = V.bk; st.jobs = st.jobs || {};
   if (st.ocr[p] != null) return Promise.resolve(st.ocr[p]);
   return st.jobs[p] || (st.jobs[p] = (async () => {
     try {
-      const w = await tess(), pg = await st.doc.getPage(p), v0 = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: Math.min(3, 2000 / v0.width) });
-      const cv = document.createElement('canvas'); cv.width = vp.width | 0; cv.height = vp.height | 0; await pg.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
-      const r = await w.recognize(cv); cv.width = cv.height = 0;
-      const t = (r.data.text || '').trim(); st.ocr[p] = t; if (st.idx) st.idx[p] = t.replace(/\s+/g, ' '); saveOcr(st); return t;
+      const t = await ocrRaw(st.doc, p); st.ocr[p] = t; if (st.idx) st.idx[p] = t.replace(/\s+/g, ' '); saveOcr(st); return t;
     } finally { delete st.jobs[p]; }
   })());
 }
@@ -346,5 +348,28 @@ A.bkread = () => { const st = V.bk, b = st && bookOf(st.id); if (!b) return; st.
 IE.bookHome = () => {
   const pl = IE.bookPlans().slice(0, 2); if (!pl.length) return '';
   return pl.map(({ b, i }) => '<div class="rise" style="margin-top:14px"><button class="item" data-go="book/' + b.id + '">' + cover(b) + '<div class="tx"><b>Bugungi reja: ' + esc(b.t) + '</b><span>' + (i.need ? i.need + ' bet qoldi (' + (i.from + 1) + '–' + i.to + ')' : 'Bugungi reja bajarildi ✓') + '</span></div><span class="go">' + ic('next') + '</span></button></div>').join('');
+};
+
+/* ---------- boshqa modullar uchun: kitob ro‘yxati va sahifa matni (Cambridge import) ---------- */
+IE.bookList = () => books();
+/** Kitobning a..b betlari matni (matn qatlami; bo‘lmasa OCR). prog(i, n, 'ocr'?) — jarayon. */
+IE.bookText = async (id, a, b, prog) => {
+  const bk = bookOf(id); if (!bk) throw new Error('Kitob topilmadi');
+  let buf = await IE.idbGet('book:' + id);
+  if (!buf) { if (!bk.cloud) throw new Error('Fayl bu qurilmada yo‘q'); buf = await cloudGet(id); await IE.idbSet('book:' + id, buf); locAdd(id); }
+  const pdf = await lib(), doc = await pdf.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise;
+  try {
+    a = Math.max(1, a | 0); b = Math.min(doc.numPages, b | 0); if (b < a) throw new Error('Sahifa oralig‘i noto‘g‘ri');
+    if (b - a > 40) throw new Error('Bir martada ko‘pi bilan 40 bet');
+    let ocr = {}; try { ocr = (await IE.idbGet('bkocr:' + id)) || {}; } catch (e) { /* */ } let dirty = false; const out = [];
+    for (let p = a; p <= b; p++) {
+      if (prog) prog(p - a + 1, b - a + 1, '');
+      let t = (await extractParas(doc, p)).join('\n\n');
+      if (t.length < 15) { if (ocr[p] == null) { if (prog) prog(p - a + 1, b - a + 1, 'ocr'); ocr[p] = await ocrRaw(doc, p); dirty = true; } t = ocr[p]; }
+      out.push('--- page ' + p + ' ---\n' + t);
+    }
+    if (dirty) { try { await IE.idbSet('bkocr:' + id, ocr); } catch (e) { /* */ } }
+    return out.join('\n\n');
+  } finally { try { doc.destroy(); } catch (e) { /* */ } }
 };
 })();

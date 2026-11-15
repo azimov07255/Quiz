@@ -60,7 +60,7 @@ R.practice = () => page('practice', '<div class="hero" style="padding-bottom:70p
   '<button class="mock rise" data-go="mock">' + bd('trophy', 'M', 'lg') + '<div style="flex:1"><h3>Mock Test</h3><p>To‘liq imtihon sinovi: 4 ta bo‘lim ketma-ket</p></div>' + '<span class="chip" style="background:rgba(255,255,255,.22);color:#fff">' + (IE.mockActive && IE.mockActive() ? 'Davom' : 'Boshlash') + '</span></button></div>');
 
 R.tools = () => {
-  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'articles'], ['head', 'L', 'Podcasts', 'articles/tab/p'], ['spk', 'S', 'Shadowing', 'shadow'], ['wave', 'L', 'Dictation', 'dictation'], ['doc', 'R', 'Kitoblar (PDF)', 'books'], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'dict']];
+  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'articles'], ['head', 'L', 'Podcasts', 'articles/tab/p'], ['spk', 'S', 'Shadowing', 'shadow'], ['wave', 'L', 'Dictation', 'dictation'], ['doc', 'R', 'Kitoblar (PDF)', 'books'], ['trophy', 'M', 'Cambridge IELTS', 'cambridge'], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'dict']];
   return page('tools', '<div class="hero" style="padding-bottom:70px"><div class="hi">O‘rganish vositalari</div><h1>Study Tools</h1></div><div class="lift"><div class="tools rise">' +
     T.map(t => '<button class="tool' + (t[4] ? ' off' : '') + '" data-go="' + t[3] + '">' + bd(t[0], t[1]) + t[2] + (t[4] ? '<span class="chip soon">Tez orada</span>' : '') + '</button>').join('') + '</div></div>');
 };
@@ -95,7 +95,7 @@ R.reading = a => {
   if (a[0] && a[1] === 'run') return readRun(a[0]);
   if (a[0] && a[1] === 'result') return readRes(a[0]);
   const run = lsGet(RUNK, null), s = S();
-  const inner = '<div class="pad"><div class="card rise" style="margin-bottom:14px"><div class="row">' + bd('book', 'R', 'lg') + '<div style="flex:1"><b style="font-size:16px">Academic Reading</b><div class="sm mu">20 daqiqa · har matnda 13 savol. Yakunda taxminiy band hisoblanadi.</div></div></div></div><div class="lst">' +
+  const inner = '<div class="pad"><div class="card rise" style="margin-bottom:14px"><div class="row">' + bd('book', 'R', 'lg') + '<div style="flex:1"><b style="font-size:16px">Academic Reading</b><div class="sm mu">20 daqiqa · har matnda 13 savol. Yakunda taxminiy band hisoblanadi.</div></div></div></div><button class="item rise" style="margin-bottom:14px" data-go="cambridge">' + bd('trophy', 'M', 'sm') + '<div class="tx"><b>Cambridge testlari</b><span>Kitobingizdan o‘zingiz qo‘shasiz</span></div><span class="go">' + ic('next') + '</span></button><div class="lst">' +
     D.reading.passages.map(p => {
       const last = s.reads.filter(r => r.p === p.id).slice(-1)[0], going = run && run.id === p.id;
       return '<button class="item rise" data-go="reading/' + p.id + '/run">' + bd('book', 'R') + '<div class="tx"><b>' + esc(p.title) + '</b><span>' + esc(p.topic) + ' · ' + esc(p.level) + (going ? ' · <b style="color:var(--warn)">davom etmoqda</b>' : '') + '</span></div>' + (last ? '<span class="band sk-R">' + IE.bandTxt(last.band) + '</span>' : '<span class="go">' + ic('next') + '</span>') + '</button>';
@@ -119,14 +119,14 @@ function qBlock(g, q, a, rev) {
     body = '<div class="tf">' + ['TRUE', 'FALSE', 'NOT GIVEN'].map(v => '<button class="opt' + (a === v ? ' on' : '') + '"' + (rev ? '' : ' data-a="ans" data-n="' + n + '" data-v="' + v + '"') + '>' + v + '</button>').join('') + '</div>';
   } else if (g.type === 'mcq') {
     qt = esc(q.q);
-    body = '<div class="opts">' + q.o.map((o, i) => '<button class="opt' + (a === i ? ' on' : '') + '"' + (rev ? '' : ' data-a="ans" data-n="' + n + '" data-v="' + i + '"') + '><i>' + 'ABCDEFG'[i] + '</i><span>' + esc(o) + '</span></button>').join('') + '</div>';
+    body = '<div class="opts">' + q.o.map((o, i) => '<button class="opt' + (a === i ? ' on' : '') + '"' + (rev ? '' : ' data-a="ans" data-n="' + n + '" data-v="' + i + '"') + '><i>' + 'ABCDEFGHIJ'[i] + '</i><span>' + esc(o) + '</span></button>').join('') + '</div>';
   } else {
     qt = g.summary ? 'Gap <b>' + n + '</b>' : esc(q.q);
     body = '<input class="fill" data-in="fill" data-n="' + n + '" value="' + esc(a || '') + '" placeholder="Javobingiz" autocomplete="off" autocapitalize="off" spellcheck="false"' + AT + '>';
   }
   let rv = '';
   if (rev) {
-    let corr = g.type === 'heads' ? q.a + '. ' + (g.headings.find(h => h.id === q.a) || {}).t : g.type === 'mcq' ? 'ABCDEFG'[q.a] + '. ' + q.o[q.a] : Array.isArray(q.a) ? q.a.join(' / ') : q.a;
+    let corr = g.type === 'heads' ? q.a + '. ' + (g.headings.find(h => h.id === q.a) || {}).t : g.type === 'mcq' ? 'ABCDEFGHIJ'[q.a] + '. ' + q.o[q.a] : Array.isArray(q.a) ? q.a.join(' / ') : q.a;
     rv = '<div class="why"><b>' + (ok ? 'To‘g‘ri' : 'Xato') + '</b>' + (ok ? '' : ' · Javob: <b style="color:var(--tx)">' + esc(corr) + '</b>') + '<br>' + esc(q.why || '') + '</div>';
   }
   return '<div class="q' + (rev ? (ok ? ' ok' : ' no') : '') + '" id="q' + n + '"><div class="qt"><span class="qn">' + n + '</span>' + qt + '</div>' + body + rv + '</div>';

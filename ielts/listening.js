@@ -6,11 +6,13 @@ const LK = 'ielts:lrun';
 const tests = () => (D.listening && D.listening.tests) || [];
 const find = id => tests().find(t => t.id === id);
 const sub = (title, back, inner, right) => ({ h: '<header class="top"><button class="ib" data-a="back" data-r="' + back + '" aria-label="Orqaga">' + ic('back') + '</button><h1>' + esc(title) + '</h1>' + (right || '') + '</header><div class="scr sub">' + inner + '</div>', sub: true });
+const creditP = (t, mt, tail) => t.credit && t.credit.url ? '<p class="mu xs c" style="margin-top:' + mt + 'px">Audio: <a href="' + esc(t.credit.url) + '" target="_blank" rel="noopener" style="color:var(--pl)">' + esc(t.credit.name) + '</a>' + tail + '</p>' : '<p class="mu xs c" style="margin-top:' + mt + 'px">' + esc((t.credit && t.credit.name) || '') + '</p>';
 const mmss = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
 R.listening = a => {
   const t = a[0] && find(a[0]);
   if (!t) return list();
+  if (t.priv && !t.audio && !t.noaudio) { IE.camEnsure(t).then(() => { if ((IE.curRoute || '').startsWith('listening/' + t.id)) IE.draw(false); }); return sub(t.title, 'listening', '<div style="padding-top:34vh"><div class="spin"></div></div>'); }
   if (a[1] === 'run') return run(t);
   if (a[1] === 'result') return result(t);
   return intro(t);
@@ -19,7 +21,7 @@ R.listening = a => {
 /* ---------- ro‘yxat ---------- */
 function list() {
   const s = S(), run = lsGet(LK, null);
-  const inner = '<div class="pad"><div class="card rise" style="margin-bottom:14px"><div class="row">' + bd('head', 'L', 'lg') + '<div style="flex:1"><b style="font-size:16px">Haqiqiy diktor ovozi</b><div class="sm mu">Yozuvlar — VOA Learning English (AQSh hukumati loyihasi, ommaviy mulk). Telefon ovozi emas, jonli o‘qilgan matnlar.</div></div></div></div><div class="lst">' +
+  const inner = '<div class="pad"><div class="card rise" style="margin-bottom:14px"><div class="row">' + bd('head', 'L', 'lg') + '<div style="flex:1"><b style="font-size:16px">Haqiqiy diktor ovozi</b><div class="sm mu">Yozuvlar — VOA Learning English (AQSh hukumati loyihasi, ommaviy mulk). Telefon ovozi emas, jonli o‘qilgan matnlar.</div></div></div></div><button class="item rise" style="margin-bottom:14px" data-go="cambridge">' + bd('trophy', 'M', 'sm') + '<div class="tx"><b>Cambridge testlari</b><span>Kitobingizdan o‘zingiz qo‘shasiz</span></div><span class="go">' + ic('next') + '</span></button><div class="lst">' +
     tests().map(t => {
       const last = s.listens.filter(r => r.id === t.id).slice(-1)[0], going = run && run.id === t.id;
       return '<button class="item rise" data-go="listening/' + t.id + '">' + bd('head', 'L') + '<div class="tx"><b>' + esc(t.topic.split(' · ')[1] || t.title) + '</b><span>' + esc(t.topic.split(' · ')[0]) + ' · ' + esc(t.sec) + ' · ' + mmss(t.dur) + (going ? ' · <b style="color:var(--warn)">davom etmoqda</b>' : '') + '</span></div>' + (last ? '<span class="band sk-L">' + IE.bandTxt(last.band) + '</span>' : '<span class="go">' + ic('next') + '</span>') + '</button>';
@@ -35,8 +37,8 @@ function intro(t) {
     '<button class="item' + (m === 'practice' ? ' sel' : '') + '" data-a="lmode" data-v="practice">' + bd('play', 'S', 'sm') + '<div class="tx"><b>Mashq rejimi</b><span style="white-space:normal;display:block">To‘xtatish, 10 soniya orqaga, tezlikni o‘zgartirish mumkin</span></div>' + (m === 'practice' ? '<span class="go" style="color:var(--ok)">' + ic('check') + '</span>' : '') + '</button>' +
     '<button class="item' + (m === 'exam' ? ' sel' : '') + '" data-a="lmode" data-v="exam">' + bd('clock', 'W', 'sm') + '<div class="tx"><b>Imtihon rejimi</b><span style="white-space:normal;display:block">Haqiqiy imtihondagidek: audio bir marta, to‘xtatib va o‘tkazib bo‘lmaydi</span></div>' + (m === 'exam' ? '<span class="go" style="color:var(--ok)">' + ic('check') + '</span>' : '') + '</button></div>' +
     '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Quloqchin taqing. Savollarni audio davomida to‘ldiring; transkript faqat tugagach ochiladi.</p>' +
-    '<button class="btn block" style="margin-top:12px" data-a="lstart" data-id="' + t.id + '">' + ic('play') + ' Boshlash</button>' +
-    '<p class="mu xs c" style="margin-top:16px">Audio: <a href="' + esc(t.credit.url) + '" target="_blank" rel="noopener" style="color:var(--pl)">' + esc(t.credit.name) + '</a> (voanews.com) — AQSh hukumati materiali, ommaviy mulk.</p></div>';
+    (t.priv && !t.audio ? IE.camAttach(t) : '<button class="btn block" style="margin-top:12px" data-a="lstart" data-id="' + t.id + '">' + ic('play') + ' Boshlash</button>') +
+    creditP(t, 16, ' (voanews.com) — AQSh hukumati materiali, ommaviy mulk.') + '</div>';
   return sub(t.topic.split(' · ')[1] || t.title, 'listening', inner);
 }
 A.lmode = el => { V.lmode = el.dataset.v; IE.draw(false); };
@@ -98,12 +100,12 @@ function result(t) {
   const pc = Math.round(rec.raw / rec.tot * 100), wrong = new Set(IE.allQ(t).filter(x => !IE.isOk(x.g, x.q, rec.a[x.q.n])).map(x => x.q.p));
   const withSeek = t2 => t2; // savol bloklari uchun “tinglash” tugmasi pastda qo‘shiladi
   let html = IE.groupsHTML(t, rec.a || {}, true);
-  html = html.replace(/<div class="q (ok|no)" id="q(\d+)">/g, (m0, cls, n) => { const q = IE.allQ(t).find(x => x.q.n === +n).q; return m0 + '<button class="chip lseekb" data-a="lgo" data-t="' + q.t + '">' + ic('play') + ' ' + mmss(q.t) + ' dan tinglash</button>'; });
+  html = html.replace(/<div class="q (ok|no)" id="q(\d+)">/g, (m0, cls, n) => { const q = IE.allQ(t).find(x => x.q.n === +n).q; return m0 + (q.t != null ? '<button class="chip lseekb" data-a="lgo" data-t="' + q.t + '">' + ic('play') + ' ' + mmss(q.t) + ' dan tinglash</button>' : ''); });
   const inner = '<div class="lsticky">' + player(t, 'practice') + '</div><div class="res anim"><div class="lbl">Taxminiy band</div><div class="big">' + IE.bandTxt(rec.band) + '</div><div class="mu" style="margin-top:8px">' + rec.raw + ' / ' + rec.tot + ' to‘g‘ri (' + pc + '%)</div></div>' +
-    '<div class="pad"><details class="card tr"><summary>' + ic('doc') + ' Transkript (' + t.tr.length + ' abzats) — bosib shu joydan tinglang</summary>' + t.tr.map((p, i) => '<p class="trp' + (wrong.has(i) ? ' wr' : '') + '" data-a="lgo" data-t="' + Math.max(0, p.t - 0.5) + '"><b>' + mmss(p.t) + '</b> ' + esc(p.x) + '</p>').join('') + '</details>' +
-    '<p class="mu xs" style="margin:10px 2px">Qizil chiziq — xato javob berilgan joylar.</p></div>' + html +
+    (t.tr && t.tr.length ? '<div class="pad"><details class="card tr"><summary>' + ic('doc') + ' Transkript (' + t.tr.length + ' abzats)' + (t.tr.some(p => p.t != null) ? ' — bosib shu joydan tinglang' : '') + '</summary>' + t.tr.map((p, i) => p.t != null ? '<p class="trp' + (wrong.has(i) ? ' wr' : '') + '" data-a="lgo" data-t="' + Math.max(0, p.t - 0.5) + '"><b>' + mmss(p.t) + '</b> ' + esc(p.x) + '</p>' : '<p class="trp' + (wrong.has(i) ? ' wr' : '') + '">' + esc(p.x) + '</p>').join('') + '</details>' +
+    '<p class="mu xs" style="margin:10px 2px">Qizil chiziq — xato javob berilgan joylar.</p></div>' : '') + html +
     '<div class="pad" style="margin-top:8px"><div class="two"><button class="btn ghost" data-go="' + (IE.mockActive && IE.mockActive() ? 'mock' : 'listening') + '">' + (IE.mockActive && IE.mockActive() ? 'Mock testga qaytish' : 'Boshqa audio') + '</button><button class="btn" data-a="lretry" data-id="' + t.id + '">Qayta urinish</button></div>' +
-    '<p class="mu xs c" style="margin-top:14px">Audio: <a href="' + esc(t.credit.url) + '" target="_blank" rel="noopener" style="color:var(--pl)">' + esc(t.credit.name) + '</a> — ommaviy mulk.</p></div>';
+    creditP(t, 14, ' — ommaviy mulk.') + '</div>';
   const o = sub('Natija', 'listening', inner); o.mount = () => { wirePlayer(t, 'practice'); }; return o;
 }
 A.lretry = el => { try { localStorage.removeItem(LK); } catch (e) { /* */ } V.l = null; IE.go('listening/' + el.dataset.id); };

@@ -86,6 +86,7 @@ const onIn = e => {
 };
 document.addEventListener('input', onIn);
 document.addEventListener('change', e => {
+  if (IE.camChange && IE.camChange(e.target)) return;
   if (e.target.id === 'bkf' && e.target.files && e.target.files[0]) { const f = e.target.files[0]; e.target.value = ''; return IE.bookAdd(f); }
   if (e.target.id === 'camf' && e.target.files && e.target.files[0]) return IE.camImport(e.target.files[0]);
   if (e.target.tagName === 'SELECT' || e.target.type === 'date' || e.target.type === 'checkbox') onIn(e);
@@ -103,7 +104,7 @@ async function boot() {
     IE.setTheme(IE.theme());
     if (!SB.configured || !SB.session()) { showAuth(); return; }
     app.innerHTML = '<div style="padding-top:42vh"><div class="spin"></div></div>';
-    try { await Promise.all([loadData(), loadProfile()]); }
+    try { await Promise.all([loadData(), loadProfile()]); if (IE.camLoad) await IE.camLoad(); }
     catch (e) { app.innerHTML = '<div class="empty" style="padding-top:34vh">Ma’lumotni yuklab bo‘lmadi.<br>' + esc(IE.uzErr(e)) + '<br><button class="btn sm" style="margin-top:14px" id="rt">Qayta urinish</button></div>'; $('#rt').onclick = () => { booting = false; boot(); }; return; }
     if (!D.access) { showLock(); return; }
     const S = IE.S(), uid = SB.session().user.id; if (S.uid && S.uid !== uid) { IE.setState(null); } IE.S().uid = uid;

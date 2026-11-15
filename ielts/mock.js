@@ -8,9 +8,9 @@ const MODES = { full: { name: 'To‘liq mock', info: '4 ta Listening, 3 ta Readi
 const ex = (arr, n) => shuffle(arr).slice(0, n);
 
 function makePlan(mode) {
-  const s = S(), seen = new Set(s.listens.map(x => x.id)), tl = D.listening.tests.map(t => t.id);
+  const s = S(), seen = new Set(s.listens.map(x => x.id)), tl = D.listening.tests.filter(t => !t.priv).map(t => t.id);
   const fresh = shuffle(tl.filter(i => !seen.has(i))), old = shuffle(tl.filter(i => seen.has(i)));
-  const rs = D.reading.passages.map(p => p.id), M = MODES[mode];
+  const rs = D.reading.passages.filter(p => !p.priv).map(p => p.id), M = MODES[mode];
   const wn = Math.floor(Math.random() * 30), p1 = Math.floor(Math.random() * D.prompts.sp1.length), p2 = Math.floor(Math.random() * D.prompts.sp2.length);
   return { id: 'm' + Date.now(), ts: Date.now(), mode, L: [...fresh, ...old].slice(0, M.L), R: ex(rs, M.R), W: wn, S: { p1, p2 } };
 }
