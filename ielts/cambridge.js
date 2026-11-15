@@ -124,7 +124,7 @@ const rowH = (k, x) => {
   const nq = nqs(x.groups), noAud = k === 'l' && !(x.dur > 0);
   return '<div class="item" style="padding:8px 8px 8px 12px"><button class="row" style="flex:1;min-width:0;text-align:left" data-go="' + (k === 'r' ? 'reading/' + x.id + '/run' : 'listening/' + x.id) + '">' + bd(k === 'r' ? 'book' : 'head', k === 'r' ? 'R' : 'L', 'sm') + '<div class="tx"><b>' + esc(x.cam || x.title) + '</b><span>' + esc(x.title) + ' · ' + nq + ' savol' + (noAud ? ' · <b style="color:var(--warn)">audio yo‘q</b>' : '') + '</span></div></button><button class="ib" data-a="camdel" data-k="' + k + '" data-id="' + x.id + '" aria-label="O‘chirish">' + ic('trash') + '</button></div>';
 };
-R.cambridge = a => a[0] === 'new' ? form(a[1] === 'l' ? 'l' : 'r') : a[0] === 'book' ? bookAuto() : a[0] === 't' ? testPage(decodeURIComponent(a[1] || ''), +a[2]) : hub();
+R.cambridge = a => a[0] === 'new' ? form(a[1] === 'l' ? 'l' : 'r') : a[0] === 'book' ? bookAuto() : a[0] === 't' ? testPage(decodeURIComponent(a[1] || ''), +a[2]) : a[0] === 's' && IE.camScores ? IE.camScores(decodeURIComponent(a[1] || ''), +a[2]) : hub();
 /* ---------- tartib: Kitob → Test → Listening / Reading / Writing / Speaking ---------- */
 const parseCam = u => { const m = /^(.*?)\s*·\s*Test\s*(\d+)\s*·\s*(?:Passage|Section)\s*(\d)\s*$/i.exec(u.cam || ''); return m ? { book: m[1].trim(), n: +m[2], i: +m[3] } : null; };
 const lastRec = (k, id) => { const L = k === 'r' ? IE.S().reads.filter(r => r.p === id) : IE.S().listens.filter(r => r.id === id); return L.length ? L[L.length - 1] : null; };
@@ -154,6 +154,7 @@ function addBlock() {
     '<div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap"><button class="chip' + (cloudOn() ? ' on' : '') + '" data-a="camcl">' + ic('cloud') + ' Bulut: ' + (cloudOn() ? 'yoqilgan' : 'o‘chiq') + '</button>' + (cloudOn() ? '<button class="chip" data-a="camsyn">' + ic('refresh') + ' Sinxronlash</button>' : '') + '</div>' +
     '<p class="hint" style="margin-top:14px">' + ic('lock') + ' ' + (cloudOn() ? 'Testlar va audio shaxsiy bulut omboringizda ham saqlanadi (faqat siz ko‘rasiz) — boshqa qurilmangizda ham chiqadi.' : 'Bulut o‘chiq: testlar faqat shu qurilmada.') + ' Tayyorlash vaqtida tanlangan sahifalar matni AI’ga yuboriladi. Materialni faqat o‘zingiz uchun ishlating.</p>';
 }
+IE.camGroups = groups; IE.camLast = lastRec; IE.camParse = parseCam;
 /** Test ichida qismlar orasida o‘tish: Scores · L 1–4 · R 1–3 (Jumpinto uslubi). */
 IE.partNav = (u, kind) => {
   const p = parseCam(u); if (!p) return ''; const bk = groups().books.find(b => b[0] === p.book), t = bk && bk[1].get(p.n); if (!t) return '';
@@ -162,7 +163,7 @@ IE.partNav = (u, kind) => {
     const rec = lastRec(k === 'L' ? 'l' : 'r', x.id), cur = x.id === u.id, go = k === 'R' ? 'data-go="reading/' + x.id + '/run"' : (x.dur > 0 ? 'data-a="lstart" data-id="' + x.id + '"' : 'data-go="listening/' + x.id + '"');
     return '<button class="pn sk-' + k + (cur ? ' on' : '') + (rec ? ' dn' : '') + '" ' + go + ' aria-label="' + (k === 'L' ? 'Listening ' : 'Reading ') + i + '">' + i + '</button>';
   };
-  return '<div class="pnav"><button class="pn wide" data-go="cambridge/t/' + encodeURIComponent(p.book) + '/' + p.n + '">Scores</button><span class="pn-l">L</span>' + [1, 2, 3, 4].map(i => btn('L', i, t.L[i])).join('') + '<span class="pn-l">R</span>' + [1, 2, 3].map(i => btn('R', i, t.R[i])).join('') + '</div>';
+  return '<div class="pnav"><button class="pn wide" data-go="cambridge/s/' + encodeURIComponent(p.book) + '/' + p.n + '">Scores</button><span class="pn-l">L</span>' + [1, 2, 3, 4].map(i => btn('L', i, t.L[i])).join('') + '<span class="pn-l">R</span>' + [1, 2, 3].map(i => btn('R', i, t.R[i])).join('') + '</div>';
 };
 function hub() {
   const g = groups(), none = !store.reading.length && !store.listening.length;
@@ -185,6 +186,7 @@ function testPage(book, n) {
   const soon = nm => '<div class="item" style="opacity:.45">' + bd(nm === 'Writing' ? 'pen' : 'mic', nm === 'Writing' ? 'W' : 'S', 'sm') + '<div class="tx"><b>' + nm + '</b><span>Tez orada</span></div></div>';
   const inner = '<div class="pad"><div class="card rise"><div class="row" style="justify-content:space-between"><div><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase">' + esc(book) + '</div><div style="font-size:26px;font-weight:900">Test ' + n + '</div></div>' + (ov != null ? '<div class="c"><div class="mu xs">Taxminiy band</div><div style="font-size:30px;font-weight:900;color:var(--pl)">' + IE.bandTxt(ov) + '</div></div>' : '') + '</div>' +
     '<div class="two" style="margin-top:10px"><div class="stat"><b>' + (L.band != null ? IE.bandTxt(L.band) : L.done + '/' + L.need) + '</b><span>Listening</span></div><div class="stat"><b>' + (Rr.band != null ? IE.bandTxt(Rr.band) : Rr.done + '/' + Rr.need) + '</b><span>Reading</span></div></div></div>' +
+    '<button class="item" style="margin-top:12px" data-go="cambridge/s/' + encodeURIComponent(book) + '/' + n + '">' + bd('target', 'M', 'sm') + '<div class="tx"><b>Scores</b><span>Javoblar jadvali, dalillar, urinishlar tarixi</span></div><span class="go">' + ic('next') + '</span></button>' + (IE.ftCard ? IE.ftCard(book, n, t) : '') +
     '<div class="sec"><h2>Listening</h2></div>' + (lack ? '<button class="item" style="margin-bottom:8px" data-go="cambridge">' + bd('down', 'L', 'sm') + '<div class="tx"><b>Audio ZIP yuklash</b><span>' + lack + ' ta Section’da audio yo‘q — Cambridge sahifasidagi “Audio” bo‘limidan zip tanlang</span></div><span class="go">' + ic('next') + '</span></button>' : '') + '<div class="lst">' + [1, 2, 3, 4].map(i => row('L', i, t.L[i])).join('') + '</div>' +
     '<div class="sec"><h2>Reading</h2></div><div class="lst">' + [1, 2, 3].map(i => row('R', i, t.R[i])).join('') + '</div>' +
     '<div class="sec"><h2>Writing va Speaking</h2></div><div class="lst">' + soon('Writing') + soon('Speaking') + '</div>' +

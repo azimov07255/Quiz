@@ -653,3 +653,54 @@ button,a,.item,.tool,[data-go],[data-a]{touch-action:manipulation}
 .pn{min-width:30px;height:32px;font-size:13.5px;border-radius:10px}.pn.wide{padding:0 10px;font-size:12.5px}
 .gap input.fill{width:8.5em}
 @media(min-width:520px){.gap input.fill{width:10em}}
+
+/* ---------- v1.2: test vositalari ---------- */
+.para>div,.trl,.notebox li,.qgrp .note{font-size:calc(1em * var(--tfs,1))}
+.para>div{font-size:calc(15.5px * var(--tfs,1));line-height:1.75}
+.trl{font-size:calc(15px * var(--tfs,1))}
+.notebox li{font-size:calc(16px * var(--tfs,1))}
+.ttools{display:flex;align-items:center;gap:8px;margin:0 0 10px;flex-wrap:wrap}
+.tg-r .ttools,.tg-l>.ttools{margin:10px 16px 0}
+.tt{display:inline-flex;align-items:center;gap:3px;height:34px;padding:0 11px;border-radius:11px;background:var(--card);box-shadow:var(--sh);font-weight:900;font-size:14px;color:var(--tx)}
+.tt small{font-size:10.5px;font-weight:800;color:var(--mu)}.tt svg{font-size:16px}
+.tt.on{background:var(--p1);color:#fff}.tt.on small{color:#fff}
+.tt-h{margin-left:auto}
+.flg{flex:none;margin-left:auto;width:32px;height:32px;border-radius:10px;display:inline-grid;place-items:center;background:var(--soft);color:var(--mu);font-size:16px;vertical-align:middle;margin-left:8px}
+.flg.on{background:#fff0d6;color:#f79009}
+.qt{display:flex;align-items:center;gap:8px}.qt .flg,.qt .evb{margin-left:auto}
+.notebox li .flg,.notebox li .evb{float:right;margin-top:3px}
+.q.flagged{box-shadow:inset 4px 0 0 #f79009,var(--sh)}.notebox li.q.flagged{box-shadow:none;border-left:4px solid #f79009;padding-left:8px}
+.q.pulse,.notebox li.pulse{animation:pulseq 1.2s ease}
+@keyframes pulseq{0%,60%{background:color-mix(in srgb,var(--p2) 22%,transparent)}100%{background:transparent}}
+.evb{display:inline-flex;align-items:center;gap:5px;height:30px;padding:0 11px;border-radius:99px;background:var(--soft);color:var(--pl);font-weight:800;font-size:12.5px;flex:none}
+.barrow{display:flex;gap:10px}.barrow .btn{flex:1}.barrow .palb{flex:none;min-width:112px;gap:7px}
+.pqg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.pq{position:relative;aspect-ratio:1;border-radius:14px;border:2px solid var(--ln);font-weight:900;font-size:16px;background:var(--card)}
+.pq.d{background:linear-gradient(135deg,var(--p1),var(--p2));border-color:transparent;color:#fff}
+.pq.f{box-shadow:0 0 0 3px #f79009}.pq i{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#f79009;color:#fff;font-size:11px;display:grid;place-items:center}
+.pq-lg{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;font-weight:800;color:var(--mu);margin:6px 0 12px}
+.pq-lg i{display:inline-block;width:12px;height:12px;border-radius:4px;border:2px solid var(--ln);margin-right:4px;vertical-align:-1px}.pq-lg i.d{background:var(--p2);border-color:var(--p2)}.pq-lg i.f{border-color:#f79009;background:#fff0d6}
+.hlbar{position:fixed;top:calc(68px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:8px;background:#1a1640;padding:8px;border-radius:16px;box-shadow:0 14px 32px -10px rgba(0,0,0,.6)}
+.hlbar.hide{display:none}
+.hc{height:34px;padding:0 14px;border-radius:11px;font-weight:900;font-size:13px;color:#1a1640}
+.hc.c1,mark.uh.c1{background:rgba(250,204,21,.8)}.hc.c2,mark.uh.c2{background:rgba(74,222,128,.75)}.hc.c3,mark.uh.c3{background:rgba(244,114,182,.7)}
+mark.uh{color:inherit;border-radius:3px;padding:0 1px;cursor:pointer}
+mark.ev{background:rgba(250,204,21,.85);color:#1a1640;border-radius:3px;padding:0 2px}
+.keyd summary{cursor:pointer;font-weight:800;display:flex;align-items:center;gap:8px}
+.keyg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:12px}
+.kc{display:flex;gap:8px;align-items:baseline;border-radius:12px;padding:7px 10px;font-size:13.5px;background:var(--soft);border-left:4px solid var(--ln)}
+.kc b{font-weight:900}.kc.ok{background:var(--okbg);border-color:var(--ok)}.kc.no{background:var(--badbg);border-color:var(--bad)}.kc.em{border-color:#f79009}
+.evq{font-size:15px;line-height:1.5;margin:6px 0}.evk{font-size:14px;margin-bottom:10px}
+.evt{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.65}.evt p{margin:0 0 8px}.evt p:last-child{margin:0}.evcur{font-weight:600}
+
+/* ---------- to‘liq imtihon va Scores ---------- */
+.ftb{display:flex;align-items:center;gap:8px;margin:0 16px 10px;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,color-mix(in srgb,var(--warn) 20%,var(--card)),var(--card));font-size:13px;box-shadow:var(--sh)}
+.ftb svg{color:var(--warn)}
+body.tw .ftb{margin-left:0;margin-right:0}
+.ftb3{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.ftb3 .btn{flex:1;min-width:130px}
+.scp{background:var(--card);border-radius:20px;box-shadow:var(--sh);padding:14px;margin-top:12px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:7px;margin-top:10px}
+.sq{height:42px;border-radius:12px;font-weight:900;font-size:15px;border:2px solid var(--ln);background:var(--card)}
+.sq.ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}.sq.no{background:var(--badbg);border-color:var(--bad);color:var(--bad)}.sq.em{border-style:dashed;color:var(--mu)}
+.sqk{display:inline-block;width:12px;height:12px;border-radius:4px;border:2px solid var(--ln);margin-right:5px;vertical-align:-1px}.sqk.ok{background:var(--ok);border-color:var(--ok)}.sqk.no{background:var(--bad);border-color:var(--bad)}
+.lm-l{font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);margin:14px 0 8px}
