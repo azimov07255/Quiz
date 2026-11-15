@@ -1,7 +1,7 @@
 // Offline + versiyali yangilanish. Ilova fayllari bitta “versiya”ga bog‘langan: yangi versiya fonda yuklanadi,
 // foydalanuvchi “Yangilash”ni bossa almashadi (fayllar aralashib qolmaydi). Savol banki IndexedDB’da — keshga tegmaydi.
 // MUHIM: ilova o‘zgargach VERSION ni oshiring (app.js dagi APP_VERSION bilan bir xil bo‘lsin).
-const VERSION = '1.6.0';
+const VERSION = '1.7.0';
 const CACHE = 'testlar-' + VERSION;
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'config.js', 'auth.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'data/testlar-banki.json'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' }))))); });

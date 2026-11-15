@@ -48,7 +48,9 @@ PWA/offline uchun HTTPS (yoki localhost) kerak, masalan GitHub Pages/Netlify/Clo
 - **Taklif kodi bilan ro‘yxatdan o‘tish.** Owner: Sozlamalar → “Ro‘yxatdan o‘tish” (yoki Foydalanuvchilar sahifasi) — ochiq/yopiq, taklif kodi, necha kunga kirish beriladi va yangi hisoblar qaysi guruhga tushadi. Yopiq bo‘lsa, ilovada “Ro‘yxatdan o‘tish” tugmasi ko‘rinmaydi (server tekshiradi, kodsiz hisob faol bo‘lmaydi).
 - **Guruhlar (kimga nima ko‘rinadi).** Har bir foydalanuvchi va har bir katalog fani guruhlarga ega bo‘lishi mumkin. Fan guruhsiz bo‘lsa — hammaga, guruhli bo‘lsa — faqat shu guruhdagilarga ko‘rinadi (RLS server tomonda). Foydalanuvchi: Foydalanuvchilar → “Guruh”. Fan: Umumiy katalog → “Tahrirlash” yoki yuklashda.
 - **Musobaqa.** Bosh sahifadagi “Musobaqa”: xona ochiladi (5 belgili kod), kursdoshlar kod bilan qo‘shiladi, bir xil savollar, tez va to‘g‘ri javob ko‘proq ball beradi (100 + 60 gacha tezlik bonusi), jonli reyting va g‘oliblar zinapoyasi. Ball klientda hisoblanadi, server faqat chegaradan oshmasligini tekshiradi (do‘stlar orasida o‘ynash uchun).
-- Migratsiya: `supabase/migrations/20261115_groups_signup_arena.sql`; sinov: `tests/arena.cjs` (jonli Supabase, 2 o‘yinchi).
+- **Kim ochadi.** Musobaqani faqat owner va owner tanlaganlar ochadi (Foydalanuvchilar → “Musobaqa ochishga ruxsat”); qolganlar kod bilan qo‘shiladi. Server tekshiradi.
+- **Haftalik reyting** (Musobaqa → Haftalik reyting): ball = to‘g‘ri javob × 10 + musobaqa ballari; Mashq va Imtihon rejimlari hisoblanadi, hafta dushanba 00:00 (Toshkent) da yangilanadi; faqat o‘z guruhingdagilar ko‘rinadi.
+- Migratsiyalar: `supabase/migrations/20261115_groups_signup_arena.sql`, `20261115b_host_permission_weekly_board.sql`; sinov: `tests/arena.cjs` (jonli Supabase, 2 o‘yinchi).
 
 ## Ma’lumot qayerda saqlanadi
 Savol banki — IndexedDB, natijalar/xatolar/sozlamalar — localStorage (faqat shu qurilmada). **⚙️ Sozlamalar → Zaxira** bilan fayl qilib saqlab, boshqa qurilmada tiklash mumkin. Safari uzoq foydalanilmagan sayt ma’lumotini o‘chirib yuborishi mumkin — shuning uchun vaqti-vaqti bilan zaxira ol.
