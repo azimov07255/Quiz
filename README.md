@@ -52,5 +52,12 @@ PWA/offline uchun HTTPS (yoki localhost) kerak, masalan GitHub Pages/Netlify/Clo
 - **Haftalik reyting** (Musobaqa → Haftalik reyting): ball = to‘g‘ri javob × 10 + musobaqa ballari; Mashq va Imtihon rejimlari hisoblanadi, hafta dushanba 00:00 (Toshkent) da yangilanadi; faqat o‘z guruhingdagilar ko‘rinadi.
 - Migratsiyalar: `supabase/migrations/20261115_groups_signup_arena.sql`, `20261115b_host_permission_weekly_board.sql`; sinov: `tests/arena.cjs` (jonli Supabase, 2 o‘yinchi).
 
+## Savol xabarlari, statistika va konspektlar (v1.8)
+- **Savolda xato bormi?** Katalogdagi savol javobidan keyin talaba “Savolda xato bormi?” tugmasini bosadi. Owner: Sozlamalar → **Savol xabarlari** — savol, variantlar, sabab va izohlar; “Tuzatish” savolni ilovaning o‘zida tahrirlaydi (hamma foydalanuvchida yangilanadi), “Hal qilindi”/“Rad etish”.
+- **Statistika (owner).** Sozlamalar → **Statistika**: foydalanuvchilar, faolligi, umumiy aniqlik, eng qiyin savollar va mavzular. Ma’lumot talabalar Mashq/Imtihon testlarini yakunlaganda yig‘iladi; Foydalanuvchilarda “oxirgi kirish” ko‘rinadi.
+- **Konspekt.** Mavzu qatoridagi kitob tugmasi: o‘qish ekrani, jumlani bosib 3 rangda belgilash (“Belgilash”ni yoqing), shaxsiy yozuv, “O‘qidim”, PDF/chop etish, “Shu mavzudan test”. Belgilar va yozuvlar hisobga sinxronlanadi.
+- **Konspekt qo‘shish:** `banklar/konspekt/<fan>/<mavzu>.md` yozing (birinchi qator `# Sarlavha`; `##`, `-`, `1.`, `| jadval |`, `> eslatma`, `!! imtihonda tushadi`, `**qalin**`, `==muhim==`), keyin `python3 -I tools/konspekt_sql.py` bergan SQLni Supabase’da ishga tushiring (`catalog_notes`). `<fan>` va `<mavzu>` katalogdagi fan/mavzu `id`si bo‘lsin; ko‘rinish fan ko‘rinishiga (guruhlarga) bog‘liq.
+- Migratsiya: `supabase/migrations/20261115c_reports_stats_notes.sql`; sinov: `tests/notes.cjs`.
+
 ## Ma’lumot qayerda saqlanadi
 Savol banki — IndexedDB, natijalar/xatolar/sozlamalar — localStorage (faqat shu qurilmada). **⚙️ Sozlamalar → Zaxira** bilan fayl qilib saqlab, boshqa qurilmada tiklash mumkin. Safari uzoq foydalanilmagan sayt ma’lumotini o‘chirib yuborishi mumkin — shuning uchun vaqti-vaqti bilan zaxira ol.

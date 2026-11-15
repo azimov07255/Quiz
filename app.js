@@ -2,7 +2,7 @@
    Savol banki: IndexedDB. Natijalar/xatolar/sozlamalar: localStorage. Hech qanday server yoki kalit yo‘q. */
 (() => {
 'use strict';
-const APP_VERSION = '1.7.2';   // sw.js dagi VERSION bilan bir xil bo‘lsin
+const APP_VERSION = '1.8.0';   // sw.js dagi VERSION bilan bir xil bo‘lsin
 
 // ───────────── yordamchilar ─────────────
 const $ = (s, r = document) => r.querySelector(s);
@@ -57,7 +57,7 @@ const normState = o => {
   o = o && typeof o === 'object' ? o : {};
   const obj = x => x && typeof x === 'object' && !Array.isArray(x) ? x : {};
   const set = Object.assign({ sh: 1, sec: 45, goal: 20, theme: 'auto' }, obj(o.set));
-  return { h: Array.isArray(o.h) ? o.h : [], m: obj(o.m), f: obj(o.f), sn: obj(o.sn), ex: obj(o.ex), set, ts: +o.ts || 0, hc: +o.hc || 0 };
+  return { h: Array.isArray(o.h) ? o.h : [], m: obj(o.m), f: obj(o.f), sn: obj(o.sn), ex: obj(o.ex), nt: obj(o.nt), set, ts: +o.ts || 0, hc: +o.hc || 0 };
 };
 let S = (() => { try { return normState(JSON.parse(localStorage.getItem(LS))); } catch (e) { return normState(null); } })();
 let saveFailed = false;
@@ -186,7 +186,8 @@ function mergeState(a, b) {
   const h = [...byId.values()].sort((x, y) => x.id - y.id).slice(-400);
   const sn = Object.assign({}, a.sn); Object.entries(b.sn || {}).forEach(([k, v]) => { if (!sn[k] || v > sn[k]) sn[k] = v; });
   const win = (a.ts || 0) >= (b.ts || 0) ? a : b;
-  return normState({ h, sn, hc, m: win.m, f: win.f, ex: win.ex, set: win.set, ts: Math.max(a.ts || 0, b.ts || 0) });
+  const nt = Object.assign({}, a.nt); Object.entries(b.nt || {}).forEach(([k, v]) => { if (!nt[k] || (v.t || 0) > (nt[k].t || 0)) nt[k] = v; });
+  return normState({ h, sn, hc, nt, m: win.m, f: win.f, ex: win.ex, set: win.set, ts: Math.max(a.ts || 0, b.ts || 0) });
 }
 const sameSubj = (a, b) => a.name === b.name && a.topics.length === b.topics.length && a.topics.every(t => { const u = b.topics.find(y => y.id === t.id); return u && JSON.stringify(u) === JSON.stringify(t); });
 
@@ -263,7 +264,7 @@ function syncAll() {
       await loadProfile();
       if (!isActive(A.profile)) { A.sync = 'idle'; lockApp(); return; }
       if (V.v === 'locked') { V.v = 'home'; V.anim = true; draw(); }
-      await syncBanks(); await syncCatalog(); await syncState();
+      await syncBanks(); await syncCatalog(); await syncNotes().catch(() => {}); await syncState(); statFlush();
       weekFlush(); if (!A.board || Date.now() - A.board.t > 60000) loadBoard(0, true);
       A.sync = 'ok'; A.syncMsg = ''; A.last = Date.now(); try { localStorage.setItem(KL, String(A.last)); } catch (e) { /* ixtiyoriy */ }
     } catch (e) { A.sync = e && e.net ? 'offline' : 'err'; A.syncMsg = e && e.net ? '' : String(e && e.message || e).slice(0, 120); }
@@ -282,8 +283,8 @@ function refreshAcct() { const e = $('#syncline'); if (e) e.innerHTML = syncLine
 function lockApp() { V.v = 'locked'; Q = null; clearInterval(TI); CBRAW = []; CB = []; rebuild(); idbDel('catalog').catch(() => {}); V.anim = true; draw(); }
 function wipeLocal() {
   S = normState(null); persist(); applyTheme(); CBRAW = []; CB = []; indexBank(null); idbDel().catch(() => {}); idbDel('catalog').catch(() => {});
-  [KP, KU, KD, KX, KS, KL, 'testlar:wk', 'testlar:room'].forEach(k => { try { localStorage.removeItem(k); } catch (e) { /* ixtiyoriy */ } });
-  A.profile = null; A.last = 0; A.sync = 'idle'; A.users = null; A.board = null; A.rank = null; V.sel = {}; V.sid = '';
+  [KP, KU, KD, KX, KS, KL, 'testlar:wk', 'testlar:room', 'testlar:stq'].forEach(k => { try { localStorage.removeItem(k); } catch (e) { /* ixtiyoriy */ } });
+  A.profile = null; A.last = 0; A.sync = 'idle'; A.users = null; A.board = null; A.rank = null; NOTES = []; idbDel('notes').catch(() => {}); V.sel = {}; V.sid = '';
 }
 async function afterLogin() {
   const uid = SB.session().user.id, prev = localStorage.getItem(KU);
@@ -623,7 +624,7 @@ async function finish(force) {
   const c = Q.cfg, key = c.kind === 't' ? c.id : ['s', 'u'].includes(c.kind) ? c.kind + ':' + c.id : c.kind;
   const rec = { id: Date.now(), d: T, t: key, n: Q.ids.length, ok, sec: Math.round((Date.now() - Q.t0) / 1000), mo: Q.mo };
   S.h.push(rec); if (S.h.length > 400) S.h.splice(0, S.h.length - 400);
-  if (Q.mo !== 'o' && cloudOn()) weekQueue(Q.ids.filter(id => Q.ans[id] !== undefined).length, ok);
+  if (Q.mo !== 'o' && cloudOn()) { weekQueue(Q.ids.filter(id => Q.ans[id] !== undefined).length, ok); statQueue(Q.ids.filter(id => Q.ans[id] !== undefined && qRef(id)).map(id => { const r = qRef(id); return { s: r.s, t: r.t, q: r.q, w: Q.ans[id] !== TBX[id].q.a }; })); }
   R = { rec, wrong, un, ans: Q.ans, cfg: c };
   V.v = 'res'; V.anim = true; V.fresh = true; save(); draw(); window.scrollTo(0, 0);
 }
@@ -678,6 +679,7 @@ function homeView() {
   return h;
 }
 
+const nbtn = t => { const n = noteOf(V.sid, t.id); if (!n) return ''; const r = (S.nt[nkey(n)] || {}).r; return `<button class="nbtn ${r ? 'on' : ''}" data-a="note" data-k="${esc(nkey(n))}" aria-label="Konspekt">${ic(r ? 'ok' : 'book', 20)}</button>`; };
 function subjView() {
   const s = findSubj(V.sid); if (!s) { V.v = 'home'; return homeView(); }
   const h0 = hueOf(s.id), ids = subjQ(s.id), m = mastery(ids), p = plan(s.id);
@@ -691,7 +693,7 @@ function subjView() {
   <p class="mu s up" style="margin:-2px 2px 4px;--i:4">Mavzuga bosib shundan boshlaysan. Katakchalar bilan bir nechtasini birlashtirasan.</p>`;
   s.topics.forEach((t, i) => {
     const b = best(t.id), l = last(t.id);
-    h += `<div class="row up" style="--i:${5 + i};--h:${h0}"><input type="checkbox" data-c="sel" data-id="${esc(t.id)}" ${V.sel[t.id] ? 'checked' : ''} aria-label="${esc(t.name)} tanlash"><button class="tmain" data-a="start" data-kind="t" data-id="${esc(t.id)}" data-label="${esc(t.name)}"><span class="t"><b>${esc(t.name)}</b><small>${t.q.length} savol${b !== null ? ' · eng yaxshi ' + b + '%' : ''}${l !== null ? ' · oxirgi ' + l + '%' : ''}</small></span></button><span class="go">${ic('play')}</span></div>`;
+    h += `<div class="row up" style="--i:${5 + i};--h:${h0}"><input type="checkbox" data-c="sel" data-id="${esc(t.id)}" ${V.sel[t.id] ? 'checked' : ''} aria-label="${esc(t.name)} tanlash"><button class="tmain" data-a="start" data-kind="t" data-id="${esc(t.id)}" data-label="${esc(t.name)}"><span class="t"><b>${esc(t.name)}</b><small>${t.q.length} savol${b !== null ? ' · eng yaxshi ' + b + '%' : ''}${l !== null ? ' · oxirgi ' + l + '%' : ''}</small></span></button>${nbtn(t)}<span class="go">${ic('play')}</span></div>`;
   });
   if (sel.length) h += `<div class="sticky"><button class="big" data-a="startSel">${ic('layers')} Tanlanganlardan test · ${sel.length} mavzu · ${selQ} savol</button></div>`;
   return h;
@@ -711,7 +713,7 @@ function quizView() {
   const answered = a !== undefined;
   const top = `<div class="qtop"><button class="x" data-a="quit" aria-label="To‘xtatish">${ic('x')}</button><div class="mid"><div class="cnt"><span>${esc(Q.label)}</span><span><b>${i + 1} / ${Q.ids.length}</b></span></div><div class="bar"><i style="width:${pct(i + (answered ? 1 : 0), Q.ids.length)}%"></i></div></div>${Q.dl ? `<span class="tmr">${ic('timer')}<span id="tmr">${mmss((Q.dl - Date.now()) / 1000)}</span></span>` : ''}</div>`;
   const tags = `<div class="tags"><span class="tag">${esc(x.t.name)}</span>${open ? '<span class="tag">Ochiq rejim</span>' : ''}${Q.combo >= 2 && ex ? `<span class="tag fire">${ic('flame', 13)} ${Q.combo} ketma-ket</span>` : ''}</div>`;
-  const src = q.r ? `<span class="src">${ic('book', 14)} ${esc(x.t.name)}, ${esc(q.r)}</span>` : '';
+  const src = (q.r ? `<span class="src">${ic('book', 14)} ${esc(x.t.name)}, ${esc(q.r)}</span>` : '') + repBtn(id);
   let body;
   if (!open) {
     body = optionsHtml(id, x);
@@ -741,7 +743,7 @@ function resView() {
   h += `<div class="sec up" style="--i:3"><h2>Xato javoblar</h2><span class="chip static">${R.wrong.length} ta</span></div>`;
   R.wrong.forEach(id => {
     const x = TBX[id]; if (!x) return; const q = x.q, a = R.ans[id];
-    h += `<details class="rev"><summary>${esc(q.q)}</summary><p><b>To‘g‘ri:</b> ${esc(q.o[q.a])}</p>${a === undefined ? '<p class="mu">Javob berilmagan</p>' : a < 0 ? '<p class="mu">Ochiq rejimda “bilmadim/qisman” deb baholading</p>' : `<p class="mu"><b>Sen:</b> ${esc(q.o[a])}</p>`}${q.e ? `<p>${esc(q.e)}</p>` : ''}<small>${esc(x.t.name)}${q.r ? ', ' + esc(q.r) : ''}</small></details>`;
+    h += `<details class="rev"><summary>${esc(q.q)}</summary><p><b>To‘g‘ri:</b> ${esc(q.o[q.a])}</p>${a === undefined ? '<p class="mu">Javob berilmagan</p>' : a < 0 ? '<p class="mu">Ochiq rejimda “bilmadim/qisman” deb baholading</p>' : `<p class="mu"><b>Sen:</b> ${esc(q.o[a])}</p>`}${q.e ? `<p>${esc(q.e)}</p>` : ''}<small>${esc(x.t.name)}${q.r ? ', ' + esc(q.r) : ''}</small>${repBtn(id)}</details>`;
   });
   return h;
 }
@@ -822,7 +824,7 @@ function acctCard() {
   <p class="mu s" id="syncline" style="margin:12px 0 0">${syncLine()}</p>
   <div class="in"><button class="btn s" data-a="syncNow">${ic('refresh')} Sinxron</button><button class="btn s" data-a="rename">${ic('pencil')} Ism</button><button class="btn s" data-a="pw">${ic('lock')} Parol</button></div>
   ${A.pwOpen ? `<form id="pf" class="grp" novalidate><label class="fld"><span class="lb">Yangi parol</span><span class="pw"><input name="pw" type="password" autocomplete="new-password" placeholder="Kamida 6 ta belgi"><button type="button" class="eye" data-a="eye" aria-label="Ko‘rsatish">${ic('eye')}</button></span></label><button class="big" type="submit">Parolni saqlash</button></form>` : ''}
-  ${isOwner() ? `<button class="big" style="margin-top:10px" data-a="users">${ic('layers')} Foydalanuvchilar</button><button class="big" style="margin-top:10px" data-a="cat">${ic('book')} Umumiy katalog</button><button class="big" style="margin-top:10px" data-a="signupCfg">${ic('users')} Ro‘yxatdan o‘tish</button>` : ''}
+  ${isOwner() ? `<button class="big" style="margin-top:10px" data-a="users">${ic('layers')} Foydalanuvchilar</button><button class="big" style="margin-top:10px" data-a="cat">${ic('book')} Umumiy katalog</button><button class="big" style="margin-top:10px" data-a="signupCfg">${ic('users')} Ro‘yxatdan o‘tish</button><div class="in" style="margin-top:0"><button class="btn" data-a="ostat">${ic('chart')} Statistika</button><button class="btn" data-a="reports">${ic('alert')} Savol xabarlari</button></div>` : ''}
   <button class="btn danger" style="margin-top:10px" data-a="logout">Chiqish</button></div>`;
 }
 function usersView() {
@@ -839,14 +841,14 @@ function usersView() {
   if (pend) h += `<div class="note">${ic('alert')}<span>${pend} ta hisob faollashtirilmagan (o‘zi ro‘yxatdan o‘tgan). “Obuna” bersang ochiladi, keraksiz bo‘lsa o‘chir.</span></div>`;
   A.users.forEach((u, i) => {
     const st = userStatus(u), hue = [...String(u.user_id)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
-    h += `<div class="card up" style="--i:${i}"><div style="display:flex;align-items:center;gap:12px"><span class="av" style="--h:${hue}">${initials(u.name || u.email)}</span><div style="min-width:0;flex:1"><b style="display:block;overflow-wrap:anywhere">${esc(u.name || '—')}</b><small style="display:block;overflow-wrap:anywhere">${esc(shownLogin(u.email))}</small><span class="chip static" style="margin-top:6px">${esc(st)}</span>${grpChips(u.groups)}${u.can_host ? '<span class="chip static" style="margin:6px 6px 0 0;color:var(--ok)">Musobaqa ochadi</span>' : ''}</div></div>
+    h += `<div class="card up" style="--i:${i}"><div style="display:flex;align-items:center;gap:12px"><span class="av" style="--h:${hue}">${initials(u.name || u.email)}</span><div style="min-width:0;flex:1"><b style="display:block;overflow-wrap:anywhere">${esc(u.name || '—')}</b><small style="display:block;overflow-wrap:anywhere">${esc(shownLogin(u.email))}</small><span class="chip static" style="margin-top:6px">${esc(st)}</span>${grpChips(u.groups)}<small class="mu" style="display:block;margin-top:6px">Oxirgi kirish: ${esc(relTime(u.last_seen))}</small>${u.can_host ? '<span class="chip static" style="margin:6px 6px 0 0;color:var(--ok)">Musobaqa ochadi</span>' : ''}</div></div>
     ${u.role === 'owner' ? '' : `<div class="in"><button class="btn s" data-a="uGrant" data-id="${esc(u.user_id)}">Obuna</button><button class="btn s" data-a="uPw" data-id="${esc(u.user_id)}">Parol</button><button class="btn s" data-a="uGroups" data-id="${esc(u.user_id)}">Guruh</button><button class="btn s" data-a="uHost" data-id="${esc(u.user_id)}">${u.can_host ? 'Musobaqa: olib tashlash' : 'Musobaqa ochishga ruxsat'}</button><button class="btn s" data-a="uBlock" data-id="${esc(u.user_id)}">${u.blocked ? 'Ochish' : 'Bloklash'}</button><button class="btn s danger fix" data-a="uDel" data-id="${esc(u.user_id)}" aria-label="O‘chirish">${ic('trash')}</button></div>`}</div>`;
   });
   return h;
 }
 
 function view() {
-  switch (V.v) { case 'arena': return arenaView(); case 'cat': return catView(); case 'auth': return authView(); case 'reset': return resetView(); case 'locked': return lockedView(); case 'users': return usersView(); case 'quiz': return quizView(); case 'res': return resView(); case 'subj': return subjView(); case 'stat': return statView(); case 'set': return setView(); case 'flag': return flagView(); default: return homeView(); }
+  switch (V.v) { case 'arena': return arenaView(); case 'note': return noteView(); case 'reports': return reportsView(); case 'ostat': return ostatView(); case 'cat': return catView(); case 'auth': return authView(); case 'reset': return resetView(); case 'locked': return lockedView(); case 'users': return usersView(); case 'quiz': return quizView(); case 'res': return resView(); case 'subj': return subjView(); case 'stat': return statView(); case 'set': return setView(); case 'flag': return flagView(); default: return homeView(); }
 }
 // ───────────── yangi versiya va kirish animatsiyasi ─────────────
 let UPD = null, UPD_LATER = false, RELOADING = false, SWREG = null;
@@ -896,7 +898,7 @@ function draw(keepScroll = true) {
   document.body.classList.toggle('noav', ['quiz', 'auth', 'locked', 'reset'].includes(V.v) || (V.v === 'arena' && M && arenaPhase() === 'play'));
   const app = $('#app'); app.classList.toggle('anim', anim);
   app.innerHTML = view();
-  const tab = V.v === 'stat' ? 'stat' : ['set', 'users', 'cat'].includes(V.v) ? 'set' : 'home';
+  const tab = V.v === 'stat' ? 'stat' : ['set', 'users', 'cat', 'reports', 'ostat'].includes(V.v) ? 'set' : 'home';
   $('#nav').innerHTML = [['home', 'book', 'Fanlar'], ['stat', 'chart', 'Statistika'], ['set', 'sliders', 'Sozlamalar']].map(([v, i, n]) => `<button data-a="nav" data-v="${v}" class="${tab === v ? 'on' : ''}" ${tab === v ? 'aria-current="page"' : ''}>${ic(i)}${n}</button>`).join('');
   V.anim = false;
   if (keepScroll) window.scrollTo(0, sy);
@@ -1008,6 +1010,17 @@ async function act(a, d, el) {
     case 'uDel': ownerDelete(d.id); break;
     case 'uGroups': ownerGroups(d.id); break;
     case 'a2hsHide': try { localStorage.setItem('testlar:a2hs', '1'); } catch (e) { /* ixtiyoriy */ } V.anim = false; draw(); break;
+    case 'note': V.nk = d.k; V.nm = false; V.v = 'note'; V.anim = true; draw(false); window.scrollTo(0, 0); break;
+    case 'nback': noteBack(); break;
+    case 'nmode': V.nm = !V.nm; V.anim = false; draw(); break;
+    case 'ncol': V.nm = true; V.nc = +d.c; V.anim = false; draw(); break;
+    case 'nread': noteSet(V.nk, o => { o.r = o.r ? 0 : 1; }); V.anim = false; draw(); break;
+    case 'nprint': printNote(); break;
+    case 'qrep': reportQ(d.id); break;
+    case 'reports': V.v = 'reports'; V.anim = true; setMsg(null); draw(false); window.scrollTo(0, 0); loadReports(); break;
+    case 'ostat': V.v = 'ostat'; V.anim = true; draw(false); window.scrollTo(0, 0); loadOStats(); break;
+    case 'qedit': qEdit(d.s, d.t, d.q); break;
+    case 'qres': reportResolve(d.s, d.t, d.q, d.st); break;
     case 'aNew': arenaNew(); break;
     case 'aTab': V.at = d.t; V.anim = false; draw(); if (d.t === 'board') loadBoard(V.bo || 0, false); break;
     case 'aWeek': V.bo = +d.o; V.anim = false; draw(); loadBoard(V.bo, false); break;
@@ -1054,7 +1067,8 @@ async function act(a, d, el) {
       V = { v: 'home', sid: '', n: 20, mo: 'm', sel: {}, msg: null, anim: true, fresh: false }; draw(); } break;
   }
 }
-document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b && !b.disabled) act(b.dataset.a, b.dataset, b); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (b && !b.disabled) { act(b.dataset.a, b.dataset, b); return; } const sn = e.target.closest('.snt'); if (sn) toggleHl(sn); });
+document.addEventListener('input', e => { if (e.target.id === 'nmemo') { const v = e.target.value; clearTimeout(memoT); memoT = setTimeout(() => noteSet(V.nk, o => { o.m = v.slice(0, 4000); }), 600); } });
 document.addEventListener('submit', e => {
   e.preventDefault(); const id = e.target.id;
   if (id === 'af') doAuth(e.target); else if (id === 'ff') doForgot(e.target); else if (id === 'rf') doReset(e.target); else if (id === 'pf') changePw(e.target);
@@ -1086,6 +1100,174 @@ document.addEventListener('keydown', e => {
   if (k === 'arrowright' || k === 'enter') { const b = $('.qbar [data-a="go"][data-d="1"]'); if (b && !b.disabled) go(1); }
   if (k === 'arrowleft') go(-1);
 });
+
+// ───────────── xabarlar, statistika, konspekt (v1.8) ─────────────
+const area = (name, label, value, rows = 3) => `<label class="fld"><span class="lb">${esc(label)}</span><textarea name="${name}" rows="${rows}" spellcheck="false">${esc(value || '')}</textarea></label>`;
+const relTime = ts => { if (!ts) return 'hali kirmagan'; const m = Math.round((Date.now() - new Date(ts)) / 60000); return m < 2 ? 'hozir' : m < 60 ? m + ' daqiqa oldin' : m < 1440 ? Math.round(m / 60) + ' soat oldin' : Math.round(m / 1440) + ' kun oldin'; };
+const qRef = id => { const x = TBX[id]; return x && x.s.cat ? { s: x.s.id.slice(2), t: x.t.id.slice(2), q: id.slice(2), x } : null; };
+const findRawQ = (sid, tid, qid) => { const e = CBRAW.find(r => r.subject_id === sid); const t = e && e.data.topics.find(y => y.id === tid); const q = t && t.q.find(y => y.id === qid); return q ? { e, t, q } : null; };
+
+// ── talaba: “savolda xato bormi?” ──
+async function reportQ(id) {
+  const r = qRef(id); if (!r) { toast('Faqat katalogdagi savollar haqida xabar berish mumkin'); return; }
+  const v = await formSheet('Savolda xato bormi?', `<p class="mu s" style="margin:0 2px 6px">${esc(r.x.q.q)}</p>` + chipsRow('reason', 'javob', [['javob', 'Javob noto‘g‘ri'], ['yozuv', 'Yozuv xatosi'], ['noaniq', 'Savol noaniq'], ['boshqa', 'Boshqa']], 'Nima xato?') + area('note', 'Izoh (ixtiyoriy)', '', 3), 'Yuborish');
+  if (!v) return;
+  try { await SB.rpc('report_question', { p_subject: r.s, p_topic: r.t, p_q: r.q, p_text: r.x.q.q, p_reason: v.reason, p_note: String(v.note || '').trim() }); toast('Rahmat! Xabar ilova egasiga yuborildi'); } catch (e) { toast(uzErr(e)); }
+}
+const repBtn = id => cloudOn() && qRef(id) ? `<button class="lnk rep" data-a="qrep" data-id="${esc(id)}">${ic('alert', 14)} Savolda xato bormi?</button>` : '';
+
+// ── test natijalaridan savol statistikasi (egasi uchun) ──
+const KQ = 'testlar:stq';
+function statQueue(items) {
+  if (!items.length || !cloudOn()) return; const q = lsGet(KQ, []).concat(items); lsSet(KQ, q.slice(-600)); statFlush();
+}
+let stBusy = false;
+async function statFlush() {
+  if (stBusy || !cloudOn() || !online() || !A.profile || !isActive(A.profile)) return; stBusy = true;
+  try { for (let k = 0; k < 8; k++) { const q = lsGet(KQ, []); if (!q.length) break; await SB.rpc('stats_add', { p_items: q.slice(0, 100) }); lsSet(KQ, q.slice(100)); } SB.rpc('ping').catch(() => {}); }
+  catch (e) { /* keyingi safar */ } finally { stBusy = false; }
+}
+
+// ── owner: savol xabarlari ──
+async function loadReports() {
+  A.repErr = '';
+  try { A.reps = await SB.rest('question_reports?select=*&status=eq.open&order=created_at.desc&limit=400'); } catch (e) { A.repErr = uzErr(e); A.reps = A.reps || []; }
+  if (V.v === 'reports') { V.anim = false; draw(); }
+}
+const REASON = { javob: 'Javob noto‘g‘ri', yozuv: 'Yozuv xatosi', noaniq: 'Savol noaniq', boshqa: 'Boshqa' };
+function reportsView() {
+  let h = `<header class="hdr up"><div style="display:flex;gap:12px;align-items:center"><button class="x" data-a="nav" data-v="set" aria-label="Orqaga">${ic('chevL')}</button><h1 style="font-size:26px">Savol xabarlari</h1></div></header>${noteHtml()}`;
+  if (A.repErr) h += `<div class="note">${ic('alert')}<span>${esc(A.repErr)}</span></div>`;
+  if (!A.reps) return h + '<p class="mu">Yuklanmoqda…</p>';
+  const g = new Map(); A.reps.forEach(r => { const k = r.subject_id + '\u0001' + r.topic_id + '\u0001' + r.q_id; (g.get(k) || g.set(k, []).get(k)).push(r); });
+  if (!g.size) return h + `<div class="card empty up"><span class="emp-i">${ic('ok', 34)}</span><h2>Ochiq xabar yo‘q</h2><p class="mu">Kursdoshlar savolda xato topsa, shu yerda ko‘rinadi.</p></div>`;
+  let i = 0;
+  g.forEach(L => {
+    const r0 = L[0], raw = findRawQ(r0.subject_id, r0.topic_id, r0.q_id), reasons = [...new Set(L.map(x => REASON[x.reason] || x.reason))], notes = L.filter(x => x.note).slice(0, 3);
+    h += `<div class="card up" style="--i:${i++}"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="chip static">${L.length} ta xabar</span><small class="mu">${esc(raw ? raw.e.name + ' › ' + raw.t.name : r0.subject_id + ' › ' + r0.topic_id)}</small></div>
+    <p style="font-weight:700;margin:10px 0 6px">${esc(raw ? raw.q.q : r0.q_text)}</p>
+    ${raw ? raw.q.o.map((o, k) => `<div class="qrow ${k === raw.q.a ? 'ok' : ''}"><b>${LET[k]}</b> ${esc(o)}${k === raw.q.a ? ' ✓' : ''}</div>`).join('') + (raw.q.e ? `<p class="mu s" style="margin:6px 0 0">${esc(raw.q.e)}</p>` : '') : '<p class="mu s">Bu savol endi katalogda yo‘q.</p>'}
+    <div style="margin:8px 0 0">${reasons.map(x => `<span class="chip static" style="margin:4px 6px 0 0;color:var(--warn)">${esc(x)}</span>`).join('')}</div>
+    ${notes.map(n => `<p class="mu s" style="margin:6px 0 0">“${esc(n.note)}” — ${esc(n.reporter || '—')}</p>`).join('')}
+    <div class="in" style="margin-top:12px">${raw ? `<button class="btn s" data-a="qedit" data-s="${esc(r0.subject_id)}" data-t="${esc(r0.topic_id)}" data-q="${esc(r0.q_id)}">${ic('pencil')} Tuzatish</button>` : ''}<button class="btn s" data-a="qres" data-s="${esc(r0.subject_id)}" data-t="${esc(r0.topic_id)}" data-q="${esc(r0.q_id)}" data-st="fixed">Hal qilindi</button><button class="btn s" data-a="qres" data-s="${esc(r0.subject_id)}" data-t="${esc(r0.topic_id)}" data-q="${esc(r0.q_id)}" data-st="dismissed">Rad etish</button></div></div>`;
+  });
+  return h;
+}
+async function reportResolve(s, t, q, st) {
+  try { await SB.rpc('owner_report_resolve', { p_subject: s, p_topic: t, p_q: q, p_status: st }); toast(st === 'fixed' ? 'Hal qilindi' : 'Rad etildi'); await loadReports(); } catch (e) { toast(uzErr(e)); }
+}
+async function qEdit(sid, tid, qid) {
+  const raw = findRawQ(sid, tid, qid); if (!raw) { toast('Savol topilmadi'); return; }
+  const q = raw.q;
+  const v = await formSheet('Savolni tuzatish', area('q', 'Savol', q.q, 3) + [0, 1, 2, 3].map(k => fld('o' + k, 'Variant ' + LET[k], { value: q.o[k] })).join('') + chipsRow('a', String(q.a), [['0', 'A'], ['1', 'B'], ['2', 'C'], ['3', 'D']], 'To‘g‘ri javob') + area('e', 'Izoh', q.e || '', 3), 'Saqlash');
+  if (!v) return;
+  const txt = String(v.q || '').trim(), opts = [0, 1, 2, 3].map(k => String(v['o' + k] || '').trim());
+  if (!txt || opts.some(x => !x)) { toast('Savol va 4 ta variant to‘ldirilsin'); return; }
+  const data = JSON.parse(JSON.stringify(raw.e.data)), tq = data.topics.find(y => y.id === tid).q.find(y => y.id === qid);
+  tq.q = txt; tq.o = opts; tq.a = +v.a; if (String(v.e || '').trim()) tq.e = String(v.e).trim(); else delete tq.e;
+  const chk = checkBank({ v: 1, subjects: [data] }); if (chk.err.length) { toast('Xato: ' + chk.err[0]); return; }
+  await catSave(sid, { data }, 'Savol tuzatildi');
+  try { await SB.rpc('owner_report_resolve', { p_subject: sid, p_topic: tid, p_q: qid, p_status: 'fixed' }); } catch (e) { /* xabar bo‘lmasa ham bo‘ladi */ }
+  if (V.v === 'reports') await loadReports(); else if (V.v === 'ostat') { V.anim = false; draw(); }
+}
+
+// ── owner: statistika ──
+async function loadOStats() {
+  A.ostErr = '';
+  try { const [st, rp] = await Promise.all([SB.rest('question_stats?select=*&limit=6000'), SB.rest('question_reports?select=id&status=eq.open&limit=500')]); A.qst = st; A.repN = rp.length; await loadUsers(); }
+  catch (e) { A.ostErr = uzErr(e); A.qst = A.qst || []; }
+  if (V.v === 'ostat') { V.anim = false; draw(); }
+}
+function ostatView() {
+  let h = `<header class="hdr up"><div style="display:flex;gap:12px;align-items:center"><button class="x" data-a="nav" data-v="set" aria-label="Orqaga">${ic('chevL')}</button><h1 style="font-size:26px">Statistika</h1></div></header>`;
+  if (A.ostErr) h += `<div class="note">${ic('alert')}<span>${esc(A.ostErr)}</span></div>`;
+  if (!A.qst || !A.users) return h + '<p class="mu">Yuklanmoqda…</p>';
+  const us = A.users.filter(u => u.role !== 'owner'), now = Date.now(), day = 864e5;
+  const act7 = us.filter(u => u.last_seen && now - new Date(u.last_seen) < 7 * day).length, today = us.filter(u => u.last_seen && now - new Date(u.last_seen) < day).length;
+  const seen = A.qst.reduce((a, r) => a + r.seen, 0), wrong = A.qst.reduce((a, r) => a + r.wrong, 0);
+  h += `<div class="kpis"><div class="kpi up" style="--i:1"><b>${us.length}</b><small>Foydalanuvchilar</small></div><div class="kpi up" style="--i:2"><b>${today}</b><small>Oxirgi 24 soatda kirgan</small></div><div class="kpi up" style="--i:3"><b>${act7}</b><small>Oxirgi 7 kunda faol</small></div><div class="kpi up" style="--i:4"><b>${seen ? Math.round((1 - wrong / seen) * 100) + '%' : '—'}</b><small>Umumiy to‘g‘ri javob (${seen} ta javob)</small></div></div>`;
+  const rep = A.repN ? `<button class="big up" style="--i:5" data-a="reports">${ic('alert')} Savol xabarlari · ${A.repN}</button>` : '';
+  h += rep;
+  const hard = A.qst.filter(r => r.seen >= 3).map(r => ({ r, p: r.wrong / r.seen })).sort((a, b) => b.p - a.p || b.r.seen - a.r.seen).slice(0, 12);
+  h += `<div class="sec up" style="--i:6"><h2>Eng qiyin savollar</h2></div>`;
+  if (!hard.length) h += '<div class="card up"><p class="mu" style="margin:0">Hali yetarli ma’lumot yo‘q: savol kamida 3 marta yechilishi kerak.</p></div>';
+  hard.forEach(({ r, p }, i) => { const raw = findRawQ(r.subject_id, r.topic_id, r.q_id);
+    h += `<div class="card up" style="--i:${7 + i}"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="chip static" style="color:var(--bad)">${Math.round(p * 100)}% xato</span><small class="mu">${r.seen} marta yechilgan</small></div><p style="font-weight:600;margin:8px 0 0">${esc(raw ? raw.q.q : r.q_id)}</p>${raw ? `<small class="mu" style="display:block;margin-top:4px">${esc(raw.e.name + ' › ' + raw.t.name)}</small><div class="in" style="margin-top:10px"><button class="btn s" data-a="qedit" data-s="${esc(r.subject_id)}" data-t="${esc(r.topic_id)}" data-q="${esc(r.q_id)}">${ic('pencil')} Ko‘rish / tuzatish</button></div>` : ''}</div>`; });
+  const tp = new Map(); A.qst.forEach(r => { const k = r.subject_id + '\u0001' + r.topic_id, o = tp.get(k) || { s: r.subject_id, t: r.topic_id, seen: 0, wrong: 0 }; o.seen += r.seen; o.wrong += r.wrong; tp.set(k, o); });
+  const weak = [...tp.values()].filter(o => o.seen >= 10).sort((a, b) => b.wrong / b.seen - a.wrong / a.seen).slice(0, 8);
+  if (weak.length) { h += `<div class="sec up"><h2>Qiyin mavzular</h2></div><div class="card up lbc">${weak.map(o => { const e = CBRAW.find(r => r.subject_id === o.s), t = e && e.data.topics.find(y => y.id === o.t); return `<div class="lbr"><div class="lbm"><b style="white-space:normal">${esc(t ? t.name : o.t)}</b><span class="bar"><i style="width:${Math.round(o.wrong / o.seen * 100)}%;background:var(--bad)"></i></span></div><span class="sc" style="color:var(--bad)">${Math.round(o.wrong / o.seen * 100)}%</span></div>`; }).join('')}</div>`; }
+  const recent = us.filter(u => u.last_seen).sort((a, b) => new Date(b.last_seen) - new Date(a.last_seen)).slice(0, 10);
+  if (recent.length) h += `<div class="sec up"><h2>So‘nggi faollik</h2></div><div class="card up lbc">${recent.map(u => `<div class="lbr"><span class="av" style="--h:${[...String(u.user_id)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7)}">${initials(u.name || u.email)}</span><div class="lbm"><b>${esc(u.name || shownLogin(u.email))}</b><small class="mu">${relTime(u.last_seen)}</small></div></div>`).join('')}</div>`;
+  return h;
+}
+
+// ── konspekt ──
+let NOTES = [];
+const nkey = n => n.subject_id + '|' + n.topic_id;
+const noteOf = (sbId, tId) => NOTES.find(n => 'c:' + n.subject_id === sbId && 'c:' + n.topic_id === tId);
+async function syncNotes() {
+  const meta = await SB.rest('catalog_notes?select=subject_id,topic_id,updated_at&order=sort.asc');
+  const sig = a => JSON.stringify(a.map(n => [n.subject_id, n.topic_id, n.updated_at]));
+  if (sig(meta) === sig(NOTES)) return;
+  NOTES = meta.length ? await SB.rest('catalog_notes?select=*&order=sort.asc') : [];
+  try { NOTES.length ? await idbSet({ raw: NOTES }, 'notes') : await idbDel('notes'); } catch (e) { /* ixtiyoriy */ }
+  if (V.v === 'subj' || V.v === 'note') { V.anim = false; draw(); }
+}
+const ABBR = new Set(['mil', 'avv', 'v', 'b', 'y', 'yy', 'sm', 'kv', 'mln', 'mlrd', 'т', 'д', 'п', 'г', 'гг', 'ул', 'рис', 'см', 'ва', 'и']);
+function splitSent(t) {
+  const out = []; let st = 0; const re = /[.!?]+(\s+)/g; let m;
+  while ((m = re.exec(t))) {
+    const before = t.slice(st, m.index), w = (before.match(/([A-Za-zА-Яа-яЎўҚқҒғҲҳ]+)$/) || [])[1] || '', nx = t[m.index + m[0].length] || '';
+    if (ABBR.has(w.toLowerCase()) || /[a-zа-яўқғҳ]/.test(nx)) continue;
+    out.push(t.slice(st, m.index + m[0].length - m[1].length)); st = m.index + m[0].length;
+  }
+  if (st < t.length) out.push(t.slice(st));
+  return out.filter(s => s.trim());
+}
+function noteBodyHtml(n) {
+  const k = nkey(n), hl = (S.nt[k] || {}).h || {}, lines = String(n.body).replace(/\r/g, '').split('\n'), out = []; let bi = 0, list = null, par = [], tbl = null;
+  const inl = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/==(.+?)==/g, '<mark class="imp">$1</mark>');
+  const sents = (t, id) => splitSent(t).map((s, i) => { const sid = id + '.' + i, c = hl[sid]; return `<span class="snt${c ? ' hl' + c : ''}" data-s="${sid}">${inl(s)}</span>`; }).join(' ');
+  const flush = () => {
+    if (par.length) { out.push(`<p>${sents(par.join(' '), 'p' + bi++)}</p>`); par = []; }
+    if (list) { out.push(`<${list.t}>${list.items.map(x => `<li>${sents(x, 'p' + bi++)}</li>`).join('')}</${list.t}>`); list = null; }
+    if (tbl) { const rows = tbl.filter(r => !/^[\s|:-]+$/.test(r)).map(r => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim())); out.push(`<div class="tw"><table>${rows.map((r, i) => `<tr>${r.map(c => i ? `<td>${inl(c)}</td>` : `<th>${inl(c)}</th>`).join('')}</tr>`).join('')}</table></div>`); tbl = null; }
+  };
+  lines.forEach(raw => {
+    const l = raw.trimEnd(); let m;
+    if (!l.trim()) { flush(); return; }
+    if ((m = /^(#{2,3})\s+(.+)/.exec(l))) { flush(); out.push(`<h${m[1].length}>${inl(m[2])}</h${m[1].length}>`); return; }
+    if (/^\|/.test(l)) { if (par.length || list) flush(); (tbl = tbl || []).push(l); return; }
+    if ((m = /^[-*]\s+(.+)/.exec(l))) { if (!list || list.t !== 'ul') { flush(); list = { t: 'ul', items: [] }; } list.items.push(m[1]); return; }
+    if ((m = /^\d+[.)]\s+(.+)/.exec(l))) { if (!list || list.t !== 'ol') { flush(); list = { t: 'ol', items: [] }; } list.items.push(m[1]); return; }
+    if ((m = /^!!\s*(.+)/.exec(l))) { flush(); out.push(`<div class="callout exam"><b>${ic('target', 16)} Imtihonda tushadi</b><p>${sents(m[1], 'p' + bi++)}</p></div>`); return; }
+    if ((m = /^>\s*(.+)/.exec(l))) { flush(); out.push(`<div class="callout"><b>${ic('bulb', 16)} Eslab qol</b><p>${sents(m[1], 'p' + bi++)}</p></div>`); return; }
+    if (list || tbl) flush(); par.push(l.trim());
+  });
+  flush(); return out.join('\n');
+}
+function noteView() {
+  const n = NOTES.find(x => nkey(x) === V.nk);
+  if (!n) { V.v = 'home'; return homeView(); }
+  const st = S.nt[V.nk] || {}, words = String(n.body).split(/\s+/).length, mins = Math.max(1, Math.round(words / 160)), col = V.nc || 1;
+  const sb = TB && TB.subjects.find(s => s.id === 'c:' + n.subject_id), hasT = !!findTopic('c:' + n.topic_id);
+  return `<header class="hdr up noprint"><div style="display:flex;gap:12px;align-items:center"><button class="x" data-a="nback" aria-label="Orqaga">${ic('chevL')}</button><div style="min-width:0"><p class="eyebrow" style="margin:0">${esc(sb ? sb.name : 'Konspekt')}</p><h1 style="font-size:22px;line-height:1.15">${esc(n.title)}</h1></div></div></header>
+  <div class="ntool noprint up" style="--i:1"><button class="chip ${V.nm ? 'on' : ''}" data-a="nmode">${ic('pencil', 16)} Belgilash</button>${[1, 2, 3].map(c => `<button class="hlb h${c} ${V.nm && col === c ? 'on' : ''}" data-a="ncol" data-c="${c}" aria-label="${['Sariq', 'Yashil', 'Pushti'][c - 1]} marker"></button>`).join('')}<button class="chip" data-a="nprint">${ic('download', 16)} PDF</button></div>
+  <p class="mu s noprint" style="margin:6px 2px 10px">${mins} daqiqalik o‘qish. ${V.nm ? 'Matndagi jumlani bossangiz belgilanadi, yana bossangiz belgi olinadi.' : '“Belgilash”ni yoqib, muhim jumlalarni rangga bo‘yang.'} <mark class="imp">Bunday</mark> yozilgan joylar — imtihonda ko‘p tushadigan joylar.</p>
+  <article class="note-body ${V.nm ? 'marking' : ''}" id="nbody">${noteBodyHtml(n)}</article>
+  <div class="card noprint up" style="--i:2"><h2>${ic('pencil')} Mening yozuvlarim</h2><textarea class="memo" id="nmemo" rows="4" placeholder="O‘zingiz uchun eslatma yozing…" spellcheck="false">${esc(st.m || '')}</textarea></div>
+  <div class="in noprint up" style="--i:3"><button class="btn ${st.r ? 'on' : ''}" data-a="nread">${ic('check')} ${st.r ? 'O‘qildi' : 'O‘qidim deb belgilash'}</button>${hasT ? `<button class="big" data-a="start" data-kind="t" data-id="c:${esc(n.topic_id)}" data-label="${esc(n.title)}">${ic('play')} Shu mavzudan test</button>` : ''}</div>
+  <p class="byline print-only">Testlar · BY AZIMOV</p>`;
+}
+function noteSet(k, fn) { const o = S.nt[k] = S.nt[k] || { h: {}, m: '', r: 0, t: 0 }; fn(o); o.t = Date.now(); save(); }
+function toggleHl(el) {
+  if (V.v !== 'note' || !V.nm) return; const id = el.dataset.s, c = V.nc || 1; let now = 0;
+  noteSet(V.nk, o => { if (o.h[id] === c) delete o.h[id]; else { o.h[id] = c; now = c; } });
+  el.className = 'snt' + (now ? ' hl' + now : ''); buzz(8);
+}
+let memoT = 0;
+function noteBack() { V.v = 'subj'; V.anim = true; draw(false); window.scrollTo(0, 0); }
+function printNote() { document.body.classList.add('printing'); const done = () => { document.body.classList.remove('printing'); window.removeEventListener('afterprint', done); }; window.addEventListener('afterprint', done); setTimeout(() => { try { window.print(); } catch (e) { done(); toast('Chop etib bo‘lmadi'); } }, 80); }
 
 // ───────────── haftalik reyting ─────────────
 const KW = 'testlar:wk';
@@ -1294,6 +1476,7 @@ async function arenaResume() {
   draw();
   try { const d = await idbGet(); if (d && !checkBank(d).err.length) indexBank(d); } catch (e) { /* bank yo‘q */ }
   try { const c = await idbGet('catalog'); if (c && Array.isArray(c.raw) && cloudOn()) setCatalog(c.raw); } catch (e) { /* katalog keshi yo‘q */ }
+  try { const c = await idbGet('notes'); if (c && Array.isArray(c.raw) && cloudOn()) NOTES = c.raw; } catch (e) { /* konspekt keshi yo‘q */ }
   V.anim = true; draw();
   SB.onOut(() => { A.profile = null; V.v = 'auth'; V.anim = true; draw(); loadSignup(); });
   setupSW(); hideSplash();
