@@ -18,7 +18,7 @@ IE.uzErr = e => {
 /* ---------- ma’lumotlar va profil ---------- */
 async function loadData() {
   const f = n => fetch('data/' + n + '.json').then(r => { if (!r.ok) throw new Error(n); return r.json(); });
-  [D.reading, D.vocab, D.strategy, D.prompts, D.listening] = await Promise.all([f('reading'), f('vocab8'), f('strategy'), f('prompts'), f('listening')]);
+  [D.reading, D.vocab, D.strategy, D.prompts, D.listening, D.articles] = await Promise.all([f('reading'), f('vocab8'), f('strategy'), f('prompts'), f('listening'), f('articles')]);
   await IE.loadCam();
 }
 const KP = 'ielts:profile';
@@ -82,12 +82,12 @@ document.addEventListener('click', e => {
 });
 const onIn = e => {
   const el = e.target, k = el.dataset && el.dataset.in; if (!k) return;
-  const m = { fill: IE.inp, sel: IE.inp, ed: IE.edInput, notes: IE.inpNotes, vs: IE.vsearch, pf: IE.pf, lseek: IE.lseek }[k]; if (m) m(el);
+  const m = { fill: IE.inp, sel: IE.inp, ed: IE.edInput, notes: IE.inpNotes, vs: IE.vsearch, pf: IE.pf, lseek: IE.lseek, afollow: IE.afollow }[k]; if (m) m(el);
 };
 document.addEventListener('input', onIn);
 document.addEventListener('change', e => {
   if (e.target.id === 'camf' && e.target.files && e.target.files[0]) return IE.camImport(e.target.files[0]);
-  if (e.target.tagName === 'SELECT' || e.target.type === 'date') onIn(e);
+  if (e.target.tagName === 'SELECT' || e.target.type === 'date' || e.target.type === 'checkbox') onIn(e);
 });
 document.addEventListener('visibilitychange', () => { if (!document.hidden && D.access) IE.sync().catch(() => {}); });
 window.addEventListener('online', () => { if (D.access) IE.sync().catch(() => {}); });

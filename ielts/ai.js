@@ -110,6 +110,7 @@ async function freeDict(w) {
     return { ipaUK: (uk && uk.t) || '', ipaUS: (us && us.t) || '', ipa: any.t, auUK: (uk && uk.a) || '', auUS: (us && us.a) || '', meanings: meanings.slice(0, 5) };
   } finally { clearTimeout(t); }
 }
+IE.freeDict = freeDict; IE.dcGet = dcGet; IE.dcSet = dcSet;
 const fromAI = r => ({ ipa: r.ipa || '', ipaUK: '', ipaUS: '', auUK: '', auUS: '', ai: true, meanings: [{ pos: r.pos || '', defs: [{ d: r.def || '', ex: (r.ex || [])[0] || '' }], syn: r.syn || [] }] });
 const uzHTML = d => d.uz ? '<div style="font-size:19px;font-weight:800;color:var(--pl)">' + esc(d.uz) + '</div>' + (d.note ? '<div class="tip8" style="margin-top:10px">' + esc(d.note) + '</div>' : '')
   : d.uzBusy ? '<div class="mu sm row" style="gap:8px"><span class="typing" style="padding:0;display:inline-flex"><i></i><i></i><i></i></span> O‘zbekcha tarjima tayyorlanmoqda…</div>'

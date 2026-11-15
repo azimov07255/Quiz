@@ -1,0 +1,242 @@
+/* IELTS · BY AZIMOV — Materiallar: maqolalar (audio bilan sinxron matn, lug‘at, grammatika, savollar, rasm) va podkastlar (transkript + tahlil). */
+(() => {
+'use strict';
+const IE = window.IE, { esc, ic, bd, $, $$, lsGet, lsSet, fmtT } = IE, S = () => IE.S(), R = IE.routes, A = IE.act, V = IE.V, D = IE.D;
+const mmss = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const nq = s => String(s || '').replace(/[’‘]/g, '\'').replace(/[“”]/g, '"').replace(/[—–]/g, '-').toLowerCase();
+const sub = (title, back, inner, right) => ({ h: '<header class="top"><button class="ib" data-a="back" data-r="' + back + '" aria-label="Orqaga">' + ic('back') + '</button><h1>' + esc(title) + '</h1>' + (right || '') + '</header><div class="scr sub">' + inner + '</div>', sub: true });
+const spin = '<div style="padding-top:36vh"><div class="spin"></div></div>';
+
+/* ---------- material ombori ---------- */
+V.mats = V.mats || {}; V.mload = V.mload || {};
+const saveMat = m => IE.idbSet('mat:' + m.id, m);
+IE.matSync = id => {
+  const b = D.articles.items.find(x => x.id === id); if (b) return Object.assign({ k: 'b' }, b);
+  if (V.mats[id]) return V.mats[id];
+  const meta = S().lib.find(x => x.id === id); if (!meta) return null;
+  if (!V.mload[id]) { V.mload[id] = 1; IE.idbGet('mat:' + id).then(m => { if (m) { V.mats[id] = m; if ((IE.curRoute || '') === 'article/' + id) IE.draw(false); } }); }
+  return { id, k: meta.k, title: meta.t, audio: meta.au || '', dur: 0, img: meta.img ? { src: meta.img, credit: '', license: '', link: meta.src || '' } : null, src: meta.src || '', blocks: [], vocab: [], grammar: [], groups: [], stub: true };
+};
+
+/* ---------- gaplarga bo‘lish va bloklar ---------- */
+const ABBR = new Set(['u.s.', 'u.n.', 'd.c.', 'a.m.', 'p.m.', 'dr.', 'mr.', 'mrs.', 'ms.', 'st.', 'jr.', 'no.', 'vs.', 'inc.', 'corp.', 'e.g.', 'i.e.']);
+function splitSents(p) {
+  const w = p.split(/\s+/), out = []; let buf = [];
+  w.forEach((x, i) => {
+    buf.push(x); const nx = w[i + 1];
+    if (/[.!?]["”’)]*$/.test(x) && !ABBR.has(x.toLowerCase()) && (!nx || /^[A-Z“"‘(\d]/.test(nx))) { out.push(buf.join(' ')); buf = []; }
+  });
+  if (buf.length) out.push(buf.join(' ')); return out;
+}
+const isHead = p => p.length < 80 && !/[.]["”’)]*$/.test(p);
+const blocksFromText = text => String(text).split(/\n{2,}/).map(p => p.trim()).filter(Boolean).map(p => isHead(p) ? { h: 1, x: p } : { s: splitSents(p).map(x => [0, x]) });
+function blocksFromCues(cues) {
+  const blocks = []; let cur = null, n = 0, prevEnd = -9;
+  cues.forEach(c => { if (!cur || c.s - prevEnd > 1.2 || n >= 4) { cur = { s: [] }; blocks.push(cur); n = 0; } cur.s.push(c.w && c.w.length ? [c.s, c.t, c.w] : [c.s, c.t]); n++; prevEnd = c.e; });
+  return blocks;
+}
+const allSents = m => m.blocks.flatMap((b, bi) => b.s ? b.s.map((s, si) => ({ bi, si, t: s[0], x: s[1] })) : []);
+const findSent = (m, ex) => { const r = nq(ex); return allSents(m).find(s => nq(s.x).includes(r)) || null; };
+
+/* ---------- so‘z tahlili ---------- */
+const clean = w => String(w).toLowerCase().replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '');
+const stemEq = (tok, key) => { if (!tok || !key) return false; if (tok === key) return true; const k = key.replace(/e$/, ''); return [key + 's', key + 'es', key + 'ed', key + 'd', key + 'ing', k + 'ing', key.replace(/y$/, 'ies'), key.replace(/y$/, 'ied')].includes(tok); };
+const vocabFor = (m, tok) => (m.vocab || []).find(v => !/\s/.test(v.w) && stemEq(tok, v.w.toLowerCase()));
+function wordsHTML(m, s) {
+  const text = s[1], words = s[2];
+  if (words && words.length) return words.map(w => '<span class="w" data-a="aword" data-w="' + esc(clean(w[0])) + '" data-ws="' + w[1] + '" data-we="' + w[2] + '">' + esc(w[0]) + '</span>').join(' ');
+  return text.split(' ').map(tok => { const c = clean(tok), v = c && vocabFor(m, c); return '<span class="w' + (v ? ' vw' : '') + '" data-a="aword" data-w="' + esc(c) + '">' + esc(tok) + '</span>'; }).join(' ');
+}
+function textHTML(m) {
+  const au = !!m.audio;
+  return m.blocks.map(b => b.h ? '<h3 class="ah">' + esc(b.x) + '</h3>' : '<p class="ap">' + b.s.map(s => '<span class="snt" data-t="' + s[0] + '"' + (s[2] && s[2].length ? ' data-wl="1"' : '') + '>' + (au && m.k !== 'a' ? '<i class="sp" data-a="aseek" data-t="' + s[0] + '">' + ic('play') + '</i>' : '') + wordsHTML(m, s) + ' </span>').join('') + '</p>').join('');
+}
+
+/* ---------- markaz (ro‘yxat + qo‘shish) ---------- */
+const net = () => V.net || (V.net = { url: '', busy: '', err: '', feed: null, paste: false });
+R.articles = a => {
+  const tab = a[0] === 'tab' ? a[1] : (V.atab || 'a'); V.atab = tab; const s = S();
+  const body = tab === 'a' ? '<div class="lst">' + D.articles.items.map(m => {
+    const last = s.arts.filter(r => r.id === m.id).slice(-1)[0];
+    return '<button class="acard rise" data-go="article/' + m.id + '"><div class="aimg" style="background-image:url(\'' + esc(m.img.src) + '\')"></div><div class="abody"><b>' + esc(m.title) + '</b><span>' + esc(m.topic) + '</span><div class="ameta"><span class="chip">' + esc(m.level) + '</span><span class="chip">' + ic('book') + ' ' + m.mins + ' daq</span><span class="chip">' + ic('head') + ' ' + mmss(m.dur) + '</span>' + (last ? '<span class="chip ok">' + last.raw + '/' + last.tot + '</span>' : '') + '</div></div></button>';
+  }).join('') + '</div><p class="hint" style="margin-top:14px">' + ic('bulb') + ' Audio — VOA Learning English; rasmlar — Wikimedia Commons (ommaviy mulk/CC). Matnni audio bilan birga kuzating, so‘zni bosing, lug‘at va grammatikani o‘rganing.</p>' : addHTML();
+  return sub('Articles & Podcasts', 'tools', '<div class="pad"><div class="tabs2" style="margin:0 0 14px"><button class="' + (tab === 'a' ? 'on' : '') + '" data-a="atabs" data-v="a">Maqolalar</button><button class="' + (tab === 'p' ? 'on' : '') + '" data-a="atabs" data-v="p">Podkast va havola</button></div>' + body + '</div>');
+};
+A.atabs = el => { V.atab = el.dataset.v; IE.draw(false); };
+const PRESETS = [['BBC 6 Minute English', 'https://podcasts.files.bbci.co.uk/p02pc9tn.rss']];
+function addHTML() {
+  const n = net(), lib = S().lib.slice().reverse();
+  return '<div class="card"><div class="row">' + bd('search', 'A') + '<div style="flex:1"><b>Internetdan qo‘shish</b><div class="sm mu">Podkast RSS havolasini yoki maqola havolasini qo‘ying. Podkast audiosi AI bilan transkripsiya qilinadi (1–3 daqiqa).</div></div></div>' +
+    '<div class="seg" style="margin-top:10px;padding-bottom:4px">' + PRESETS.map(p => '<button data-a="npre" data-u="' + esc(p[1]) + '">' + esc(p[0]) + '</button>').join('') + '</div>' +
+    '<input class="search" id="nfu" style="margin:6px 0 10px" placeholder="https://…" value="' + esc(n.url) + '" autocapitalize="off" spellcheck="false">' +
+    '<div class="two"><button class="btn sm" data-a="nfeed"' + (n.busy ? ' disabled' : '') + '>' + (n.busy === 'feed' ? 'Yuklanmoqda…' : 'Podkast ro‘yxati') + '</button><button class="btn sm ghost" data-a="nart"' + (n.busy ? ' disabled' : '') + '>' + (n.busy === 'art' ? 'Yuklanmoqda…' : 'Maqola') + '</button></div>' +
+    (n.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(n.err) + '</p>' : '') +
+    '<button class="chip" style="margin-top:12px" data-a="npaste">' + ic('doc') + ' Matnni qo‘lda qo‘shish</button>' +
+    (n.paste ? '<div style="margin-top:10px"><input class="search" id="ptt" placeholder="Sarlavha" style="margin-bottom:8px"><textarea class="ed" id="ptx" style="min-height:140px;font:15px/1.5 -apple-system,sans-serif" placeholder="Inglizcha matnni shu yerga qo‘ying…"></textarea><button class="btn sm block" style="margin-top:8px" data-a="npadd">Qo‘shish</button></div>' : '') + '</div>' +
+    (n.feed ? '<div class="sec"><h2>' + esc(n.feed.title || 'Ro‘yxat') + '</h2></div><div class="lst">' + n.feed.items.map((it, i) => '<div class="item"><div class="tx"><b style="white-space:normal">' + esc(it.t) + '</b><span>' + esc(it.d.slice(0, 16)) + (it.dur ? ' · ' + esc(it.dur) : '') + (it.au ? ' · audio' : ' · maqola') + '</span></div><button class="btn sm" data-a="nadd" data-i="' + i + '"' + (n.busy ? ' disabled' : '') + '>Qo‘shish</button></div>').join('') + '</div>' : '') +
+    '<div class="sec"><h2>Mening materiallarim</h2></div>' + (lib.length ? '<div class="lst">' + lib.map(x => '<div class="item" style="padding:8px 8px 8px 12px"><button class="row" style="flex:1;min-width:0;text-align:left" data-go="article/' + x.id + '">' + bd(x.k === 'p' ? 'head' : 'news', x.k === 'p' ? 'L' : 'R', 'sm') + '<div class="tx"><b>' + esc(x.t) + '</b><span>' + (x.k === 'p' ? 'Podkast' : 'Maqola') + (x.an ? ' · tahlil tayyor' : '') + '</span></div></button><button class="ib" data-a="ndel" data-id="' + x.id + '" aria-label="O‘chirish">' + ic('trash') + '</button></div>').join('') + '</div>' : '<div class="card empty">Hali hech narsa qo‘shilmagan.</div>');
+}
+A.npre = el => { const n = net(); n.url = el.dataset.u; IE.draw(false); A.nfeed(); };
+A.npaste = () => { net().paste = !net().paste; IE.draw(false); };
+const readUrl = () => { const i = $('#nfu'); return i ? i.value.trim() : ''; };
+A.nfeed = async () => {
+  const n = net(); n.url = readUrl() || n.url; if (!/^https?:\/\//i.test(n.url)) { n.err = 'To‘liq havola yozing (https:// bilan).'; return IE.draw(false); }
+  n.busy = 'feed'; n.err = ''; IE.draw(false);
+  try { n.feed = await IE.ai({ action: 'feed', url: n.url }); } catch (e) { n.err = e.message; n.feed = null; }
+  n.busy = ''; if (location.hash.startsWith('#/articles')) IE.draw(false);
+};
+A.nart = async () => {
+  const n = net(); n.url = readUrl() || n.url; if (!/^https?:\/\//i.test(n.url)) { n.err = 'To‘liq havola yozing (https:// bilan).'; return IE.draw(false); }
+  n.busy = 'art'; n.err = ''; IE.draw(false);
+  try { const d = await IE.ai({ action: 'article', url: n.url }); await addArticle(d.title, d.text, n.url, d.image); } catch (e) { n.err = e.message; }
+  n.busy = ''; if (location.hash.startsWith('#/articles')) IE.draw(false);
+};
+async function addArticle(title, text, src, image) {
+  const id = 'u' + Date.now(), m = { id, k: 'a', title: String(title || 'Maqola').slice(0, 120), audio: '', dur: 0, img: image ? { src: image, credit: src ? new URL(src).hostname : '', license: '', link: src || '' } : null, src: src || '', blocks: blocksFromText(text), vocab: [], grammar: [], groups: [] };
+  await saveMat(m); V.mats[id] = m; S().lib.push({ id, k: 'a', t: m.title, au: '', img: image || '', src: src || '', ts: Date.now(), an: 0 }); IE.touchDay(); IE.save(true); IE.toast('Maqola qo‘shildi'); IE.go('article/' + id);
+}
+A.npadd = async () => { const t = $('#ptt'), x = $('#ptx'); if (!x || x.value.trim().length < 300) return IE.toast('Matn kamida 300 belgi bo‘lsin'); await addArticle((t && t.value.trim()) || 'Mening matnim', x.value.trim(), '', ''); };
+A.nadd = async el => {
+  const n = net(), it = n.feed && n.feed.items[+el.dataset.i]; if (!it) return;
+  if (!it.au) { if (!it.link) return IE.toast('Bu elementda havola yo‘q'); n.url = it.link; return A.nart(); }
+  if (S().lib.some(x => x.au === it.au)) return IE.toast('Bu podkast allaqachon qo‘shilgan');
+  const id = 'u' + Date.now(); S().lib.push({ id, k: 'p', t: it.t.slice(0, 120), au: it.au, img: it.img || n.feed.image || '', src: it.link || '', ts: Date.now(), an: 0 }); IE.touchDay(); IE.save(true); IE.go('article/' + id);
+};
+A.ndel = el => IE.ask('O‘chirilsinmi?', 'Material va uning tahlili o‘chadi.', 'O‘chirish', async () => { const id = el.dataset.id; S().lib = S().lib.filter(x => x.id !== id); delete V.mats[id]; try { await IE.idbDel('mat:' + id); localStorage.removeItem('ielts:art:' + id); } catch (e) { /* */ } IE.save(true); IE.draw(false); });
+
+/* ---------- o‘quvchi ---------- */
+const keyOf = id => 'ielts:art:' + id;
+function stateFor(id) { if (!V.art || V.art.id !== id) { const sv = lsGet(keyOf(id), null); V.art = { id, ans: (sv && sv.ans) || {}, done: !!(sv && sv.done), follow: true }; } return V.art; }
+const hasAnalysis = m => (m.vocab && m.vocab.length) || (m.groups && m.groups.length);
+const aiCTA = (m, what) => !m.blocks.length ? '<div class="card empty">Avval transkript kerak.</div>' : '<div class="card c">' + bd('spark', 'A', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<b>' + what + '</b><p class="mu sm" style="margin:6px 0 12px">AI matnni tahlil qilib lug‘at, grammatika va savollarni tuzadi (≈20 soniya).</p>' + (V.art.busy === 'an' ? '<div class="spin"></div>' : '<button class="btn" data-a="aan">' + ic('spark') + ' Tahlil qilish</button>') + (V.art.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(V.art.err) + '</p>' : '') + '</div>';
+
+function vocabHTML(m) {
+  if (!m.vocab.length) return aiCTA(m, 'Lug‘at hali yo‘q');
+  const have = new Set(S().my.map(x => x.id)), left = m.vocab.filter(v => !have.has('my:' + v.w.toLowerCase())).length;
+  return '<div class="row" style="margin:0 2px 10px"><span class="mu sm" style="flex:1">' + m.vocab.length + ' ta so‘z · matnda tagiga chizilgan</span>' + (left ? '<button class="btn sm" data-a="vall">' + ic('star') + ' Hammasini qo‘shish</button>' : '<span class="chip ok">' + ic('check') + ' Hammasi lug‘atda</span>') + '</div>' +
+    '<div class="lst">' + m.vocab.map((v, i) => { const added = have.has('my:' + v.w.toLowerCase()); return '<div class="vcard"><div class="row"><b class="vw2">' + esc(v.w) + '</b><span class="chip">' + esc(v.pos) + '</span><span style="flex:1"></span><button class="ib sm2" data-a="say" data-t="' + esc(v.w) + '" aria-label="Eshitish">' + ic('spk') + '</button><button class="ib sm2' + (added ? ' on' : '') + '" data-a="vadd" data-i="' + i + '" aria-label="Lug‘atga qo‘shish">' + ic(added ? 'check' : 'star') + '</button></div><div class="vuz">' + esc(v.uz) + '</div>' + (v.ex ? '<div class="vex">' + (m.audio && v.t != null ? '<i class="sp" data-a="aseek" data-t="' + v.t + '">' + ic('play') + '</i>' : '') + '“…' + esc(v.ex) + '…”</div>' : '') + '</div>'; }).join('') + '</div>';
+}
+function grammarHTML(m) {
+  if (!m.grammar.length) return aiCTA(m, 'Grammatika hali yo‘q');
+  return '<div class="lst">' + m.grammar.map(g => '<div class="card"><h3 style="font-size:16px;font-weight:800">' + esc(g.t) + '</h3><p class="sm" style="margin:6px 0 10px;line-height:1.55">' + esc(g.r) + '</p>' + g.ex.map(e => '<div class="vex">' + (m.audio ? '<i class="sp" data-a="aseek" data-t="' + e.t + '">' + ic('play') + '</i>' : '') + '“' + esc(e.x) + '”</div>').join('') + '</div>').join('') + '</div>';
+}
+function qsHTML(m) {
+  if (!m.groups.length) return aiCTA(m, 'Savollar hali yo‘q');
+  const st = V.art; let html = IE.groupsHTML(m, st.ans, st.done);
+  if (st.done && m.audio) html = html.replace(/<div class="q (ok|no)" id="q(\d+)">/g, (m0, c, n) => { const q = IE.allQ(m).find(x => x.q.n === +n).q; return m0 + '<button class="chip lseekb" data-a="aseek" data-t="' + (q.t || 0) + '">' + ic('play') + ' ' + mmss(q.t || 0) + ' dan tinglash</button>'; });
+  const qs = IE.allQ(m), raw = st.done ? qs.filter(x => IE.isOk(x.g, x.q, st.ans[x.q.n])).length : 0;
+  return (st.done ? '<div class="res" style="padding:12px 0 0"><div class="lbl">Natija</div><div class="big" style="font-size:56px">' + raw + '<span style="font-size:28px">/' + qs.length + '</span></div></div>' : '') + html +
+    (st.done ? '<button class="btn block ghost" style="margin-top:6px" data-a="aretry">Qayta urinish</button>' : '<div style="height:70px"></div><div class="bar"><button class="btn block" data-a="achk">Tekshirish <span class="chip" id="cnt" style="margin-left:6px;background:rgba(255,255,255,.22);color:#fff">' + qs.filter(x => st.ans[x.q.n] != null && st.ans[x.q.n] !== '').length + '/' + qs.length + '</span></button></div>');
+}
+const credit = m => m.img && m.img.credit ? '<div class="icr">Rasm: ' + esc(m.img.credit) + (m.img.license ? ' · ' + esc(m.img.license) : '') + (m.img.link ? ' · <a href="' + esc(m.img.link) + '" target="_blank" rel="noopener">manba</a>' : '') + '</div>' : '';
+
+R.article = a => {
+  const id = a[0], m = IE.matSync(id); if (!m) return R.articles([]);
+  const st = stateFor(id), tab = st.tab || 'text', stub = m.stub && !m.blocks.length;
+  const meta = S().lib.find(x => x.id === id);
+  const hero = '<div class="ahero">' + (m.img ? '<div class="aimg big" style="background-image:url(\'' + esc(m.img.src) + '\')"></div>' : '<div class="aimg big ph">' + ic(m.k === 'p' ? 'head' : 'news') + '</div>') + '<div class="aover"><h1>' + esc(m.title) + '</h1></div></div>' + credit(m) +
+    '<div class="ameta" style="margin:10px 2px">' + (m.topic ? '<span class="chip">' + esc(m.topic) + '</span>' : '') + (m.level ? '<span class="chip">' + esc(m.level) + '</span>' : '') + (m.mins ? '<span class="chip">' + ic('book') + ' ' + m.mins + ' daq</span>' : '') + (m.src && m.k !== 'b' ? '<a class="chip" href="' + esc(m.src) + '" target="_blank" rel="noopener">manba</a>' : '') + '</div>';
+  const player = m.audio ? '<div class="lsticky">' + IE.player({ audio: m.audio, dur: m.dur || 0 }, 'practice') + '<label class="follow"><input type="checkbox" data-in="afollow"' + (st.follow ? ' checked' : '') + '> Matn audio bilan birga yursin</label></div>' : '';
+  const tabs = ['text', 'vocab', 'grammar', 'qs'], lbl = { text: 'Matn', vocab: 'Lug‘at', grammar: 'Grammatika', qs: 'Savollar' };
+  const trBlock = stub ? '<div class="card c">' + bd('wave', 'L', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<b>' + (m.audio ? 'Transkript hali yo‘q' : 'Matn yuklanmoqda…') + '</b><p class="mu sm" style="margin:6px 0 12px">' + (m.audio ? 'AI audioni tinglab so‘zma-so‘z matn tuzadi (vaqtlari bilan). Odatda 1–3 daqiqa.' : '') + '</p>' + (st.busy === 'tr' ? '<div class="spin"></div><p class="mu sm c" style="margin-top:8px">Transkript tuzilmoqda…</p>' : (m.audio ? '<button class="btn" data-a="atr">' + ic('spark') + ' Transkript tuzish</button>' : '')) + (st.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(st.err) + '</p>' : '') + '</div>' : '';
+  const inner = '<div class="pad">' + hero + '</div>' + player + '<div class="pad"><div class="tabs4">' + tabs.map(t => '<button class="' + (t === tab ? 'on' : '') + '" data-a="atab" data-v="' + t + '">' + lbl[t] + '</button>').join('') + '</div>' +
+    '<div class="apanel" data-p="text"' + (tab === 'text' ? '' : ' hidden') + '>' + (stub ? trBlock : '<p class="hint">' + ic('eye') + ' So‘zni bossangiz — ma’nosi chiqadi' + (m.audio ? '; ▶ — shu gapdan tinglash' : '') + '.</p>' + textHTML(m)) + '</div>' +
+    '<div class="apanel" data-p="vocab"' + (tab === 'vocab' ? '' : ' hidden') + '>' + vocabHTML(m) + '</div>' +
+    '<div class="apanel" data-p="grammar"' + (tab === 'grammar' ? '' : ' hidden') + '>' + grammarHTML(m) + '</div>' +
+    '<div class="apanel" data-p="qs"' + (tab === 'qs' ? '' : ' hidden') + '>' + qsHTML(m) + '</div></div>';
+  const o = sub(m.k === 'p' ? 'Podkast' : 'Maqola', 'articles', inner);
+  o.mount = () => { if (m.audio) { IE.wirePlayer({ audio: m.audio, dur: m.dur || 0 }, 'practice'); wireSync(); } };
+  return o;
+};
+A.atab = el => {
+  const t = el.dataset.v; if (V.art) V.art.tab = t;
+  $$('.tabs4 button').forEach(b => b.classList.toggle('on', b.dataset.v === t)); $$('.apanel').forEach(p => { p.hidden = p.dataset.p !== t; });
+  const tb = $('.tabs4'); if (tb) window.scrollTo({ top: Math.max(0, tb.getBoundingClientRect().top + scrollY - (m0() && m0().audio ? 150 : 70)), behavior: 'smooth' });
+};
+const m0 = () => V.art && IE.matSync(V.art.id);
+IE.afollow = el => { if (V.art) V.art.follow = el.checked; };
+A.aseek = el => { const a = IE.audioEl(); if (!a) return; a.currentTime = Math.max(0, +el.dataset.t - 0.1); a.play().catch(() => IE.toast('Audio boshlanmadi — qayta bosing')); };
+function wireSync() {
+  const a = IE.audioEl(); if (!a) return; const sn = $$('.snt'); if (!sn.length) return;
+  const times = sn.map(x => +x.dataset.t); let cur = -1, curW = null;
+  IE.every(200, () => {
+    const t = a.currentTime; let i = -1; for (let k = 0; k < times.length; k++) { if (times[k] <= t + 0.05) i = k; else break; }
+    if (i !== cur) { if (cur >= 0) sn[cur].classList.remove('on'); cur = i; if (i >= 0) { sn[i].classList.add('on'); if (V.art && V.art.follow && !a.paused && !(V.art.tab && V.art.tab !== 'text')) { const r = sn[i].getBoundingClientRect(); if (r.top < 170 || r.bottom > innerHeight - 130) sn[i].scrollIntoView({ block: 'center', behavior: 'smooth' }); } } }
+    if (i >= 0 && sn[i].dataset.wl) { const ws = $$('.w', sn[i]); let w = null; for (const x of ws) { if (+x.dataset.ws <= t + 0.03) w = x; else break; } if (w !== curW) { if (curW) curW.classList.remove('cur'); curW = w; if (w) w.classList.add('cur'); } }
+  });
+}
+
+/* ---------- so‘z varag‘i ---------- */
+A.aword = async el => {
+  const w = el.dataset.w; if (!w) return; const m = m0(), v = m && vocabFor(m, w);
+  IE.sheet('<div id="wsh"></div>'); const draw = d => { const b = $('#wsh'); if (b) b.innerHTML = d; };
+  const base = { w, uz: v ? v.uz : '', pos: v ? v.pos : '', ex: v ? v.ex : '', free: null, note: '', busy: !v };
+  const paint = () => {
+    const f = base.free, my = S().my.some(x => x.id === 'my:' + (v ? v.w : w).toLowerCase());
+    draw('<h2 style="display:flex;align-items:center;gap:10px">' + esc(v ? v.w : w) + (base.pos ? ' <span class="chip">' + esc(base.pos) + '</span>' : '') + '<button class="ib" style="margin-left:auto" data-a="say" data-t="' + esc(w) + '" aria-label="Eshitish">' + ic('spk') + '</button></h2>' +
+      (f && (f.ipaUK || f.ipaUS || f.ipa) ? '<div class="mu sm" style="margin-bottom:6px">' + esc(f.ipaUK || f.ipaUS || f.ipa) + '</div>' : '') +
+      (base.uz ? '<div style="font-size:19px;font-weight:800;color:var(--pl);margin:6px 0">' + esc(base.uz) + '</div>' : (base.busy ? '<div class="mu sm row" style="gap:8px"><span class="typing" style="padding:0;display:inline-flex"><i></i><i></i><i></i></span> Tarjima…</div>' : '')) +
+      (base.note ? '<div class="tip8">' + esc(base.note) + '</div>' : '') +
+      (f ? f.meanings.slice(0, 2).map(x => '<h4 class="dh">' + esc(x.pos) + '</h4><p class="df">' + esc((x.defs[0] || {}).d || '') + ((x.defs[0] || {}).ex ? '<em>“' + esc(x.defs[0].ex) + '”</em>' : '') + '</p>').join('') : '') +
+      (base.ex ? '<h4 class="dh">Matnda</h4><p class="df"><em>“…' + esc(base.ex) + '…”</em></p>' : '') +
+      '<button class="btn block' + (my ? ' ghost' : '') + '" style="margin-top:14px"' + (my ? ' disabled' : ' data-a="wadd"') + '>' + (my ? ic('check') + ' Lug‘atingizda bor' : ic('star') + ' Mening so‘zlarimga qo‘shish') + '</button>');
+  };
+  V.wcur = base; V.wpaint = paint; paint();
+  try { const c = IE.dcGet(w); if (c && c.uz && !base.uz) { base.uz = c.uz; base.note = c.note || ''; base.busy = false; paint(); } } catch (e) { /* */ }
+  try { base.free = await IE.freeDict(w); if (base.free && base.free.nf) base.free = null; } catch (e) { base.free = null; }
+  paint();
+  if (!base.uz) {
+    try { const hint = base.free ? base.free.meanings.slice(0, 3).map(x => x.pos + ': ' + ((x.defs[0] || {}).d || '')).join(' | ').slice(0, 480) : ''; const out = (await IE.ai(hint ? { action: 'dict', word: w, hint } : { action: 'dict', word: w })).result || {}; base.uz = out.uz || ''; base.note = out.note || ''; if (!base.pos && out.pos) base.pos = out.pos; if (base.uz) IE.dcSet(w, { uz: base.uz, note: base.note }); } catch (e) { base.note = ''; }
+    base.busy = false; paint();
+  }
+};
+A.wadd = () => { const b = V.wcur; if (!b) return; const id = 'my:' + b.w.toLowerCase(), m = m0(), v = m && vocabFor(m, b.w); const word = v ? v.w : b.w; const mid = 'my:' + word.toLowerCase(); if (S().my.some(x => x.id === mid)) return; const df = b.free && b.free.meanings[0] && b.free.meanings[0].defs[0]; S().my.push({ id: mid, w: word, uz: b.uz || '', def: df ? df.d : '', ex: b.ex || (df ? df.ex : ''), pos: b.pos || '', ts: Date.now() }); IE.save(); IE.toast('Qo‘shildi'); if (V.wpaint) V.wpaint(); paintVocab(); };
+function paintVocab() { const m = m0(), p = $('.apanel[data-p="vocab"]'); if (m && p) p.innerHTML = vocabHTML(m); }
+A.vadd = el => { const m = m0(), v = m && m.vocab[+el.dataset.i]; if (!v) return; const id = 'my:' + v.w.toLowerCase(); if (!S().my.some(x => x.id === id)) { S().my.push({ id, w: v.w, uz: v.uz, def: '', ex: v.ex || '', pos: v.pos, ts: Date.now() }); IE.save(); IE.toast('Qo‘shildi'); } paintVocab(); };
+A.vall = () => { const m = m0(); if (!m) return; let n = 0; m.vocab.forEach(v => { const id = 'my:' + v.w.toLowerCase(); if (!S().my.some(x => x.id === id)) { S().my.push({ id, w: v.w, uz: v.uz, def: '', ex: v.ex || '', pos: v.pos, ts: Date.now() }); n++; } }); IE.save(); IE.toast(n + ' ta so‘z qo‘shildi'); paintVocab(); };
+
+/* ---------- savollar ---------- */
+function paintQs() { const m = m0(), p = $('.apanel[data-p="qs"]'); if (m && p) p.innerHTML = qsHTML(m); }
+A.achk = () => {
+  const m = m0(), st = V.art, qs = IE.allQ(m), raw = qs.filter(x => IE.isOk(x.g, x.q, st.ans[x.q.n])).length;
+  st.done = true; lsSet(keyOf(st.id), { ans: st.ans, done: true }); S().arts.push({ ts: Date.now(), id: st.id, raw, tot: qs.length }); IE.touchDay(); IE.save(true); paintQs();
+  const p = $('.apanel[data-p="qs"]'); if (p) window.scrollTo({ top: p.getBoundingClientRect().top + scrollY - 120, behavior: 'smooth' }); if (raw / qs.length >= .6) IE.confetti();
+};
+A.aretry = () => { const st = V.art; st.ans = {}; st.done = false; lsSet(keyOf(st.id), { ans: {}, done: false }); paintQs(); };
+
+/* ---------- podkast: transkript va tahlil ---------- */
+A.atr = async () => {
+  const st = V.art, meta = S().lib.find(x => x.id === st.id); if (!meta || !meta.au) return;
+  st.busy = 'tr'; st.err = ''; IE.draw(false);
+  try {
+    const out = await IE.ai({ action: 'transcript', url: meta.au }), cues = out.cues || [];
+    const m = { id: meta.id, k: 'p', title: meta.t, audio: meta.au, dur: out.dur || (cues.length ? cues[cues.length - 1].e : 0), img: meta.img ? { src: meta.img, credit: '', license: '', link: meta.src || '' } : null, src: meta.src || '', blocks: blocksFromCues(cues), vocab: [], grammar: [], groups: [] };
+    await saveMat(m); V.mats[m.id] = m; IE.toast(out.cached ? 'Transkript tayyor (keshdan)' : 'Transkript tayyor');
+  } catch (e) { st.err = e.message; }
+  st.busy = ''; if ((IE.curRoute || '') === 'article/' + st.id) IE.draw(false);
+};
+A.aan = async () => {
+  const st = V.art, m = IE.matSync(st.id), meta = S().lib.find(x => x.id === st.id); if (!m || !meta) return;
+  const text = m.blocks.map(b => b.h ? b.x : b.s.map(s => s[1]).join(' ')).join('\n\n');
+  st.busy = 'an'; st.err = ''; paintCta();
+  try {
+    const r = (await IE.ai({ action: 'analyze', title: m.title, text })).result || {};
+    const exT = ex => { const s = findSent(m, ex); return s ? s.t : null; };
+    m.level = String(r.level || '').slice(0, 20);
+    m.vocab = (r.vocab || []).filter(v => v && v.w && v.uz).slice(0, 14).map(v => { const t = v.ex ? exT(v.ex) : null; return { w: String(v.w).slice(0, 40), pos: String(v.pos || '').slice(0, 12), uz: String(v.uz).slice(0, 90), ex: t != null ? String(v.ex) : '', t: t != null ? t : 0 }; });
+    m.grammar = (r.grammar || []).filter(g => g && g.t && g.r).slice(0, 5).map(g => ({ t: String(g.t).slice(0, 80), r: String(g.r).slice(0, 400), ex: (g.ex || []).map(x => ({ x: String(x), t: exT(String(x)) })).filter(x => x.t != null) }));
+    const gs = [], push = (type, note, q) => { let g = gs.find(x => x.type === type); if (!g) { g = { type, title: '', note, qs: [] }; gs.push(g); } g.qs.push(q); };
+    let n = 0;
+    (r.qs || []).forEach(q => { if (!q || !q.q) return; n++; const base = { n, q: String(q.q).slice(0, 220), why: String(q.why || '').slice(0, 300), t: 0 };
+      if (q.type === 'tf' && ['TRUE', 'FALSE', 'NOT GIVEN'].includes(q.a)) push('tfng', 'Do the following statements agree with the information in the text? Choose TRUE, FALSE or NOT GIVEN.', Object.assign(base, { a: q.a }));
+      else if (q.type === 'mc' && Array.isArray(q.o) && q.o.length >= 2 && Number.isInteger(q.a) && q.a < q.o.length) push('mcq', 'Choose the correct letter, A, B or C.', Object.assign(base, { o: q.o.slice(0, 4).map(String), a: q.a }));
+      else if (q.type === 'fl' && Array.isArray(q.a) && q.a.length) push('fill', 'Complete the sentences. Write NO MORE THAN TWO WORDS AND/OR A NUMBER from the text.', Object.assign(base, { a: q.a.map(String) }));
+      else n--; });
+    // savol raqamlarini guruhlar tartibida qayta belgilash
+    let k = 0; gs.forEach(g => { g.qs.forEach(q => { q.n = ++k; }); g.title = 'Questions ' + g.qs[0].n + (g.qs.length > 1 ? '–' + g.qs[g.qs.length - 1].n : ''); });
+    m.groups = gs; await saveMat(m); V.mats[m.id] = m; meta.an = 1; IE.save(true); IE.toast('Tahlil tayyor');
+  } catch (e) { st.err = e.message; }
+  st.busy = ''; if ((IE.curRoute || '') === 'article/' + st.id) IE.draw(false);
+};
+function paintCta() { const m = m0(); if (!m) return; ['vocab', 'grammar', 'qs'].forEach(p => { const el = $('.apanel[data-p="' + p + '"]'); if (el && !(m[p === 'qs' ? 'groups' : p] || []).length) el.innerHTML = aiCTA(m, 'Tahlil qilinmoqda…'); }); }
+})();

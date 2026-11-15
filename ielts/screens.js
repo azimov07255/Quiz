@@ -58,7 +58,7 @@ R.practice = () => page('practice', '<div class="hero" style="padding-bottom:70p
   '<button class="mock rise" data-go="soon/mock">' + bd('trophy', 'M', 'lg') + '<div style="flex:1"><h3>Mock Test</h3><p>To‘liq imtihon sinovi: 4 ta bo‘lim ketma-ket</p></div>' + '<span class="chip soon" style="background:rgba(255,255,255,.22);color:#fff">Tez orada</span></button></div>');
 
 R.tools = () => {
-  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'soon/articles', 1], ['spk', 'S', 'Shadowing', 'soon/shadowing', 1], ['wave', 'L', 'Dictation', 'soon/dictation', 1], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'dict']];
+  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'articles'], ['head', 'L', 'Podcasts', 'articles/tab/p'], ['spk', 'S', 'Shadowing', 'soon/shadowing', 1], ['wave', 'L', 'Dictation', 'soon/dictation', 1], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'dict']];
   return page('tools', '<div class="hero" style="padding-bottom:70px"><div class="hi">O‘rganish vositalari</div><h1>Study Tools</h1></div><div class="lift"><div class="tools rise">' +
     T.map(t => '<button class="tool' + (t[4] ? ' off' : '') + '" data-go="' + t[3] + '">' + bd(t[0], t[1]) + t[2] + (t[4] ? '<span class="chip soon">Tez orada</span>' : '') + '</button>').join('') + '</div></div>');
 };
@@ -155,7 +155,7 @@ function readRun(id) {
 A.rtab = el => { V.run.tab = el.dataset.v; lsSet(RUNK, V.run); IE.draw(false); window.scrollTo(0, 0); };
 A.hl = el => { const r = V.run, k = el.dataset.k, v = ((r.hl[k] || 0) + 1) % 3; if (v) r.hl[k] = v; else delete r.hl[k]; el.classList.toggle('hl', v === 1); el.classList.toggle('hl2', v === 2); lsSet(RUNK, r); };
 const LRUNK = 'ielts:lrun';
-const ctx = () => (IE.curRoute || '').startsWith('listening') ? { r: V.l, test: () => D.listening.tests.find(x => x.id === V.l.id), key: LRUNK } : { r: V.run, test: () => D.reading.passages.find(x => x.id === V.run.id), key: RUNK };
+const ctx = () => { const cr = IE.curRoute || ''; if (cr.startsWith('listening')) return { r: V.l, test: () => D.listening.tests.find(x => x.id === V.l.id), key: LRUNK }; if (cr.startsWith('article/') && V.art) return { r: V.art, test: () => IE.matSync(V.art.id), key: 'ielts:art:' + V.art.id }; return { r: V.run, test: () => D.reading.passages.find(x => x.id === V.run.id), key: RUNK }; };
 const refreshCount = () => {
   const c0 = ctx(), p = c0.test(), qs = allQ(p), done = qs.filter(x => c0.r.ans[x.q.n] != null && c0.r.ans[x.q.n] !== '').length;
   const c = $('#cnt'), g = $('#pg'); if (c) c.textContent = done + '/' + qs.length; if (g) g.style.width = (done / qs.length * 100) + '%';

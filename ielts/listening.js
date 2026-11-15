@@ -46,13 +46,15 @@ A.lstart = el => { const id = el.dataset.id, sv = lsGet(LK, null); V.l = (sv && 
 const player = (t, mode) => '<div class="lpl' + (mode === 'exam' ? ' exam' : '') + '" id="lpl"><audio id="au" src="' + esc(t.audio) + '" preload="metadata" playsinline></audio>' +
   '<button class="lplay" id="lp" data-a="lplay" aria-label="Boshlash / to‘xtatish">' + ic('play') + '</button><div class="lmid"><div class="lbar"><i id="lfill"></i>' + (mode === 'exam' ? '' : '<input type="range" class="lrange" id="lseek" min="0" max="' + Math.round(t.dur) + '" step="1" value="0" data-in="lseek" aria-label="Joylashuv">') + '</div><div class="ltime"><span id="lcur">0:00</span><span>' + mmss(t.dur) + '</span></div></div>' +
   (mode === 'exam' ? '<span class="chip soon" style="margin-left:6px">Bir marta</span>' : '<button class="lsm" data-a="lback" aria-label="10 soniya orqaga">' + ic('back2') + '<small>10</small></button><button class="lsm" id="lsp" data-a="lspeed" aria-label="Tezlik">1×</button>') + '</div>';
+IE.player = player;
 const au = () => $('#au');
 const setPlayIcon = on => { const b = $('#lp'); if (b) b.innerHTML = on ? ic('pause') : ic('play'); if (b) b.classList.toggle('on', on); };
 const tick = t => { const a = au(); if (!a) return; const f = $('#lfill'), c = $('#lcur'), r = $('#lseek'), d = a.duration && isFinite(a.duration) ? a.duration : t.dur; if (f) f.style.width = Math.min(100, a.currentTime / d * 100) + '%'; if (c) c.textContent = mmss(a.currentTime); if (r && document.activeElement !== r) r.value = Math.round(a.currentTime); };
 function wirePlayer(t, mode) {
   const a = au(); if (!a) return;
   a.addEventListener('play', () => setPlayIcon(true)); a.addEventListener('pause', () => setPlayIcon(false));
-  a.addEventListener('ended', () => { setPlayIcon(false); tick(t); if (V.l) V.l.ended = true; const lp = $('#lp'); if (mode === 'exam' && lp) { lp.disabled = true; } const n = $('#lend'); if (n) n.classList.remove('hide'); });
+  a.addEventListener('ended', () => { setPlayIcon(false); tick(t); if (V.l) V.l.ended = true; if (IE.onAudioEnd) IE.onAudioEnd(); const lp = $('#lp'); if (mode === 'exam' && lp) { lp.disabled = true; } const n = $('#lend'); if (n) n.classList.remove('hide'); });
+  a.addEventListener('loadedmetadata', () => { if (!isFinite(a.duration)) return; const r = $('#lseek'), tt = $('#lpl .ltime span:last-child'); if (r) r.max = Math.round(a.duration); if (tt) tt.textContent = mmss(a.duration); });
   a.addEventListener('error', () => IE.toast('Audio yuklanmadi. Internetni tekshiring.'));
   IE.every(250, () => tick(t));
 }
@@ -61,6 +63,8 @@ A.lplay = () => {
   if (a.paused) { a.play().catch(() => IE.toast('Audio boshlanmadi — qayta bosing')); if (V.l && !V.l.started) { V.l.started = true; } }
   else if (mode === 'exam') IE.toast('Imtihon rejimida to‘xtatib bo‘lmaydi'); else a.pause();
 };
+IE.wirePlayer = wirePlayer;
+IE.audioEl = au;
 A.lback = () => { const a = au(); if (a) a.currentTime = Math.max(0, a.currentTime - 10); };
 A.lspeed = () => { const a = au(), b = $('#lsp'); if (!a) return; const sp = [1, 0.8, 1.25], i = (sp.indexOf(a.playbackRate) + 1) % sp.length; a.playbackRate = sp[i]; if (b) b.textContent = (sp[i] === 1 ? '1' : String(sp[i]).replace('0.8', '0.8')) + '×'; };
 IE.lseek = el => { const a = au(); if (a) a.currentTime = +el.value; };

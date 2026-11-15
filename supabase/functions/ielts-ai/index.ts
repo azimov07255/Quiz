@@ -1,6 +1,7 @@
 // Edge Function: ielts-ai  (JWT majburiy; ruxsat: can_ielts() — owner yoki "ielts" guruhi)
 // Secrets: GEMINI_API_KEY va/yoki GROQ_API_KEY (kamida bittasi); ixtiyoriy: GEMINI_MODEL, GROQ_MODEL, AI_DAILY_LIMIT
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { ArtErr, extractArticle, fetchBytes, keyOf, parseFeed } from './lib.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -101,6 +102,108 @@ const DICT_LITE = `You translate English vocabulary for an Uzbek-speaking IELTS 
 const DICT = `You are an English-Uzbek learner dictionary for IELTS students. Return ONLY JSON: {"w":string,"pos":string,"ipa":string,"uz":string,"def":string,"ex":[string,string],"syn":[string,string,string],"note":string}.
 "uz" = concise Uzbek (Latin script) meaning(s); "def" = simple English definition; "ex" = two natural example sentences (IELTS-level); "syn" = up to 3 synonyms; "note" = one short Uzbek tip about usage or collocations (or empty string).`
 
+
+// ---------- Materiallar: RSS ro‘yxat, maqola matni, audio transkripsiyasi, tahlil ----------
+const b64 = (u: Uint8Array) => { let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000)); return btoa(s) }
+const r2 = (x: unknown) => Math.round(Number(x) * 100) / 100
+async function whisper(bytes: Uint8Array, name: string, ct: string): Promise<any[]> {
+  const fd = new FormData()
+  fd.append('file', new File([bytes], name || 'audio.mp3', { type: ct || 'audio/mpeg' }))
+  fd.append('model', 'whisper-large-v3-turbo'); fd.append('response_format', 'verbose_json')
+  fd.append('timestamp_granularities[]', 'word'); fd.append('timestamp_granularities[]', 'segment'); fd.append('language', 'en'); fd.append('temperature', '0')
+  const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 110000)
+  let r: Response
+  try { r = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', { method: 'POST', headers: { Authorization: 'Bearer ' + GROQ }, body: fd, signal: ctl.signal }) }
+  catch { clearTimeout(to); throw new Error('groq whisper: vaqt tugadi') }
+  clearTimeout(to)
+  const j: any = await r.json().catch(() => ({}))
+  if (!r.ok) throw new Error(`groq whisper ${r.status}: ${String(j?.error?.message || '').slice(0, 80)}`)
+  const segs: any[] = Array.isArray(j.segments) ? j.segments : [], words: any[] = Array.isArray(j.words) ? j.words : []
+  const cues = segs.map((sg: any) => {
+    const st = Number(sg.start) || 0, en = Number(sg.end) || st
+    return { s: r2(st), e: r2(en), t: String(sg.text || '').replace(/\s+/g, ' ').trim(), w: words.filter((w: any) => Number(w.start) >= st - 0.15 && Number(w.start) < en + 0.05).slice(0, 90).map((w: any) => [String(w.word || '').slice(0, 40), r2(w.start), r2(w.end)]) }
+  }).filter((c: any) => c.t)
+  if (!cues.length && String(j.text || '').trim()) return [{ s: 0, e: r2(j.duration), t: String(j.text).trim(), w: [] }]
+  return cues
+}
+async function geminiTranscribe(bytes: Uint8Array, ct: string): Promise<any[]> {
+  const mime = /mpeg|mp3/.test(ct) || !ct ? 'audio/mp3' : ct.split(';')[0]
+  const prompt = 'Transcribe this English audio verbatim. Split it into natural sentences. Return ONLY JSON: {"cues":[{"s":start_seconds,"e":end_seconds,"t":"sentence text"}]}. Timestamps are seconds from the start of the audio (numbers with one decimal), strictly increasing. Do not add speaker names or any commentary.'
+  const errs: string[] = []
+  for (const m of GMODELS) {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+      method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': GEMINI },
+      body: JSON.stringify({ contents: [{ parts: [{ inlineData: { mimeType: mime, data: b64(bytes) } }, { text: prompt }] }], generationConfig: { temperature: 0, maxOutputTokens: 16000, responseMimeType: 'application/json' } }),
+    })
+    const j = await r.json().catch(() => ({}))
+    const t = j?.candidates?.[0]?.content?.parts?.map((p: any) => p.text || '').join('') || ''
+    if (r.ok && t) {
+      const o = parse(t); const cues = (Array.isArray(o) ? o : o?.cues || []).map((c: any) => ({ s: r2(c.s), e: r2(c.e), t: String(c.t || '').replace(/\s+/g, ' ').trim(), w: [] })).filter((c: any) => c.t && isFinite(c.s))
+      if (cues.length) return cues
+      errs.push(`${m}: bo‘sh natija`)
+    } else errs.push(`${m} ${r.status}`)
+    if (r.status === 401 || r.status === 403) break
+  }
+  throw new Error('gemini audio [' + errs.join('; ') + ']')
+}
+const ANALYZE = `You are an English teacher preparing an IELTS reading/listening lesson for an Uzbek-speaking student from the given TEXT. Return ONLY valid JSON:
+{"level":"Band 6–7",
+ "vocab":[{"w":string,"pos":string,"uz":string,"ex":string}],
+ "grammar":[{"t":string,"r":string,"ex":[string]}],
+ "qs":[{"type":"tf","q":string,"a":"TRUE"|"FALSE"|"NOT GIVEN","why":string}, {"type":"mc","q":string,"o":[string,string,string],"a":number,"why":string}, {"type":"fl","q":string,"a":[string],"why":string}]}
+Rules: 10-12 useful B2-C1 vocab items (not trivial words); "uz" = Uzbek (Latin script) meaning matching this text; "ex" = a short fragment copied EXACTLY (character for character) from TEXT containing the word. 3 grammar points actually used in TEXT: "t" short title in Uzbek, "r" 1-2 sentence Uzbek rule explanation, "ex" = 1-2 fragments copied EXACTLY from TEXT. Questions: 4 "tf" (include at least one FALSE and one NOT GIVEN), 2 "mc" (a = index 0-2 of the correct option), 2 "fl" (sentence with ______, answer = 1-2 words or a number taken from TEXT, give variants in array). All "why" fields in Uzbek, quoting the relevant English words. Do not invent facts that are not in TEXT.`
+
+async function material(action: string, b: any, sb: any, json: (o: unknown, s?: number) => Response): Promise<Response> {
+  const { data: okI } = await sb.rpc('can_ielts'); if (!okI) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403)
+  try {
+    if (action === 'feed') {
+      let u: URL; try { u = new URL(String(b.url || '').trim().slice(0, 500)) } catch { return json({ error: 'Havola noto‘g‘ri. https:// bilan boshlanadigan to‘liq havolani kiriting.' }, 400) }
+      const r = await fetchBytes(u, 'application/rss+xml,application/xml,text/xml;q=0.9,*/*;q=0.5', 2000000, /xml|rss|atom|text\//, 15000)
+      const fd = parseFeed(new TextDecoder('utf-8', { fatal: false }).decode(r.bytes))
+      if (!fd.items.length) return json({ error: 'Bu havolada podkast/maqola ro‘yxati (RSS) topilmadi.' }, 422)
+      return json({ title: fd.title, image: fd.image, items: fd.items })
+    }
+    if (action === 'article') {
+      let u: URL; try { u = new URL(String(b.url || '').trim().slice(0, 500)) } catch { return json({ error: 'Havola noto‘g‘ri. https:// bilan boshlanadigan to‘liq havolani kiriting.' }, 400) }
+      const r = await fetchBytes(u, 'text/html,application/xhtml+xml,text/plain;q=0.9', 1500000, /text\/(html|plain)|application\/xhtml/, 12000)
+      const a = extractArticle(new TextDecoder('utf-8', { fatal: false }).decode(r.bytes))
+      if (a.text.length < 300) return json({ error: 'Sahifadan matn topilmadi (JavaScript bilan yuklanadi yoki yopiq). Matnni qo‘lda nusxalab qo‘shing.' }, 422)
+      return json({ title: a.title, text: a.text, image: a.image, host: new URL(r.url).hostname })
+    }
+    if (!GEMINI && !GROQ) return json({ error: 'AI hali sozlanmagan (kalit qo‘yilmagan).' }, 503)
+    if (action === 'transcript') {
+      let ua: URL; try { ua = new URL(String(b.url || '').trim().slice(0, 600)) } catch { return json({ error: 'Audio havolasi noto‘g‘ri.' }, 400) }
+      const key = await keyOf(ua.toString())
+      const svc = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+      const { data: hit } = await svc.from('ielts_transcripts').select('data').eq('key', key).maybeSingle()
+      if (hit && hit.data) return json({ ...hit.data, cached: true })
+      const { error: lim } = await sb.rpc('ielts_ai_hit', { p_limit: LIMIT })
+      if (lim) return json({ error: /limit/i.test(lim.message) ? lim.message : 'IELTS uchun ruxsat yo‘q' }, /limit/i.test(lim.message) ? 429 : 403)
+      const r = await fetchBytes(ua, 'audio/*,*/*;q=0.5', 24 * 1048576, /audio|mpeg|mp3|mp4|aac|ogg|octet-stream/, 70000)
+      if (r.bytes.length < 2000) return json({ error: 'Audio fayl juda kichik.' }, 400)
+      const errs: string[] = []; let cues: any[] | null = null
+      if (GROQ) { try { cues = await whisper(r.bytes, (ua.pathname.split('/').pop() || 'audio.mp3').slice(0, 60), r.ct) } catch (e) { errs.push(String((e as Error).message)); console.error(errs[errs.length - 1]) } }
+      if (!cues && GEMINI) { try { cues = await geminiTranscribe(r.bytes, r.ct) } catch (e) { errs.push(String((e as Error).message)); console.error(errs[errs.length - 1]) } }
+      if (!cues || !cues.length) return json({ error: 'Transkript tuzilmadi — ' + errs.join(' | ').slice(0, 300) }, 502)
+      const last = cues[cues.length - 1]; const data = { cues: cues.slice(0, 900), dur: r2(last.e || last.s) }
+      await svc.from('ielts_transcripts').upsert({ key, data })
+      return json(data)
+    }
+    if (action === 'analyze') {
+      const text = clip(b.text, 5500).trim(); if (text.length < 300) return json({ error: 'Matn tahlil uchun juda qisqa.' }, 400)
+      const { error: lim } = await sb.rpc('ielts_ai_hit', { p_limit: LIMIT })
+      if (lim) return json({ error: /limit/i.test(lim.message) ? lim.message : 'IELTS uchun ruxsat yo‘q' }, /limit/i.test(lim.message) ? 429 : 403)
+      const out = parse(await ask(ANALYZE, [{ role: 'user', content: `TITLE: ${clip(b.title, 120)}\n\nTEXT:\n${text}` }], true, 0.3))
+      if (!out || !Array.isArray(out.vocab) || !Array.isArray(out.qs)) return json({ error: 'AI tahlili tushunarsiz. Qayta urinib ko‘ring.' }, 502)
+      return json({ result: out })
+    }
+    return json({ error: 'Noma’lum amal' }, 400)
+  } catch (e) {
+    if (e instanceof ArtErr) return json({ error: e.message }, e.status)
+    return json({ error: 'AI xatosi — ' + String((e as Error).message || e).slice(0, 300) }, 502)
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   if (req.method !== 'POST') return json({ error: 'POST kerak' }, 405)
@@ -113,6 +216,7 @@ Deno.serve(async (req) => {
     if (error || !data) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403)
     return json({ ok: true, gemini: !!GEMINI, groq: !!GROQ, limit: LIMIT })
   }
+  if (['feed', 'article', 'transcript', 'analyze'].includes(action)) return await material(action, b, sb, json)
   if (!['chat', 'writing', 'dict'].includes(action)) return json({ error: 'Noma’lum amal' }, 400)
   if (!GEMINI && !GROQ) return json({ error: 'AI hali sozlanmagan (kalit qo‘yilmagan). Ilova egasiga ayting.' }, 503)
   if (action === 'dict') { const { data: okI } = await sb.rpc('can_ielts'); if (!okI) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403) }
