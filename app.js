@@ -2,7 +2,7 @@
    Savol banki: IndexedDB. Natijalar/xatolar/sozlamalar: localStorage. Hech qanday server yoki kalit yo‘q. */
 (() => {
 'use strict';
-const APP_VERSION = '1.7.1';   // sw.js dagi VERSION bilan bir xil bo‘lsin
+const APP_VERSION = '1.7.2';   // sw.js dagi VERSION bilan bir xil bo‘lsin
 
 // ───────────── yordamchilar ─────────────
 const $ = (s, r = document) => r.querySelector(s);
@@ -357,11 +357,12 @@ async function copyText(t) {
   try { const r = document.createRange(); r.selectNodeContents($('#credtxt')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); return document.execCommand('copy'); } catch (e) { return false; }
 }
 async function newUser() {
-  const v = await formSheet('Yangi foydalanuvchi', fld('name', 'Ism', { ph: 'Ism familiya' }) + fld('login', 'Login yoki email', { mode: 'email', ph: 'abdulaziz1' }) + fld('password', 'Parol', { gen: true, value: genPw() }) + planChips('30') + fld('amount', 'To‘lov summasi (so‘m), ixtiyoriy', { mode: 'numeric', ph: '0' }), 'Hisob ochish');
+  const v = await formSheet('Yangi foydalanuvchi', fld('name', 'Ism', { ph: 'Ism familiya' }) + fld('login', 'Login yoki email', { mode: 'email', ph: 'abdulaziz1' }) + fld('password', 'Parol', { gen: true, value: genPw() }) + planChips('30') + fld('amount', 'To‘lov summasi (so‘m), ixtiyoriy', { mode: 'numeric', ph: '0' }) + grpHint() + fld('groups', 'Guruhlar (vergul bilan; bo‘sh = faqat hammaga ochiq fanlar)', { ph: 'masalan: madrasa, kursdosh' }), 'Hisob ochish');
   if (!v) return; const life = v.plan === 'life';
   try {
     const email = toEmail(v.login);
-    await SB.fn('admin-users', { action: 'create', email, password: v.password, name: String(v.name || '').trim(), days: life ? 0 : +v.plan, lifetime: life, amount: intOf(v.amount) });
+    const res = await SB.fn('admin-users', { action: 'create', email, password: v.password, name: String(v.name || '').trim(), days: life ? 0 : +v.plan, lifetime: life, amount: intOf(v.amount) });
+    const gr = parseGroups(v.groups); if (gr.length && res && res.user_id) { try { await SB.rpc('owner_set_groups', { p_user: res.user_id, p_groups: gr }); } catch (e) { toast('Hisob ochildi, guruh yozilmadi: ' + uzErr(e)); } }
     await loadUsers(); await showCreds(email, v.password, planText(v.plan));
   } catch (e) { toast(uzErr(e)); }
 }
@@ -1260,8 +1261,9 @@ async function arenaCreate(cfg) {
 }
 async function arenaNew() {
   const subs = TB ? TB.subjects.filter(s => s.cat) : []; if (!subs.length) { toast('Katalogda fan yo‘q'); return; }
-  const o = subs.map(s => `<option value="s:${esc(s.id)}">${esc(s.name)} — butun fan (${subjCount(s)})</option>` + s.topics.map(t => `<option value="t:${esc(t.id)}">${esc(s.name)} › ${esc(t.name)} (${t.q.length})</option>`).join('')).join('');
-  const v = await formSheet('Yangi musobaqa', `<label class="fld"><span class="lb">Mavzu</span><select name="src">${o}</select></label>${chipsRow('count', '10', [['10', '10 ta'], ['15', '15 ta'], ['20', '20 ta'], ['30', '30 ta']], 'Savollar soni')}${chipsRow('secs', '20', [['12', '12 s'], ['20', '20 s'], ['30', '30 s']], 'Har bir savolga vaqt')}`, 'Ochish');
+  const gl = s => (s.groups && s.groups.length ? ' [' + s.groups.join(', ') + ']' : '');
+  const o = subs.map(s => `<option value="s:${esc(s.id)}">${esc(s.name)}${esc(gl(s))} — butun fan (${subjCount(s)})</option>` + s.topics.map(t => `<option value="t:${esc(t.id)}">${esc(s.name)}${esc(gl(s))} › ${esc(t.name)} (${t.q.length})</option>`).join('')).join('');
+  const v = await formSheet('Yangi musobaqa', `<label class="fld"><span class="lb">Mavzu</span><select name="src">${o}</select></label><p class="mu s" style="margin:-4px 2px 0">Faqat shu fan ochiq bo‘lgan (kvadrat qavsda — guruh) foydalanuvchilar qo‘shila oladi.</p>${chipsRow('count', '10', [['10', '10 ta'], ['15', '15 ta'], ['20', '20 ta'], ['30', '30 ta']], 'Savollar soni')}${chipsRow('secs', '20', [['12', '12 s'], ['20', '20 s'], ['30', '30 s']], 'Har bir savolga vaqt')}`, 'Ochish');
   if (!v) return;
   const t = v.src.startsWith('s:') ? findSubj(v.src.slice(2)) : findTopic(v.src.slice(2));
   await arenaCreate({ src: v.src, count: +v.count, secs: +v.secs, title: t ? t.name : 'Musobaqa' });
@@ -1269,9 +1271,12 @@ async function arenaNew() {
 async function arenaJoin(code) {
   code = String(code || '').trim().toUpperCase(); if (code.length < 4) { toast('Kodni kiriting'); return; }
   try {
+    // Avval xonani ko‘ramiz: fan sizga ochiq bo‘lmasa, xonaga umuman qo‘shilmaymiz (aks holda boshlovchida “tayyor” bo‘lib ko‘rinib qolardi)
+    const r = await SB.rest('rooms?select=id,qids,status&code=eq.' + encodeURIComponent(code));
+    if (!r.length) { toast('Xona topilmadi. Kodni tekshiring.'); return; }
+    if (r[0].qids.some(q => !TBX[q])) { toast('Bu musobaqa fani sizga ochiq emas. Ilova egasidan sizni kerakli guruhga qo‘shishni so‘rang.'); return; }
     const id = await SB.rpc('room_join', { p_code: code });
     await arenaAttach(id, code);
-    if (M && M.room && M.room.qids.some(q => !TBX[q])) { const bad = true; arenaLeave(); if (bad) toast('Bu musobaqa fani sizga ochiq emas. Egasidan guruhga qo‘shishni so‘rang.'); }
   } catch (e) { toast(uzErr(e)); }
 }
 async function arenaResume() {
