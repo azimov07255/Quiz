@@ -2,11 +2,56 @@
    natija FAQAT shu qurilmada (IndexedDB) saqlanadi — repoga ham, bulutga ham chiqmaydi (mualliflik huquqi). */
 (() => {
 'use strict';
-const IE = window.IE, { esc, ic, bd, $, $$ } = IE, R = IE.routes, A = IE.act, V = IE.V, D = IE.D;
+const IE = window.IE, { esc, ic, bd, $, $$, lsGet, lsSet } = IE, R = IE.routes, A = IE.act, V = IE.V, D = IE.D;
 const sub = (title, back, inner) => ({ h: '<header class="top"><button class="ib" data-a="back" data-r="' + back + '" aria-label="Orqaga">' + ic('back') + '</button><h1>' + esc(title) + '</h1></header><div class="scr sub">' + inner + '</div>', sub: true });
 const KEY = 'camt', TYPES = ['heads', 'tfng', 'fill', 'mcq'];
-let store = { reading: [], listening: [] };
-const persist = () => IE.idbSet(KEY, store);
+let store = { reading: [], listening: [], del: {} };
+const cloudOn = () => lsGet('ielts:camcloud', 1) !== 0;
+let syncT = 0;
+/** Mahalliy saqlash + (yoqilgan bo‘lsa) bulutga sinxronlashni rejalashtirish. */
+const persist = async () => { await IE.idbSet(KEY, store); clearTimeout(syncT); syncT = setTimeout(() => camSync().catch(() => {}), 1500); };
+
+/* ---------- bulut: shaxsiy Storage (<uid>/cam/...) ---------- */
+const uidP = p => { const s = window.SB && SB.session(); return s && s.user ? '/storage/v1/object/ielts-books/' + s.user.id + '/cam/' + p : null; };
+async function cPut(p, body, type) {
+  const u = uidP(p); if (!u) throw new Error('Kirmagansiz');
+  const r = await SB.raw(u, { method: 'POST', headers: { 'content-type': type, 'x-upsert': 'true' }, body });
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.message || j.error || ('HTTP ' + r.status)); }
+}
+async function cGet(p) { const u = uidP(p); if (!u) return null; const r = await SB.raw(u.replace('/object/', '/object/authenticated/')); return r.ok ? r : null; }
+async function cDel(p) { const u = uidP(p); if (u) { try { await SB.raw(u, { method: 'DELETE' }); } catch (e) { /* */ } } }
+function mergeStore(a, b) {
+  const del = {}; [a.del, b.del].forEach(d => Object.keys(d || {}).forEach(k => { del[k] = Math.max(del[k] || 0, d[k] || 0); }));
+  const out = { reading: [], listening: [], del };
+  ['reading', 'listening'].forEach(k => { const m = new Map(); [...(a[k] || []), ...(b[k] || [])].forEach(u => { if (!u || !u.id) return; const o = m.get(u.id); if (!o || (u.mt || 0) > (o.mt || 0) || ((u.mt || 0) === (o.mt || 0) && u.cau && !o.cau)) m.set(u.id, u); }); out[k] = [...m.values()].filter(u => !(del[u.id] && del[u.id] >= (u.mt || 0))); });
+  return out;
+}
+let syncing = null;
+/** Bulutdagi indeks bilan qo‘shadi (id bo‘yicha, oxirgi o‘zgargani yutadi), kerak bo‘lsa audioni yuklaydi. true — mahalliy o‘zgardi. */
+function camSync(manual) {
+  if (syncing) return syncing;
+  return syncing = (async () => {
+    if (!cloudOn() || !window.SB || !SB.session()) return false;
+    let remote = { reading: [], listening: [], del: {} };
+    try { const r = await cGet('index.json'); if (r) { const j = await r.json(); if (j && Array.isArray(j.reading)) remote = j; } } catch (e) { if (manual) IE.toast(navigator.onLine ? 'Bulutga ulanib bo‘lmadi' : 'Internet yo‘q'); return false; }
+    const before = JSON.stringify(store), merged = mergeStore(store, remote);
+    let dirty = JSON.stringify(merged) !== JSON.stringify(remote);
+    // audio: mahalliy bor, bulutda yo‘q → yuklash
+    for (const u of merged.listening) {
+      if (u.cau) continue;
+      let a = null; try { a = await IE.idbGet('camaud:' + u.id); } catch (e) { /* */ }
+      if (!a || !a.buf) continue;
+      if (a.buf.byteLength > 50 * 1048576) { if (manual) IE.toast('Audio 50 MB dan katta — bulutga sig‘maydi'); continue; }
+      try { await cPut('aud-' + u.id, new Blob([a.buf], { type: a.type || 'audio/mpeg' }), a.type || 'audio/mpeg'); u.cau = 1; u.mt = Date.now(); dirty = true; } catch (e) { /* keyingi safar */ }
+    }
+    if (dirty) { try { await cPut('index.json', JSON.stringify(merged), 'application/json'); } catch (e) { if (manual) IE.toast('Bulutga yozilmadi: ' + e.message); } }
+    const changed = JSON.stringify(merged) !== before;
+    if (changed) { store = merged; await IE.idbSet(KEY, store); inject(); if ((IE.curRoute || '') === 'cambridge' && !$('#sheet')) IE.draw(false); }
+    if (manual) IE.toast(changed || dirty ? 'Sinxronlandi' : 'Hammasi yangi');
+    return changed;
+  })().finally(() => { syncing = null; });
+}
+IE.camSync = camSync;
 function inject() {
   if (D.reading && D.reading.passages) D.reading.passages = D.reading.passages.filter(p => !p.priv).concat(store.reading.map(p => Object.assign({}, p, { priv: 1 })));
   if (D.listening && D.listening.tests) {
@@ -14,7 +59,7 @@ function inject() {
     D.listening.tests = D.listening.tests.filter(t => !t.priv).concat(store.listening.map(t => { const o = old.get(t.id), keep = o ? { audio: o.audio, noaudio: o.noaudio } : {}; return Object.assign(o || {}, t, { priv: 1 }, keep); }));
   }
 }
-IE.camLoad = async () => { try { const s = await IE.idbGet(KEY); if (s && Array.isArray(s.reading) && Array.isArray(s.listening)) store = s; } catch (e) { /* */ } inject(); };
+IE.camLoad = async () => { try { const s = await IE.idbGet(KEY); if (s && Array.isArray(s.reading) && Array.isArray(s.listening)) store = Object.assign({ del: {} }, s); } catch (e) { /* */ } inject(); setTimeout(() => camSync().catch(() => {}), 800); };
 
 /* ---------- tekshirish va tozalash ---------- */
 function normGroups(rg, warn) {
@@ -48,10 +93,10 @@ function normUnit(kind, raw, label, which) {
     let paras = (Array.isArray(raw.paras) ? raw.paras : []).map((p, i) => ({ k: String(p.k || i + 1).slice(0, 3), t: String(p.t || '').trim() })).filter(p => p.t);
     if (paras.length < 2 || paras.reduce((s, p) => s + p.t.length, 0) < 600) throw new Error('Matn (passage) to‘liq chiqmadi. Sahifalarni tekshiring.');
     if (new Set(paras.map(p => p.k)).size !== paras.length) paras = paras.map((p, i) => Object.assign(p, { k: String(i + 1) }));
-    return { unit: { id, title, topic, level: 'Cambridge IELTS', cam: label || title, paras, groups }, warn };
+    return { unit: { id, mt: Date.now(), title, topic, level: 'Cambridge IELTS', cam: label || title, paras, groups }, warn };
   }
   const tr = (Array.isArray(raw.tr) ? raw.tr : []).map(x => ({ t: null, x: String(x.x || x.t || '').trim() })).filter(x => x.x);
-  return { unit: { id, title, topic: 'Cambridge · ' + title, sec: 'Section ' + (which || ''), level: 'Cambridge IELTS', cam: label || title, audio: '', dur: 0, credit: { name: 'Cambridge IELTS (shaxsiy nusxa)', url: '' }, tr, groups }, warn };
+  return { unit: { id, mt: Date.now(), title, topic: 'Cambridge · ' + title, sec: 'Section ' + (which || ''), level: 'Cambridge IELTS', cam: label || title, audio: '', dur: 0, credit: { name: 'Cambridge IELTS (shaxsiy nusxa)', url: '' }, tr, groups }, warn };
 }
 const answerTxt = (g, q) => g.type === 'mcq' ? 'ABCDEFGHIJ'[q.a] + ' — ' + (q.o[q.a] || '') : Array.isArray(q.a) ? q.a.join(' / ') : q.a;
 
@@ -61,13 +106,14 @@ IE.camAudio = async (id, file) => {
   const dur = await new Promise(res => { const a = new Audio(), u = URL.createObjectURL(file); a.preload = 'metadata'; a.onloadedmetadata = () => { res(isFinite(a.duration) ? Math.round(a.duration) : 0); URL.revokeObjectURL(u); }; a.onerror = () => { res(-1); URL.revokeObjectURL(u); }; a.src = u; });
   if (dur < 0) return IE.toast('Bu audio fayl ochilmadi (mp3/m4a/wav bo‘lsin)');
   await IE.idbSet('camaud:' + id, { buf: await file.arrayBuffer(), type: file.type || 'audio/mpeg' });
-  t.dur = dur; await persist(); const live = D.listening.tests.find(x => x.id === id); if (live) { if (live.audio) { try { URL.revokeObjectURL(live.audio); } catch (e) { /* */ } } live.dur = dur; live.audio = ''; live.noaudio = false; }
+  t.dur = dur; t.mt = Date.now(); t.cau = 0; await persist(); const live = D.listening.tests.find(x => x.id === id); if (live) { if (live.audio) { try { URL.revokeObjectURL(live.audio); } catch (e) { /* */ } } live.dur = dur; live.audio = ''; live.noaudio = false; }
   IE.toast('Audio saqlandi (' + Math.floor(dur / 60) + ':' + String(dur % 60).padStart(2, '0') + ')'); IE.draw(false);
 };
 /** Listening ochilganda: IDB dagi audioni blob-URL ga aylantiradi. */
 IE.camEnsure = async t => {
   if (t.audio || t.noaudio) return;
   try { const r = await IE.idbGet('camaud:' + t.id); if (r && r.buf) { t.audio = URL.createObjectURL(new Blob([r.buf], { type: r.type })); return; } } catch (e) { /* */ }
+  if (t.cau && cloudOn()) { try { const r = await cGet('aud-' + t.id); if (r) { const buf = await r.arrayBuffer(), type = (r.headers.get('content-type') || 'audio/mpeg').split(';')[0]; await IE.idbSet('camaud:' + t.id, { buf, type }); t.audio = URL.createObjectURL(new Blob([buf], { type })); return; } } catch (e) { /* */ } }
   t.noaudio = true;
 };
 IE.camAttach = t => '<div class="card c" style="margin-top:12px">' + bd('head', 'L', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<b>Audio fayl kerak</b><p class="mu sm" style="margin:6px 0 12px">Cambridge CD/yuklab olingan yozuvdan shu bo‘limga mos mp3 faylni tanlang (faqat shu qurilmada saqlanadi).</p><label class="btn block">' + ic('down') + ' Audio tanlash<input type="file" accept="audio/*,.mp3,.m4a,.wav" id="camaf" data-id="' + esc(t.id) + '" hidden></label></div>';
@@ -83,12 +129,15 @@ function hub() {
   const rd = store.reading, ls = store.listening;
   return sub('Cambridge IELTS', 'practice', '<div class="pad"><div class="card rise"><div class="row">' + bd('book', 'R', 'lg') + '<div style="flex:1"><b style="font-size:16px">Shaxsiy Cambridge testlari</b><div class="sm mu">Kitobingiz (PDF) sahifalaridan Reading passage va Listening section tuzing — keyin oddiy testdek yechasiz (band, tahlil, tarix).</div></div></div></div>' +
     '<div class="two" style="margin-top:12px"><button class="btn" data-go="cambridge/new/r">' + ic('plus') + ' Reading</button><button class="btn" data-go="cambridge/new/l">' + ic('plus') + ' Listening</button></div>' +
-    '<label class="chip" style="margin-top:12px;display:inline-flex">' + ic('doc') + ' JSON fayldan yuklash<input type="file" accept=".json,application/json" id="camj" hidden></label>' +
+    '<div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap"><label class="chip" style="display:inline-flex">' + ic('doc') + ' JSON fayldan yuklash<input type="file" accept=".json,application/json" id="camj" hidden></label><button class="chip' + (cloudOn() ? ' on' : '') + '" data-a="camcl">' + ic('cloud') + ' Bulut: ' + (cloudOn() ? 'yoqilgan' : 'o‘chiq') + '</button>' + (cloudOn() ? '<button class="chip" data-a="camsyn">' + ic('refresh') + ' Sinxronlash</button>' : '') + '</div>' +
     '<div class="sec"><h2>Reading (' + rd.length + ')</h2></div>' + (rd.length ? '<div class="lst">' + rd.map(x => rowH('r', x)).join('') + '</div>' : '<div class="card empty">Hali Reading qo‘shilmagan.</div>') +
     '<div class="sec"><h2>Listening (' + ls.length + ')</h2></div>' + (ls.length ? '<div class="lst">' + ls.map(x => rowH('l', x)).join('') + '</div>' : '<div class="card empty">Hali Listening qo‘shilmagan.</div>') +
-    '<p class="hint" style="margin-top:14px">' + ic('lock') + ' Test faqat shu qurilmada saqlanadi (bulutga va boshqa qurilmalarga o‘tmaydi). Tayyorlash vaqtida tanlangan sahifalar matni AI’ga yuboriladi. Materialni faqat o‘zingiz uchun ishlating.</p></div>');
+    '<p class="hint" style="margin-top:14px">' + ic('lock') + ' ' + (cloudOn() ? 'Testlar va audio shaxsiy bulut omboringizda ham saqlanadi (faqat siz ko‘rasiz) — boshqa qurilmangizda ham chiqadi.' : 'Bulut o‘chiq: testlar faqat shu qurilmada.') + ' Tayyorlash vaqtida tanlangan sahifalar matni AI’ga yuboriladi. Materialni faqat o‘zingiz uchun ishlating.</p></div>');
 }
-A.camdel = el => { const k = el.dataset.k, id = el.dataset.id; IE.ask('Test o‘chirilsinmi?', 'Qurilmadan butunlay o‘chadi (natijalar tarixi qoladi).', 'O‘chirish', async () => { store[kindOf(k)] = store[kindOf(k)].filter(x => x.id !== id); try { await IE.idbDel('camaud:' + id); } catch (e) { /* */ } await persist(); inject(); IE.draw(false); }); };
+A.camdel = el => { const k = el.dataset.k, id = el.dataset.id; IE.ask('Test o‘chirilsinmi?', 'Qurilma va bulutdan butunlay o‘chadi (natijalar tarixi qoladi).', 'O‘chirish', async () => { store[kindOf(k)] = store[kindOf(k)].filter(x => x.id !== id); store.del = store.del || {}; store.del[id] = Date.now(); try { await IE.idbDel('camaud:' + id); } catch (e) { /* */ } if (cloudOn()) cDel('aud-' + id); await persist(); inject(); IE.draw(false); }); };
+
+A.camcl = () => { lsSet('ielts:camcloud', cloudOn() ? 0 : 1); if (cloudOn()) { IE.toast('Bulut yoqildi'); camSync(true); } else IE.toast('Bulut o‘chirildi (mavjud nusxalar bulutda qoladi)'); IE.draw(false); };
+A.camsyn = () => { camSync(true); };
 
 /* ---------- JSON yuklash ---------- */
 IE.camJson = async file => {
