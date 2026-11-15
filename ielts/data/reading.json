@@ -1,0 +1,531 @@
+{
+ "v": 1,
+ "passages": [
+  {
+   "id": "r1",
+   "title": "The Beaver’s Comeback",
+   "topic": "Environment",
+   "level": "Band 6.5–7.5",
+   "paras": [
+    {
+     "k": "A",
+     "t": "Few animals have reshaped the landscapes of the Northern Hemisphere as dramatically as the beaver. For millennia, these large rodents felled trees, dammed streams and flooded valleys, turning narrow watercourses into broad wetlands that sheltered fish, birds, amphibians and insects. Yet within a few centuries of human settlement, the animal that had created so much habitat for others was close to disappearing itself."
+    },
+    {
+     "k": "B",
+     "t": "The beaver’s misfortune was its usefulness to people. Its dense fur was prized for hats and coats, while a scented secretion called castoreum was used in perfumes and traditional medicines. Unregulated hunting, combined with the drainage of marshland for farming, drove populations down steadily from the Middle Ages onward. By the early twentieth century, the European beaver had vanished from most of its former range, surviving only in a handful of isolated pockets, and in total numbered fewer than two thousand individuals."
+    },
+    {
+     "k": "C",
+     "t": "Conservationists began to act in the 1920s. Norway and Sweden protected their remaining animals and then released captive-bred beavers into suitable rivers. Over the following decades, the idea spread across the continent, with releases in Germany, Poland, the Netherlands and eventually Britain. Not every attempt succeeded: some groups were released into unsuitable habitat and failed to establish themselves. Success depended on careful site selection, and on protecting newcomers from poachers during the vulnerable first years."
+    },
+    {
+     "k": "D",
+     "t": "Where beavers did thrive, the effect on the landscape was striking. A single family can build several dams along a stream, and each dam creates a pond that raises the water table in the surrounding land. Dead trees standing in the shallows provide nesting sites for woodpeckers and owls, while the still water allows plants, insects and fish to flourish. Ecologists call the beaver an ‘ecosystem engineer’, because it changes its surroundings so profoundly that other species come to depend on the changes."
+    },
+    {
+     "k": "E",
+     "t": "The benefits extend to the water itself. Sediment and pollutants carried down a stream settle out behind a dam instead of continuing downstream, and studies of beaver-modified rivers have recorded markedly clearer, cleaner water below the ponds. Fertiliser run-off from nearby fields, which can cause harmful algal blooms further downstream, is partly absorbed by the dense plant growth that develops around beaver ponds. For water companies struggling to meet purification standards, these free services are increasingly attractive."
+    },
+    {
+     "k": "F",
+     "t": "Beavers may also help communities cope with flooding. Because ponds and wetlands store rainwater and release it slowly, a series of dams can reduce the height of a flood peak in a downstream village. In one pilot project in south-west England, researchers fenced a family of beavers into a small wooded valley and monitored the stream for several years. Peak flows during heavy rain were found to be substantially lower than those recorded before the animals arrived. The scientists stress, however, that dams cannot protect a town from an exceptional storm, and should be seen as one tool among many."
+    },
+    {
+     "k": "G",
+     "t": "Not everyone welcomes the newcomers. Beavers can topple valuable trees, block drainage channels and flood farmland, and landowners have complained of damaged crops and washed-out access roads. Anglers worry that dams may prevent migratory fish such as salmon from reaching their spawning grounds, although the evidence on this is mixed. In response, wildlife agencies in several countries have developed practical solutions, including flow devices that control pond levels, and wire mesh wrapped around the trunks of trees worth protecting. Where such measures are in place, researchers report that conflicts decline markedly and that farmers’ attitudes soften."
+    }
+   ],
+   "groups": [
+    {
+     "type": "heads",
+     "title": "Questions 1–5",
+     "note": "The passage has seven paragraphs, A–G. Choose the correct heading for paragraphs B–F from the list of headings below.",
+     "headings": [
+      {
+       "id": "i",
+       "t": "How beaver ponds clean the water"
+      },
+      {
+       "id": "ii",
+       "t": "Early efforts to return the animal"
+      },
+      {
+       "id": "iii",
+       "t": "Why farmers welcome the newcomers"
+      },
+      {
+       "id": "iv",
+       "t": "Animals that rebuild their surroundings"
+      },
+      {
+       "id": "v",
+       "t": "Disagreements and practical remedies"
+      },
+      {
+       "id": "vi",
+       "t": "A possible defence against floods"
+      },
+      {
+       "id": "vii",
+       "t": "The loss of a valued species"
+      },
+      {
+       "id": "viii",
+       "t": "A change in public attitudes"
+      }
+     ],
+     "qs": [
+      {
+       "n": 1,
+       "para": "B",
+       "a": "vii",
+       "why": "B explains that fur and castoreum made the beaver valuable, which led to hunting and near-extinction."
+      },
+      {
+       "n": 2,
+       "para": "C",
+       "a": "ii",
+       "why": "C describes releases that began in the 1920s in Norway and Sweden and spread across Europe."
+      },
+      {
+       "n": 3,
+       "para": "D",
+       "a": "iv",
+       "why": "D explains that dams change the surroundings so profoundly that the beaver is an ‘ecosystem engineer’."
+      },
+      {
+       "n": 4,
+       "para": "E",
+       "a": "i",
+       "why": "E is about sediment, pollutants and fertiliser being trapped, giving cleaner water."
+      },
+      {
+       "n": 5,
+       "para": "F",
+       "a": "vi",
+       "why": "F reports that dams lowered flood peaks in a pilot project."
+      }
+     ]
+    },
+    {
+     "type": "tfng",
+     "title": "Questions 6–9",
+     "note": "Do the following statements agree with the information in the passage? Choose TRUE if the statement agrees, FALSE if it contradicts, or NOT GIVEN if there is no information on this.",
+     "qs": [
+      {
+       "n": 6,
+       "q": "By the early twentieth century, the European beaver had disappeared from most of the places where it once lived.",
+       "a": "TRUE",
+       "why": "Paragraph B: ‘had vanished from most of its former range’."
+      },
+      {
+       "n": 7,
+       "q": "Every release of beavers in the twentieth century was successful.",
+       "a": "FALSE",
+       "why": "Paragraph C: ‘Not every attempt succeeded’."
+      },
+      {
+       "n": 8,
+       "q": "Beaver fur is still widely used in the fashion industry today.",
+       "a": "NOT GIVEN",
+       "why": "The passage says fur was prized in the past but says nothing about its use today."
+      },
+      {
+       "n": 9,
+       "q": "Scientists believe beaver dams can protect a town from any storm.",
+       "a": "FALSE",
+       "why": "Paragraph F: dams ‘cannot protect a town from an exceptional storm’."
+      }
+     ]
+    },
+    {
+     "type": "fill",
+     "title": "Questions 10–13",
+     "note": "Complete the sentences below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+     "qs": [
+      {
+       "n": 10,
+       "q": "Each beaver pond raises the ______ in the surrounding land.",
+       "a": [
+        "water table"
+       ],
+       "why": "Paragraph D: ‘raises the water table in the surrounding land’."
+      },
+      {
+       "n": 11,
+       "q": "Dead trees standing in the shallows give nesting sites to woodpeckers and ______.",
+       "a": [
+        "owls"
+       ],
+       "why": "Paragraph D: ‘nesting sites for woodpeckers and owls’."
+      },
+      {
+       "n": 12,
+       "q": "Dense plant growth around beaver ponds partly absorbs ______ from nearby fields.",
+       "a": [
+        "fertiliser run-off",
+        "fertilizer run-off",
+        "fertiliser runoff",
+        "fertilizer runoff"
+       ],
+       "why": "Paragraph E: ‘Fertiliser run-off from nearby fields … is partly absorbed’."
+      },
+      {
+       "n": 13,
+       "q": "Wildlife agencies use ______ to control the level of water in beaver ponds.",
+       "a": [
+        "flow devices"
+       ],
+       "why": "Paragraph G: ‘flow devices that control pond levels’."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "r2",
+   "title": "Designed to Be Easy",
+   "topic": "Psychology and technology",
+   "level": "Band 7–8",
+   "paras": [
+    {
+     "k": "A",
+     "t": "Modern life has become remarkably easy. Groceries arrive at the door within an hour, films begin with a single tap, and a smartphone can summon a taxi, translate a menu or settle an argument in seconds. Engineers and designers speak of ‘friction’ — the small effort that stands between a person and what they want — and much of the technology industry is devoted to removing it. Yet a growing number of psychologists argue that a life without friction may carry costs that are only now becoming visible."
+    },
+    {
+     "k": "B",
+     "t": "One concern is the power of defaults. When a choice has been made for us in advance, whether it is an automatically ticked box on a form or the next video that begins to play, most people simply accept it. In a well-known line of research on organ donation, countries in which citizens are presumed to be donors unless they opt out have far higher registration rates than countries where people must actively opt in, even though the populations hold broadly similar views. The lesson drawn by researchers is that the easiest path is often mistaken for the preferred one."
+    },
+    {
+     "k": "C",
+     "t": "A second concern is the way ease changes what we value. Effort, psychologists note, tends to increase our attachment to the results. Studies of so-called ‘effort justification’ suggest that people rate a piece of furniture they have assembled themselves more highly than an identical one delivered ready-made. If the same principle applies elsewhere, then removing effort from cooking, travelling or learning may also reduce the satisfaction these activities bring."
+    },
+    {
+     "k": "D",
+     "t": "Convenience may also affect skills. Early users of satellite navigation systems relied on them so heavily that, when asked to find their way without one, many struggled to recall routes they had driven repeatedly. Researchers studying memory observe that regions of the brain involved in spatial orientation are used less when navigation is outsourced to a device, though they caution that it is not yet clear whether this produces any lasting change."
+    },
+    {
+     "k": "E",
+     "t": "Not all scholars share this pessimism. Economists point out that time saved by technology can be used for other pursuits, and historians remind us that every labour-saving device, from the washing machine to the printing press, was greeted with similar fears. The task, defenders argue, is not to abandon convenience but to choose where it is wanted and where it is not."
+    },
+    {
+     "k": "F",
+     "t": "Some designers are already responding. A number of companies have introduced ‘deliberate friction’: a short pause that asks users to confirm before sending a late-night message, or a prompt that reminds viewers how long they have been watching. Such features are rarely popular at first, and critics argue that they are paternalistic, treating adults as unable to manage their own habits. Supporters reply that every design decision shapes behaviour anyway, and that the only question is whose interests it serves."
+    },
+    {
+     "k": "G",
+     "t": "Individuals can also create friction for themselves. Switching off automatic playback, cooking a meal from scratch once a week, or leaving a phone in another room while working are modest examples. None is a cure, but together they illustrate a broader idea: that effort, in small and chosen doses, is not simply an obstacle to well-being but may be part of it."
+    }
+   ],
+   "groups": [
+    {
+     "type": "tfng",
+     "title": "Questions 1–5",
+     "note": "Do the following statements agree with the information in the passage? Choose TRUE, FALSE or NOT GIVEN.",
+     "qs": [
+      {
+       "n": 1,
+       "q": "Designers in the technology industry try to reduce the effort people need to make.",
+       "a": "TRUE",
+       "why": "Paragraph A: much of the industry is ‘devoted to removing’ friction."
+      },
+      {
+       "n": 2,
+       "q": "Organ donation registration is higher in countries where people must choose to join.",
+       "a": "FALSE",
+       "why": "Paragraph B: rates are higher where people are presumed donors and must opt out."
+      },
+      {
+       "n": 3,
+       "q": "Studies suggest people value furniture they have built themselves more than identical ready-made furniture.",
+       "a": "TRUE",
+       "why": "Paragraph C: people rate it ‘more highly’."
+      },
+      {
+       "n": 4,
+       "q": "Satellite navigation systems are more accurate than printed maps.",
+       "a": "NOT GIVEN",
+       "why": "Accuracy is never compared in the passage."
+      },
+      {
+       "n": 5,
+       "q": "Researchers have proved that satellite navigation permanently damages memory.",
+       "a": "FALSE",
+       "why": "Paragraph D: ‘it is not yet clear whether this produces any lasting change’."
+      }
+     ]
+    },
+    {
+     "type": "mcq",
+     "title": "Questions 6–9",
+     "note": "Choose the correct letter, A, B, C or D.",
+     "qs": [
+      {
+       "n": 6,
+       "q": "Why does the writer mention organ donation in paragraph B?",
+       "o": [
+        "To show that people disagree about organ donation",
+        "To illustrate how pre-selected options influence decisions",
+        "To criticise governments that require registration",
+        "To compare the attitudes of different populations"
+       ],
+       "a": 1,
+       "why": "The example shows that the default setting, not different views, explains the registration rates."
+      },
+      {
+       "n": 7,
+       "q": "According to paragraph C, effort tends to",
+       "o": [
+        "make tasks less enjoyable.",
+        "improve people’s memory.",
+        "increase people’s attachment to the result.",
+        "encourage people to buy ready-made goods."
+       ],
+       "a": 2,
+       "why": "Paragraph C: ‘Effort … tends to increase our attachment to the results’."
+      },
+      {
+       "n": 8,
+       "q": "What do critics of ‘deliberate friction’ say about it?",
+       "o": [
+        "It is too expensive for companies.",
+        "It treats adults as unable to control their own habits.",
+        "It is unpopular only with older users.",
+        "It increases the time people spend online."
+       ],
+       "a": 1,
+       "why": "Paragraph F: critics call it ‘paternalistic’, ‘treating adults as unable to manage their own habits’."
+      },
+      {
+       "n": 9,
+       "q": "What is the writer’s attitude to convenience in the final paragraph?",
+       "o": [
+        "Strongly opposed to it",
+        "Largely indifferent to it",
+        "Cautiously balanced",
+        "Openly enthusiastic about it"
+       ],
+       "a": 2,
+       "why": "The writer says small, chosen doses of effort ‘may be part’ of well-being, without rejecting convenience altogether."
+      }
+     ]
+    },
+    {
+     "type": "fill",
+     "title": "Questions 10–13",
+     "note": "Complete the sentences below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+     "qs": [
+      {
+       "n": 10,
+       "q": "In the technology industry, the small effort that stands between a person and what they want is called ______.",
+       "a": [
+        "friction"
+       ],
+       "why": "Paragraph A."
+      },
+      {
+       "n": 11,
+       "q": "An option that has been chosen for us in advance is known as a ______.",
+       "a": [
+        "default"
+       ],
+       "why": "Paragraph B: ‘the power of defaults’ (singular answer accepted)."
+      },
+      {
+       "n": 12,
+       "q": "Historians say that new labour-saving devices have always provoked similar ______.",
+       "a": [
+        "fears"
+       ],
+       "why": "Paragraph E: ‘greeted with similar fears’."
+      },
+      {
+       "n": 13,
+       "q": "Some companies ask users to confirm before sending a late-night ______.",
+       "a": [
+        "message"
+       ],
+       "why": "Paragraph F."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "r3",
+   "title": "Reading the Rings",
+   "topic": "Science and history",
+   "level": "Band 7.5–8.5",
+   "paras": [
+    {
+     "k": "A",
+     "t": "Every year, in temperate climates, a tree adds a new layer of wood beneath its bark. In spring, when water is plentiful and growth is rapid, the wood is pale and the cells are large; in late summer and autumn, growth slows and the cells become smaller and darker. Together, these two bands form a single ring. Count the rings in a felled trunk and you know the tree’s age; study their widths and you learn something far more interesting — what the weather was like in each year of its life."
+    },
+    {
+     "k": "B",
+     "t": "This simple observation is the basis of dendrochronology, the science of dating events using tree rings. Its modern form was developed in the early twentieth century by the American astronomer A. E. Douglass, who was investigating whether sunspot cycles affected the climate on Earth. Douglass noticed that trees growing in the dry south-western United States displayed ring patterns that matched one another: narrow rings in drought years, wide rings in wet ones. Because the pattern was shared by many trees, he realised it could be used as a kind of fingerprint for particular years."
+    },
+    {
+     "k": "C",
+     "t": "The technique that makes this possible is called cross-dating. A researcher matches the pattern of a sample of timber of unknown age against a master sequence built from living trees. Then, by overlapping older, dead timbers whose inner rings match the outer rings of younger ones, the sequence can be extended backwards, one overlap at a time. In some regions, continuous chronologies now stretch back more than ten thousand years, built from oak and pine preserved in river gravels and peat bogs."
+    },
+    {
+     "k": "D",
+     "t": "The method has a remarkable range of uses. Archaeologists have dated the roof beams of medieval cathedrals and the timbers of Viking ships to the exact year in which the trees were felled. Art historians have used it to show that wooden panels on which some paintings were made could not have been cut until after the date traditionally given for the works, prompting a reassessment of who painted them. Instrument makers’ labels, too, have occasionally been shown to be false when the wood proved to be younger than the maker."
+    },
+    {
+     "k": "E",
+     "t": "Rings also record events beyond the weather. Volcanic eruptions that throw huge quantities of dust into the atmosphere can cool the climate for a year or more, and the growth of trees across the northern hemisphere may be visibly reduced. Frost damage appears as a distorted band; fire scars reveal the intervals between forest fires. By combining such evidence, scientists have reconstructed natural disasters that were never described in written records."
+    },
+    {
+     "k": "F",
+     "t": "However, tree rings are not a perfect record. Trees that grow in damp, shaded or sheltered places, where water is rarely scarce, often show little variation from year to year and are of little use for dating. Occasionally a tree fails to produce a ring in a very poor year, or produces two in a single season, which is why researchers always compare many samples rather than relying on one. For this reason, a sample of at least fifty rings is normally required before a reliable match can be made."
+    },
+    {
+     "k": "G",
+     "t": "Climate change is now giving the science a new urgency. Because ring data extend so far back, they provide a baseline against which recent warming can be compared, and at some northern sites they show that recent decades have been warmer than anything in the past thousand years or more. Yet the same warming is changing how trees grow, and some researchers fear that future rings may be harder to read. If so, the old timbers in river gravels and peat bogs may turn out to be the most valuable archive we have."
+    }
+   ],
+   "groups": [
+    {
+     "type": "tfng",
+     "title": "Questions 1–4",
+     "note": "Do the following statements agree with the information in the passage? Choose TRUE, FALSE or NOT GIVEN.",
+     "qs": [
+      {
+       "n": 1,
+       "q": "In temperate climates a tree normally produces one ring for each year of its life.",
+       "a": "TRUE",
+       "why": "Paragraph A: each year a tree adds a new layer, and two bands form a single ring."
+      },
+      {
+       "n": 2,
+       "q": "A. E. Douglass developed dendrochronology while working as a forester.",
+       "a": "FALSE",
+       "why": "Paragraph B: Douglass was an astronomer."
+      },
+      {
+       "n": 3,
+       "q": "Oak chronologies give more reliable results than pine chronologies.",
+       "a": "NOT GIVEN",
+       "why": "Both are mentioned, but never compared."
+      },
+      {
+       "n": 4,
+       "q": "Fire scars in trees can show how often forests have burnt.",
+       "a": "TRUE",
+       "why": "Paragraph E: ‘fire scars reveal the intervals between forest fires’."
+      }
+     ]
+    },
+    {
+     "type": "mcq",
+     "title": "Questions 5–8",
+     "note": "Choose the correct letter, A, B, C or D.",
+     "qs": [
+      {
+       "n": 5,
+       "q": "What does the writer say about the width of tree rings?",
+       "o": [
+        "It is identical in all trees of the same species.",
+        "It reflects the weather during each year of a tree’s life.",
+        "It can only be measured in living trees.",
+        "It depends mainly on the age of the tree."
+       ],
+       "a": 1,
+       "why": "Paragraph A: study the widths and ‘you learn … what the weather was like in each year’."
+      },
+      {
+       "n": 6,
+       "q": "Cross-dating involves",
+       "o": [
+        "comparing a timber of unknown age with a master sequence of ring patterns.",
+        "counting the rings of living trees only.",
+        "measuring the thickness of a tree’s bark.",
+        "using radiation to date old wood."
+       ],
+       "a": 0,
+       "why": "Paragraph C describes matching a sample against a master sequence."
+      },
+      {
+       "n": 7,
+       "q": "Why are some trees of little use for dating, according to paragraph F?",
+       "o": [
+        "They are too old.",
+        "They never produce rings.",
+        "They grow where water is rarely scarce.",
+        "They only grow in cold regions."
+       ],
+       "a": 2,
+       "why": "Paragraph F: trees in damp, sheltered places ‘show little variation’."
+      },
+      {
+       "n": 8,
+       "q": "What is the writer’s main point in the final paragraph?",
+       "o": [
+        "Tree rings will soon become impossible to read.",
+        "Ring data put recent warming in context, but future rings may be harder to interpret.",
+        "Climate change can now be reversed.",
+        "Old timbers are no longer needed for research."
+       ],
+       "a": 1,
+       "why": "The paragraph gives both the value of the baseline and the concern about future readability."
+      }
+     ]
+    },
+    {
+     "type": "fill",
+     "title": "Questions 9–13",
+     "note": "Complete the summary below. Choose NO MORE THAN TWO WORDS from the passage for each answer.",
+     "summary": "Researchers match the ring pattern of a timber of unknown age against a (9) ______ built from living trees. They then extend the sequence backwards using overlapping (10) ______ timbers. Continuous chronologies from oak and pine found in river gravels and (11) ______ now cover more than ten thousand years. Large (12) ______ can reduce tree growth across the northern hemisphere, while (13) ______ appears as a distorted band in the wood.",
+     "qs": [
+      {
+       "n": 9,
+       "q": "(9) ______",
+       "a": [
+        "master sequence"
+       ],
+       "why": "Paragraph C: ‘a master sequence built from living trees’."
+      },
+      {
+       "n": 10,
+       "q": "(10) ______",
+       "a": [
+        "dead",
+        "older"
+       ],
+       "why": "Paragraph C: ‘overlapping older, dead timbers’."
+      },
+      {
+       "n": 11,
+       "q": "(11) ______",
+       "a": [
+        "peat bogs",
+        "peat bog"
+       ],
+       "why": "Paragraph C: ‘river gravels and peat bogs’."
+      },
+      {
+       "n": 12,
+       "q": "(12) ______",
+       "a": [
+        "volcanic eruptions",
+        "eruptions"
+       ],
+       "why": "Paragraph E: volcanic eruptions cool the climate and reduce growth."
+      },
+      {
+       "n": 13,
+       "q": "(13) ______",
+       "a": [
+        "frost damage"
+       ],
+       "why": "Paragraph E: ‘Frost damage appears as a distorted band’."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>IELTS · Tayyorgarlik</title>
+<meta name="description" content="IELTS Academic tayyorgarligi: Reading, Writing, Speaking, so‘zlar va strategiyalar">
+<meta name="theme-color" content="#5b3df5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IELTS">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="splash" aria-hidden="true">
+  <div class="sp-orb"></div>
+  <div class="sp-logo"><svg viewBox="0 0 64 64" width="84" height="84"><defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d9ccff"/></linearGradient></defs><rect x="6" y="6" width="52" height="52" rx="16" fill="url(#sg)"/><path d="M20 38l8 8 16-20" fill="none" stroke="#5b3df5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <div class="sp-t">IELTS</div>
+  <div class="sp-s">tayyorgarlik · <b>BY AZIMOV</b></div>
+</div>
+<div id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
+<script>
+(function () {
+  var s = document.getElementById('splash'), force = /[?&]splash=1/.test(location.search), seen = false;
+  try { seen = sessionStorage.getItem('ielts:splash') === '1'; sessionStorage.setItem('ielts:splash', '1'); } catch (e) {}
+  if (!force && (navigator.webdriver || seen)) { s.parentNode.removeChild(s); }
+  else { document.body.className += ' splashing'; setTimeout(function () { s.className += ' out'; setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); document.body.className = document.body.className.replace(' splashing', ''); }, 520); }, 1500); }
+  try { var t = localStorage.getItem('ielts:theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+})();
+</script>
+<script src="../config.js"></script>
+<script src="../auth.js"></script>
+<script src="core.js"></script>
+<script src="screens.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

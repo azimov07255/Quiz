@@ -1,0 +1,277 @@
+{
+ "v": 1,
+ "task2": {
+  "Ta‘lim": [
+   "Some people believe that university education should be free for everyone, while others think students should pay for it. Discuss both views and give your own opinion.",
+   "Many schools now teach children to use computers from a very young age. Do the advantages of this outweigh the disadvantages?",
+   "Some people think that learning a foreign language is best done by living abroad. To what extent do you agree or disagree?",
+   "Students today spend less time reading books than in the past. What are the causes and what can be done?",
+   "Some argue that exams are not the best way to measure a student’s ability. To what extent do you agree?"
+  ],
+  "Texnologiya": [
+   "Social media has changed the way people communicate. Is this a positive or negative development?",
+   "Many jobs are now done by machines instead of people. What are the advantages and disadvantages?",
+   "Some people say children should not be allowed to have smartphones until they are teenagers. Do you agree or disagree?",
+   "Online shopping is replacing traditional shops. Is this a positive or negative trend?",
+   "Artificial intelligence will make life easier for everyone. To what extent do you agree?"
+  ],
+  "Atrof-muhit": [
+   "Governments should spend more money on public transport rather than building new roads. Do you agree or disagree?",
+   "Plastic waste is a growing problem in many countries. What are the causes and what solutions can you suggest?",
+   "Some people think individuals can do little to protect the environment and that only governments can make a difference. Discuss both views.",
+   "Many people choose to live in big cities despite the pollution. Why is this, and is it a positive or negative trend?",
+   "Zoos should be closed because animals belong in the wild. To what extent do you agree?"
+  ],
+  "Jamiyat": [
+   "In many countries young people are leaving rural areas for cities. What problems does this cause and how can they be solved?",
+   "Some people believe that international tourism brings more benefits than problems. Do you agree?",
+   "Older people are not respected as much as they used to be. Why is this and what can be done?",
+   "The gap between rich and poor is growing. What are the causes and what measures could reduce it?",
+   "Some people think that traditions should be preserved, while others think modern life requires change. Discuss both views."
+  ],
+  "Sog‘liq": [
+   "Many people now eat fast food regularly. What are the reasons and how can this be addressed?",
+   "Some argue that governments should tax unhealthy food. To what extent do you agree?",
+   "Regular exercise is more important than diet for staying healthy. Do you agree or disagree?",
+   "Stress is a major problem in modern life. What are the causes and solutions?",
+   "Public health campaigns are more effective than medical treatment. Discuss."
+  ],
+  "Ish va madaniyat": [
+   "Some people prefer to work from home while others prefer an office. Discuss both views and give your opinion.",
+   "Employers should give workers four-day working weeks. Do the advantages outweigh the disadvantages?",
+   "Many people say that job satisfaction is more important than salary. To what extent do you agree?",
+   "Cultural festivals are losing their importance. Do you agree or disagree?",
+   "Sports stars earn far too much money. To what extent do you agree?"
+  ]
+ },
+ "samples": [
+  {
+   "id": "s1",
+   "band": "8.0",
+   "type": "Discussion + opinion",
+   "prompt": "Some people believe that university education should be free for everyone, while others think students should pay for it. Discuss both views and give your own opinion.",
+   "text": [
+    "Whether higher education should be funded by the state or by students is a question that divides governments and families alike. While free tuition promotes equality, I believe a carefully designed system of shared costs is more sustainable.",
+    "Those in favour of free university education make a powerful argument based on fairness. If tuition is charged, talented students from poor families may abandon their ambitions or graduate with debts that shape their careers for decades. Free access, by contrast, treats education as a public good, much like healthcare, and allows society to benefit from the skills of everyone who is capable of study. Countries such as Finland, which charge no fees, also tend to enjoy high levels of social mobility.",
+    "However, opponents of the idea raise a legitimate concern about cost. Universities are expensive to run, and when the entire bill falls on taxpayers, funding is often squeezed, resulting in overcrowded lecture halls and outdated laboratories. Moreover, graduates typically earn more than non-graduates, so it can seem unfair to ask a nurse or a builder to subsidise the future income of a lawyer.",
+    "In my view, the best solution lies between these extremes. Fees should be modest, and repayment should depend on a graduate’s later income, so that no one is prevented from studying by lack of money. Grants for the poorest students would complete the system. This approach protects both access and quality.",
+    "In conclusion, although free university education is an attractive ideal, a balanced model in which the state and graduates share the cost is likely to be fairer and more effective in the long run."
+   ],
+   "notes": [
+    "Kirish savolni o‘z so‘zlari bilan qayta aytadi va aniq pozitsiya (tezis) beradi.",
+    "Har bir paragraf bitta g‘oya: 1) tarafdorlar, 2) qarshilar, 3) o‘z fikri. Har g‘oya sabab va misol bilan ochilgan.",
+    "Bog‘lovchilar tabiiy: however, moreover, by contrast, in conclusion (har gapga emas).",
+    "So‘z boyligi: public good, social mobility, legitimate concern, subsidise — aniq birikmalar.",
+    "Grammatika xilma-xil: nisbiy gap (which charge no fees), shart gap (If tuition is charged…), passiv, ravishdosh (resulting in…)."
+   ]
+  },
+  {
+   "id": "s2",
+   "band": "8.0",
+   "type": "Advantages vs disadvantages (outweigh)",
+   "prompt": "Many people believe that children should start learning a foreign language at primary school. Do the advantages of this outweigh the disadvantages?",
+   "text": [
+    "It is increasingly common for primary schools to introduce a foreign language. Although this policy has some drawbacks, I believe the advantages are considerably greater.",
+    "The most important benefit is that young children learn languages with remarkable ease. Before puberty, the brain is highly receptive to new sounds, which helps pupils acquire natural pronunciation that adults rarely achieve. Furthermore, an early start gives students many more years of practice, so they are likely to reach a higher level of fluency by the time they leave school. Learning another language also encourages curiosity about other cultures, a quality that is valuable in an interconnected world.",
+    "There are, nevertheless, some disadvantages. The primary curriculum is already crowded, and time spent on a language may reduce lessons in reading, mathematics or science. In addition, many primary teachers are not trained language specialists, and poor teaching at an early age could discourage children rather than inspire them.",
+    "However, these problems can be solved. Language lessons can be short and playful, based on songs and games rather than grammar, so that they take up little time while keeping children motivated. Governments can also invest in teacher training, or use specialist teachers who travel between schools.",
+    "In conclusion, the main obstacles are practical rather than fundamental. Since early learners gain better pronunciation, more practice time and broader cultural awareness, I firmly believe that the benefits of teaching foreign languages in primary schools outweigh the drawbacks."
+   ],
+   "notes": [
+    "‘Outweigh’ savolida pozitsiya boshidan aniq: afzalliklar ko‘proq.",
+    "Tuzilma: afzalliklar → kamchiliklar → ularning yechimi → xulosa. Yechimlar paragrafi inshoni chuqurlashtiradi.",
+    "Har g‘oya sabab bilan: ‘brain is highly receptive’ → ‘natural pronunciation’.",
+    "Collocations: remarkable ease, crowded curriculum, practical rather than fundamental, firmly believe.",
+    "Xulosa yangi g‘oya qo‘shmaydi, tezisni boshqacha so‘zlar bilan takrorlaydi."
+   ]
+  }
+ ],
+ "sp1": [
+  {
+   "t": "Hometown",
+   "q": [
+    "Where is your hometown, and what is it famous for?",
+    "What do you like most about living there?",
+    "Has your hometown changed much in recent years?",
+    "Would you like to live there in the future? Why?"
+   ]
+  },
+  {
+   "t": "Work or study",
+   "q": [
+    "Do you work or are you a student?",
+    "Why did you choose that subject or job?",
+    "What is the most difficult part of your studies or work?",
+    "What would you like to do in the future?"
+   ]
+  },
+  {
+   "t": "Daily routine",
+   "q": [
+    "What is your typical day like?",
+    "Are you a morning person or a night person?",
+    "Which part of the day do you enjoy most?",
+    "Would you like to change anything about your routine?"
+   ]
+  },
+  {
+   "t": "Free time",
+   "q": [
+    "What do you like doing in your free time?",
+    "Do you prefer spending time alone or with others?",
+    "Did you have different hobbies as a child?",
+    "Is there a new hobby you would like to try?"
+   ]
+  },
+  {
+   "t": "Food",
+   "q": [
+    "What kind of food do you enjoy most?",
+    "Do you prefer eating at home or in restaurants?",
+    "Can you cook? What dishes do you make?",
+    "Have eating habits in your country changed recently?"
+   ]
+  },
+  {
+   "t": "Technology",
+   "q": [
+    "How often do you use your phone?",
+    "What apps do you use most?",
+    "Do you think people spend too much time online?",
+    "How has technology changed the way you study?"
+   ]
+  },
+  {
+   "t": "Travel",
+   "q": [
+    "Do you enjoy travelling?",
+    "What was the most interesting place you have visited?",
+    "Do you prefer travelling alone or with others?",
+    "Where would you like to go next?"
+   ]
+  },
+  {
+   "t": "Reading",
+   "q": [
+    "Do you like reading? What do you read?",
+    "Do you prefer paper books or e-books?",
+    "Did you read more when you were younger?",
+    "Do you think reading habits are changing?"
+   ]
+  }
+ ],
+ "sp2": [
+  {
+   "t": "Describe a person who has influenced you.",
+   "b": [
+    "who this person is",
+    "how you know them",
+    "what they did or said",
+    "and explain why they influenced you"
+   ],
+   "f": [
+    "Do you think parents or teachers influence children more?",
+    "How have role models changed over the last few decades?",
+    "Can famous people be good role models?"
+   ]
+  },
+  {
+   "t": "Describe a place you would like to visit.",
+   "b": [
+    "where it is",
+    "how you learned about it",
+    "what you would do there",
+    "and explain why you want to go"
+   ],
+   "f": [
+    "Why do people enjoy visiting other countries?",
+    "What are the negative effects of mass tourism?",
+    "How might travel change in the future?"
+   ]
+  },
+  {
+   "t": "Describe a skill you learned recently.",
+   "b": [
+    "what the skill is",
+    "how you learned it",
+    "what difficulties you had",
+    "and explain why it is useful"
+   ],
+   "f": [
+    "Is it better to learn skills at school or by yourself?",
+    "Which skills will be most valuable in the future?",
+    "Do older people learn more slowly than younger people?"
+   ]
+  },
+  {
+   "t": "Describe a memorable meal you had.",
+   "b": [
+    "where and when you had it",
+    "who you were with",
+    "what you ate",
+    "and explain why it was memorable"
+   ],
+   "f": [
+    "How important are family meals in your culture?",
+    "Do you think people eat healthily today?",
+    "How has fast food changed society?"
+   ]
+  },
+  {
+   "t": "Describe a book or film you enjoyed.",
+   "b": [
+    "what it was",
+    "what it was about",
+    "when you read or watched it",
+    "and explain why you enjoyed it"
+   ],
+   "f": [
+    "Why do some people prefer films to books?",
+    "Can books or films change the way people think?",
+    "Should governments support the arts?"
+   ]
+  },
+  {
+   "t": "Describe a time when you helped someone.",
+   "b": [
+    "who you helped",
+    "what the problem was",
+    "how you helped",
+    "and explain how you felt afterwards"
+   ],
+   "f": [
+    "Why do some people volunteer?",
+    "Is it the government’s duty to help people in need?",
+    "Are people more willing to help in small communities?"
+   ]
+  },
+  {
+   "t": "Describe a piece of technology you use often.",
+   "b": [
+    "what it is",
+    "how often you use it",
+    "what you use it for",
+    "and explain why it is important to you"
+   ],
+   "f": [
+    "Is technology making people lonelier?",
+    "What are the risks of relying on technology?",
+    "How will technology change education?"
+   ]
+  },
+  {
+   "t": "Describe a teacher who was important to you.",
+   "b": [
+    "who the teacher was",
+    "what they taught you",
+    "what made them special",
+    "and explain how they affected you"
+   ],
+   "f": [
+    "What makes a good teacher?",
+    "Will teachers be replaced by technology?",
+    "How should schools motivate students?"
+   ]
+  }
+ ]
+}
