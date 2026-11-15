@@ -24,7 +24,7 @@ const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { c
 function allRecent() {
   const s = S(), out = [];
   s.reads.forEach(r => { const p = D.reading.passages.find(x => x.id === r.p); out.push({ ts: r.ts, k: 'R', t: p ? p.title : 'Reading', m: r.raw + '/' + r.tot + ' to‘g‘ri', b: IE.bandTxt(r.band), go: 'reading/' + r.p + '/result' }); });
-  s.writes.forEach(w => out.push({ ts: w.ts, k: 'W', t: 'Writing Task 2', m: w.words + ' so‘z · ' + Math.round(w.secs / 60) + ' daq', b: w.words + '', go: 'writing/h/' + w.ts }));
+  s.writes.forEach(w => out.push({ ts: w.ts, k: 'W', t: 'Writing Task 2', m: w.words + ' so‘z · ' + Math.round(w.secs / 60) + ' daq', b: w.ai ? IE.bandTxt(w.ai.overall) : w.words + '', go: 'writing/h/' + w.ts }));
   s.speaks.forEach(w => out.push({ ts: w.ts, k: 'S', t: w.k === '2' ? 'Speaking Part 2' : 'Speaking Part 1', m: w.t || '', b: '✓', go: 'speaking' }));
   return out.sort((a, b) => b.ts - a.ts);
 }
@@ -38,8 +38,8 @@ R.home = () => {
     '<div class="lift"><div class="card rise"><div class="score"><div class="ring" style="--v:' + (ov ? ov / 9 * 100 : 0) + '"><small>Overall</small><b>' + IE.bandTxt(ov) + '</b></div>' +
     '<div style="flex:1"><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase">Maqsad band</div><div style="font-size:34px;font-weight:900;line-height:1.1">' + IE.bandTxt(p.target) + '</div>' +
     '<div class="sm mu">' + (days != null && days >= 0 ? 'Imtihongacha <b>' + days + '</b> kun' : '<a data-go="me" style="color:var(--pl);font-weight:700">Imtihon sanasini qo‘shing</a>') + '</div></div></div>' +
-    '<div class="stats"><div class="stat"><b>' + IE.bandTxt(IE.skillBands().R) + '</b><span>Reading</span></div><div class="stat"><b>' + total + '</b><span>Mashqlar</span></div><div class="stat"><b>' + Object.keys(s.srs).length + '</b><span>So‘zlar</span></div></div></div>' +
-    '<div class="rise" style="margin-top:14px"><button class="ai" data-go="soon/ai">' + bd('spark', 'A', 'lg') + '<div style="flex:1"><h3>AI Speaking Tutor</h3><p>Suhbat qiling, xatolaringiz tuzatiladi.</p></div><span class="chip soon" style="background:rgba(255,255,255,.22);color:#fff">Tez orada</span></button></div>' +
+    '<div class="stats"><div class="stat"><b>' + IE.bandTxt(IE.skillBands().R) + '</b><span>Reading</span></div><div class="stat"><b>' + IE.bandTxt(IE.skillBands().W) + '</b><span>Writing</span></div><div class="stat"><b>' + Object.keys(s.srs).length + '</b><span>So‘zlar</span></div></div></div>' +
+    '<div class="rise" style="margin-top:14px"><button class="aibn" data-go="chat">' + bd('spark', 'A', 'lg') + '<div style="flex:1"><h3>AI Speaking Tutor</h3><p>Suhbat qiling, xatolaringiz tuzatiladi.</p></div><span class="chip" style="background:rgba(255,255,255,.22);color:#fff">AI</span></button></div>' +
     '<div class="sec"><h2>Tezkor mashq</h2></div><div class="qp rise">' +
     Object.entries(sk).map(([k, v]) => '<button data-go="' + (k === 'L' ? 'soon/listening' : k === 'R' ? 'reading' : k === 'W' ? 'writing' : 'speaking') + '">' + bd(v[0], v[1]) + v[2] + '</button>').join('') + '</div>' +
     '<div class="rise" style="margin-top:14px"><button class="item" data-go="' + (due ? 'vocab/review' : 'vocab') + '">' + bd('cards', 'V') + '<div class="tx"><b>' + (due ? 'Takrorlash vaqti: ' + due + ' ta so‘z' : 'So‘zlar bilan ishlang') + '</b><span>' + (due ? 'Eslab qolish uchun hozir takrorlang' : 'Flesh-kartalar va avtomatik takrorlash') + '</span></div><span class="go">' + ic('next') + '</span></button></div>' +
@@ -56,14 +56,10 @@ R.practice = () => page('practice', '<div class="hero" style="padding-bottom:70p
   '<button class="mock rise" data-go="soon/mock">' + bd('trophy', 'M', 'lg') + '<div style="flex:1"><h3>Mock Test</h3><p>To‘liq imtihon sinovi: 4 ta bo‘lim ketma-ket</p></div>' + '<span class="chip soon" style="background:rgba(255,255,255,.22);color:#fff">Tez orada</span></button></div>');
 
 R.tools = () => {
-  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'soon/articles', 1], ['spk', 'S', 'Shadowing', 'soon/shadowing', 1], ['wave', 'L', 'Dictation', 'soon/dictation', 1], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'soon/dict', 1]];
+  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'soon/articles', 1], ['spk', 'S', 'Shadowing', 'soon/shadowing', 1], ['wave', 'L', 'Dictation', 'soon/dictation', 1], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'dict']];
   return page('tools', '<div class="hero" style="padding-bottom:70px"><div class="hi">O‘rganish vositalari</div><h1>Study Tools</h1></div><div class="lift"><div class="tools rise">' +
     T.map(t => '<button class="tool' + (t[4] ? ' off' : '') + '" data-go="' + t[3] + '">' + bd(t[0], t[1]) + t[2] + (t[4] ? '<span class="chip soon">Tez orada</span>' : '') + '</button>').join('') + '</div></div>');
 };
-R.chat = () => page('chat', '<div class="hero" style="padding-bottom:40px"><div class="hi">AI repetitor</div><h1>Speaking Chat</h1></div><div class="pad" style="margin-top:-16px;position:relative"><div class="card rise" style="padding:18px 16px 8px">' +
-  '<div class="bub ai">Hi! Let’s practise Part 1. Do you work or are you a student?</div><div class="bub me">I am a student at university.</div><div class="bub ai">Great! What do you enjoy most about your studies?</div></div>' +
-  '<div class="card rise c" style="margin-top:12px">' + bd('spark', 'A', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<h3 style="font-size:18px">AI repetitor tez orada</h3><p class="mu sm" style="margin:6px 0 12px">Siz bilan inglizcha suhbatlashadi, xatolaringizni tuzatadi va IELTS savollari beradi. Ayni paytda <b>Speaking</b> bo‘limida o‘zingizni yozib olib mashq qiling.</p><button class="btn sm" data-go="speaking">Speaking mashqi</button></div>' +
-  '<div class="inp" style="margin-top:12px"><span>Xabar yozing…</span><span class="ib" style="background:var(--p1);color:#fff">' + ic('next') + '</span></div></div>');
 const SOON = {
   listening: ['Listening', 'head', 'L', 'Audio matnlarni tinglab javob berish: 4 qism, 40 savol. Matnlar ovozli (TTS) o‘qiladi, yozuv bilan tekshirish bor.'],
   mock: ['Mock Test', 'trophy', 'M', 'To‘liq imtihon: Listening → Reading → Writing → Speaking, umumiy band bilan.'],
@@ -192,6 +188,7 @@ A.rretry = el => { try { localStorage.removeItem(RUNK); } catch (e) { /* */ } V.
 
 /* ---------- WRITING ---------- */
 const wlist = () => { let n = 0; const o = []; Object.entries(D.prompts.task2).forEach(([cat, arr]) => arr.forEach(t => o.push({ n: n++, cat, t }))); return o; };
+IE.wprompt = n => (wlist()[n] || {}).t || '';
 const wc = t => (String(t).trim().match(/\S+/g) || []).length;
 R.writing = a => {
   if (a[0] === 'p') return writeEd(+a[1]);
@@ -236,7 +233,7 @@ A.wfin = el => {
   const secs = Math.round((Date.now() - V.w.t0) / 1000), rec = { ts: Date.now(), p: n, words: c, secs, x: txt.slice(0, 8000) };
   S().writes.push(rec); S().drafts['w' + n] = { t: Date.now(), x: '', del: true }; IE.touchDay(); IE.save(true); V.w = null; clearTimeout(wTimer); IE.clearTimers();
   const lst = ['Savolga to‘liq javob berdim (barcha qismlari)', 'Pozitsiyam boshidan oxirigacha aniq', 'Har paragrafda bitta asosiy g‘oya + sabab/misol', 'Bog‘lovchilarni (however, moreover…) me’yorida ishlatdim', 'Xilma-xil grammatika: shart, nisbiy gap, passiv', 'Imlo va artikllarni tekshirdim'];
-  IE.sheet('<h2>Ajoyib, ' + c + ' so‘z!</h2><p class="mu sm" style="margin-bottom:8px">' + (c < 250 ? 'Diqqat: imtihonda 250 so‘zdan kam yozish ballni tushiradi.' : 'Hajm yetarli.') + ' Vaqt: ' + fmtT(secs) + '. O‘zingizni tekshiring:</p>' + lst.map(l => '<label class="ck"><input type="checkbox"><span>' + l + '</span></label>').join('') + '<div class="two" style="margin-top:16px"><button class="btn ghost" data-a="wsam">Namunalarni ko‘rish</button><button class="btn" data-a="wdone">Yopish</button></div><p class="hint" style="margin-top:12px">' + ic('spark') + ' AI tekshiruvi (band va xatolar) tez orada qo‘shiladi.</p>');
+  IE.sheet('<h2>Ajoyib, ' + c + ' so‘z!</h2><p class="mu sm" style="margin-bottom:8px">' + (c < 250 ? 'Diqqat: imtihonda 250 so‘zdan kam yozish ballni tushiradi.' : 'Hajm yetarli.') + ' Vaqt: ' + fmtT(secs) + '. O‘zingizni tekshiring:</p>' + lst.map(l => '<label class="ck"><input type="checkbox"><span>' + l + '</span></label>').join('') + '<div class="two" style="margin-top:16px"><button class="btn ghost" data-a="wsam">Namunalarni ko‘rish</button><button class="btn" data-a="wdone">Yopish</button></div><div id="aires" style="margin-top:14px"><button class="btn block" data-a="wai" data-ts="' + rec.ts + '">' + ic('spark') + ' AI bilan baholash</button></div>');
   IE.confetti();
 };
 A.wsam = () => { IE.closeSheet(); IE.go('writing/tab/s'); };
@@ -249,7 +246,7 @@ function writeSample(id) {
 function writeHist(ts) {
   const w = S().writes.find(x => x.ts === ts); if (!w) return R.writing([]);
   const pr = wlist()[w.p];
-  return sub('Yozuvim', 'writing/tab/h', '<div class="pad">' + (pr ? '<div class="prompt">' + esc(pr.t) + '</div>' : '') + '<div class="card essay" style="margin-top:14px">' + String(w.x || '').split(/\n+/).map(p => '<p>' + esc(p) + '</p>').join('') + '<div class="mu xs b">' + w.words + ' so‘z · ' + fmtD(w.ts) + '</div></div><button class="btn block ghost" style="margin-top:14px" data-a="wcopy" data-ts="' + ts + '">Nusxalash</button></div>');
+  return sub('Yozuvim', 'writing/tab/h', '<div class="pad">' + (pr ? '<div class="prompt">' + esc(pr.t) + '</div>' : '') + '<div class="card essay" style="margin-top:14px">' + String(w.x || '').split(/\n+/).map(p => '<p>' + esc(p) + '</p>').join('') + '<div class="mu xs b">' + w.words + ' so‘z · ' + fmtD(w.ts) + '</div></div><div id="aires" style="margin-top:14px">' + (w.ai ? IE.aiHTML(w.ai) : '<button class="btn block" data-a="wai" data-ts="' + ts + '">' + ic('spark') + ' AI bilan baholash</button>') + '</div><button class="btn block ghost" style="margin-top:14px" data-a="wcopy" data-ts="' + ts + '">Nusxalash</button></div>');
 }
 A.wcopy = el => { const w = S().writes.find(x => x.ts === +el.dataset.ts); try { navigator.clipboard.writeText(w.x || ''); IE.toast('Nusxalandi'); } catch (e) { IE.toast('Nusxalab bo‘lmadi'); } };
 
@@ -315,9 +312,10 @@ IE.inpNotes = el => { if (V.s2) V.s2.notes = el.value; };
 /* ---------- SO‘ZLAR (lug‘at + flesh-karta) ---------- */
 const topicWords = id => {
   if (/^cam\d+$/.test(id) && IE.cam) { const p = IE.cam.p.get(+id.slice(3)); return p ? { name: p.t, sub: p.s, words: p.words } : null; }
+  if (id === 'my') return { name: 'Mening so‘zlarim', words: S().my };
   const t = D.vocab.topics.find(x => x.id === id); return t ? { name: t.name, icon: t.icon, words: t.words } : null;
 };
-const wordMap = () => { const m = new Map(); D.vocab.topics.forEach(t => t.words.forEach(w => m.set(w.id, w))); if (IE.cam) IE.cam.p.forEach(p => p.words.forEach(w => m.set(w.id, w))); return m; };
+const wordMap = () => { const m = new Map(); D.vocab.topics.forEach(t => t.words.forEach(w => m.set(w.id, w))); if (IE.cam) IE.cam.p.forEach(p => p.words.forEach(w => m.set(w.id, w))); S().my.forEach(w => m.set(w.id, w)); return m; };
 IE.loadCam = async () => {
   const d = await IE.idbGet('cam'); if (!d || !d.p) { IE.cam = null; return; }
   const p = new Map(); d.p.forEach(x => p.set(x.i, { i: x.i, t: x.t, s: x.s, words: [] }));
@@ -334,7 +332,7 @@ R.vocab = a => {
   const inner = '<div class="pad">' + (due ? '<button class="mock rise" style="background:linear-gradient(135deg,#f472b6,#db2777);box-shadow:0 14px 28px -14px #db2777;margin:0 0 14px" data-go="vocab/review">' + bd('flame', 'V', 'lg').replace('sk-V', 'sk-V') + '<div style="flex:1"><h3>Takrorlash vaqti</h3><p>' + due + ' ta so‘z sizni kutmoqda</p></div>' + ic('next') + '</button>' : '') +
     '<div class="sec" style="margin-top:4px"><h2>Mavzular</h2><span class="mu xs">' + D.vocab.topics.reduce((n, t) => n + t.words.length, 0) + ' so‘z · 8+ daraja</span></div><div class="grid2">' +
     D.vocab.topics.map(t => '<button class="card rise" style="text-align:left;padding:14px;margin:0" data-go="vocab/t/' + t.id + '"><div style="font-size:30px;line-height:1">' + t.icon + '</div><div class="b" style="margin:8px 0 2px;font-size:14.5px">' + esc(t.name) + '</div><div class="mu xs">' + t.words.length + ' so‘z</div><div class="prog" style="margin-top:8px;height:6px"><i style="width:' + prog(t.words) + '%"></i></div></button>').join('') + '</div>' +
-    '<div class="sec"><h2>Shaxsiy lug‘at</h2></div>' + (IE.cam ? '<button class="item" data-go="vocab/c">' + bd('book', 'R') + '<div class="tx"><b>Cambridge so‘zlari</b><span>' + IE.cam.n + ' so‘z · ' + IE.cam.p.size + ' matn · faqat shu qurilmada</span></div><span class="go">' + ic('next') + '</span></button>'
+    '<div class="sec"><h2>Shaxsiy lug‘at</h2></div>' + (S().my.length ? '<button class="item" style="margin-bottom:10px" data-go="vocab/t/my">' + bd('star', 'A') + '<div class="tx"><b>Mening so‘zlarim</b><span>' + S().my.length + ' ta so‘z · Dictionary’dan qo‘shilgan</span></div><span class="go">' + ic('next') + '</span></button>' : '') + (IE.cam ? '<button class="item" data-go="vocab/c">' + bd('book', 'R') + '<div class="tx"><b>Cambridge so‘zlari</b><span>' + IE.cam.n + ' so‘z · ' + IE.cam.p.size + ' matn · faqat shu qurilmada</span></div><span class="go">' + ic('next') + '</span></button>'
       : '<div class="card"><div class="row">' + bd('down', 'R') + '<div style="flex:1"><b>Cambridge lug‘atini yuklash</b><div class="sm mu">O‘zingizdagi <code>cambridge-sozlar.json</code> faylini tanlang. Fayl serverga yuborilmaydi — faqat shu telefonda saqlanadi.</div></div></div><label class="btn block" style="margin-top:12px">Fayl tanlash<input type="file" accept=".json,application/json" id="camf" hidden></label></div>') + '</div>';
   return sub('So‘zlar', 'tools', inner);
 };

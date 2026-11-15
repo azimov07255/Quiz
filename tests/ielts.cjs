@@ -20,6 +20,12 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
       const u = route.request().url(), m = route.request().method(), j = b => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(b) });
       if (u.includes('/rest/v1/profiles')) return j([PROFILE(groups)]);
       if (u.includes('/rest/v1/ielts_state')) { if (m === 'POST') { state.posted = JSON.parse(route.request().postData()); return route.fulfill({ status: 201, body: '' }); } return j([]); }
+      if (u.includes('/functions/v1/ielts-ai')) {
+        const b = JSON.parse(route.request().postData() || '{}'); state.ai = (state.ai || []).concat(b.action);
+        if (b.action === 'chat') return j({ reply: 'Nice to meet you! Where are you from?\n\n💡 Tuzatish: "I am student" → "I am a student" (artikl).' });
+        if (b.action === 'writing') return j({ result: { tr: 6.5, cc: 7, lr: 6.5, gra: 6, overall: 6.5, strengths: ['Aniq tuzilma', 'Yaxshi bog‘lovchilar', 'Pozitsiya aniq'], issues: [{ quote: 'word word', fix: 'a better phrase', why: 'Takror.' }], upgrade: 'A stronger paragraph.', next: 'Ko‘proq misol keltiring.' } });
+        if (b.action === 'dict') return j({ result: { w: b.word, pos: 'noun', ipa: '/test/', uz: 'sinov', def: 'a test', ex: ['A first example.', 'A second example.'], syn: ['trial', 'exam'], note: 'Eslatma.' } });
+      }
       return j({});
     });
     return { pg, state };
@@ -29,7 +35,7 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
   await A.goto(base + '?splash=0'); await A.waitForSelector('.hero h1', { timeout: 15000 });
   ok((await A.innerText('.hero h1')) === 'Sinov', 'Home: ism ko‘rinadi'); ok(await A.locator('.nav button').count() === 5, 'pastki menyuda 5 ta tugma');
   await shot(A, '01-home');
-  for (const [t, c] of [['practice', '.skills'], ['chat', '.bub'], ['tools', '.tools'], ['me', '.avt']]) { await A.click('.nav [data-go="' + t + '"]'); await A.waitForSelector(c); await shot(A, '02-' + t); }
+  for (const [t, c] of [['practice', '.skills'], ['chat', '.cin'], ['tools', '.tools'], ['me', '.avt']]) { await A.click('.nav [data-go="' + t + '"]'); await A.waitForSelector(c); await shot(A, '02-' + t); }
   ok(true, 'Practice / Chat / Tools / Profil ochildi');
   console.log('2. Reading: javob berish va natija');
   await A.goto(base + '#/reading'); await A.click('[data-go="reading/r1/run"]'); await A.waitForSelector('.psg h2');
@@ -74,6 +80,13 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
   ok(await A.evaluate(() => document.documentElement.getAttribute('data-theme') === 'dark'), 'tungi rejim yoqildi'); await shot(A, '19-profile-dark');
   await A.goto(base + '#/home'); await A.waitForSelector('.hero h1'); await shot(A, '20-home-dark');
   await A.evaluate(() => IE.sync()); ok(!!st.posted && st.posted.user_id === 'u1' && st.posted.data.reads.length === 1, 'holat serverga yuborildi (reads=1)');
+  console.log('8b. AI: chat, Writing bahosi, Dictionary');
+  await A.goto(base + '#/chat'); await A.waitForSelector('[data-a="cstart"]'); await shot(A, '23-chat-empty'); await A.click('[data-a="cstart"][data-t=""]'); await A.waitForSelector('.bub.ai .cnote'); ok((await A.locator('.bub.ai').first().innerText()).includes('Nice to meet you'), 'AI javobi va tuzatish bloki chiqdi');
+  await A.fill('#ci', 'I am student'); await A.click('[data-a="csend"]'); await A.waitForFunction(() => document.querySelectorAll('.bub.ai').length === 2); await shot(A, '24-chat');
+  await A.goto(base + '#/writing/h/' + (await A.evaluate(() => IE.S().writes[0].ts))); await A.waitForSelector('[data-a="wai"]'); await A.click('[data-a="wai"]'); await A.waitForSelector('.airs'); ok((await A.innerText('.sc.all b')) === '6.5', 'Writing AI bahosi: overall 6.5'); await shot(A, '25-writing-ai');
+  ok(await A.evaluate(() => IE.S().writes[0].ai.overall === 6.5), 'baho yozuvga saqlandi');
+  await A.goto(base + '#/dict'); await A.fill('#dq', 'resilient'); await A.press('#dq', 'Enter'); await A.waitForSelector('[data-a="dadd"]'); await shot(A, '26-dict'); await A.click('[data-a="dadd"]');
+  ok(await A.evaluate(() => IE.S().my.length === 1), 'so‘z “Mening so‘zlarim”ga qo‘shildi'); await A.goto(base + '#/vocab'); await A.waitForSelector('[data-go="vocab/t/my"]'); ok(true, 'Mening so‘zlarim ko‘rinadi');
   console.log('9. Ruxsat: guruhsiz foydalanuvchi');
   const { pg: B } = await mk([]); await B.goto(base); await B.waitForSelector('.lockc'); ok((await B.innerText('.lockc')).includes('Ruxsat'), 'guruhsiz: “Ruxsat kerak” ekrani'); await shot(B, '21-lock');
   console.log('10. Kirish ekrani (sessiyasiz)');
