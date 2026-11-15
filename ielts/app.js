@@ -62,7 +62,7 @@ IE.draw = (anim = true) => {
   const y = window.scrollY; IE.clearTimers(); document.querySelectorAll('audio').forEach(a => { try { a.pause(); } catch (e) { /* */ } });
   const r = (location.hash.replace(/^#\/?/, '') || 'home').split('/'), fn = IE.routes[r[0]] || IE.routes.home; let o;
   try { o = fn(r.slice(1)); } catch (e) { console.error(e); o = { h: '<div class="empty" style="padding-top:30vh">Xatolik: ' + esc(e.message) + '<br><button class="btn sm" data-go="home" style="margin-top:12px">Bosh sahifa</button></div>', sub: true }; }
-  document.body.classList.toggle('chatpage', r[0] === 'chat'); if (r[0] !== 'chat') document.body.classList.remove('kb');
+  document.body.classList.toggle('chatpage', r[0] === 'chat'); document.body.classList.toggle('tw', (r[0] === 'reading' || r[0] === 'listening') && r[2] === 'run'); if (r[0] !== 'chat') document.body.classList.remove('kb');
   app.className = anim ? 'anim' : ''; app.innerHTML = o.h; if (o.mount) o.mount(); if (IE.paintUpd) IE.paintUpd(); window.scrollTo(0, r[0] === 'chat' ? 0 : y);
 };
 IE.curRoute = (location.hash.replace(/^#\/?/, '') || 'home'); IE.prevRoute = '';

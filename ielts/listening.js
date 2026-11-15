@@ -2,7 +2,7 @@
 (() => {
 'use strict';
 const IE = window.IE, { esc, ic, bd, $, $$, lsGet, lsSet, fmtT, ago } = IE, S = () => IE.S(), R = IE.routes, A = IE.act, V = IE.V, D = IE.D;
-const LK = 'ielts:lrun';
+const lk = id => 'ielts:lrun:' + id;
 const tests = () => (D.listening && D.listening.tests) || [];
 const find = id => tests().find(t => t.id === id);
 const sub = (title, back, inner, right) => ({ h: '<header class="top"><button class="ib" data-a="back" data-r="' + back + '" aria-label="Orqaga">' + ic('back') + '</button><h1>' + esc(title) + '</h1>' + (right || '') + '</header><div class="scr sub">' + inner + '</div>', sub: true });
@@ -20,10 +20,10 @@ R.listening = a => {
 
 /* ---------- ro‘yxat ---------- */
 function list() {
-  const s = S(), run = lsGet(LK, null);
+  const s = S();
   const inner = '<div class="pad"><div class="card rise" style="margin-bottom:14px"><div class="row">' + bd('head', 'L', 'lg') + '<div style="flex:1"><b style="font-size:16px">Haqiqiy diktor ovozi</b><div class="sm mu">Yozuvlar — VOA Learning English (AQSh hukumati loyihasi, ommaviy mulk). Telefon ovozi emas, jonli o‘qilgan matnlar.</div></div></div></div><button class="item rise" style="margin-bottom:14px" data-go="cambridge">' + bd('trophy', 'M', 'sm') + '<div class="tx"><b>Cambridge testlari</b><span>Kitobingizdan o‘zingiz qo‘shasiz</span></div><span class="go">' + ic('next') + '</span></button><div class="lst">' +
     tests().map(t => {
-      const last = s.listens.filter(r => r.id === t.id).slice(-1)[0], going = run && run.id === t.id;
+      const last = s.listens.filter(r => r.id === t.id).slice(-1)[0], going = !!lsGet(lk(t.id), null);
       return '<button class="item rise" data-go="listening/' + t.id + '">' + bd('head', 'L') + '<div class="tx"><b>' + esc(t.topic.split(' · ')[1] || t.title) + '</b><span>' + esc(t.topic.split(' · ')[0]) + ' · ' + esc(t.sec) + ' · ' + mmss(t.dur) + (going ? ' · <b style="color:var(--warn)">davom etmoqda</b>' : '') + '</span></div>' + (last ? '<span class="band sk-L">' + IE.bandTxt(last.band) + '</span>' : '<span class="go">' + ic('next') + '</span>') + '</button>';
     }).join('') + '</div><p class="hint" style="margin-top:14px">' + ic('bulb') + ' Yangi yozuvlar muntazam qo‘shib boriladi.</p></div>';
   return sub('Listening', 'practice', inner);
@@ -43,16 +43,17 @@ function intro(t) {
   return sub(t.topic.split(' · ')[1] || t.title, 'listening', inner);
 }
 A.lmode = el => { V.lmode = el.dataset.v; IE.draw(false); };
-A.lstart = el => { const id = el.dataset.id, sv = lsGet(LK, null); V.l = (sv && sv.id === id && Date.now() - sv.t0 < 6 * 36e5) ? sv : { id, mode: V.lmode || 'practice', ans: {}, t0: Date.now() }; lsSet(LK, V.l); IE.go('listening/' + id + '/run'); };
+A.lstart = el => { const id = el.dataset.id, sv = lsGet(lk(id), null); V.l = (sv && sv.id === id && Date.now() - sv.t0 < 6 * 36e5) ? sv : { id, mode: V.lmode || 'practice', ans: {}, t0: Date.now() }; lsSet(lk(id), V.l); IE.go('listening/' + id + '/run'); };
 
 /* ---------- pleyer ---------- */
 const player = (t, mode) => '<div class="lpl' + (mode === 'exam' ? ' exam' : '') + '" id="lpl"><audio id="au" src="' + esc(t.audio) + '" preload="metadata" playsinline></audio>' +
   '<button class="lplay" id="lp" data-a="lplay" aria-label="Boshlash / to‘xtatish">' + ic('play') + '</button><div class="lmid"><div class="lbar"><i id="lfill"></i>' + (mode === 'exam' ? '' : '<input type="range" class="lrange" id="lseek" min="0" max="' + Math.round(t.dur) + '" step="1" value="0" data-in="lseek" aria-label="Joylashuv">') + '</div><div class="ltime"><span id="lcur">0:00</span><span>' + mmss(t.dur) + '</span></div></div>' +
-  (mode === 'exam' ? '<span class="chip soon" style="margin-left:6px">Bir marta</span>' : '<button class="lsm" data-a="lback" aria-label="10 soniya orqaga">' + ic('back2') + '<small>10</small></button><button class="lsm" id="lsp" data-a="lspeed" aria-label="Tezlik">1×</button>') + '</div>';
+  (mode === 'exam' ? '<span class="chip soon" style="margin-left:6px">Bir marta</span>' : '<button class="lsm" data-a="lback" aria-label="10 soniya orqaga">' + ic('back2') + '<small>10</small></button><button class="lsm" data-a="lfwd" aria-label="10 soniya oldinga"><b style="font-size:12px">+10</b></button><button class="lsm" id="lsp" data-a="lspeed" aria-label="Tezlik">1×</button>') + '</div>';
 IE.player = player;
 const au = () => $('#au');
 const setPlayIcon = on => { const b = $('#lp'); if (b) b.innerHTML = on ? ic('pause') : ic('play'); if (b) b.classList.toggle('on', on); };
-const tick = t => { const a = au(); if (!a) return; const f = $('#lfill'), c = $('#lcur'), r = $('#lseek'), d = a.duration && isFinite(a.duration) ? a.duration : t.dur; if (f) f.style.width = Math.min(100, a.currentTime / d * 100) + '%'; if (c) c.textContent = mmss(a.currentTime); if (r && document.activeElement !== r) r.value = Math.round(a.currentTime); };
+const tick = t => { const a = au(); if (!a) return; const f = $('#lfill'), c = $('#lcur'), r = $('#lseek'), d = a.duration && isFinite(a.duration) ? a.duration : t.dur; if (f) f.style.width = Math.min(100, a.currentTime / d * 100) + '%'; if (c) c.textContent = mmss(a.currentTime); if (r && document.activeElement !== r) r.value = Math.round(a.currentTime);
+  const tp = $('#trp'); if (tp && !tp.classList.contains('hide') && t.tr && t.tr.some(x => x.t != null)) { let ix = -1; t.tr.forEach((x, i) => { if (x.t != null && x.t <= a.currentTime + 0.25) ix = i; }); const els = $$('.trl', tp); els.forEach((e, i) => e.classList.toggle('cur', i === ix)); const e = els[ix]; if (e && V.lastTr !== ix) { V.lastTr = ix; tp.scrollTop = Math.max(0, e.offsetTop - tp.clientHeight / 3); } } };
 function wirePlayer(t, mode) {
   const a = au(); if (!a) return;
   a.addEventListener('play', () => setPlayIcon(true)); a.addEventListener('pause', () => setPlayIcon(false));
@@ -68,19 +69,32 @@ A.lplay = () => {
 };
 IE.wirePlayer = wirePlayer;
 IE.audioEl = au;
+A.lfwd = () => { const a = au(); if (a) a.currentTime = Math.min(a.duration || 1e9, a.currentTime + 10); };
 A.lback = () => { const a = au(); if (a) a.currentTime = Math.max(0, a.currentTime - 10); };
 A.lspeed = () => { const a = au(), b = $('#lsp'); if (!a) return; const sp = [1, 0.8, 1.25], i = (sp.indexOf(a.playbackRate) + 1) % sp.length; a.playbackRate = sp[i]; if (b) b.textContent = (sp[i] === 1 ? '1' : String(sp[i]).replace('0.8', '0.8')) + '×'; };
 IE.lseek = el => { const a = au(); if (a) a.currentTime = +el.value; };
 A.lgo = el => { const a = au(); if (!a) return; a.currentTime = Math.max(0, +el.dataset.t); a.play().catch(() => {}); const p = $('#lpl'); if (p) window.scrollTo({ top: 0, behavior: 'smooth' }); };
 
 /* ---------- topshirish ---------- */
+function trPanel(t, r) {
+  const tr = t.tr || []; if (!tr.length) return '';
+  const locked = r.mode === 'exam' && !r.ended, shown = !!r.tr && !locked;
+  return '<div class="trbar"><button class="chip' + (shown ? ' on' : '') + '" data-a="trtog" id="trbtn">' + ic('eye') + '<span>Audioscript: ' + (shown ? 'ko‘rinadi' : 'yashirin') + '</span></button>' + (r.mode === 'exam' ? '<small class="mu">Imtihon rejimida audio tugagach ochiladi</small>' : '') + '</div>' +
+    '<div class="trp' + (shown ? '' : ' hide') + '" id="trp">' + tr.map((p, i) => '<p class="trl" data-i="' + i + '"' + (p.t != null ? ' data-a="lgo" data-t="' + Math.max(0, p.t - 0.3) + '"' : '') + '>' + (p.t != null ? '<b>' + mmss(p.t) + '</b> ' : '') + esc(p.x) + '</p>').join('') + '</div>';
+}
+A.trtog = () => {
+  const r = V.l; if (!r) return; if (r.mode === 'exam' && !r.ended) return IE.toast('Imtihon rejimida audioscript audio tugagach ochiladi');
+  r.tr = !r.tr; lsSet(lk(r.id), r); const p = $('#trp'), b = $('#trbtn'); if (p) p.classList.toggle('hide', !r.tr); V.lastTr = -1;
+  if (b) { b.classList.toggle('on', r.tr); b.lastElementChild.textContent = 'Audioscript: ' + (r.tr ? 'ko‘rinadi' : 'yashirin'); }
+};
 function run(t) {
-  if (!V.l || V.l.id !== t.id) { const sv = lsGet(LK, null); V.l = sv && sv.id === t.id ? sv : { id: t.id, mode: V.lmode || 'practice', ans: {}, t0: Date.now() }; }
-  const r = V.l, qs = IE.allQ(t), done = qs.filter(x => r.ans[x.q.n] != null && r.ans[x.q.n] !== '').length;
-  const o = sub(t.topic.split(' · ')[1] || t.title, 'listening/' + t.id, '<div class="lsticky">' + player(t, r.mode) + '</div>' +
-    '<p class="hint" style="margin:12px 16px 0">' + ic('head') + ' ' + (r.mode === 'exam' ? 'Imtihon rejimi: audio bir marta ijro etiladi.' : 'Mashq rejimi: to‘xtatish va qaytarish mumkin.') + '</p>' + IE.groupsHTML(t, r.ans, false) +
-    '<div id="lend" class="pad hide" style="margin-top:6px"><div class="card c"><b>Audio tugadi</b><div class="mu sm">Javoblaringizni tekshirib, topshiring.</div></div></div>' +
-    '<div style="height:96px"></div><div class="bar"><div class="prog" style="margin-bottom:10px"><i id="pg" style="width:' + (done / qs.length * 100) + '%"></i></div><button class="btn block" data-a="lsubmit">Topshirish <span class="chip" id="cnt" style="margin-left:6px;background:rgba(255,255,255,.22);color:#fff">' + done + '/' + qs.length + '</span></button></div>');
+  if (!V.l || V.l.id !== t.id) { const sv = lsGet(lk(t.id), null); V.l = sv && sv.id === t.id ? sv : { id: t.id, mode: V.lmode || 'practice', ans: {}, t0: Date.now() }; }
+  const r = V.l, qs = IE.allQ(t), done = qs.filter(x => r.ans[x.q.n] != null && r.ans[x.q.n] !== '').length, pm = /Section\s*(\d)/i.exec(t.sec || '') || /Section\s*(\d)/i.exec(t.cam || '');
+  const o = sub(t.topic.split(' · ')[1] || t.title, 'listening/' + t.id, '<div class="tg"><div class="tg-l"><div class="lsticky">' + player(t, r.mode) + '</div>' + trPanel(t, r) +
+    '<p class="hint" style="margin:12px 16px 0">' + ic('head') + ' ' + (r.mode === 'exam' ? 'Imtihon rejimi: audio bir marta ijro etiladi.' : 'Mashq rejimi: to‘xtatish va qaytarish mumkin.') + '</p></div>' +
+    '<div class="tg-r"><div class="bkhd"><small>' + (pm ? 'PART ' + pm[1] : 'LISTENING') + '</small><p class="ins">Questions ' + IE.rangeTxt(t) + '</p></div>' + IE.groupsHTML(t, r.ans, false) +
+    '<div id="lend" class="pad hide" style="margin-top:6px"><div class="card c"><b>Audio tugadi</b><div class="mu sm">Javoblaringizni tekshirib, topshiring.</div></div></div></div></div>' +
+    '<div style="height:120px"></div><div class="bar">' + (IE.partNav ? IE.partNav(t, 'l') : '') + '<div class="prog" style="margin-bottom:10px"><i id="pg" style="width:' + (done / qs.length * 100) + '%"></i></div><button class="btn block" data-a="lsubmit">Topshirish <span class="chip" id="cnt" style="margin-left:6px;background:rgba(255,255,255,.22);color:#fff">' + done + '/' + qs.length + '</span></button></div>');
   o.mount = () => { wirePlayer(t, r.mode); };
   return o;
 }
@@ -89,7 +103,7 @@ A.lsubmit = () => {
   const go = () => {
     const raw = qs.filter(x => IE.isOk(x.g, x.q, V.l.ans[x.q.n])).length, a0 = au(); if (a0) a0.pause();
     const rec = { ts: Date.now(), id: t.id, raw, tot: qs.length, band: IE.bandL(raw, qs.length), secs: Math.round((Date.now() - V.l.t0) / 1000), mode: V.l.mode, a: V.l.ans };
-    S().listens.push(rec); IE.touchDay(); IE.save(true); try { localStorage.removeItem(LK); } catch (e) { /* xotira yopiq */ } V.l = null;
+    S().listens.push(rec); IE.touchDay(); IE.save(true); try { localStorage.removeItem(lk(t.id)); } catch (e) { /* xotira yopiq */ } V.l = null;
     IE.go('listening/' + t.id + '/result'); setTimeout(() => { if (raw / qs.length >= .6) IE.confetti(); }, 350);
   };
   if (left) IE.ask('Topshirasizmi?', left + ' ta savolga javob bermadingiz. Baribir topshiramizmi?', 'Topshirish', go); else go();
@@ -101,7 +115,7 @@ function result(t) {
   const pc = Math.round(rec.raw / rec.tot * 100), wrong = new Set(IE.allQ(t).filter(x => !IE.isOk(x.g, x.q, rec.a[x.q.n])).map(x => x.q.p));
   const withSeek = t2 => t2; // savol bloklari uchun “tinglash” tugmasi pastda qo‘shiladi
   let html = IE.groupsHTML(t, rec.a || {}, true);
-  html = html.replace(/<div class="q (ok|no)" id="q(\d+)">/g, (m0, cls, n) => { const q = IE.allQ(t).find(x => x.q.n === +n).q; return m0 + (q.t != null ? '<button class="chip lseekb" data-a="lgo" data-t="' + q.t + '">' + ic('play') + ' ' + mmss(q.t) + ' dan tinglash</button>' : ''); });
+  html = html.replace(/<(div|li) class="q (ok|no)" id="q(\d+)">/g, (m0, tg, cls, n) => { const q = IE.allQ(t).find(x => x.q.n === +n).q; return m0 + (q.t != null ? '<button class="chip lseekb" data-a="lgo" data-t="' + q.t + '">' + ic('play') + ' ' + mmss(q.t) + ' dan tinglash</button>' : ''); });
   const inner = '<div class="lsticky">' + player(t, 'practice') + '</div><div class="res anim"><div class="lbl">Taxminiy band</div><div class="big">' + IE.bandTxt(rec.band) + '</div><div class="mu" style="margin-top:8px">' + rec.raw + ' / ' + rec.tot + ' to‘g‘ri (' + pc + '%)</div></div>' +
     (t.tr && t.tr.length ? '<div class="pad"><details class="card tr"><summary>' + ic('doc') + ' Transkript (' + t.tr.length + ' abzats)' + (t.tr.some(p => p.t != null) ? ' — bosib shu joydan tinglang' : '') + '</summary>' + t.tr.map((p, i) => p.t != null ? '<p class="trp' + (wrong.has(i) ? ' wr' : '') + '" data-a="lgo" data-t="' + Math.max(0, p.t - 0.5) + '"><b>' + mmss(p.t) + '</b> ' + esc(p.x) + '</p>' : '<p class="trp' + (wrong.has(i) ? ' wr' : '') + '">' + esc(p.x) + '</p>').join('') + '</details>' +
     '<p class="mu xs" style="margin:10px 2px">Qizil chiziq — xato javob berilgan joylar.</p></div>' : '') + html +
@@ -109,5 +123,5 @@ function result(t) {
     creditP(t, 14, ' — ommaviy mulk.') + '</div>';
   const o = sub('Natija', 'listening', inner); o.mount = () => { wirePlayer(t, 'practice'); }; return o;
 }
-A.lretry = el => { try { localStorage.removeItem(LK); } catch (e) { /* */ } V.l = null; IE.go('listening/' + el.dataset.id); };
+A.lretry = el => { try { localStorage.removeItem(lk(el.dataset.id)); } catch (e) { /* */ } V.l = null; IE.go('listening/' + el.dataset.id); };
 })();

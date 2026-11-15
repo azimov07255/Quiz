@@ -154,6 +154,16 @@ function addBlock() {
     '<div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap"><button class="chip' + (cloudOn() ? ' on' : '') + '" data-a="camcl">' + ic('cloud') + ' Bulut: ' + (cloudOn() ? 'yoqilgan' : 'o‘chiq') + '</button>' + (cloudOn() ? '<button class="chip" data-a="camsyn">' + ic('refresh') + ' Sinxronlash</button>' : '') + '</div>' +
     '<p class="hint" style="margin-top:14px">' + ic('lock') + ' ' + (cloudOn() ? 'Testlar va audio shaxsiy bulut omboringizda ham saqlanadi (faqat siz ko‘rasiz) — boshqa qurilmangizda ham chiqadi.' : 'Bulut o‘chiq: testlar faqat shu qurilmada.') + ' Tayyorlash vaqtida tanlangan sahifalar matni AI’ga yuboriladi. Materialni faqat o‘zingiz uchun ishlating.</p>';
 }
+/** Test ichida qismlar orasida o‘tish: Scores · L 1–4 · R 1–3 (Jumpinto uslubi). */
+IE.partNav = (u, kind) => {
+  const p = parseCam(u); if (!p) return ''; const bk = groups().books.find(b => b[0] === p.book), t = bk && bk[1].get(p.n); if (!t) return '';
+  const btn = (k, i, x) => {
+    if (!x) return '<span class="pn dis">' + i + '</span>';
+    const rec = lastRec(k === 'L' ? 'l' : 'r', x.id), cur = x.id === u.id, go = k === 'R' ? 'data-go="reading/' + x.id + '/run"' : (x.dur > 0 ? 'data-a="lstart" data-id="' + x.id + '"' : 'data-go="listening/' + x.id + '"');
+    return '<button class="pn sk-' + k + (cur ? ' on' : '') + (rec ? ' dn' : '') + '" ' + go + ' aria-label="' + (k === 'L' ? 'Listening ' : 'Reading ') + i + '">' + i + '</button>';
+  };
+  return '<div class="pnav"><button class="pn wide" data-go="cambridge/t/' + encodeURIComponent(p.book) + '/' + p.n + '">Scores</button><span class="pn-l">L</span>' + [1, 2, 3, 4].map(i => btn('L', i, t.L[i])).join('') + '<span class="pn-l">R</span>' + [1, 2, 3].map(i => btn('R', i, t.R[i])).join('') + '</div>';
+};
 function hub() {
   const g = groups(), none = !store.reading.length && !store.listening.length;
   const body = g.books.map(([book, tests]) => '<div class="sec"><h2>' + esc(book) + '</h2></div><div class="camgrid">' + [...tests.entries()].sort((a, b) => a[0] - b[0]).map(([n, t]) => testCardH(book, n, t)).join('') + '</div>').join('') +

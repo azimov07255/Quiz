@@ -589,3 +589,67 @@ button,a,.item,.tool,[data-go],[data-a]{touch-action:manipulation}
 @media(min-width:620px){.tybox{font-size:24px}}
 
 .tabs2.t3{grid-template-columns:repeat(3,1fr)}
+
+/* =====================================================================
+   Kitob uslubidagi test ko‘rinishi (Jumpinto / Cambridge): savollar sarlavhasi, qutidagi gap, ikki ustun
+   ===================================================================== */
+.bkhd{margin:2px 16px 12px}
+.bkhd small{display:block;font:900 14px/1.2 inherit;letter-spacing:.16em;color:var(--tx)}
+.bkhd .ins{font-size:14.5px;line-height:1.55;color:var(--mu);margin:6px 0 0}
+.psg .bkhd{margin:0 0 10px}
+.qgrp{margin:0 0 26px}
+.qgrp .qh{font-size:20px;font-weight:900;margin:0 0 8px}
+.qgrp .note{font-size:15px;line-height:1.6;margin-bottom:10px}
+.qgrp .note b{font-weight:900}
+.notebox{border:2px solid var(--tx);border-radius:8px;background:var(--card);padding:6px 14px 6px 8px}
+.notebox ul{margin:0;padding:0 0 0 22px}
+.notebox li{margin:6px 0;padding:6px 0;line-height:2.2;font-size:16px;list-style:disc;position:relative}
+.notebox li::marker{color:var(--mu)}
+.gap{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;margin:0 3px;white-space:nowrap}
+.gap .gn{font-style:normal;font-weight:800;font-size:12px;border:1.5px solid var(--ln);border-radius:99px;min-width:25px;height:25px;display:inline-grid;place-items:center;color:var(--mu);background:var(--card)}
+.gap input.fill{width:9.5em;max-width:46vw;margin:0;padding:6px 9px;border-radius:9px;border:2px solid var(--ln);background:var(--bg);font-size:16px}
+.gap input.fill:focus{border-color:var(--p2);outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--p2) 22%,transparent)}
+.notebox li.ok input{border-color:var(--ok);background:var(--okbg)}.notebox li.no input{border-color:var(--bad);background:var(--badbg)}
+.notebox .mk{font-weight:900;margin-left:4px}.notebox .mk.ok{color:var(--ok)}.notebox .mk.no{color:var(--bad)}
+.notebox .ca{font-weight:800;color:var(--ok)}
+.notebox .why{font-size:13px;line-height:1.45;color:var(--mu);margin-top:2px;padding-left:2px}
+.notebox .lseekb{margin-right:8px;vertical-align:middle}
+.qgrp .q{margin-bottom:14px}
+/* audioscript paneli */
+.trbar{display:flex;align-items:center;gap:10px;margin:12px 16px 0;flex-wrap:wrap}
+.trbar .chip.on{background:var(--p1);color:#fff}
+.trp{position:relative;margin:10px 16px 0;max-height:38vh;overflow:auto;background:var(--card);border-radius:18px;box-shadow:var(--sh);padding:12px 14px}
+.trp.hide{display:none}
+.trl{margin:0 0 10px;padding:6px 8px;border-radius:10px;line-height:1.55;font-size:15px;cursor:pointer;transition:background .2s}
+.trl b{font-size:11.5px;color:var(--pl);margin-right:6px}
+.trl.cur{background:color-mix(in srgb,var(--p2) 18%,transparent);box-shadow:inset 3px 0 0 var(--p2)}
+/* qismlar navigatori */
+.pnav{display:flex;align-items:center;justify-content:center;gap:5px;margin:0 0 9px;overflow-x:auto;scrollbar-width:none}
+.pnav::-webkit-scrollbar{display:none}
+.pn{flex:none;min-width:34px;height:34px;border-radius:11px;background:var(--card);box-shadow:var(--sh);font-weight:800;font-size:14px;display:inline-grid;place-items:center;position:relative;color:var(--tx)}
+.pn.wide{padding:0 12px;font-size:13px}
+.pn.on{background:var(--tx);color:var(--bg)}
+.pn.dn::after{content:"";position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.pn.dis{opacity:.35}
+.pn-l{font-size:10.5px;font-weight:900;color:var(--mu);margin:0 1px 0 4px}
+.bar .pnav{margin-bottom:8px}
+/* ikki ustun (kompyuter/planshet) */
+.tg-l.off,.tg-r.off{display:none}
+@media(min-width:960px){
+  body.tw #app{max-width:1280px}
+  body.tw .tg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px;align-items:start;padding:0 22px}
+  body.tw .tg-l,body.tw .tg-r{display:block!important}
+  body.tw .tg-l{position:sticky;top:74px;max-height:calc(100vh - 170px);overflow:auto;padding-right:4px}
+  body.tw .tg-l .lsticky{position:static}
+  body.tw .tgt{display:none}
+  body.tw .trp{max-height:46vh}
+  body.tw .bar{width:min(820px,100%)}
+  body.tw .bkhd,body.tw .trbar,body.tw .trp{margin-left:0;margin-right:0}
+  body.tw .qg{padding:0}
+}
+.notebox li.q{background:none;box-shadow:none;border-radius:0;padding:5px 0;margin:4px 0;border:0}
+.notebox li.q.ok,.notebox li.q.no{background:none;box-shadow:none}
+.pnav{justify-content:flex-start}.pnav>:first-child{margin-left:auto}.pnav>:last-child{margin-right:auto}
+.pn{min-width:30px;height:32px;font-size:13.5px;border-radius:10px}.pn.wide{padding:0 10px;font-size:12.5px}
+.gap input.fill{width:8.5em}
+@media(min-width:520px){.gap input.fill{width:10em}}

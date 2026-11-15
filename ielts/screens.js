@@ -91,22 +91,22 @@ IE.isOk = isOk;
 IE.allQ = p => p.groups.flatMap(g => g.qs.map(q => ({ g, q })));
 const allQ = p => p.groups.flatMap(g => g.qs.map(q => ({ g, q })));
 const sents = t => t.match(/[^.!?]+(?:[.!?]+["”’)]*)?\s*/g) || [t];
-const RUNK = 'ielts:run';
+const RUNK = 'ielts:run', rk = id => RUNK + ':' + id;
 R.reading = a => {
   if (a[0] && a[1] === 'run') return readRun(a[0]);
   if (a[0] && a[1] === 'result') return readRes(a[0]);
-  const run = lsGet(RUNK, null), s = S();
+  const s = S();
   const inner = '<div class="pad"><div class="card rise" style="margin-bottom:14px"><div class="row">' + bd('book', 'R', 'lg') + '<div style="flex:1"><b style="font-size:16px">Academic Reading</b><div class="sm mu">20 daqiqa · har matnda 13 savol. Yakunda taxminiy band hisoblanadi.</div></div></div></div><button class="item rise" style="margin-bottom:14px" data-go="cambridge">' + bd('trophy', 'M', 'sm') + '<div class="tx"><b>Cambridge testlari</b><span>Kitobingizdan o‘zingiz qo‘shasiz</span></div><span class="go">' + ic('next') + '</span></button><div class="lst">' +
     D.reading.passages.map(p => {
-      const last = s.reads.filter(r => r.p === p.id).slice(-1)[0], going = run && run.id === p.id;
+      const last = s.reads.filter(r => r.p === p.id).slice(-1)[0], going = !!lsGet(rk(p.id), null);
       return '<button class="item rise" data-go="reading/' + p.id + '/run">' + bd('book', 'R') + '<div class="tx"><b>' + esc(p.title) + '</b><span>' + esc(p.topic) + ' · ' + esc(p.level) + (going ? ' · <b style="color:var(--warn)">davom etmoqda</b>' : '') + '</span></div>' + (last ? '<span class="band sk-R">' + IE.bandTxt(last.band) + '</span>' : '<span class="go">' + ic('next') + '</span>') + '</button>';
     }).join('') + '</div><p class="hint" style="margin-top:14px">' + ic('bulb') + ' Yangi matnlar muntazam qo‘shib boriladi.</p></div>';
   return sub('Reading', 'practice', inner);
 };
 const initRun = id => {
-  const saved = lsGet(RUNK, null);
+  const saved = lsGet(rk(id), null);
   if (saved && saved.id === id && Date.now() - saved.t0 < 3 * 36e5) V.run = saved;
-  else { V.run = { id, ans: {}, t0: Date.now(), hl: {}, tab: 'text' }; lsSet(RUNK, V.run); }
+  else { V.run = { id, ans: {}, t0: Date.now(), hl: {}, tab: 'text' }; lsSet(rk(id), V.run); }
   return V.run;
 };
 function qBlock(g, q, a, rev) {
@@ -132,11 +132,25 @@ function qBlock(g, q, a, rev) {
   }
   return '<div class="q' + (rev ? (ok ? ' ok' : ' no') : '') + '" id="q' + n + '"><div class="qt"><span class="qn">' + n + '</span>' + qt + '</div>' + body + rv + '</div>';
 }
+const boldCaps = t => esc(t).replace(/\b[A-Z]{2,}(?:\/[A-Z]{2,})*(?:\s+(?:A\s+)?[A-Z]{2,}(?:\/[A-Z]{2,})*)*/g, m => '<b>' + m + '</b>');
+const rangeTxt = p => { const ns = p.groups.flatMap(g => g.qs.map(q => q.n)); return ns.length ? Math.min(...ns) + '–' + Math.max(...ns) : ''; };
+IE.rangeTxt = rangeTxt;
+/** Kitobdagidek: gap — matn ichida (qo‘shma raqam bilan), qutida. */
+function fillItem(g, q, a, rev) {
+  const n = q.n, ok = rev ? isOk(g, q, a) : null;
+  const inp = '<span class="gap"><i class="gn">' + n + '</i><input class="fill gi" data-in="fill" data-n="' + n + '" value="' + esc(a || '') + '" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Savol ' + n + '"' + (rev ? ' disabled' : '') + '></span>';
+  const parts = String(q.q || '').split(/_{3,}/), body = parts.length > 1 ? esc(parts[0]) + inp + esc(parts.slice(1).join('______')) : esc(q.q || '') + ' ' + inp;
+  let rv = '';
+  if (rev) { const corr = Array.isArray(q.a) ? q.a.join(' / ') : q.a; rv = ' <span class="mk ' + (ok ? 'ok' : 'no') + '">' + (ok ? '✓' : '✗') + '</span>' + (ok ? '' : ' <span class="ca">' + esc(corr) + '</span>') + (q.why ? '<div class="why">' + esc(q.why) + '</div>' : ''); }
+  return '<li class="q' + (rev ? (ok ? ' ok' : ' no') : '') + '" id="q' + n + '">' + body + rv + '</li>';
+}
 function groupsHTML(p, ans, rev) {
-  return '<div class="qg">' + p.groups.map(g => '<h3>' + esc(g.title) + '</h3><div class="note">' + esc(g.note) + '</div>' +
-    (g.headings ? '<div class="hlist">' + g.headings.map(h => '<div><b>' + h.id + '</b>' + esc(h.t) + '</div>').join('') + '</div>' : '') +
-    (g.summary ? '<div class="sum">' + esc(g.summary) + '</div>' : '') +
-    g.qs.map(q => qBlock(g, q, ans[q.n], rev)).join('')).join('') + '</div>';
+  return '<div class="qg bk">' + p.groups.map(g => {
+    const body = g.type === 'fill' && !g.summary ? '<div class="notebox"><ul>' + g.qs.map(q => fillItem(g, q, ans[q.n], rev)).join('') + '</ul></div>' : g.qs.map(q => qBlock(g, q, ans[q.n], rev)).join('');
+    return '<section class="qgrp t-' + g.type + '"><h3 class="qh">' + esc(g.title) + '</h3><div class="note">' + boldCaps(g.note) + '</div>' +
+      (g.headings ? '<div class="hlist">' + g.headings.map(h => '<div><b>' + h.id + '</b>' + esc(h.t) + '</div>').join('') + '</div>' : '') +
+      (g.summary ? '<div class="sum">' + esc(g.summary) + '</div>' : '') + body + '</section>';
+  }).join('') + '</div>';
 }
 IE.qBlock = (...a) => qBlock(...a);
 IE.groupsHTML = (...a) => groupsHTML(...a);
@@ -144,21 +158,21 @@ function readRun(id) {
   const p = D.reading.passages.find(x => x.id === id); if (!p) return R.reading([]);
   const r = V.run && V.run.id === id ? V.run : initRun(id), qs = allQ(p), done = qs.filter(x => r.ans[x.q.n] != null && r.ans[x.q.n] !== '').length;
   const left = 1200 - (Date.now() - r.t0) / 1000;
-  const txt = '<div class="psg"><h2>' + esc(p.title) + '</h2><div class="meta"><span class="chip">' + esc(p.topic) + '</span><span class="chip">' + esc(p.level) + '</span></div><p class="hint">' + ic('eye') + ' Gapni bosing — belgilanadi (sariq → yashil → o‘chadi).</p>' +
+  const txt = '<div class="psg"><div class="bkhd"><small>READING PASSAGE</small><p class="ins">You should spend about 20 minutes on Questions ' + rangeTxt(p) + ', which are based on the reading passage below.</p></div><h2>' + esc(p.title) + '</h2><div class="meta"><span class="chip">' + esc(p.topic) + '</span><span class="chip">' + esc(p.level) + '</span></div><p class="hint">' + ic('eye') + ' Gapni bosing — belgilanadi (sariq → yashil → o‘chadi).</p>' +
     p.paras.map(pa => '<div class="para"><b>' + pa.k + '</b><div>' + sents(pa.t).map((s, i) => '<span class="s' + (r.hl[pa.k + i] === 1 ? ' hl' : r.hl[pa.k + i] === 2 ? ' hl2' : '') + '" data-a="hl" data-k="' + pa.k + i + '">' + esc(s) + '</span>').join('') + '</div></div>').join('') + '</div>';
-  const inner = '<div class="tabs2"><button class="' + (r.tab !== 'q' ? 'on' : '') + '" data-a="rtab" data-v="text">Matn</button><button class="' + (r.tab === 'q' ? 'on' : '') + '" data-a="rtab" data-v="q">Savollar <span class="chip" id="cnt" style="margin-left:4px">' + done + '/' + qs.length + '</span></button></div>' +
-    (r.tab === 'q' ? groupsHTML(p, r.ans, false) : txt) +
-    '<div style="height:90px"></div><div class="bar"><div class="prog" style="margin-bottom:10px"><i id="pg" style="width:' + (done / qs.length * 100) + '%"></i></div><button class="btn block" data-a="rsubmit">Topshirish</button></div>';
+  const inner = '<div class="tabs2 tgt"><button class="' + (r.tab !== 'q' ? 'on' : '') + '" data-a="rtab" data-v="text">Matn</button><button class="' + (r.tab === 'q' ? 'on' : '') + '" data-a="rtab" data-v="q">Savollar <span class="chip" id="cnt" style="margin-left:4px">' + done + '/' + qs.length + '</span></button></div>' +
+    '<div class="tg"><div class="tg-l' + (r.tab === 'q' ? ' off' : '') + '">' + txt + '</div><div class="tg-r' + (r.tab !== 'q' ? ' off' : '') + '"><div class="bkhd"><small>QUESTIONS ' + rangeTxt(p) + '</small></div>' + groupsHTML(p, r.ans, false) + '</div></div>' +
+    '<div style="height:120px"></div><div class="bar">' + (IE.partNav ? IE.partNav(p, 'r') : '') + '<div class="prog" style="margin-bottom:10px"><i id="pg" style="width:' + (done / qs.length * 100) + '%"></i></div><button class="btn block" data-a="rsubmit">Topshirish <span class="chip tgc" style="margin-left:6px;background:rgba(255,255,255,.22);color:#fff">' + done + '/' + qs.length + '</span></button></div>';
   const o = sub(p.title, 'reading', inner, '<div class="tmr' + (left < 120 ? ' low' : '') + '" id="tm">' + ic('clock') + '<span>' + fmtT(left) + '</span></div>');
   o.mount = () => {
     IE.every(1000, () => { const l = 1200 - (Date.now() - r.t0) / 1000, t = $('#tm'); if (t) { t.lastChild.textContent = fmtT(l); t.classList.toggle('low', l < 120); } if (l <= 0) { IE.clearTimers(); readSubmit(true); } });
   };
   return o;
 }
-A.rtab = el => { V.run.tab = el.dataset.v; lsSet(RUNK, V.run); IE.draw(false); window.scrollTo(0, 0); };
-A.hl = el => { const r = V.run, k = el.dataset.k, v = ((r.hl[k] || 0) + 1) % 3; if (v) r.hl[k] = v; else delete r.hl[k]; el.classList.toggle('hl', v === 1); el.classList.toggle('hl2', v === 2); lsSet(RUNK, r); };
+A.rtab = el => { V.run.tab = el.dataset.v; lsSet(rk(V.run.id), V.run); IE.draw(false); window.scrollTo(0, 0); };
+A.hl = el => { const r = V.run, k = el.dataset.k, v = ((r.hl[k] || 0) + 1) % 3; if (v) r.hl[k] = v; else delete r.hl[k]; el.classList.toggle('hl', v === 1); el.classList.toggle('hl2', v === 2); lsSet(rk(r.id), r); };
 const LRUNK = 'ielts:lrun';
-const ctx = () => { const cr = IE.curRoute || ''; if (cr.startsWith('listening')) return { r: V.l, test: () => D.listening.tests.find(x => x.id === V.l.id), key: LRUNK }; if (cr.startsWith('article/') && V.art) return { r: V.art, test: () => IE.matSync(V.art.id), key: 'ielts:art:' + V.art.id }; return { r: V.run, test: () => D.reading.passages.find(x => x.id === V.run.id), key: RUNK }; };
+const ctx = () => { const cr = IE.curRoute || ''; if (cr.startsWith('listening')) return { r: V.l, test: () => D.listening.tests.find(x => x.id === V.l.id), key: LRUNK + ':' + V.l.id }; if (cr.startsWith('article/') && V.art) return { r: V.art, test: () => IE.matSync(V.art.id), key: 'ielts:art:' + V.art.id }; return { r: V.run, test: () => D.reading.passages.find(x => x.id === V.run.id), key: rk(V.run.id) }; };
 const refreshCount = () => {
   const c0 = ctx(), p = c0.test(), qs = allQ(p), done = qs.filter(x => c0.r.ans[x.q.n] != null && c0.r.ans[x.q.n] !== '').length;
   const c = $('#cnt'), g = $('#pg'); if (c) c.textContent = done + '/' + qs.length; if (g) g.style.width = (done / qs.length * 100) + '%';
@@ -182,19 +196,19 @@ function readSubmit(auto) {
   const r = V.run; if (!r) return; const p = D.reading.passages.find(x => x.id === r.id), qs = allQ(p);
   const raw = qs.filter(x => isOk(x.g, x.q, r.ans[x.q.n])).length, secs = Math.min(1200, Math.round((Date.now() - r.t0) / 1000));
   const rec = { ts: Date.now(), p: r.id, raw, tot: qs.length, band: IE.band(raw, qs.length), secs, a: r.ans };
-  S().reads.push(rec); IE.touchDay(); IE.save(true); try { localStorage.removeItem(RUNK); } catch (e) { /* xotira yopiq */ }
+  S().reads.push(rec); IE.touchDay(); IE.save(true); try { localStorage.removeItem(rk(r.id)); } catch (e) { /* xotira yopiq */ }
   V.run = null; if (auto) IE.toast('Vaqt tugadi — javoblar topshirildi'); IE.go('reading/' + p.id + '/result'); setTimeout(() => { if (raw / qs.length >= .6) IE.confetti(); }, 350);
 }
 function readRes(id) {
   const p = D.reading.passages.find(x => x.id === id), rec = S().reads.filter(r => r.p === id).slice(-1)[0];
   if (!p || !rec) return R.reading([]);
   const pc = Math.round(rec.raw / rec.tot * 100);
-  const inner = '<div class="res anim"><div class="lbl">Taxminiy band</div><div class="big">' + IE.bandTxt(rec.band) + '</div><div class="mu" style="margin-top:8px">' + rec.raw + ' / ' + rec.tot + ' to‘g‘ri (' + pc + '%) · ' + fmtT(rec.secs) + '</div>' +
+  const inner = (IE.partNav ? '<div class="pad">' + IE.partNav(p, 'r') + '</div>' : '') + '<div class="res anim"><div class="lbl">Taxminiy band</div><div class="big">' + IE.bandTxt(rec.band) + '</div><div class="mu" style="margin-top:8px">' + rec.raw + ' / ' + rec.tot + ' to‘g‘ri (' + pc + '%) · ' + fmtT(rec.secs) + '</div>' +
     '<div class="card sm mu" style="margin-top:16px;text-align:left">' + ic('bulb') + ' Band — 40 savollik imtihon shkalasiga o‘tkazilgan taxminiy baho. Haqiqiy imtihonda 3 ta matn bo‘ladi.</div></div>' + groupsHTML(p, rec.a || {}, true) +
     '<div class="pad" style="margin-top:8px"><div class="two"><button class="btn ghost" data-go="' + (IE.mockActive && IE.mockActive() ? 'mock' : 'reading') + '">' + (IE.mockActive && IE.mockActive() ? 'Mock testga qaytish' : 'Boshqa matn') + '</button><button class="btn" data-a="rretry" data-id="' + id + '">Qayta urinish</button></div></div>';
   return sub('Natija', 'reading', inner);
 }
-A.rretry = el => { try { localStorage.removeItem(RUNK); } catch (e) { /* */ } V.run = null; IE.go('reading/' + el.dataset.id + '/run'); };
+A.rretry = el => { try { localStorage.removeItem(rk(el.dataset.id)); } catch (e) { /* */ } V.run = null; IE.go('reading/' + el.dataset.id + '/run'); };
 
 /* ---------- WRITING ---------- */
 const wlist = () => { let n = 0; const o = []; Object.entries(D.prompts.task2).forEach(([cat, arr]) => arr.forEach(t => o.push({ n: n++, cat, t }))); return o; };
