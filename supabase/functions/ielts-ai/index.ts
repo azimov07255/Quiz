@@ -99,6 +99,9 @@ Scores are in 0.5 steps between 3 and 9. "overall" is the average rounded to the
 
 const DICT_LITE = `You translate English vocabulary for an Uzbek-speaking IELTS student. You get a word and its English dictionary definitions. Return ONLY JSON: {"uz":string,"note":string}. "uz" = the most useful Uzbek (Latin script) equivalents, 1-3 short items separated by commas, matching the definitions. "note" = one very short Uzbek usage tip or common collocation (or empty string).`
 
+const DICT_CTX = `You explain English words and multi-word expressions for an Uzbek-speaking IELTS student. You get an EXPRESSION and the SENTENCE it appears in. Return ONLY JSON: {"w":string,"type":"phrasal verb"|"collocation"|"idiom"|"phrase"|"word","uz":string,"def":string,"ex":string,"note":string}.
+"w" = the expression in its base/dictionary form (e.g. "give up", "take part in"); "uz" = the meaning in THIS context in Uzbek (Latin script), short; "def" = simple English definition; "ex" = one new natural example sentence; "note" = one short Uzbek tip (similar expressions, register or common mistakes) or empty string.`
+
 const DICT = `You are an English-Uzbek learner dictionary for IELTS students. Return ONLY JSON: {"w":string,"pos":string,"ipa":string,"uz":string,"def":string,"ex":[string,string],"syn":[string,string,string],"note":string}.
 "uz" = concise Uzbek (Latin script) meaning(s); "def" = simple English definition; "ex" = two natural example sentences (IELTS-level); "syn" = up to 3 synonyms; "note" = one short Uzbek tip about usage or collocations (or empty string).`
 
@@ -153,6 +156,11 @@ const ANALYZE = `You are an English teacher preparing an IELTS reading/listening
  "qs":[{"type":"tf","q":string,"a":"TRUE"|"FALSE"|"NOT GIVEN","why":string}, {"type":"mc","q":string,"o":[string,string,string],"a":number,"why":string}, {"type":"fl","q":string,"a":[string],"why":string}]}
 Rules: 10-12 useful B2-C1 vocab items (not trivial words); "uz" = Uzbek (Latin script) meaning matching this text; "ex" = a short fragment copied EXACTLY (character for character) from TEXT containing the word. 3 grammar points actually used in TEXT: "t" short title in Uzbek, "r" 1-2 sentence Uzbek rule explanation, "ex" = 1-2 fragments copied EXACTLY from TEXT. Questions: 4 "tf" (include at least one FALSE and one NOT GIVEN), 2 "mc" (a = index 0-2 of the correct option), 2 "fl" (sentence with ______, answer = 1-2 words or a number taken from TEXT, give variants in array). All "why" fields in Uzbek, quoting the relevant English words. Do not invent facts that are not in TEXT.`
 
+const SPEAK = `You are a strict but fair IELTS Speaking examiner. You get the QUESTION (Part 1 short question, or Part 2 cue card), the TRANSCRIPT of the candidate's spoken answer (automatic speech-to-text, so ignore punctuation/capitalisation and tiny transcription glitches) and timing data. Evaluate with the four official criteria: Fluency and Coherence, Lexical Resource, Grammatical Range and Accuracy, Pronunciation. Pronunciation cannot be heard: estimate it cautiously from the transcript (word choice, obvious mis-hearings) and keep it close to the average of the other scores. Be realistic and do not inflate; a very short answer (under 20 words for Part 1, under 100 words for Part 2) limits fluency and coherence.
+Return ONLY valid JSON: {"fc":number,"lr":number,"gra":number,"pr":number,"overall":number,"strengths":[string,string],"issues":[{"quote":string,"fix":string,"why":string}],"better":string,"next":string}
+Scores in 0.5 steps between 3 and 9, "overall" = average rounded to nearest 0.5. "quote" = exact short fragment from the transcript; "fix" = improved English. 3-5 issues. "better" = a stronger model answer (English, similar length, max 90 words) using the candidate's ideas. "strengths", "why", "next" in UZBEK (Latin script), concise.`
+const extOf = (m: string) => /webm/.test(m) ? 'webm' : /mp4|aac|m4a/.test(m) ? 'm4a' : /ogg|opus/.test(m) ? 'ogg' : /wav/.test(m) ? 'wav' : /mpeg|mp3/.test(m) ? 'mp3' : 'webm'
+
 async function material(action: string, b: any, sb: any, json: (o: unknown, s?: number) => Response): Promise<Response> {
   const { data: okI } = await sb.rpc('can_ielts'); if (!okI) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403)
   try {
@@ -185,9 +193,26 @@ async function material(action: string, b: any, sb: any, json: (o: unknown, s?: 
       if (GROQ) { try { cues = await whisper(r.bytes, (ua.pathname.split('/').pop() || 'audio.mp3').slice(0, 60), r.ct) } catch (e) { errs.push(String((e as Error).message)); console.error(errs[errs.length - 1]) } }
       if (!cues && GEMINI) { try { cues = await geminiTranscribe(r.bytes, r.ct) } catch (e) { errs.push(String((e as Error).message)); console.error(errs[errs.length - 1]) } }
       if (!cues || !cues.length) return json({ error: 'Transkript tuzilmadi — ' + errs.join(' | ').slice(0, 300) }, 502)
-      const last = cues[cues.length - 1]; const data = { cues: cues.slice(0, 900), dur: r2(last.e || last.s) }
+      const last = cues[cues.length - 1]; const data = { cues: cues.slice(0, 900), dur: r2(last.e || last.s), au: r.url.replace(/^http:/i, 'https:') }
       await svc.from('ielts_transcripts').upsert({ key, data })
       return json(data)
+    }
+    if (action === 'speaking') {
+      const raw = String(b.audio || ''); if (raw.length < 1500) return json({ error: 'Yozuv juda qisqa yoki bo‘sh.' }, 400)
+      if (raw.length > 9000000) return json({ error: 'Yozuv juda katta (qisqaroq javob bering).' }, 413)
+      const { error: lim } = await sb.rpc('ielts_ai_hit', { p_limit: LIMIT })
+      if (lim) return json({ error: /limit/i.test(lim.message) ? lim.message : 'IELTS uchun ruxsat yo‘q' }, /limit/i.test(lim.message) ? 429 : 403)
+      let bytes: Uint8Array; try { bytes = Uint8Array.from(atob(raw), (c) => c.charCodeAt(0)) } catch { return json({ error: 'Audio formati noto‘g‘ri.' }, 400) }
+      const mime = String(b.mime || 'audio/webm').split(';')[0].slice(0, 40), errs: string[] = []; let cues: any[] | null = null
+      if (GROQ) { try { cues = await whisper(bytes, 'speech.' + extOf(mime), mime) } catch (e) { errs.push(String((e as Error).message)); console.error(errs[errs.length - 1]) } }
+      if (!cues && GEMINI) { try { cues = await geminiTranscribe(bytes, mime) } catch (e) { errs.push(String((e as Error).message)); console.error(errs[errs.length - 1]) } }
+      if (!cues || !cues.length) return json({ error: 'Nutq matnga aylanmadi — ' + errs.join(' | ').slice(0, 260) }, 502)
+      const transcript = cues.map((c: any) => c.t).join(' ').replace(/\s+/g, ' ').trim(), words = transcript.split(/\s+/).filter(Boolean).length
+      if (words < 3) return json({ error: 'Nutq aniqlanmadi. Mikrofonga yaqinroq va aniqroq gapiring.' }, 422)
+      const secs = Math.max(3, Math.min(300, Number(b.secs) || (cues[cues.length - 1].e || 30))), wpm = Math.round(words / (secs / 60))
+      const out = parse(await ask(SPEAK, [{ role: 'user', content: `PART: ${clip(b.part, 2)}\nQUESTION: ${clip(b.q, 500)}\nDURATION: ${Math.round(secs)} s, WORDS: ${words}, SPEED: ${wpm} words/min\n\nTRANSCRIPT:\n${transcript.slice(0, 4000)}` }], true, 0.3))
+      if (!out || typeof out.overall !== 'number') return json({ error: 'AI bahosi tushunarsiz. Qayta urinib ko‘ring.' }, 502)
+      return json({ result: out, transcript, words, wpm })
     }
     if (action === 'analyze') {
       const text = clip(b.text, 5500).trim(); if (text.length < 300) return json({ error: 'Matn tahlil uchun juda qisqa.' }, 400)
@@ -216,7 +241,7 @@ Deno.serve(async (req) => {
     if (error || !data) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403)
     return json({ ok: true, gemini: !!GEMINI, groq: !!GROQ, limit: LIMIT })
   }
-  if (['feed', 'article', 'transcript', 'analyze'].includes(action)) return await material(action, b, sb, json)
+  if (['feed', 'article', 'transcript', 'analyze', 'speaking'].includes(action)) return await material(action, b, sb, json)
   if (!['chat', 'writing', 'dict'].includes(action)) return json({ error: 'Noma’lum amal' }, 400)
   if (!GEMINI && !GROQ) return json({ error: 'AI hali sozlanmagan (kalit qo‘yilmagan). Ilova egasiga ayting.' }, 503)
   if (action === 'dict') { const { data: okI } = await sb.rpc('can_ielts'); if (!okI) return json({ error: 'IELTS uchun ruxsat yo‘q' }, 403) }
@@ -239,7 +264,12 @@ Deno.serve(async (req) => {
     }
     const w = clip(b.word, 60).trim()
     if (!w) return json({ error: 'So‘z kiriting' }, 400)
-    const hint = clip(b.hint, 500).trim()
+    const hint = clip(b.hint, 500).trim(), ctx = clip(b.ctx, 400).trim()
+    if (ctx) {
+      const o = parse(await ask(DICT_CTX, [{ role: 'user', content: `EXPRESSION: ${w}\nSENTENCE: ${ctx}` }], true, 0.2, true))
+      if (!o || !o.uz) return json({ error: 'AI javobi tushunarsiz. Qayta urinib ko‘ring.' }, 502)
+      return json({ result: o })
+    }
     const out = parse(await ask(hint ? DICT_LITE : DICT, [{ role: 'user', content: hint ? `Word: ${w}\nEnglish definitions: ${hint}` : w }], true, 0.2, true))
     if (!out) return json({ error: 'AI javobi tushunarsiz. Qayta urinib ko‘ring.' }, 502)
     return json({ result: out })

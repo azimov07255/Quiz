@@ -50,7 +50,7 @@ export function decEnt(s: string): string {
     .replace(/&rsquo;|&#8217;/g, '’').replace(/&lsquo;|&#8216;/g, '‘').replace(/&ldquo;|&rdquo;|&#8220;|&#8221;/g, '"').replace(/&ndash;|&mdash;|&#8211;|&#8212;/g, '—')
     .replace(/&#(\d+);/g, (_m, n) => String.fromCodePoint(Math.min(+n, 0x10FFFF))).replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCodePoint(Math.min(parseInt(h, 16), 0x10FFFF)))
 }
-const okImg = (u: string) => /^https:\/\/[^\s"'<>]{8,500}$/.test(u) ? u : ''
+const okImg = (u: string) => { u = String(u || '').replace(/^http:\/\//i, 'https://'); return /^https:\/\/[^\s"'<>]{8,500}$/.test(u) ? u : '' }
 
 export function parseFeed(xml: string): { title: string; image: string; items: any[] } {
   const tg = (s: string, n: string) => { const m = s.match(new RegExp('<' + n + '(?:\\s[^>]*)?>([\\s\\S]*?)</' + n + '>', 'i')); return m ? decEnt(m[1].replace(/^\s*<!\[CDATA\[|\]\]>\s*$/g, '')).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '' }

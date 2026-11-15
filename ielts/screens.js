@@ -27,7 +27,7 @@ function allRecent() {
   s.reads.forEach(r => { const p = D.reading.passages.find(x => x.id === r.p); out.push({ ts: r.ts, k: 'R', t: p ? p.title : 'Reading', m: r.raw + '/' + r.tot + ' to‘g‘ri', b: IE.bandTxt(r.band), go: 'reading/' + r.p + '/result' }); });
   s.listens.forEach(r => { const t = D.listening.tests.find(x => x.id === r.id); out.push({ ts: r.ts, k: 'L', t: t ? (t.topic.split(' · ')[1] || t.title) : 'Listening', m: r.raw + '/' + r.tot + ' to‘g‘ri', b: IE.bandTxt(r.band), go: 'listening/' + r.id + '/result' }); });
   s.writes.forEach(w => out.push({ ts: w.ts, k: 'W', t: 'Writing Task 2', m: w.words + ' so‘z · ' + Math.round(w.secs / 60) + ' daq', b: w.ai ? IE.bandTxt(w.ai.overall) : w.words + '', go: 'writing/h/' + w.ts }));
-  s.speaks.forEach(w => out.push({ ts: w.ts, k: 'S', t: w.k === '2' ? 'Speaking Part 2' : 'Speaking Part 1', m: w.t || '', b: '✓', go: 'speaking' }));
+  s.speaks.forEach(w => out.push({ ts: w.ts, k: 'S', t: w.k === '2' ? 'Speaking Part 2' : 'Speaking Part 1', m: w.t || '', b: w.ai ? IE.bandTxt(w.ai.overall) : '✓', go: 'speaking' }));
   return out.sort((a, b) => b.ts - a.ts);
 }
 const dueCount = () => { const t = IE.dayNum(); return Object.values(S().srs).filter(x => x.d <= t).length; };
@@ -58,7 +58,7 @@ R.practice = () => page('practice', '<div class="hero" style="padding-bottom:70p
   '<button class="mock rise" data-go="soon/mock">' + bd('trophy', 'M', 'lg') + '<div style="flex:1"><h3>Mock Test</h3><p>To‘liq imtihon sinovi: 4 ta bo‘lim ketma-ket</p></div>' + '<span class="chip soon" style="background:rgba(255,255,255,.22);color:#fff">Tez orada</span></button></div>');
 
 R.tools = () => {
-  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'articles'], ['head', 'L', 'Podcasts', 'articles/tab/p'], ['spk', 'S', 'Shadowing', 'soon/shadowing', 1], ['wave', 'L', 'Dictation', 'soon/dictation', 1], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'dict']];
+  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'articles'], ['head', 'L', 'Podcasts', 'articles/tab/p'], ['spk', 'S', 'Shadowing', 'shadow'], ['wave', 'L', 'Dictation', 'dictation'], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'dict']];
   return page('tools', '<div class="hero" style="padding-bottom:70px"><div class="hi">O‘rganish vositalari</div><h1>Study Tools</h1></div><div class="lift"><div class="tools rise">' +
     T.map(t => '<button class="tool' + (t[4] ? ' off' : '') + '" data-go="' + t[3] + '">' + bd(t[0], t[1]) + t[2] + (t[4] ? '<span class="chip soon">Tez orada</span>' : '') + '</button>').join('') + '</div></div>');
 };
@@ -269,34 +269,34 @@ R.speaking = a => {
 const micBtn = (on, act) => '<div class="rec"><button class="mic' + (on ? ' on' : '') + '" data-a="' + act + '" aria-label="Yozib olish">' + ic(on ? 'stop' : 'mic') + '</button></div>';
 function sp1(i) {
   const t = D.prompts.sp1[i]; if (!t) return R.speaking([]);
-  if (!V.s1 || V.s1.i !== i) V.s1 = { i, q: 0, rec: false, t0: 0, urls: {} };
+  if (!V.s1 || V.s1.i !== i) V.s1 = { i, q: 0, rec: false, t0: 0, urls: {}, blobs: {}, secs: {}, ai: {} };
   const s = V.s1, key = i + ':' + s.q, url = s.urls[key];
   const o = sub('Part 1 · ' + t.t, 'speaking', '<div class="pad"><div class="prog" style="margin:4px 0 16px"><i style="width:' + ((s.q + 1) / t.q.length * 100) + '%"></i></div><div class="mu xs b c" style="margin-bottom:8px">' + (s.q + 1) + ' / ' + t.q.length + '</div><div class="qcard">' + esc(t.q[s.q]) + '</div>' +
     '<p class="hint c" style="justify-content:center;margin-top:12px">' + ic('bulb') + ' 2–3 gapdan iborat javob bering: javob + sabab + misol.</p>' + micBtn(s.rec, 'sp1rec') +
-    '<div class="big-t" id="bigt" style="font-size:28px">' + (s.rec ? fmtT((Date.now() - s.t0) / 1000) : '') + '</div>' + (url ? '<audio controls src="' + url + '"></audio>' : '') +
+    '<div class="big-t" id="bigt" style="font-size:28px">' + (s.rec ? fmtT((Date.now() - s.t0) / 1000) : '') + '</div>' + (url ? '<audio controls src="' + url + '"></audio><div id="sai" style="margin-top:12px">' + (s.ai[key] ? IE.speakHTML(s.ai[key]) : '<button class="btn block" data-a="sp1ai">' + ic('spark') + ' AI bilan baholash</button>') + '</div>' : '') +
     '<div class="two" style="margin-top:18px"><button class="btn ghost" data-a="sp1n" data-d="-1"' + (s.q ? '' : ' disabled') + '>Oldingi</button><button class="btn" data-a="sp1n" data-d="1">' + (s.q + 1 >= t.q.length ? 'Tugatish' : 'Keyingi') + '</button></div></div>');
   o.mount = () => { if (s.rec) IE.every(500, () => { const b = $('#bigt'); if (b) b.textContent = fmtT((Date.now() - s.t0) / 1000); }); };
   return o;
 }
 A.sp1rec = async () => {
   const s = V.s1; if (!s) return;
-  if (s.rec) { const url = await IE.rec.stop(); s.rec = false; if (url) s.urls[s.i + ':' + s.q] = url; IE.draw(false); return; }
+  if (s.rec) { const url = await IE.rec.stop(); s.rec = false; if (url) { const k = s.i + ':' + s.q; s.urls[k] = url; s.blobs[k] = IE.rec.lastBlob; s.secs[k] = (Date.now() - s.t0) / 1000; delete s.ai[k]; } IE.draw(false); return; }
   try { await IE.rec.start(); s.rec = true; s.t0 = Date.now(); IE.draw(false); } catch (e) { IE.toast(e && e.name === 'NotAllowedError' ? 'Mikrofonga ruxsat berilmadi' : (e.message || 'Yozib bo‘lmadi')); }
 };
 A.sp1n = async el => {
-  const s = V.s1, t = D.prompts.sp1[s.i], d = +el.dataset.d; if (s.rec) { const u = await IE.rec.stop(); s.rec = false; if (u) s.urls[s.i + ':' + s.q] = u; }
-  if (s.q + d >= t.q.length) { S().speaks.push({ ts: Date.now(), k: '1', t: t.t }); IE.touchDay(); IE.save(true); IE.toast('Part 1 tugadi — barakalla!'); IE.confetti(); V.s1 = null; return IE.go('speaking'); }
+  const s = V.s1, t = D.prompts.sp1[s.i], d = +el.dataset.d; if (s.rec) { const u = await IE.rec.stop(); s.rec = false; if (u) { const k = s.i + ':' + s.q; s.urls[k] = u; s.blobs[k] = IE.rec.lastBlob; s.secs[k] = (Date.now() - s.t0) / 1000; delete s.ai[k]; } }
+  if (s.q + d >= t.q.length) { if (!Object.keys(s.ai).length) S().speaks.push({ ts: Date.now(), k: '1', t: t.t }); IE.touchDay(); IE.save(true); IE.toast('Part 1 tugadi — barakalla!'); IE.confetti(); V.s1 = null; return IE.go('speaking'); }
   s.q = Math.max(0, s.q + d); IE.draw(false); window.scrollTo(0, 0);
 };
 function sp2(i) {
   const t = D.prompts.sp2[i]; if (!t) return R.speaking([]);
-  if (!V.s2 || V.s2.i !== i) V.s2 = { i, ph: 'read', t: 60, url: '', rec: false, notes: '' };
+  if (!V.s2 || V.s2.i !== i) V.s2 = { i, ph: 'read', t: 60, url: '', rec: false, notes: '', blob: null, secsUsed: 0, ai: null };
   const s = V.s2, cue = '<div class="cue"><div class="mu xs b" style="color:rgba(255,255,255,.8);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Cue card</div><h2>' + esc(t.t) + '</h2><div style="margin-top:8px;font-size:14px">You should say:</div><ul>' + t.b.map(b => '<li>' + esc(b) + '</li>').join('') + '</ul></div>';
   let body = '';
   if (s.ph === 'read') body = '<p class="hint c" style="justify-content:center;margin:14px 0">' + ic('clock') + ' 1 daqiqa tayyorlanasiz, so‘ng 2 daqiqagacha gapirasiz.</p><button class="btn block" data-a="sp2go">Tayyorlanishni boshlash</button>';
   else if (s.ph === 'prep') body = '<div class="mu xs b c" style="margin:16px 0 4px;letter-spacing:.1em;text-transform:uppercase">Tayyorlanish</div><div class="big-t" id="bigt">' + fmtT(s.t) + '</div><textarea class="ed" data-in="notes" style="min-height:110px;margin-top:10px;font:15px/1.5 -apple-system,sans-serif" placeholder="Qisqa eslatmalar (kalit so‘zlar)…">' + esc(s.notes) + '</textarea><button class="btn block" style="margin-top:12px" data-a="sp2talk">Hoziroq gapirishni boshlash</button>';
   else if (s.ph === 'talk') body = '<div class="mu xs b c" style="margin:16px 0 0;letter-spacing:.1em;text-transform:uppercase">Gapiring' + (s.rec ? ' · yozilmoqda' : '') + '</div><div class="big-t" id="bigt">' + fmtT(s.t) + '</div>' + micBtn(s.rec, 'sp2stop').replace('data-a="sp2stop"', 'data-a="sp2stop"') + '<p class="hint c" style="justify-content:center">Kamida 1 daqiqa gapirishga harakat qiling.</p>';
-  else body = '<div class="card c" style="margin-top:14px">' + bd('check', 'S', 'lg').replace('class="bd', 'style="margin:0 auto 8px" class="bd') + '<b style="font-size:17px">Part 2 tugadi!</b>' + (s.url ? '<audio controls src="' + s.url + '"></audio>' : '<p class="mu sm">Yozuv saqlanmadi (mikrofon yo‘q).</p>') + '</div>' +
+  else body = '<div class="card c" style="margin-top:14px">' + bd('check', 'S', 'lg').replace('class="bd', 'style="margin:0 auto 8px" class="bd') + '<b style="font-size:17px">Part 2 tugadi!</b>' + (s.url ? '<audio controls src="' + s.url + '"></audio><div id="sai" style="margin-top:12px;text-align:left">' + (s.ai ? IE.speakHTML(s.ai) : '<button class="btn block" data-a="sp2ai">' + ic('spark') + ' AI bilan baholash</button>') + '</div>' : '<p class="mu sm">Yozuv saqlanmadi (mikrofon yo‘q).</p>') + '</div>' +
     '<div class="sec"><h2>Part 3 · Muhokama savollari</h2></div><div class="lst">' + t.f.map((q, k) => '<div class="card" style="padding:14px"><span class="chip" style="margin-bottom:6px">Savol ' + (k + 1) + '</span><div style="font-weight:700;line-height:1.4">' + esc(q) + '</div></div>').join('') + '</div><p class="hint" style="margin-top:10px">' + ic('bulb') + ' Har savolga 4–5 gap: fikr → sabab → misol → qarama-qarshi taraf.</p><div class="two" style="margin-top:12px"><button class="btn ghost" data-a="sp2re">Qayta urinish</button><button class="btn" data-a="sp2fin">Tugatdim</button></div>';
   const o = sub('Part 2', 'speaking', '<div class="pad">' + cue + body + '</div>');
   o.mount = () => {
@@ -311,9 +311,9 @@ A.sp2talk = async () => {
   try { await IE.rec.start(); s.rec = true; } catch (e) { IE.toast(e && e.name === 'NotAllowedError' ? 'Mikrofonga ruxsat berilmadi — yozuvsiz davom etamiz' : 'Yozib bo‘lmadi — yozuvsiz davom etamiz'); }
   IE.draw(false);
 };
-A.sp2stop = async () => { const s = V.s2; if (!s) return; if (s.rec) { s.url = await IE.rec.stop(); s.rec = false; } s.ph = 'done'; IE.draw(false); IE.confetti(); };
+A.sp2stop = async () => { const s = V.s2; if (!s) return; if (s.rec) { s.url = await IE.rec.stop(); s.blob = IE.rec.lastBlob; s.secsUsed = 120 - s.t; s.rec = false; } s.ph = 'done'; IE.draw(false); IE.confetti(); };
 A.sp2re = () => { const i = V.s2.i; V.s2 = null; IE.draw(false); };
-A.sp2fin = () => { const s = V.s2, t = D.prompts.sp2[s.i]; S().speaks.push({ ts: Date.now(), k: '2', t: t.t.replace('Describe ', '') }); IE.touchDay(); IE.save(true); V.s2 = null; IE.toast('Saqlandi'); IE.go('speaking'); };
+A.sp2fin = () => { const s = V.s2, t = D.prompts.sp2[s.i]; if (!s.ai) S().speaks.push({ ts: Date.now(), k: '2', t: t.t.replace('Describe ', '') }); IE.touchDay(); IE.save(true); V.s2 = null; IE.toast('Saqlandi'); IE.go('speaking'); };
 IE.inpNotes = el => { if (V.s2) V.s2.notes = el.value; };
 
 /* ---------- SO‘ZLAR (lug‘at + flesh-karta) ---------- */

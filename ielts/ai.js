@@ -162,4 +162,31 @@ A.dadd = () => {
   const id = 'my:' + d.q.toLowerCase(); if (S().my.some(x => x.id === id)) return;
   S().my.push({ id, w: d.q, uz: d.uz || '', def: df.d || '', ex: df.ex || '', pos: m.pos || '', ts: Date.now() }); IE.save(); IE.toast('Qo‘shildi'); IE.draw(false);
 };
+
+/* ---------- Speaking: AI bahosi (audio serverda matnga aylanadi, so‘ng IELTS mezonlari bo‘yicha baholanadi) ---------- */
+const blobB64 = async b => { const u = new Uint8Array(await b.arrayBuffer()); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+IE.speakHTML = r => {
+  const a = r.result, sc = (k, v) => '<div class="sc"><b>' + IE.bandTxt(v) + '</b><span>' + k + '</span></div>';
+  return '<div class="airs"><div class="scs">' + sc('Fluency', a.fc) + sc('Lexical', a.lr) + sc('Grammar', a.gra) + sc('Pronun.*', a.pr) + '</div><div class="sc big all"><b>' + IE.bandTxt(a.overall) + '</b><span>Taxminiy overall band</span></div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"><span class="chip">' + (r.words || 0) + ' so‘z</span><span class="chip">' + (r.wpm || 0) + ' so‘z/daq</span></div>' +
+    '<details class="card tr" style="padding:12px 14px"><summary>' + ic('doc') + ' Siz aytgan matn</summary><p style="margin:10px 0 0;font:15px/1.6 Georgia,serif">' + esc(r.transcript || '') + '</p></details>' +
+    (a.strengths && a.strengths.length ? '<h4>Kuchli tomonlar</h4><ul>' + a.strengths.map(s => '<li>' + esc(s) + '</li>').join('') + '</ul>' : '') +
+    (a.issues && a.issues.length ? '<h4>Tuzatish kerak</h4>' + a.issues.map(i => '<div class="iss"><div class="was">' + esc(i.quote) + '</div><div class="now">' + esc(i.fix) + '</div><div class="why2">' + esc(i.why) + '</div></div>').join('') : '') +
+    (a.better ? '<h4>Namunaviy javob</h4><div class="essay card" style="padding:12px 14px"><p style="margin:0;font-size:15px">' + esc(a.better) + '</p></div><button class="chip" style="margin-top:8px" data-a="say" data-t="' + esc(a.better) + '">' + ic('spk') + ' Eshitish</button>' : '') +
+    (a.next ? '<div class="tip8" style="margin-top:12px"><b>Keyingi qadam:</b> ' + esc(a.next) + '</div>' : '') +
+    '<p class="hint" style="margin-top:10px">' + ic('bulb') + ' *Talaffuz ovozdan emas, matndan taxmin qilinadi. Baho taxminiy — rasmiy imtihon bahosi emas.</p></div>';
+};
+async function speakAI(kind) {
+  const box = $('#sai'); let blob, q, part, secs, topic, store;
+  if (kind === '1') { const s = V.s1, t = IE.D.prompts.sp1[s.i], key = s.i + ':' + s.q; blob = s.blobs && s.blobs[key]; q = t.q[s.q]; part = '1'; secs = (s.secs && s.secs[key]) || 15; topic = t.t; store = r => { s.ai[key] = r; }; }
+  else { const s = V.s2, t = IE.D.prompts.sp2[s.i]; blob = s.blob; q = t.t + ' You should say: ' + t.b.join('; '); part = '2'; secs = s.secsUsed || 90; topic = t.t.replace('Describe ', ''); store = r => { s.ai = r; }; }
+  if (!blob || !box) return IE.toast('Avval javobingizni yozib oling');
+  box.innerHTML = '<div class="card c"><div class="bub ai typing" style="margin:0 auto 8px;display:inline-flex"><i></i><i></i><i></i></div><p class="mu sm">AI nutqingizni tinglayapti… (15–40 soniya)</p></div>';
+  try {
+    const out = await call({ action: 'speaking', audio: await blobB64(blob), mime: blob.type || 'audio/webm', q, part, secs: Math.round(secs) });
+    store(out); S().speaks.push({ ts: Date.now(), k: kind, t: topic, ai: { overall: out.result.overall, fc: out.result.fc, lr: out.result.lr, gra: out.result.gra, pr: out.result.pr } }); IE.touchDay(); IE.save(true);
+    const b2 = $('#sai'); if (b2) b2.innerHTML = IE.speakHTML(out); if (out.result.overall >= (S().prof.target || 7)) IE.confetti();
+  } catch (e) { const b2 = $('#sai'); if (b2) b2.innerHTML = '<div class="card c"><p class="sm" style="color:var(--bad);font-weight:600">' + esc(e.message) + '</p><button class="btn sm" style="margin-top:8px" data-a="sp' + kind + 'ai">Qayta urinish</button></div>'; }
+}
+A.sp1ai = () => speakAI('1'); A.sp2ai = () => speakAI('2');
 })();

@@ -1,7 +1,7 @@
 /* IELTS · BY AZIMOV — yadro: yordamchilar, ikonkalar, holat (localStorage) va Supabase bilan sinxronlash. */
 (() => {
 'use strict';
-const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '0.4.0' };
+const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '0.5.0' };
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 Object.assign(IE, { $, $$, esc });
@@ -110,7 +110,8 @@ IE.streak = () => {
 IE.skillBands = () => {
   const avg = (arr, k) => { const v = arr.slice(-3).map(x => x[k]).filter(x => typeof x === 'number'); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
   const wr = S.writes.filter(w => w.ai && typeof w.ai.overall === 'number').map(w => ({ b: w.ai.overall }));
-  return { L: avg(S.listens, 'band'), R: avg(S.reads, 'band'), W: avg(wr, 'b') };
+  const sp = S.speaks.filter(x => x.ai && typeof x.ai.overall === 'number').map(x => ({ b: x.ai.overall }));
+  return { L: avg(S.listens, 'band'), R: avg(S.reads, 'band'), W: avg(wr, 'b'), S: avg(sp, 'b') };
 };
 IE.overall = () => { const b = IE.skillBands(), v = Object.values(b).filter(x => x != null); return v.length ? Math.round(v.reduce((a, c) => a + c, 0) / v.length * 2) / 2 : null; };
 
@@ -150,7 +151,7 @@ IE.rec = {
   },
   stop() {
     return new Promise(res => {
-      const done = () => { const url = this.chunks.length ? URL.createObjectURL(new Blob(this.chunks, { type: (this.mr && this.mr.mimeType) || 'audio/webm' })) : ''; if (this.stream) this.stream.getTracks().forEach(t => t.stop()); this.stream = null; this.mr = null; res(url); };
+      const done = () => { const blob = this.chunks.length ? new Blob(this.chunks, { type: (this.mr && this.mr.mimeType) || 'audio/webm' }) : null; this.lastBlob = blob; const url = blob ? URL.createObjectURL(blob) : ''; if (this.stream) this.stream.getTracks().forEach(t => t.stop()); this.stream = null; this.mr = null; res(url); };
       if (!this.mr || this.mr.state === 'inactive') return done();
       this.mr.onstop = done; this.mr.stop();
     });

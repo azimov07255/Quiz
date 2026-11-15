@@ -396,3 +396,14 @@ button,.nav,.top,.tabs2,.seg,.chip,.tool,.sktile,.qp,.item{-webkit-user-select:n
 .follow input{width:18px;height:18px;accent-color:var(--p1)}
 .lsticky{background:var(--bg);padding-bottom:8px;box-shadow:0 8px 14px -12px rgba(20,10,80,.45)}
 .follow{margin-top:6px}
+
+/* ---------- ibora rejimi, Shadowing/Dictation ---------- */
+.phtg{margin:0 0 12px}.phtg.on{background:var(--p1);color:#fff}
+.apanel.phr .w{padding:1px 2px;margin:0 -1px;border-bottom:1px dashed var(--p3)}
+.w.psel{background:rgba(250,204,21,.6);color:#1a1640;border-radius:5px}
+.phbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));width:min(540px,calc(100% - 24px));display:flex;align-items:center;gap:8px;background:var(--card);border-radius:20px;box-shadow:0 14px 34px -10px rgba(50,30,150,.55),0 0 0 1px var(--ln);padding:8px 8px 8px 16px;z-index:30}
+.phbar #phtx{flex:1;font-weight:800;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dres{margin-bottom:12px}
+.dtx{font:18px/1.7 Georgia,serif;margin:8px 0}
+.dok{color:var(--ok);font-weight:700}
+.dno{color:var(--bad);font-weight:700;text-decoration:underline wavy;text-underline-offset:4px}
