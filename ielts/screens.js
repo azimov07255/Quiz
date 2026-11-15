@@ -35,22 +35,23 @@ R.home = () => {
   const s = S(), p = s.prof, ov = IE.overall(), st = IE.streak(), rec = allRecent().slice(0, 4);
   const days = p.date ? Math.ceil((new Date(p.date + 'T00:00:00') - Date.now()) / 864e5) : null;
   const total = s.reads.length + s.writes.length + s.speaks.length, due = dueCount();
-  const inner = '<div class="hero"><div class="row"><div><div class="hi">Xush kelibsiz</div><h1>' + esc(dispName()) + '</h1></div>' +
-    '<div class="row" style="gap:8px"><button class="ib w upd" data-a="upd" aria-label="Yangilanishni tekshirish">' + ic('refresh') + '</button><div class="chip" style="background:rgba(255,255,255,.2);color:#fff;font-size:13px;padding:7px 12px">' + ic('flame') + ' ' + st + ' kun</div></div></div></div>' +
-    '<div class="lift"><div class="card rise"><div class="score"><div class="ring" style="--v:' + (ov ? ov / 9 * 100 : 0) + '"><small>Overall</small><b>' + IE.bandTxt(ov) + '</b></div>' +
+  const inner = '<div class="hero"><div class="row"><div><div class="hi">' + (IE.greet ? IE.greet() : 'Xush kelibsiz') + '</div><h1>' + esc(dispName()) + '</h1></div>' +
+    '<div class="row" style="gap:8px"><button class="ib w updb" data-a="upd" aria-label="Yangilanishni tekshirish">' + ic('refresh') + '</button><div class="chip" style="background:rgba(255,255,255,.2);color:#fff;font-size:13px;padding:7px 12px">' + ic('flame') + ' ' + st + ' kun</div></div></div></div>' +
+    '<div class="lift">' + (IE.homePlan ? IE.homePlan() : '') + '<div class="card rise" style="margin-top:14px"><div class="score"><div class="ring" style="--v:' + (ov ? ov / 9 * 100 : 0) + '"><small>Overall</small><b>' + IE.bandTxt(ov) + '</b></div>' +
     '<div style="flex:1"><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase">Maqsad band</div><div style="font-size:34px;font-weight:900;line-height:1.1">' + IE.bandTxt(p.target) + '</div>' +
     '<div class="sm mu">' + (days != null && days >= 0 ? 'Imtihongacha <b>' + days + '</b> kun' : '<a data-go="me" style="color:var(--pl);font-weight:700">Imtihon sanasini qo‘shing</a>') + '</div></div></div>' +
     '<div class="stats"><div class="stat"><b>' + IE.bandTxt(IE.skillBands().L) + '</b><span>Listening</span></div><div class="stat"><b>' + IE.bandTxt(IE.skillBands().R) + '</b><span>Reading</span></div><div class="stat"><b>' + IE.bandTxt(IE.skillBands().W) + '</b><span>Writing</span></div><div class="stat"><b>' + Object.keys(s.srs).length + '</b><span>So‘zlar</span></div></div></div>' +
     (IE.mockActive && IE.mockActive() ? '<div class="rise" style="margin-top:14px"><button class="item" data-go="mock">' + bd('trophy', 'M') + '<div class="tx"><b>Mock test davom etmoqda</b><span>Bosib davom ettiring</span></div><span class="go">' + ic('next') + '</span></button></div>' : '') +
     (IE.bookHome ? IE.bookHome() : '') +
     '<div class="rise" style="margin-top:14px"><button class="aibn" data-go="chat">' + bd('spark', 'A', 'lg') + '<div style="flex:1"><h3>AI Speaking Tutor</h3><p>Suhbat qiling, xatolaringiz tuzatiladi.</p></div><span class="chip" style="background:rgba(255,255,255,.22);color:#fff">AI</span></button></div>' +
+    (IE.wotd ? IE.wotd() : '') +
     '<div class="sec"><h2>Tezkor mashq</h2></div><div class="qp rise">' +
     Object.entries(sk).map(([k, v]) => '<button data-go="' + (k === 'L' ? 'listening' : k === 'R' ? 'reading' : k === 'W' ? 'writing' : 'speaking') + '">' + bd(v[0], v[1]) + v[2] + '</button>').join('') + '</div>' +
     '<div class="rise" style="margin-top:14px"><button class="item" data-go="' + (due ? 'vocab/review' : 'vocab') + '">' + bd('cards', 'V') + '<div class="tx"><b>' + (due ? 'Takrorlash vaqti: ' + due + ' ta so‘z' : 'So‘zlar bilan ishlang') + '</b><span>' + (due ? 'Eslab qolish uchun hozir takrorlang' : 'Flesh-kartalar va avtomatik takrorlash') + '</span></div><span class="go">' + ic('next') + '</span></button></div>' +
     '<div class="sec"><h2>So‘nggi natijalar</h2>' + (rec.length ? '' : '') + '</div>' +
     (rec.length ? '<div class="lst rise">' + rec.map(r => '<button class="item" data-go="' + r.go + '">' + bd(sk[r.k][0], sk[r.k][1], 'sm') + '<div class="tx"><b>' + esc(r.t) + '</b><span>' + esc(r.m) + ' · ' + ago(r.ts) + '</span></div><span class="band sk-' + sk[r.k][1] + '">' + esc(r.b) + '</span></button>').join('') + '</div>'
       : '<div class="card empty rise">' + bd('target', 'A') + 'Hali natija yo‘q.<br>Birinchi Reading mashqini boshlang!<br><button class="btn sm" style="margin-top:12px" data-go="reading">Reading’ni boshlash</button></div>') + '</div>';
-  return page('home', inner);
+  const hp = page('home', inner); hp.mount = () => { if (IE.planCheck) IE.planCheck(); }; return hp;
 };
 
 /* ---------- PRACTICE / TOOLS / CHAT ---------- */
@@ -60,7 +61,7 @@ R.practice = () => page('practice', '<div class="hero" style="padding-bottom:70p
   '<button class="mock rise" data-go="mock">' + bd('trophy', 'M', 'lg') + '<div style="flex:1"><h3>Mock Test</h3><p>To‘liq imtihon sinovi: 4 ta bo‘lim ketma-ket</p></div>' + '<span class="chip" style="background:rgba(255,255,255,.22);color:#fff">' + (IE.mockActive && IE.mockActive() ? 'Davom' : 'Boshlash') + '</span></button></div>');
 
 R.tools = () => {
-  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'articles'], ['head', 'L', 'Podcasts', 'articles/tab/p'], ['spk', 'S', 'Shadowing', 'shadow'], ['wave', 'L', 'Dictation', 'dictation'], ['doc', 'R', 'Kitoblar (PDF)', 'books'], ['trophy', 'M', 'Cambridge IELTS', 'cambridge'], ['type', 'G', 'Typing', 'soon/typing', 1], ['search', 'A', 'Dictionary', 'dict']];
+  const T = [['cards', 'V', 'Vocabulary', 'vocab'], ['bulb', 'T', 'Strategiyalar', 'strat'], ['doc', 'W', 'Writing namunalar', 'writing/tab/s'], ['news', 'R', 'Articles', 'articles'], ['head', 'L', 'Podcasts', 'articles/tab/p'], ['spk', 'S', 'Shadowing', 'shadow'], ['wave', 'L', 'Dictation', 'dictation'], ['doc', 'R', 'Kitoblar (PDF)', 'books'], ['trophy', 'M', 'Cambridge IELTS', 'cambridge'], ['type', 'G', 'Typing', 'typing'], ['cal', 'T', 'Reja', 'plan'], ['trophy', 'M', 'Yutuqlar', 'achievements'], ['search', 'A', 'Dictionary', 'dict']];
   return page('tools', '<div class="hero" style="padding-bottom:70px"><div class="hi">O‘rganish vositalari</div><h1>Study Tools</h1></div><div class="lift"><div class="tools rise">' +
     T.map(t => '<button class="tool' + (t[4] ? ' off' : '') + '" data-go="' + t[3] + '">' + bd(t[0], t[1]) + t[2] + (t[4] ? '<span class="chip soon">Tez orada</span>' : '') + '</button>').join('') + '</div></div>');
 };
@@ -426,10 +427,12 @@ R.me = () => {
     '<div class="fld"><label>Maqsad band</label><select data-in="pf" data-f="target">' + bands.map(b => '<option value="' + b + '"' + (b === +p.target ? ' selected' : '') + '>' + b.toFixed(1) + '</option>').join('') + '</select></div>' +
     '<div class="fld"><label>Hozirgi daraja</label><select data-in="pf" data-f="level"><option value="">Tanlang</option>' + LV.map(l => '<option' + (p.level === l ? ' selected' : '') + '>' + l + '</option>').join('') + '</select></div>' +
     '<div class="fld" style="margin:0"><label>Imtihon sanasi</label><input type="date" value="' + esc(p.date || '') + '" data-in="pf" data-f="date"></div></div>' +
-    '<div class="card rise"><button class="set" data-a="theme"><span class="bd sm sk-A">' + ic('moon') + '</span><div class="tx"><b>Tungi rejim</b><span>' + (th === 'auto' ? 'Avtomatik' : th === 'dark' ? 'Yoqilgan' : 'O‘chirilgan') + ' · bosib almashtiring</span></div></button>' +
+    '<div class="card rise"><button class="set" data-a="pmins"><span class="bd sm sk-T">' + ic('clock') + '</span><div class="tx"><b>Kunlik vaqt</b><span>Reja shunga moslanadi: ' + (p.mins || 60) + ' daqiqa</span></div></button>' +
+    '<button class="set" data-go="achievements"><span class="bd sm sk-M">' + ic('trophy') + '</span><div class="tx"><b>Yutuqlar</b><span>Daraja, nishonlar, seriya</span></div></button>' +
+    '<button class="set" data-a="theme"><span class="bd sm sk-A">' + ic('moon') + '</span><div class="tx"><b>Tungi rejim</b><span>' + (th === 'auto' ? 'Avtomatik' : th === 'dark' ? 'Yoqilgan' : 'O‘chirilgan') + ' · bosib almashtiring</span></div></button>' +
     '<button class="set" data-a="upd"><span class="bd sm sk-R">' + ic('refresh') + '</span><div class="tx"><b>Yangilanishni tekshirish</b><span>Versiya ' + IE.APP_VERSION + ' · bosib yangilang</span></div></button>' +
     '<button class="set" data-a="pwd"><span class="bd sm sk-W">' + ic('key') + '</span><div class="tx"><b>Parolni o‘zgartirish</b></div></button>' +
-    (IE.cam ? '<button class="set" data-a="camdel"><span class="bd sm sk-M">' + ic('trash') + '</span><div class="tx"><b>Shaxsiy lug‘atni o‘chirish</b><span>Cambridge ma’lumotlari qurilmadan o‘chadi</span></div></button>' : '') +
+    (IE.cam ? '<button class="set" data-a="camvdel"><span class="bd sm sk-M">' + ic('trash') + '</span><div class="tx"><b>Shaxsiy lug‘atni o‘chirish</b><span>Cambridge ma’lumotlari qurilmadan o‘chadi</span></div></button>' : '') +
     '<a class="set" href="../" style="color:inherit;text-decoration:none"><span class="bd sm sk-R">' + ic('back2') + '</span><div class="tx"><b>Testlar ilovasi</b><span>Fan testlari va musobaqa</span></div></a>' +
     '<button class="set" data-a="logout"><span class="bd sm sk-G">' + ic('out') + '</span><div class="tx"><b>Chiqish</b></div></button></div>' +
     '<p class="c mu xs" style="margin:18px 0 0">IELTS v' + IE.APP_VERSION + ' · BY AZIMOV</p></div>';
@@ -441,6 +444,6 @@ IE.pf = el => {
 };
 A.theme = () => { const c = IE.theme(), n = c === 'auto' ? 'dark' : c === 'dark' ? 'light' : 'auto'; IE.setTheme(n); IE.draw(false, true); };
 A.pwd = () => { IE.sheet('<h2>Yangi parol</h2><div class="fld" style="margin-top:12px"><input id="np" type="password" placeholder="Kamida 6 ta belgi" autocomplete="new-password"></div><button class="btn block" id="npok">Saqlash</button>'); $('#npok').onclick = async () => { const v = $('#np').value; if (v.length < 6) return IE.toast('Kamida 6 ta belgi'); try { await SB.changePassword(v); IE.closeSheet(); IE.toast('Parol o‘zgartirildi'); } catch (e) { IE.toast(IE.uzErr(e)); } }; };
-A.camdel = () => IE.ask('O‘chirilsinmi?', 'Cambridge so‘zlari bu qurilmadan o‘chadi. Keyin fayldan qayta yuklash mumkin.', 'O‘chirish', async () => { await IE.idbDel('cam'); IE.cam = null; IE.draw(false); });
+A.camvdel = () => IE.ask('O‘chirilsinmi?', 'Cambridge so‘zlari bu qurilmadan o‘chadi. Keyin fayldan qayta yuklash mumkin.', 'O‘chirish', async () => { await IE.idbDel('cam'); IE.cam = null; IE.draw(false); });
 A.logout = () => IE.ask('Chiqasizmi?', 'Natijalaringiz serverda saqlangan.', 'Chiqish', async () => { try { await IE.sync(); } catch (e) { /* offline */ } await SB.signOut(); try { localStorage.removeItem('ielts:state:v1'); localStorage.removeItem('ielts:run'); localStorage.removeItem('ielts:profile'); } catch (e) { /* */ } IE.setState(null); location.hash = ''; location.reload(); });
 })();

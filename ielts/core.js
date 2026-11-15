@@ -1,7 +1,7 @@
 /* IELTS · BY AZIMOV — yadro: yordamchilar, ikonkalar, holat (localStorage) va Supabase bilan sinxronlash. */
 (() => {
 'use strict';
-const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '0.11.1' };
+const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '1.0.0' };
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 Object.assign(IE, { $, $$, esc });
@@ -75,20 +75,21 @@ IE.bandTxt = b => (b == null || isNaN(b)) ? '—' : (Math.round(b * 2) / 2).toFi
 
 /* ---------- holat ---------- */
 const LS = 'ielts:state:v1';
-const blank = () => ({ v: 1, prof: { name: '', level: '', target: 7, exam: 'Academic', date: '' }, pts: 0, reads: [], listens: [], arts: [], writes: [], speaks: [], my: [], lib: [], mock: null, mocks: [], books: [], drafts: {}, srs: {}, days: [], uid: '' });
-const norm = s => { const b = blank(); s = (s && typeof s === 'object') ? s : {}; return Object.assign(b, s, { prof: Object.assign(b.prof, s.prof || {}), reads: Array.isArray(s.reads) ? s.reads : [], listens: Array.isArray(s.listens) ? s.listens : [], mocks: Array.isArray(s.mocks) ? s.mocks : [], books: Array.isArray(s.books) ? s.books : [], mock: s.mock && typeof s.mock === 'object' ? s.mock : null, arts: Array.isArray(s.arts) ? s.arts : [], lib: Array.isArray(s.lib) ? s.lib : [], writes: Array.isArray(s.writes) ? s.writes : [], speaks: Array.isArray(s.speaks) ? s.speaks : [], my: Array.isArray(s.my) ? s.my : [], days: Array.isArray(s.days) ? s.days : [], drafts: s.drafts && typeof s.drafts === 'object' ? s.drafts : {}, srs: s.srs && typeof s.srs === 'object' ? s.srs : {} }); };
+const blank = () => ({ v: 1, prof: { name: '', level: '', target: 7, exam: 'Academic', date: '', mins: 60 }, pts: 0, typ: [], pdone: {}, reads: [], listens: [], arts: [], writes: [], speaks: [], my: [], lib: [], mock: null, mocks: [], books: [], drafts: {}, srs: {}, days: [], uid: '' });
+const norm = s => { const b = blank(); s = (s && typeof s === 'object') ? s : {}; return Object.assign(b, s, { prof: Object.assign(b.prof, s.prof || {}), reads: Array.isArray(s.reads) ? s.reads : [], listens: Array.isArray(s.listens) ? s.listens : [], mocks: Array.isArray(s.mocks) ? s.mocks : [], typ: Array.isArray(s.typ) ? s.typ : [], pdone: s.pdone && typeof s.pdone === 'object' ? s.pdone : {}, books: Array.isArray(s.books) ? s.books : [], mock: s.mock && typeof s.mock === 'object' ? s.mock : null, arts: Array.isArray(s.arts) ? s.arts : [], lib: Array.isArray(s.lib) ? s.lib : [], writes: Array.isArray(s.writes) ? s.writes : [], speaks: Array.isArray(s.speaks) ? s.speaks : [], my: Array.isArray(s.my) ? s.my : [], days: Array.isArray(s.days) ? s.days : [], drafts: s.drafts && typeof s.drafts === 'object' ? s.drafts : {}, srs: s.srs && typeof s.srs === 'object' ? s.srs : {} }); };
 let S = norm(lsGet(LS, null));
 IE.S = () => S;
 IE.setState = s => { S = norm(s); };
 const union = (x, y) => { const m = new Map(); [...x, ...y].forEach(e => { if (!e || !e.ts) return; const o = m.get(e.ts); if (!o || (e.ai && !o.ai)) m.set(e.ts, e); }); return [...m.values()].sort((p, q) => p.ts - q.ts).slice(-300); };
 const mergeBooks = (x, y) => { const m = new Map(); [...(x || []), ...(y || [])].forEach(e => { if (!e || !e.id) return; const o = m.get(e.id); if (!o || (e.mt || 0) > (o.mt || 0)) m.set(e.id, e); }); return [...m.values()].sort((p, q) => (p.ts || 0) - (q.ts || 0)).slice(-200); };
+const mergeDone = (x, y) => { const o = {}; [x, y].forEach(m => Object.entries(m || {}).forEach(([d, v]) => { o[d] = Object.assign(o[d] || {}, v); })); const ks = Object.keys(o).sort(); while (ks.length > 80) delete o[ks.shift()]; return o; };
 const unionMy = (x, y) => { const m = new Map(); [...x, ...y].forEach(e => { if (e && e.id) m.set(e.id, e); }); return [...m.values()].sort((p, q) => (p.ts || 0) - (q.ts || 0)).slice(-1500); };
 function merge(a, b) {
   const srs = Object.assign({}, a.srs); Object.entries(b.srs || {}).forEach(([k, v]) => { if (!srs[k] || (v.t || 0) > (srs[k].t || 0)) srs[k] = v; });
   const drafts = Object.assign({}, a.drafts); Object.entries(b.drafts || {}).forEach(([k, v]) => { if (!drafts[k] || (v.t || 0) > (drafts[k].t || 0)) drafts[k] = v; });
   Object.keys(drafts).forEach(k => { if (drafts[k].del) delete drafts[k]; });
   const win = (a.pts || 0) >= (b.pts || 0) ? a : b;
-  return norm({ v: 1, prof: win.prof, pts: Math.max(a.pts || 0, b.pts || 0), reads: union(a.reads, b.reads), listens: union(a.listens, b.listens), arts: union(a.arts, b.arts), mocks: union(a.mocks, b.mocks), books: mergeBooks(a.books, b.books), mock: ((a.mock && a.mock.ts) || 0) >= ((b.mock && b.mock.ts) || 0) ? a.mock : b.mock, lib: unionMy(a.lib, b.lib), writes: union(a.writes, b.writes), speaks: union(a.speaks, b.speaks), my: unionMy(a.my, b.my), drafts, srs, days: [...new Set([...a.days, ...b.days])].sort().slice(-400), uid: a.uid || b.uid });
+  return norm({ v: 1, prof: win.prof, pts: Math.max(a.pts || 0, b.pts || 0), reads: union(a.reads, b.reads), listens: union(a.listens, b.listens), arts: union(a.arts, b.arts), mocks: union(a.mocks, b.mocks), typ: union(a.typ, b.typ), pdone: mergeDone(a.pdone, b.pdone), books: mergeBooks(a.books, b.books), mock: ((a.mock && a.mock.ts) || 0) >= ((b.mock && b.mock.ts) || 0) ? a.mock : b.mock, lib: unionMy(a.lib, b.lib), writes: union(a.writes, b.writes), speaks: union(a.speaks, b.speaks), my: unionMy(a.my, b.my), drafts, srs, days: [...new Set([...a.days, ...b.days])].sort().slice(-400), uid: a.uid || b.uid });
 }
 let syncT = 0, saveFailed = false;
 IE.save = (now) => { saveFailed = !lsSet(LS, S); clearTimeout(syncT); syncT = setTimeout(() => IE.sync().catch(() => {}), now ? 0 : 5000); };
@@ -104,6 +105,7 @@ IE.sync = async () => {
   S = merged; if (chL) { lsSet(LS, S); if (IE.onSynced) IE.onSynced(); }
   if (chR) await SB.rest('ielts_state?on_conflict=user_id', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: { user_id: uid, data: S, updated_at: new Date().toISOString() } });
 };
+IE.vib = p => { try { if (navigator.vibrate && !matchMedia('(prefers-reduced-motion:reduce)').matches) navigator.vibrate(p); } catch (e) { /* */ } };
 IE.touchDay = () => { const k = dayKey(); if (!S.days.includes(k)) { S.days.push(k); S.days.sort(); } };
 IE.streak = () => {
   const set = new Set(S.days); let n = 0, d = new Date();

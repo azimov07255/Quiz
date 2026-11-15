@@ -82,7 +82,7 @@ document.addEventListener('click', e => {
 });
 const onIn = e => {
   const el = e.target, k = el.dataset && el.dataset.in; if (!k) return;
-  const m = { fill: IE.inp, sel: IE.inp, ed: IE.edInput, notes: IE.inpNotes, vs: IE.vsearch, pf: IE.pf, lseek: IE.lseek, afollow: IE.afollow, dct: IE.dct, bks: IE.bks }[k]; if (m) m(el);
+  const m = { fill: IE.inp, sel: IE.inp, ed: IE.edInput, notes: IE.inpNotes, vs: IE.vsearch, pf: IE.pf, lseek: IE.lseek, afollow: IE.afollow, dct: IE.dct, bks: IE.bks, tyin: IE.tyin }[k]; if (m) m(el);
 };
 document.addEventListener('input', onIn);
 document.addEventListener('change', e => {
