@@ -117,6 +117,7 @@ IE.evidence = (kind, id, n) => {
   IE.sheet(head + (f ? '<div class="evt">' + [f.i - 1, f.i, f.i + 1].filter(k => k >= 0 && k < f.tr.length).map(k => '<p class="' + (k === f.i ? 'evcur' : 'mu') + '">' + (f.tr[k].t != null ? '<b>' + Math.floor(f.tr[k].t / 60) + ':' + String(Math.floor(f.tr[k].t % 60)).padStart(2, '0') + '</b> ' : '') + (k === f.i ? hiText(f.tr[k].x, (Array.isArray(q.a) ? q.a[0] : '')) : esc(f.tr[k].x)) + '</p>').join('') + '</div>' : '<p class="mu sm">Audioscript topilmadi (yoki bu qism uchun kiritilmagan).</p>') +
     (q.why ? '<p class="why" style="margin-top:8px">' + esc(q.why) + '</p>' : '') + '<div class="two" style="margin-top:14px">' + (tt != null && $('#au') ? '<button class="btn" data-a="evgo" data-t="' + tt + '">Shu joydan tinglash</button>' : '<button class="btn ghost" data-a="sheet-x">Yopish</button>') + '<button class="btn ghost" data-a="sheet-x">Yopish</button></div>');
 };
+IE.evFind = (u, q) => findReading(u, q); IE.fragRx = fragRx;
 A.evgo = el => { IE.closeSheet(); A.lgo(el); };
 A.ev = el => {
   const r = /^(reading|listening)\/([^/]+)\/result/.exec(IE.curRoute || ''); const kind = el.dataset.k || (r ? (r[1] === 'reading' ? 'R' : 'L') : ''), id = el.dataset.u || (r && r[2]); if (kind && id) IE.evidence(kind, id, el.dataset.n);

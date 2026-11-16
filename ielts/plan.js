@@ -37,6 +37,7 @@ const CAT = {
   dict: { t: 'Dictation', m: 8, ic: 'wave', k: 'L', go: () => 'dictation', sub: () => 'Eshitganingizni yozing — imlo va diqqat' },
   type: { t: 'Typing mashqi', m: 5, ic: 'type', k: 'W', go: () => 'typing', sub: () => '1 daqiqa — Writing tezligi uchun', auto: c => c.T >= 1 },
   mock: { t: 'Mini Mock Test', m: 90, ic: 'trophy', k: 'M', go: () => 'mock', sub: () => 'Haftalik sinov: hamma ko‘nikma', auto: c => c.M >= 1 },
+  ana: { t: 'Reading tahlili', m: 15, ic: 'bulb', k: 'R', go: () => { const p = IE.anaPending ? IE.anaPending()[0] : null; return p ? p.go : 'ana'; }, sub: () => 'So‘zlar, xatolar sababi, qayta yechish', auto: () => IE.anaToday && IE.anaToday() >= 3 },
   review: { t: 'Haftalik takror', m: 20, ic: 'refresh', k: 'V', go: () => 'practice', sub: () => 'Xatolaringiz va yangi so‘zlarni ko‘rib chiqing' },
 };
 const weakest = () => { const b = IE.skillBands(), e = Object.entries(b).filter(([, v]) => v != null).sort((a, c) => a[1] - c[1]); return e.length ? e[0][0] : null; };
@@ -58,6 +59,7 @@ function planIds(k) {
   if (dow === 6 && M < 90) base = ['listen', 'read', 'srs'];
   if (ph === 'final') { base = dow === 3 || dow === 6 ? ['mock', 'srs'] : ['srs', 'review', 'listen']; if (M < 90) base = base.map(x => x === 'mock' ? 'read' : x); }
   else if (ph === 'intense' && (dow === 2 || dow === 4) && M >= 60) base.splice(1, 0, 'write');
+  if (IE.anaPending && IE.anaPending().length && ph !== 'final') base.splice(Math.min(1, base.length), 0, 'ana');
   const wk = weakest(); if (wk && ph !== 'final' && (dow === 1 || dow === 3 || dow === 5)) WEAK[wk].forEach(id => { if (!base.includes(id)) base.push(id); });
   if (ph === 'base') ['pod', 'shadow'].forEach(id => { if (!base.includes(id) && M >= 45) base.push(id); });
   // vaqt byudjetiga sig‘dirish: birinchi (asosiy) vazifa va srs har doim qoladi

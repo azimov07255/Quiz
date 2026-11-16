@@ -95,7 +95,7 @@ IE.resumeItems = () => {
       if (m) { const r = JSON.parse(localStorage.getItem(k) || 'null'), t = D.listening.tests.find(x => x.id === m[1]); if (r && t && r.ans && Object.keys(r.ans).length && Date.now() - (r.t0 || 0) < 6 * 36e5) out.push({ t: (t.topic.split(' · ')[1] || t.title), s: 'Listening · davom eting', go: 'listening/' + t.id + '/run', k: 'L', ts: r.t0 || 0 }); }
     }
   } catch (e) { /* */ }
-  return out.sort((a, b) => b.ts - a.ts).slice(0, 2);
+  out.sort((a, b) => b.ts - a.ts); const pend = IE.anaPending ? IE.anaPending() : []; return pend.concat(out).slice(0, 3);
 };
 
 /** Ulashish kartasi (PNG). */

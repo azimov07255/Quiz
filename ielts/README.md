@@ -9,7 +9,9 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v1.4.0)
+## Hozir ishlaydi (v1.5.0)
+- **Tahlil markazi** (`analyze.js`, Reading): avval toza ishlang, keyin `Natija → Tahlil qilish` (yoki Tools → Tahlil markazi). Bo‘limlar: Sharh (1-urinish va “tahlildan keyin” band, bosqichlar, xato sabablari) · So‘zlar (matnda topilgan Cambridge ro‘yxati + 8+ lug‘at + mening so‘zlarim; yodlayman/bilaman, flesh-kartalar) · Savollar (xato turi, dalil, AI “nega to‘g‘ri/xato?” — `ielts-dict` `qa` rejimi) · Qayta yechish · Matn (so‘z va dalillar bo‘yalgan) · So‘zlar testi.
+## (v1.4)
 - **Home**: kun gapi, tezkor tugmalar (Fokus/Lug‘at/Typing/Suhbat), “Davom ettiring” (tugallanmagan Reading/Listening), ko‘nikmalar qatori (band, maqsadgacha farq, mini grafik), **band prognozi** (trend bo‘yicha), 10 haftalik faollik xaritasi.
 - **Chat 2.0** (`chat.js`): rejimlar — Part 1/2/3, imtihon simulyatori (tuzatishsiz), Grammar coach, hayotiy vaziyat; tezkor yordam (Maslahat, Namuna javob, Keyingi savol, Tugatish → yakuniy hisobot); Part 2 taymeri (1+2 daq); AI so‘zlarini bosib lug‘atga o‘tish; ovozli o‘qish; **Xatolar daftari**; suhbatlar tarixi.
 - **Profil 2.0** (`me.js`): daraja/XP, statistika, prognoz, 16 haftalik xarita, haftalik hisobot, 6 aksent rang, haptik sozlama, **zaxira nusxa/tiklash** (JSON), progress kartasini ulashish (PNG).

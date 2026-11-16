@@ -92,13 +92,14 @@ const TOOLS = () => {
     ]],
     ['Reja va testlar', [
       ['plan', 'cal', 'T', 'Reja', 'Kunlik, haftalik, oylik reja', 'plan', '', pl ? pl.done + '/' + pl.total + ' bugun' : ''],
+      ['ana', 'bulb', 'W', 'Tahlil markazi', 'Toza urinishdan keyin: so‘zlar, xatolar, qayta yechish', 'ana', 'Yangi', IE.anaPending && IE.anaPending().length ? 'Kutmoqda' : ''],
       ['cambridge', 'trophy', 'M', 'Cambridge IELTS', 'Kitobingizdan testlar, to‘liq imtihon', 'cambridge', '', nc ? nc + ' test' : ''],
       ['ach', 'star', 'M', 'Yutuqlar', 'Daraja, nishonlar, seriya', 'achievements', '', lv ? 'Daraja ' + lv.L : ''],
     ]],
   ];
 };
 const toolTile = t => '<button class="tool2" data-go="' + t[5] + '" data-k="' + esc((t[3] + ' ' + t[4]).toLowerCase()) + '">' + (t[6] ? '<span class="tnew">' + t[6] + '</span>' : '') + bd(t[1], t[2], 'lg') + '<b>' + t[3] + '</b><span class="td">' + t[4] + '</span>' + (t[7] ? '<span class="ts">' + esc(t[7]) + '</span>' : '') + '</button>';
-IE.toolUse = r0 => { const map = { dict: 'dict', vocab: 'vocab', strat: 'strat', shadow: 'shadow', dictation: 'dictation', articles: 'articles', books: 'books', typing: 'typing', plan: 'plan', cambridge: 'cambridge', achievements: 'achievements' }; if (!map[r0]) return; const l = (lsGet(TR, []) || []).filter(x => x !== map[r0]); l.unshift(map[r0]); lsSet(TR, l.slice(0, 5)); };
+IE.toolUse = r0 => { const map = { dict: 'dict', vocab: 'vocab', strat: 'strat', shadow: 'shadow', dictation: 'dictation', articles: 'articles', books: 'books', typing: 'typing', plan: 'plan', ana: 'ana', cambridge: 'cambridge', achievements: 'achievements' }; if (!map[r0]) return; const l = (lsGet(TR, []) || []).filter(x => x !== map[r0]); l.unshift(map[r0]); lsSet(TR, l.slice(0, 5)); };
 R.tools = () => {
   const G = TOOLS(), all = G.flatMap(g => g[1]), rec = (lsGet(TR, []) || []).map(id => all.find(t => t[5].split('/')[0] === id || t[0] === id)).filter(Boolean).slice(0, 3), hist = (lsGet('ielts:dhist', []) || []).slice(0, 6);
   return page('tools', '<div class="hero" style="padding-bottom:84px"><div class="hi">O‘rganish vositalari</div><h1>Study Tools</h1></div><div class="lift">' +
@@ -254,7 +255,7 @@ function readRes(id) {
   if (!p || !rec) return R.reading([]);
   const pc = Math.round(rec.raw / rec.tot * 100);
   const inner = (IE.partNav ? '<div class="pad">' + IE.partNav(p, 'r') + '</div>' : '') + '<div class="res anim"><div class="lbl">Taxminiy band</div><div class="big">' + IE.bandTxt(rec.band) + '</div><div class="mu" style="margin-top:8px">' + rec.raw + ' / ' + rec.tot + ' to‘g‘ri (' + pc + '%) · ' + fmtT(rec.secs) + '</div>' +
-    '<div class="card sm mu" style="margin-top:16px;text-align:left">' + ic('bulb') + ' Band — 40 savollik imtihon shkalasiga o‘tkazilgan taxminiy baho. Haqiqiy imtihonda 3 ta matn bo‘ladi.</div></div>' + (IE.keyList ? IE.keyList(p, rec.a || {}) : '') + groupsHTML(p, rec.a || {}, true) +
+    '<div class="card sm mu" style="margin-top:16px;text-align:left">' + ic('bulb') + ' Band — 40 savollik imtihon shkalasiga o‘tkazilgan taxminiy baho. Haqiqiy imtihonda 3 ta matn bo‘ladi.</div></div>' + (IE.anaCta ? IE.anaCta(rec) : '') + (IE.keyList ? IE.keyList(p, rec.a || {}) : '') + groupsHTML(p, rec.a || {}, true) +
     '<div class="pad" style="margin-top:8px"><div class="two"><button class="btn ghost" data-go="' + (IE.mockActive && IE.mockActive() ? 'mock' : 'reading') + '">' + (IE.mockActive && IE.mockActive() ? 'Mock testga qaytish' : 'Boshqa matn') + '</button><button class="btn" data-a="rretry" data-id="' + id + '">Qayta urinish</button></div></div>';
   return sub('Natija', 'reading', inner);
 }
@@ -387,6 +388,7 @@ IE.inpNotes = el => { if (V.s2) V.s2.notes = el.value; };
 const topicWords = id => {
   if (/^cam\d+$/.test(id) && IE.cam) { const p = IE.cam.p.get(+id.slice(3)); return p ? { name: p.t, sub: p.s, words: p.words } : null; }
   if (id === 'my') return { name: 'Mening so‘zlarim', words: S().my };
+  if (id.startsWith('ana:') && IE.anaTopic) return IE.anaTopic(id.slice(4));
   const t = D.vocab.topics.find(x => x.id === id); return t ? { name: t.name, icon: t.icon, words: t.words } : null;
 };
 const wordMap = () => { const m = new Map(); D.vocab.topics.forEach(t => t.words.forEach(w => m.set(w.id, w))); if (IE.cam) IE.cam.p.forEach(p => p.words.forEach(w => m.set(w.id, w))); S().my.forEach(w => m.set(w.id, w)); return m; };
