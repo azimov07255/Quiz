@@ -3,6 +3,9 @@
 'use strict';
 const IE = window.IE, { esc, ic, bd, $, $$, lsGet, lsSet, fmtT, ago } = IE, S = () => IE.S(), R = IE.routes, A = IE.act, V = IE.V, D = IE.D;
 const lk = id => 'ielts:lrun:' + id;
+const needProxy = u => /^https?:\/\/([^/]+\.)?(bbc\.co\.uk|bbci\.co\.uk|bbc\.com)\//i.test(String(u || ''));
+/** Audioni bizning serverimiz orqali uzatish (bloklangan/hotlink/aralash kontent manbalar uchun). */
+IE.proxyAudio = async url => { const r = await SB.fn('ielts-audio', { url }); if (!r || !r.src) throw new Error('proxy'); return r.src; };
 const tests = () => (D.listening && D.listening.tests) || [];
 const find = id => tests().find(t => t.id === id);
 const sub = (title, back, inner, right) => ({ h: '<header class="top"><button class="ib" data-a="back" data-r="' + back + '" aria-label="Orqaga">' + ic('back') + '</button><h1>' + esc(title) + '</h1>' + (right || '') + '</header><div class="scr sub">' + inner + '</div>', sub: true });
@@ -46,7 +49,7 @@ A.lmode = el => { V.lmode = el.dataset.v; IE.draw(false); };
 A.lstart = el => { const id = el.dataset.id, sv = lsGet(lk(id), null); V.l = (sv && sv.id === id && Date.now() - sv.t0 < 6 * 36e5) ? sv : { id, mode: V.lmode || 'practice', ans: {}, t0: Date.now() }; lsSet(lk(id), V.l); IE.go('listening/' + id + '/run'); };
 
 /* ---------- pleyer ---------- */
-const player = (t, mode) => '<div class="lpl' + (mode === 'exam' ? ' exam' : '') + '" id="lpl"><audio id="au" src="' + esc(t.audio) + '" data-alt="' + esc(t.alt || '') + '" preload="metadata" playsinline></audio>' +
+const player = (t, mode) => '<div class="lpl' + (mode === 'exam' ? ' exam' : '') + '" id="lpl"><audio id="au" src="' + esc(t.audio) + '" data-alt="' + esc(t.alt || '') + '" data-orig="' + esc(t.audio) + '" data-pf="' + (needProxy(t.audio) ? '1' : '') + '" preload="metadata" playsinline></audio>' +
   '<button class="lplay" id="lp" data-a="lplay" aria-label="Boshlash / to‘xtatish">' + ic('play') + '</button><div class="lmid"><div class="lbar"><i id="lfill"></i>' + (mode === 'exam' ? '' : '<input type="range" class="lrange" id="lseek" min="0" max="' + Math.round(t.dur) + '" step="1" value="0" data-in="lseek" aria-label="Joylashuv">') + '</div><div class="ltime"><span id="lcur">0:00</span><span>' + mmss(t.dur) + '</span></div></div>' +
   (mode === 'exam' ? '<span class="chip soon" style="margin-left:6px">Bir marta</span>' : '<button class="lsm" data-a="lback" aria-label="10 soniya orqaga">' + ic('back2') + '<small>10</small></button><button class="lsm" data-a="lfwd" aria-label="10 soniya oldinga"><b style="font-size:12px">+10</b></button><button class="lsm" id="lsp" data-a="lmenu" aria-label="Pleyer sozlamalari">1×</button>') + '</div>';
 IE.player = player;
@@ -60,11 +63,25 @@ function wirePlayer(t, mode) {
   a.addEventListener('play', () => setPlayIcon(true)); a.addEventListener('pause', () => setPlayIcon(false));
   a.addEventListener('ended', () => { setPlayIcon(false); tick(t); if (V.l) V.l.ended = true; if (IE.onAudioEnd) IE.onAudioEnd(); const lp = $('#lp'); if (mode === 'exam' && lp) { lp.disabled = true; } const n = $('#lend'); if (n) n.classList.remove('hide'); });
   a.addEventListener('loadedmetadata', () => { if (!isFinite(a.duration)) return; const r = $('#lseek'), tt = $('#lpl .ltime span:last-child'); if (r) r.max = Math.round(a.duration); if (tt) tt.textContent = mmss(a.duration); });
-  a.addEventListener('error', () => { if (tryAlt()) return; IE.toast('Audio yuklanmadi. Internetni tekshiring.'); });
+  a.addEventListener('error', () => { if (tryAlt()) return; const er = a.error; IE.toast('Audio ochilmadi' + (er ? ' (xato kodi ' + er.code + ')' : '') + '. Internetni tekshiring yoki boshqa epizodni sinang.'); });
+  if (a.dataset.pf && /^https?:/.test(a.dataset.orig || '') && IE.proxyAudio) { a.dataset.step = '2'; IE.proxyAudio(a.dataset.orig).then(src => { a.src = src; a.load(); }).catch(() => { /* to‘g‘ridan-to‘g‘ri manzil qoladi */ }); }
   IE.every(250, () => tick(t));
 }
 /** Birinchi manzil ishlamasa, zaxira manzilga (server topgan yakuniy URL) o‘tadi. */
-const tryAlt = () => { const a = au(); if (!a) return false; const alt = a.dataset.alt; if (!alt || a.dataset.tried) return false; a.dataset.tried = '1'; const was = !a.paused; a.src = alt; a.load(); a.play().catch(() => {}); return true; };
+const swapSrc = (a, src) => { a.src = src; a.load(); a.play().catch(() => {}); };
+const tryAlt = () => {
+  const a = au(); if (!a) return false; const st = +(a.dataset.step || 0);
+  if (st === 0 && a.dataset.alt) { a.dataset.step = '1'; swapSrc(a, a.dataset.alt); return true; }
+  if (st < 2 && IE.proxyAudio && /^https?:/.test(a.dataset.orig || '')) { a.dataset.step = '2'; IE.proxyAudio(a.dataset.orig).then(src => swapSrc(a, src)).catch(() => IE.toast('Audio ochilmadi. Boshqa epizodni sinab ko‘ring.')); return true; }
+  return false;
+};
+/** Boshqa ekranlardagi (Shadowing/Dictation) <audio> uchun ham zaxira zanjiri. */
+IE.guardAudio = a => {
+  if (!a || a.dataset.g) return; a.dataset.g = '1'; a.dataset.orig = a.dataset.orig || a.getAttribute('src') || '';
+  const swap = src => { a.src = src; a.load(); };
+  a.addEventListener('error', () => { const st = +(a.dataset.step || 0); if (st === 0 && a.dataset.alt) { a.dataset.step = '1'; swap(a.dataset.alt); } else if (st < 2 && IE.proxyAudio && /^https?:/.test(a.dataset.orig)) { a.dataset.step = '2'; IE.proxyAudio(a.dataset.orig).then(swap).catch(() => IE.toast('Audio ochilmadi')); } });
+  if (needProxy(a.dataset.orig) && IE.proxyAudio) { a.dataset.step = '2'; IE.proxyAudio(a.dataset.orig).then(swap).catch(() => {}); }
+};
 A.lplay = () => {
   const a = au(); if (!a) return; const mode = (V.l && V.l.mode) || 'practice';
   if (a.paused) { a.play().catch(() => { if (!tryAlt()) IE.toast('Audio boshlanmadi — qayta bosing'); }); if (V.l && !V.l.started) { V.l.started = true; } }

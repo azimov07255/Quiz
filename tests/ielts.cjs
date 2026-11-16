@@ -33,6 +33,7 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
         return state.cloud[k] ? route.fulfill({ status: 200, contentType: 'application/pdf', body: state.cloud[k] }) : route.fulfill({ status: 404, contentType: 'application/json', body: '{"message":"not found"}' }); }
       if (u.includes('/rest/v1/profiles')) return j([PROFILE(groups)]);
       if (u.includes('/rest/v1/ielts_state')) { if (m === 'POST') { state.posted = JSON.parse(route.request().postData()); return route.fulfill({ status: 201, body: '' }); } return j([]); }
+      if (u.includes('/functions/v1/ielts-audio')) { state.prox = (state.prox || 0) + 1; return j({ src: 'https://cdn.example.com/a.mp3' }); }
       if (u.includes('/functions/v1/ielts-ai')) {
         const b = JSON.parse(route.request().postData() || '{}'); state.ai = (state.ai || []).concat(b.action);
         if (b.action === 'chat') return j({ reply: 'Nice to meet you! Where are you from?\n\n💡 Tuzatish: "I am student" → "I am a student" (artikl).' });
@@ -327,6 +328,11 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
   await A.evaluate(() => { IE.S().lib.push({ id: 'ufx', k: 'p', t: 'Fallback test', au: 'https://bad.invalid/x.mp3', pl: 'https://cdn.example.com/a.mp3', ts: Date.now(), an: 0 }); IE.go('article/ufx'); });
   await A.waitForSelector('#au', { state: 'attached' }); await A.waitForFunction(() => /cdn\.example\.com/.test(document.querySelector('#au').getAttribute('src')), null, { timeout: 15000 }); ok(true, 'Asosiy audio manzil ishlamasa, zaxira (server topgan) manzilga o‘tdi');
   await A.evaluate(() => { IE.S().lib = IE.S().lib.filter(x => x.id !== 'ufx'); });
+  await A.evaluate(() => { IE.S().lib.push({ id: 'upx', k: 'p', t: 'Proxy test', au: 'https://bad.invalid/y.mp3', ts: Date.now(), an: 0 }); IE.go('article/upx'); });
+  await A.waitForSelector('#au', { state: 'attached' }); await A.waitForFunction(() => /cdn\.example\.com/.test(document.querySelector('#au').getAttribute('src')), null, { timeout: 15000 }); ok(st.prox >= 1, 'Manba ochilmasa, audio server proksisi orqali ochiladi');
+  await A.evaluate(() => { IE.S().lib.push({ id: 'ubb', k: 'p', t: 'BBC proxy-first', au: 'http://open.live.bbc.co.uk/mediaselector/6/redir/version/2.0/mediaset/audio-nondrm-download-rss-low/proto/http/vpid/p0x.mp3', ts: Date.now(), an: 0 }); IE.go('article/ubb'); });
+  await A.waitForSelector('#au', { state: 'attached' }); const px0 = st.prox; await A.waitForFunction(() => /cdn\.example\.com/.test(document.querySelector('#au').getAttribute('src')), null, { timeout: 15000 }); ok(st.prox > px0 - 1, 'BBC audiosi darrov proksi orqali (aralash kontent/hotlink aylanib o‘tiladi)');
+  await A.evaluate(() => { IE.S().lib = IE.S().lib.filter(x => !['upx', 'ubb'].includes(x.id)); });
   console.log('9. Ruxsat: guruhsiz foydalanuvchi');
   const { pg: B } = await mk([]); await B.goto(base); await B.waitForSelector('.lockc'); ok((await B.innerText('.lockc')).includes('Ruxsat'), 'guruhsiz: “Ruxsat kerak” ekrani'); await shot(B, '21-lock');
   console.log('10. Kirish ekrani (sessiyasiz)');

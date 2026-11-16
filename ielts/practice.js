@@ -37,14 +37,14 @@ R.shadow = a => a[0] && art(a[0]) ? shadow(art(a[0])) : hub('shadow');
 function shadow(m) {
   const ss = sentsOf(m); if (!V.sh || V.sh.id !== m.id) V.sh = { id: m.id, i: 0, rate: 1, rec: false, url: '' };
   const st = V.sh, s = ss[st.i];
-  const inner = '<div class="pad"><audio id="sau" src="' + esc(m.audio) + '" preload="auto" playsinline></audio><div class="prog" style="margin:4px 0 6px"><i style="width:' + ((st.i + 1) / ss.length * 100) + '%"></i></div><div class="mu xs b c" style="margin-bottom:10px">' + (st.i + 1) + ' / ' + ss.length + '</div>' +
+  const inner = '<div class="pad"><audio id="sau" src="' + esc(m.audio) + '" data-alt="' + esc(m.alt || '') + '" preload="auto" playsinline></audio><div class="prog" style="margin:4px 0 6px"><i style="width:' + ((st.i + 1) / ss.length * 100) + '%"></i></div><div class="mu xs b c" style="margin-bottom:10px">' + (st.i + 1) + ' / ' + ss.length + '</div>' +
     '<div class="qcard" style="font:600 20px/1.5 Georgia,serif;text-align:left;place-items:start">' + esc(s.x) + '</div>' +
     '<div class="row" style="justify-content:center;gap:10px;margin:16px 0 4px"><button class="btn" data-a="shplay">' + ic('play') + ' Eshitish</button><button class="btn ghost" data-a="shrate" id="shr">' + (st.rate === 1 ? '1×' : '0.75×') + '</button></div>' +
     '<p class="hint c" style="justify-content:center">' + ic('bulb') + ' Avval tinglang, keyin mikrofonni bosib darrov takrorlang.</p>' +
     '<div class="rec"><button class="mic' + (st.rec ? ' on' : '') + '" data-a="shrec" aria-label="Yozib olish">' + ic(st.rec ? 'stop' : 'mic') + '</button></div>' +
     (st.url ? '<audio id="uau" controls src="' + st.url + '"></audio><button class="btn block ghost" style="margin-top:10px" data-a="shcmp">' + ic('back2') + ' Original → mening ovozim</button>' : '') +
     '<div class="two" style="margin-top:18px"><button class="btn ghost" data-a="shn" data-d="-1"' + (st.i ? '' : ' disabled') + '>Oldingi</button><button class="btn" data-a="shn" data-d="1">' + (st.i + 1 >= ss.length ? 'Tugatish' : 'Keyingi') + '</button></div></div>';
-  return sub('Shadowing', 'shadow', inner);
+  const o = sub('Shadowing', 'shadow', inner); o.mount = () => { if (IE.guardAudio) IE.guardAudio(document.getElementById('sau')); }; return o;
 }
 const shS = () => { const m = art(V.sh.id); return { m, s: sentsOf(m)[V.sh.i], a: $('#sau') }; };
 A.shplay = () => { const { s, a } = shS(); if (!a) return; if (V.sh.rec) return IE.toast('Avval yozishni to‘xtating'); playSeg(a, s.t - 0.1, s.e + 0.15, V.sh.rate); };
@@ -66,12 +66,12 @@ R.dictation = a => a[0] && art(a[0]) ? dictation(art(a[0])) : hub('dictation');
 function dictation(m) {
   const ss = sentsOf(m); if (!V.dc || V.dc.id !== m.id) V.dc = { id: m.id, i: 0, rate: 1, checked: null, val: '', pct: [] };
   const st = V.dc, s = ss[st.i], ck = st.checked;
-  const inner = '<div class="pad"><audio id="sau" src="' + esc(m.audio) + '" preload="auto" playsinline></audio><div class="prog" style="margin:4px 0 6px"><i style="width:' + ((st.i + (ck ? 1 : 0)) / ss.length * 100) + '%"></i></div><div class="mu xs b c" style="margin-bottom:10px">' + (st.i + 1) + ' / ' + ss.length + (st.pct.length ? ' · o‘rtacha ' + Math.round(st.pct.reduce((x, y) => x + y, 0) / st.pct.length) + '%' : '') + '</div>' +
+  const inner = '<div class="pad"><audio id="sau" src="' + esc(m.audio) + '" data-alt="' + esc(m.alt || '') + '" preload="auto" playsinline></audio><div class="prog" style="margin:4px 0 6px"><i style="width:' + ((st.i + (ck ? 1 : 0)) / ss.length * 100) + '%"></i></div><div class="mu xs b c" style="margin-bottom:10px">' + (st.i + 1) + ' / ' + ss.length + (st.pct.length ? ' · o‘rtacha ' + Math.round(st.pct.reduce((x, y) => x + y, 0) / st.pct.length) + '%' : '') + '</div>' +
     '<div class="row" style="justify-content:center;gap:10px;margin:6px 0 12px"><button class="btn" data-a="dcplay">' + ic('play') + ' Tinglash</button><button class="btn ghost" data-a="dcrate" id="dcr">' + (st.rate === 1 ? '1×' : '0.75×') + '</button></div>' +
     (ck ? '<div class="card dres"><div class="lbl mu xs b" style="letter-spacing:.1em;text-transform:uppercase">Natija: ' + ck.pct + '%</div><p class="dtx">' + ck.html + '</p>' + (ck.extra.length ? '<p class="sm mu">Ortiqcha so‘zlar: <b style="color:var(--bad)">' + esc(ck.extra.join(' ')) + '</b></p>' : '') + '</div>' : '') +
     '<textarea class="ed" id="dct" data-in="dct" style="min-height:120px;font:17px/1.5 Georgia,serif" placeholder="Eshitganingizni yozing…" autocapitalize="off" spellcheck="false"' + (ck ? ' readonly' : '') + '>' + esc(st.val) + '</textarea>' +
     '<div class="two" style="margin-top:12px">' + (ck ? '<button class="btn ghost" data-a="dcagain">Qayta</button><button class="btn" data-a="dcnext">' + (st.i + 1 >= ss.length ? 'Tugatish' : 'Keyingi') + '</button>' : '<button class="btn ghost" data-a="dchint">Birinchi so‘z</button><button class="btn" data-a="dccheck">Tekshirish</button>') + '</div></div>';
-  return sub('Dictation', 'dictation', inner);
+  const o = sub('Dictation', 'dictation', inner); o.mount = () => { if (IE.guardAudio) IE.guardAudio(document.getElementById('sau')); }; return o;
 }
 IE.dct = el => { if (V.dc) V.dc.val = el.value; };
 const dS = () => { const m = art(V.dc.id); return { m, s: sentsOf(m)[V.dc.i], a: $('#sau') }; };
