@@ -21,6 +21,7 @@ function cnt(k) {
 }
 const act = c => c.R + c.L + c.W + c.S + c.T + c.A + c.M + Math.min(3, Math.floor(c.V / 5)) + Math.min(2, c.P);
 
+IE.dayCnt = cnt; IE.dayAct = k => act(cnt(k)) + (S().days.includes(k) ? 1 : 0) + Math.min(3, Math.floor(((S().focus || {})[k] || 0) / 20));
 /* ---------- vazifalar katalogi ---------- */
 const nextRead = () => { const ids = new Set(S().reads.map(r => r.p)), ps = D.reading.passages, p = ps.find(x => x.priv && !ids.has(x.id)) || ps.find(x => !ids.has(x.id)); return p ? { go: 'reading/' + p.id + '/run', t: p.title } : { go: 'reading', t: '' }; };
 const nextListen = () => { const ids = new Set(S().listens.map(r => r.id)), ts = D.listening.tests, t = ts.find(x => x.priv && x.dur > 0 && !ids.has(x.id)) || ts.find(x => !x.priv && !ids.has(x.id)); return t ? { go: 'listening/' + t.id, t: (t.topic.split(' · ')[1] || t.title) } : { go: 'listening', t: '' }; };
@@ -75,7 +76,11 @@ function mk(id, k) {
   const c = CAT[id]; if (!c) return null;
   return { id, t: c.t, m: c.m, ic: c.ic, k: c.k, go: c.go(), sub: c.sub(), autoFn: c.auto };
 }
-const tasksFor = k => planIds(k).map(id => mk(id, k)).filter(Boolean);
+const customOf = k => ((S().ptask || {})[k] || []).filter(t => !t.del);
+const mkCustom = t => ({ id: 'c:' + t.id, t: t.t, m: t.m, ic: 'star', k: 'T', go: 'focus/t/' + encodeURIComponent(t.t) + '/' + Math.min(60, Math.max(15, Math.round(t.m / 5) * 5)), sub: 'Shaxsiy vazifa · bosing — fokus taymer', custom: true, cid: t.id });
+const isRest = k => !!(S().prest && S().prest[k] && S().prest[k].on);
+IE.isRest = isRest;
+const tasksFor = k => isRest(k) ? [] : planIds(k).map(id => mk(id, k)).filter(Boolean).concat(customOf(k).map(mkCustom));
 function isDone(t, k) {
   const m = S().pdone[k]; if (m && m[t.id]) return true;
   if (t.auto === true) return k === dk();
@@ -141,19 +146,23 @@ R.plan = a => {
   o.mount = () => { IE.planCheck(); const w = $('.wday.today'); if (w) setTimeout(() => w.scrollIntoView({ block: 'center', behavior: 'smooth' }), 120); };
   return o;
 };
-function taskRow(t, k, rich) {
+function taskRow(t, k, tm) {
   const done = isDone(t, k), mcolor = 'sk-' + t.k;
-  return '<div class="ptask' + (done ? ' done' : '') + '"><button class="pt-main" data-go="' + t.go + '">' + bd(t.ic, t.k === 'M' ? 'M' : t.k, 'sm') + '<div class="tx"><b>' + esc(t.t) + '</b><span>' + esc(t.sub || '') + '</span></div><span class="pmin">' + t.m + ' daq</span></button><button class="pchk" data-a="pchk" data-id="' + esc(t.id) + '" data-k="' + k + '" aria-label="Belgilash">' + (done ? ic('check') : '') + '</button></div>';
+  return '<div class="ptask' + (done ? ' done' : '') + '"><button class="pt-main" data-go="' + t.go + '">' + bd(t.ic, t.k === 'M' ? 'M' : t.k, 'sm') + '<div class="tx"><b>' + esc(t.t) + '</b><span>' + esc(t.sub || '') + '</span></div><span class="pmin">' + (tm ? '<em>' + tm + '</em>' : '') + t.m + ' daq</span></button>' + (t.custom ? '<button class="pdel" data-a="pdel" data-id="' + esc(t.cid) + '" data-k="' + k + '" aria-label="O‘chirish">' + ic('trash') + '</button>' : '') + '<button class="pchk" data-a="pchk" data-id="' + esc(t.id) + '" data-k="' + k + '" aria-label="Belgilash">' + (done ? ic('check') : '') + '</button></div>';
 }
 function todayH() {
   const k = dk(), ts = tasksFor(k), done = ts.filter(t => isDone(t, k)).length, tot = ts.length, ph = phase(), dl = daysLeft(), M = mins(), wk = weakest(), lv = IE.level();
   const next = ts.find(t => !isDone(t, k)), pct = tot ? Math.round(done / tot * 100) : 0;
   const hero = '<div class="phero"><div class="ph-l"><div class="ph-d">' + dateTxt(k) + '</div><h2>' + (pct === 100 ? 'Ajoyib! Bugun tayyor 🎉' : done ? 'Davom eting — oz qoldi' : 'Bugungi reja') + '</h2><div class="ph-m">' + ts.reduce((n, t) => n + t.m, 0) + ' daqiqa · ' + tot + ' vazifa</div>' +
     '<div class="ph-b" style="--c:' + ph.c + '">' + esc(ph.n) + (dl != null && dl >= 0 ? ' · ' + dl + ' kun qoldi' : '') + '</div></div>' + ring(pct, 96, done + '/' + tot, 'bajarildi') + '</div>';
+  const rest = isRest(k), st0 = prof().start || '19:00', toM = h => { const q = /^(\d{1,2}):(\d{2})$/.exec(h || ''); return q ? (+q[1]) * 60 + (+q[2]) : 19 * 60; }, hm = m => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+  let cur = toM(st0); const times = ts.map(t => { const a = cur; cur += t.m + 5; return hm(a); });
+  const acts = '<div class="pacts"><button class="pact" data-a="ptadd">' + ic('plus') + '<span>Vazifa</span></button><button class="pact" data-go="focus">' + ic('zap') + '<span>Fokus' + (IE.focusMins() ? ' · ' + IE.focusMins() + '’' : '') + '</span></button><button class="pact' + (rest ? ' on' : '') + '" data-a="prest">' + ic('bed') + '<span>' + (rest ? 'Rejaga qaytish' : 'Dam kuni') + '</span></button></div>';
   const go = next ? '<button class="btn block pgo" data-go="' + next.go + '">' + ic('play') + ' Keyingisi: ' + esc(next.t) + '</button>' : '<div class="card c rise" style="margin-top:12px"><b>Hammasi bajarildi!</b><div class="sm mu">Ixtiyoriy: Practice’dan yana mashq qiling yoki dam oling.</div></div>';
   const ins = '<div class="card pins"><div class="row">' + bd('bulb', 'T', 'sm') + '<div style="flex:1"><b>Kun maslahati</b><div class="sm mu" style="margin-top:2px">' + esc(tipOf(k)) + '</div></div></div>' +
     (wk && IE.skillBands()[wk] != null ? '<div class="sm" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--ln)"><b>Eng zaif: ' + ({ L: 'Listening', R: 'Reading', W: 'Writing', S: 'Speaking' })[wk] + '</b> <span class="mu">(' + IE.bandTxt(IE.skillBands()[wk]) + ' → maqsad ' + IE.bandTxt(prof().target) + ') — rejada unga qo‘shimcha vazifa bor.</span></div>' : '') + '</div>';
-  return hero + go + '<div class="sec"><h2>Vazifalar</h2><button class="chip" data-a="pmins">' + ic('clock') + ' Kuniga ' + M + ' daq</button></div><div class="plist">' + ts.map(t => taskRow(t, k)).join('') + '</div>' + ins +
+  if (rest) return hero.replace('Bugungi reja', 'Dam olish kuni') + '<div class="card c rise" style="margin-top:12px"><div style="font-size:44px">😌</div><b style="font-size:18px">Bugun dam olasiz</b><div class="sm mu" style="margin:6px 0 0">Seriyangiz saqlanadi. Miya ham dam olganda o‘rganadi — ertaga yangi kuch bilan davom etamiz.</div></div>' + acts + ins;
+  return hero + go + '<div class="sec"><h2>Vazifalar</h2><span class="row" style="gap:6px"><button class="chip" data-a="pstart">' + ic('clock') + ' ' + st0 + '</button><button class="chip" data-a="pmins">' + M + ' daq</button></span></div><div class="plist">' + ts.map((t, i) => taskRow(t, k, times[i])).join('') + '</div>' + acts + ins +
     '<div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between"><div><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase">Daraja ' + lv.L + ' · ' + lv.name + '</div><div class="sm mu">' + lv.xp + ' XP · keyingisigacha ' + (lv.hi - lv.xp) + '</div></div><button class="chip" data-go="achievements">' + ic('trophy') + ' Yutuqlar</button></div><div class="prog" style="margin-top:10px"><i style="width:' + lv.pct + '%"></i></div></div>';
 }
 A.pchk = el => {
@@ -163,11 +172,19 @@ A.pchk = el => {
   if (pd._ && !tasksFor(k).every(x => isDone(x, k))) delete pd._;
   IE.save(); IE.draw(false); IE.planCheck();
 };
+A.ptadd = () => IE.sheet('<h2>Shaxsiy vazifa</h2><p class="mu sm" style="margin:4px 0 12px">Bugungi rejaga o‘zingizning vazifangizni qo‘shing (masalan: “Cambridge 17 Test 2 Listening”).</p><div class="fld"><input id="ptn" placeholder="Vazifa nomi" maxlength="60"></div><div class="seg wrap" id="ptm">' + [10, 15, 20, 30, 45, 60].map(m => '<button class="' + (m === 20 ? 'on' : '') + '" data-a="ptmin" data-m="' + m + '">' + m + ' daq</button>').join('') + '</div><button class="btn block" style="margin-top:14px" data-a="ptsave">Qo‘shish</button>');
+A.ptmin = el => document.querySelectorAll('#ptm button').forEach(b => b.classList.toggle('on', b === el));
+A.ptsave = () => { const i = $('#ptn'), t = i ? i.value.trim() : ''; if (!t) return IE.toast('Vazifa nomini yozing'); const b = $('#ptm .on'), m = b ? +b.dataset.m : 20, k = dk(), s = S(); s.ptask = s.ptask || {}; (s.ptask[k] = s.ptask[k] || []).push({ id: Date.now().toString(36), t, m, ts: Date.now(), mt: Date.now() }); IE.save(); IE.closeSheet(); IE.toast('Qo‘shildi'); IE.draw(false); };
+A.pdel = el => { const s = S(), k = el.dataset.k, t = ((s.ptask || {})[k] || []).find(x => x.id === el.dataset.id); if (!t) return; t.del = true; t.mt = Date.now(); IE.save(); IE.draw(false); };
+A.prest = () => { const s = S(), k = dk(); s.prest = s.prest || {}; const on = !isRest(k); s.prest[k] = { on, t: Date.now() }; IE.save(); IE.toast(on ? 'Dam olish kuni belgilandi — seriya saqlanadi' : 'Reja qaytarildi'); IE.draw(false); };
+A.pstart = () => IE.sheet('<h2>Qachon o‘qiysiz?</h2><p class="mu sm" style="margin:4px 0 12px">Vazifalar shu vaqtdan boshlab jadvalga qo‘yiladi.</p><div class="fld"><input id="pst" type="time" value="' + esc(prof().start || '19:00') + '"></div><button class="btn block" data-a="pstsave">Saqlash</button>');
+A.pstsave = () => { const i = $('#pst'); if (!i || !i.value) return; const s = S(); s.prof.start = i.value; s.pts = Date.now(); IE.save(); IE.closeSheet(); IE.draw(false); };
 A.pmins = () => IE.sheet('<h2>Kuniga qancha vaqt ajrata olasiz?</h2><p class="mu sm" style="margin:4px 0 14px">Reja shunga moslanadi. Keyinroq o‘zgartirsa bo‘ladi.</p><div class="lst">' + [[30, 'Yengil', 'Faqat eng muhimi'], [45, 'Qisqa', 'Asosiy + so‘zlar'], [60, 'Standart', 'Tavsiya etiladi'], [90, 'Jiddiy', 'Mock va Writing sig‘adi'], [120, 'Intensiv', 'To‘liq tayyorgarlik'], [180, 'Maksimal', 'Imtihon oldi']].map(x => '<button class="item' + (mins() === x[0] ? ' sel' : '') + '" data-a="pset" data-v="' + x[0] + '"><span class="qn" style="width:auto;padding:0 10px">' + x[0] + '</span><div class="tx"><b>' + x[1] + '</b><span>' + x[2] + '</span></div></button>').join('') + '</div>');
 A.pset = el => { const s = S(); s.prof.mins = +el.dataset.v; s.pts = Date.now(); IE.save(); IE.closeSheet(); IE.toast('Reja yangilandi'); IE.draw(false); };
 
 function weekDays() { const k = dk(), dow = dowOf(k), mon = addD(k, -((dow + 6) % 7)); return Array.from({ length: 7 }, (_, i) => addD(mon, i)); }
-function weekH() {
+function weekH() { return IE.weekCard() + '<div style="height:12px"></div>' + weekH0(); }
+function weekH0() {
   const today = dk(), days = weekDays(); let pl = 0, dn = 0, mn = 0;
   const rows = days.map(k => {
     const past = k < today, ts = past ? [] : tasksFor(k), c = cnt(k), isT = k === today;
@@ -184,7 +201,8 @@ A.pday = el => {
   const k = el.dataset.k, ts = k >= dk() ? tasksFor(k) : [], c = cnt(k);
   IE.sheet('<h2>' + dateTxt(k) + '</h2>' + (k < dk() ? '<p class="mu sm" style="margin:6px 0 10px">O‘tgan kun: ' + (act(c) ? 'faollik bor — ' + ['R', 'L', 'W', 'S', 'T', 'M'].filter(x => c[x]).map(x => ({ R: 'Reading', L: 'Listening', W: 'Writing', S: 'Speaking', T: 'Typing', M: 'Mock' })[x]).join(', ') + (c.V ? (c.V ? ', ' + c.V + ' ta so‘z' : '') : '') : 'faollik yo‘q') + '.</p>' : '<div class="plist" style="margin-top:12px">' + ts.map(t => taskRow(t, k)).join('') + '</div>' + '<p class="mu xs" style="margin-top:10px">Jami ≈ ' + ts.reduce((n, t) => n + t.m, 0) + ' daqiqa.</p>'));
 };
-function monthH() {
+function monthH() { return '<div class="card rise"><div class="row" style="justify-content:space-between"><b style="font-size:16px">Faollik xaritasi</b><span class="sm mu">12 hafta</span></div>' + IE.heat(12) + '<div class="row sm mu" style="justify-content:space-between;margin-top:8px"><span>Kam</span><span class="cal-lg"><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i></span><span>Ko‘p</span></div></div><div style="height:12px"></div>' + monthH0(); }
+function monthH0() {
   const off = V.pmo || 0, now = new Date(), base = new Date(now.getFullYear(), now.getMonth() + off, 1), y = base.getFullYear(), mo = base.getMonth(), first = new Date(y, mo, 1), nd = new Date(y, mo + 1, 0).getDate(), lead = (first.getDay() + 6) % 7, today = dk();
   let study = 0, tot = { R: 0, L: 0, W: 0, S: 0, T: 0, V: 0, M: 0, P: 0 }; const cells = [];
   for (let i = 0; i < lead; i++) cells.push('<i class="cal-e"></i>');
@@ -220,7 +238,7 @@ IE.homePlan = () => {
   const p = IE.planToday(), next = p.ts.find(t => !t.done), pct = p.total ? Math.round(p.done / p.total * 100) : 0, st = IE.streak(), lv = IE.level();
   const wk = weekDays(), today = dk(), set = new Set(S().days);
   const strip = wk.map(k => { const a = act(cnt(k)) || set.has(k), f = S().pdone[k] && S().pdone[k]._; return '<div class="wk' + (k === today ? ' now' : '') + (a ? ' on' : '') + '"><span>' + WS[dowOf(k)] + '</span><i>' + (f ? '★' : a ? '✓' : (k < today ? '' : '·')) + '</i></div>'; }).join('');
-  return '<div class="card hplan rise"><div class="row" style="justify-content:space-between;align-items:flex-start"><div style="flex:1;min-width:0"><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase">Bugungi reja</div><div style="font-size:22px;font-weight:900;line-height:1.2;margin:2px 0 4px">' + (pct === 100 ? 'Hammasi tayyor! 🎉' : next ? esc(next.t) : 'Dam oling') + '</div><div class="sm mu">' + (next ? esc(next.sub) : 'Barakalla — yana mashq qilsangiz ham bo‘ladi') + '</div></div>' + ring(pct, 78, p.done + '/' + p.total) + '</div>' +
+  return '<div class="card hplan rise"><div class="row" style="justify-content:space-between;align-items:flex-start"><div style="flex:1;min-width:0"><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase">Bugungi reja</div><div style="font-size:22px;font-weight:900;line-height:1.2;margin:2px 0 4px">' + (isRest(p.k) ? 'Dam olish kuni 😌' : pct === 100 ? 'Hammasi tayyor! 🎉' : next ? esc(next.t) : 'Dam oling') + '</div><div class="sm mu">' + (isRest(p.k) ? 'Seriyangiz saqlanadi' : next ? esc(next.sub) : 'Barakalla — yana mashq qilsangiz ham bo‘ladi') + '</div></div>' + ring(pct, 78, p.done + '/' + p.total) + '</div>' +
     '<div class="hp-t">' + p.ts.slice(0, 5).map(t => '<span class="hpc sk-' + t.k + (t.done ? ' ok' : '') + '">' + (t.done ? '✓ ' : '') + esc(t.t.replace('Kitob: ', '📖 ').replace(' Task 2', '').replace('So‘zlarni takrorlash', 'So‘zlar').replace('Mini Mock Test', 'Mock')) + '</span>').join('') + '</div>' +
     '<div class="two" style="margin-top:12px">' + (next ? '<button class="btn" data-go="' + next.go + '">' + ic('play') + ' Boshlash</button>' : '<button class="btn" data-go="practice">Mashq qilish</button>') + '<button class="btn ghost" data-go="plan">Butun reja</button></div>' +
     '<div class="wkstrip">' + strip + '</div>' +

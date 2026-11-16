@@ -101,14 +101,14 @@ let booting = false;
 async function boot() {
   if (booting) return; booting = true;
   try {
-    IE.setTheme(IE.theme());
+    IE.setTheme(IE.theme()); IE.setAccent(IE.accent());
     if (!SB.configured || !SB.session()) { showAuth(); return; }
     app.innerHTML = '<div style="padding-top:42vh"><div class="spin"></div></div>';
     try { await Promise.all([loadData(), loadProfile()]); if (IE.camLoad) await IE.camLoad(); }
     catch (e) { app.innerHTML = '<div class="empty" style="padding-top:34vh">Ma’lumotni yuklab bo‘lmadi.<br>' + esc(IE.uzErr(e)) + '<br><button class="btn sm" style="margin-top:14px" id="rt">Qayta urinish</button></div>'; $('#rt').onclick = () => { booting = false; boot(); }; return; }
     if (!D.access) { showLock(); return; }
     const S = IE.S(), uid = SB.session().user.id; if (S.uid && S.uid !== uid) { IE.setState(null); } IE.S().uid = uid;
-    IE.draw(true); IE.sync().catch(() => {});
+    IE.draw(true); IE.sync().catch(() => {}); if (IE.focusBoot) IE.focusBoot();
   } finally { booting = false; }
 }
 let swReg = null; IE.updReady = false;

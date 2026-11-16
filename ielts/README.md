@@ -9,8 +9,13 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v1.3.0)
-- **Practice: bitta qism yoki to‘liq** — Practice, Listening va Reading ro‘yxatlarida tanlov: “Bitta qism · 10–13 savol” yoki “To‘liq” (Listening 4 qism / Reading 3 passage, 60 daqiqa, Scores bilan). Tanlov eslab qolinadi.
+## Hozir ishlaydi (v1.4.0)
+- **Home**: kun gapi, tezkor tugmalar (Fokus/Lug‘at/Typing/Suhbat), “Davom ettiring” (tugallanmagan Reading/Listening), ko‘nikmalar qatori (band, maqsadgacha farq, mini grafik), **band prognozi** (trend bo‘yicha), 10 haftalik faollik xaritasi.
+- **Chat 2.0** (`chat.js`): rejimlar — Part 1/2/3, imtihon simulyatori (tuzatishsiz), Grammar coach, hayotiy vaziyat; tezkor yordam (Maslahat, Namuna javob, Keyingi savol, Tugatish → yakuniy hisobot); Part 2 taymeri (1+2 daq); AI so‘zlarini bosib lug‘atga o‘tish; ovozli o‘qish; **Xatolar daftari**; suhbatlar tarixi.
+- **Profil 2.0** (`me.js`): daraja/XP, statistika, prognoz, 16 haftalik xarita, haftalik hisobot, 6 aksent rang, haptik sozlama, **zaxira nusxa/tiklash** (JSON), progress kartasini ulashish (PNG).
+- **Reja**: shaxsiy vazifa qo‘shish, “Dam olish kuni” (seriya uzilmaydi), boshlanish vaqtidan jadval, haftalik hisobot, oylik faollik xaritasi.
+- **Fokus taymeri** (`focus.js`): 15–60 daq, hamma sahifada mini-taymer, ekran o‘chmaydi, daqiqalar kunlik maqsadga qo‘shiladi.
+- (v1.3) **Practice: bitta qism yoki to‘liq** — Practice, Listening va Reading ro‘yxatlarida tanlov: “Bitta qism · 10–13 savol” yoki “To‘liq” (Listening 4 qism / Reading 3 passage, 60 daqiqa, Scores bilan). Tanlov eslab qolinadi.
 - **Dictionary 2.0** (`dict.js`, edge function `ielts-dict`): avto-takliflar, ta’rif + UK/US talaffuz, o‘zbekcha tarjima (AI, umumiy kesh), sinonim/antonim/birikma/so‘z oilasi/IELTS misollari tablari, O‘zbekcha→Inglizcha va gap tarjimasi (paraphrase bilan) rejimlari, sevimlilar, tarix, ovozli qidiruv, “Lug‘atimga”/flesh-kart, mini-test, `dict/<so‘z>` havolasi (matn/maqoladagi so‘zdan ham).
 - **Tools markazi**: tezkor lug‘at qidiruvi, “Davom ettirish”, guruhlangan vositalar (statistika bilan).
 - **Podkast reklamasi**: homiy/reklama gaplari xira ko‘rsatiladi; moslash oynasida “dastur boshlanishi” tugmasi — audioda dastur boshlanganda bosiladi, siljish avtomatik hisoblanadi.
