@@ -882,3 +882,14 @@ body.tw .ftb{margin-left:0;margin-right:0}
 mark.ev.ok{background:rgba(18,183,106,.28)}mark.ev.no{background:rgba(240,68,56,.25)}mark.ev sup{font-size:10px;font-weight:900;margin-left:2px}
 .pbds{display:inline-flex;gap:4px;margin-left:6px}.pbd{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:6px;font-size:11px;font-weight:900;color:#fff;background:var(--ok)}.pbd.no{background:var(--bad)}
 .shake{animation:shk .4s}@keyframes shk{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+/* ================= v1.6: AI agent ================= */
+.bub.ai.ag{max-width:94%}
+.agc{margin-top:10px;background:var(--soft);border-radius:18px;padding:12px;border:1.5px solid color-mix(in srgb,var(--pl) 35%,transparent)}
+.agc.done{border-color:color-mix(in srgb,var(--ok) 55%,transparent)}
+.agc-h{display:flex;align-items:center;gap:6px;font-weight:900;color:var(--pl);font-size:13px;margin-bottom:8px}
+.agh{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13.5px;margin:6px 0;line-height:1.45}
+.agd{background:var(--card);border-radius:14px;padding:8px 10px;margin:6px 0}.agd>b{display:block;font-size:12.5px;color:var(--pl);margin-bottom:3px}
+.agt{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;padding:2px 0}.agt span{flex:1;min-width:0}.agt i{font-style:normal;color:var(--mu);font-weight:800;font-size:12px;flex:none}
+.agdet summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pl);padding:6px 0}
+.agf{display:flex;gap:8px;margin-top:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}.agf .btn{flex:1;min-height:42px;font-size:14px;padding:0 12px}.agf.ok{color:var(--ok);font-weight:900;font-size:14px}

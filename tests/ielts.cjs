@@ -35,6 +35,9 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
       if (u.includes('/rest/v1/profiles')) return j([PROFILE(groups)]);
       if (u.includes('/rest/v1/ielts_state')) { if (m === 'POST') { state.posted = JSON.parse(route.request().postData()); return route.fulfill({ status: 201, body: '' }); } return j([]); }
       if (u.includes('/functions/v1/ielts-audio')) { state.prox = (state.prox || 0) + 1; return j({ src: 'https://cdn.example.com/a.mp3' }); }
+      if (u.includes('/functions/v1/ielts-agent')) { const b = JSON.parse(route.request().postData() || '{}'); state.agent = (state.agent || []).concat(b.messages[b.messages.length - 1].content);
+        const dd = n => { const t = new Date(b.ctx.today + 'T00:00:00'); t.setDate(t.getDate() + n); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); };
+        return j({ reply: 'Reja tayyor: 2 kunlik mashq, 1 dam kuni va 1 ta so‘z.', actions: [{ type: 'add_task', date: dd(0), title: 'AI: Reading passage 1', mins: 20, go: 'reading' }, { type: 'add_task', date: dd(1), title: 'AI: Listening Section 2 + tahlil', mins: 25, go: 'listening' }, { type: 'rest_day', date: dd(2), on: true }, { type: 'add_words', words: [{ w: 'mitigate', uz: 'yumshatmoq', def: 'to make less severe', ex: 'Trees mitigate heat.' }] }, { type: 'set_profile', target: 7.5 }, { type: 'bogus' }, { type: 'add_task', date: '2001-01-01', title: 'past', mins: 10 }] }); }
       if (u.includes('/functions/v1/ielts-dict')) { const b = JSON.parse(route.request().postData() || '{}'); state.dict = (state.dict || []).concat(b.mode + ':' + b.q);
         if (b.mode === 'qa') return j({ result: { why: 'Matnda aniq dalil bor: javob shu gapdan kelib chiqadi.', evidence: 'The study was published last year.', para: [{ q: 'recently', p: 'last year' }], mine: 'Siz boshqa variantni tanlagansiz, chunki u chalg‘ituvchi.', trap: 'Paraphrase', tip: 'Kalit so‘zning sinonimini qidiring.', words: [{ w: 'published', uz: 'nashr etilgan' }] } });
         if (b.mode === 'uz') return j({ result: { items: [{ w: 'chidamli', pos: 'adj', def: 'able to recover quickly', ex: 'She is resilient.', uz: 'bardoshli' }, { w: 'durable', pos: 'adj', def: 'lasting', ex: 'A durable bag.', uz: 'bardoshli' }] } });
@@ -443,6 +446,33 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
   await A.waitForSelector('.res .big'); ok(await A.evaluate(() => JSON.parse(localStorage.getItem('ielts:ana:' + IE.V.ana.ts) || '{}').bs >= 0), 'So‘zlar testi tugadi va natija saqlandi');
   await A.goto(base + '#/vocab/cards/ana:' + ana.ts); await A.waitForSelector('.fc'); ok(true, 'Tahlil so‘zlari flesh-kartalarda');
   await A.evaluate(() => { IE.cam = null; });
+  console.log('8v. v1.6: Listening tahlili va AI agent');
+  const lan = await A.evaluate(() => {
+    const t = IE.D.listening.tests.find(x => x.id === 'lincoln'), txt = (t.tr || []).map(p => p.x).join(' '), seen = new Set(), ws = [];
+    (txt.match(/[A-Za-z]{8,}/g) || []).forEach(w => { const l = w.toLowerCase(); if (!seen.has(l) && ws.length < 5) { seen.add(l); ws.push(l); } });
+    IE.cam = { p: new Map([[7, { i: 7, t: t.title, s: 'Cambridge IELTS Academic 99', words: ws.map((w, i) => ({ id: 'c7.1.' + i, w, pos: 'n', def: 'def ' + w, uz: 'ma’no ' + w, ex: 'Ex ' + w + '.' })) }]]), n: ws.length, src: '' };
+    const qs = IE.allQ(t), a = {}; qs.forEach(({ g, q }, i) => { if (i === 0) a[q.n] = g.type === 'fill' ? q.a[0] : q.a; else if (i === 1) a[q.n] = g.type === 'fill' ? 'zzz' : g.type === 'mcq' ? (q.a === 0 ? 1 : 0) : 'zzz'; });
+    const raw = qs.filter(({ g, q }) => IE.isOk(g, q, a[q.n])).length, ts = Date.now() + 9;
+    IE.S().listens.push({ ts, id: 'lincoln', raw, tot: qs.length, band: IE.bandL(raw, qs.length), secs: 400, mode: 'practice', a }); return { ts, key: 'l' + ts, trn: (t.tr || []).length };
+  });
+  await A.goto(base + '#/listening/lincoln/result'); await A.waitForSelector('[data-go^="ana/l"]'); ok(true, 'Listening natijasida “Tahlil qilish” tugmasi');
+  await A.goto(base + '#/ana'); await A.waitForSelector('.anah'); ok((await A.locator('.item[data-go="ana/' + lan.key + '"]').count()) === 1, 'Tahlil markazi: Listening urinishi ham ro‘yxatda');
+  await A.goto(base + '#/ana/' + lan.key); await A.waitForSelector('.anahero'); ok(/skript/i.test(await A.innerText('.anatabs')) && /listening/i.test(await A.innerText('.anahero')), 'Listening tahlili: “Skript” bo‘limi va sarlavha');
+  await A.click('[data-a="anatab"][data-v="w"]'); await A.waitForSelector('.aw'); ok((await A.locator('.aw').count()) >= 1, 'Listening: transkriptdagi so‘zlar topildi (8+ lug‘at / ro‘yxat)');
+  await A.click('[data-a="anatab"][data-v="q"]'); await A.waitForSelector('.aq'); ok((await A.locator('.aq .aty').count()) >= 1, 'Listening: xato turi (eshitish bo‘yicha maslahat)'); await A.locator('[data-a="aqai"] >> nth=0').click(); await A.waitForSelector('.aex'); ok(true, 'Listening: AI sharh (nega xato/to‘g‘ri)');
+  await A.click('[data-a="anatab"][data-v="t"]'); await A.waitForSelector('.atext'); ok((await A.locator('.atext .apk').count()) >= 3, 'Listening: skript vaqt belgilari bilan ko‘rinadi'); await A.click('[data-a="atm"][data-v="e"]'); await A.waitForSelector('.atext'); ok((await A.locator('mark.ev, .pbd').count()) >= 1, 'Listening: savollar dalili skriptda belgilangan');
+  await A.click('[data-a="anatab"][data-v="r"]'); await A.waitForSelector('.aq'); ok((await A.locator('[data-a="artry"]').count()) >= 1, 'Listening: qayta yechish');
+  await A.evaluate(() => { IE.cam = null; });
+  console.log('   AI agent');
+  await A.goto(base + '#/chat'); await A.waitForSelector('#cmsgs'); await A.evaluate(() => IE.act.cnew2()); await A.waitForSelector('[data-a="cmode"][data-m="agent"]'); await A.click('[data-a="cmode"][data-m="agent"]');
+  await A.waitForSelector('.bub.ai.ag'); ok((await A.locator('#cq [data-a="cag"]').count()) >= 4, 'AI yordamchi: salomlashuv va tezkor takliflar'); const before = await A.evaluate(() => IE.S().prof.target);
+  await A.click('#cq [data-a="cag"] >> nth=0'); await A.waitForSelector('.agc'); ok(/\(5\)/.test(await A.innerText('.agc .btn')) && !/past|bogus/.test(await A.innerText('.agc')), 'AI taklifi: 5 ta to‘g‘ri amal (noto‘g‘ri/eskirgan amallar tashlab yuborildi)'); await shot(A, '38-agent-card');
+  ok(await A.evaluate(() => { const s = IE.S(); return !Object.values(s.ptask || {}).flat().some(t => t.ai) && !s.srs['my:mitigate'] && !Object.values(s.prest || {}).some(r => r && r.on && r.t > Date.now() - 6e4); }), 'Tasdiqlashdan oldin hech narsa o‘zgarmaydi');
+  await A.click('[data-a="agok"]'); await A.waitForSelector('.agc.done'); ok(await A.evaluate(() => { const s = IE.S(), k = IE.dayKey(); return (s.ptask[k] || []).some(t => t.ai && t.go === 'reading') && !!s.srs['my:mitigate'] && s.prof.target === 7.5 && Object.values(s.prest).some(r => r && r.on); }), 'Qo‘llash: vazifa, dam kuni, so‘z va maqsad band o‘zgardi');
+  await A.goto(base + '#/plan'); await A.waitForSelector('.ptask'); ok(/AI: Reading passage 1/.test(await A.innerText('.plist')) && /AI reja/.test(await A.innerText('.plist')), 'Reja sahifasida AI vazifasi ko‘rinadi'); await shot(A, '39-agent-plan');
+  await A.goto(base + '#/chat'); await A.waitForSelector('[data-a="agundo"]'); await A.click('[data-a="agundo"]'); ok(await A.evaluate((b) => { const s = IE.S(), k = IE.dayKey(); return !(s.ptask[k] || []).some(t => t.ai && !t.del) && s.prof.target === b; }, before), 'Bekor qilish (undo): vazifalar va maqsad qaytdi');
+  await A.goto(base + '#/plan'); await A.waitForSelector('[data-a="agopen"]'); await A.click('[data-a="agopen"]'); await A.waitForSelector('.bub.ai.ag'); ok(true, 'Reja sahifasidagi “AI bilan reja tuzish” tugmasi chatni ochadi');
+  await A.goto(base + '#/tools'); await A.waitForSelector('[data-go="agent"]'); ok(true, 'Tools: AI yordamchi kartasi');
   console.log('9. Ruxsat: guruhsiz foydalanuvchi');
   const { pg: B } = await mk([]); await B.goto(base); await B.waitForSelector('.lockc'); ok((await B.innerText('.lockc')).includes('Ruxsat'), 'guruhsiz: “Ruxsat kerak” ekrani'); await shot(B, '21-lock');
   console.log('10. Kirish ekrani (sessiyasiz)');

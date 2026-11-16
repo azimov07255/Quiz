@@ -21,6 +21,7 @@ function cnt(k) {
 }
 const act = c => c.R + c.L + c.W + c.S + c.T + c.A + c.M + Math.min(3, Math.floor(c.V / 5)) + Math.min(2, c.P);
 
+IE.planDay = k => ({ rest: isRest(k), tasks: tasksFor(k).map(t => ({ t: t.t, m: t.m, ai: !!t.ai })) });
 IE.dayCnt = cnt; IE.dayAct = k => act(cnt(k)) + (S().days.includes(k) ? 1 : 0) + Math.min(3, Math.floor(((S().focus || {})[k] || 0) / 20));
 /* ---------- vazifalar katalogi ---------- */
 const nextRead = () => { const ids = new Set(S().reads.map(r => r.p)), ps = D.reading.passages, p = ps.find(x => x.priv && !ids.has(x.id)) || ps.find(x => !ids.has(x.id)); return p ? { go: 'reading/' + p.id + '/run', t: p.title } : { go: 'reading', t: '' }; };
@@ -79,10 +80,12 @@ function mk(id, k) {
   return { id, t: c.t, m: c.m, ic: c.ic, k: c.k, go: c.go(), sub: c.sub(), autoFn: c.auto };
 }
 const customOf = k => ((S().ptask || {})[k] || []).filter(t => !t.del);
-const mkCustom = t => ({ id: 'c:' + t.id, t: t.t, m: t.m, ic: 'star', k: 'T', go: 'focus/t/' + encodeURIComponent(t.t) + '/' + Math.min(60, Math.max(15, Math.round(t.m / 5) * 5)), sub: 'Shaxsiy vazifa · bosing — fokus taymer', custom: true, cid: t.id });
+const GOK = { reading: ['R', 'book'], listening: ['L', 'head'], writing: ['W', 'pen'], speaking: ['S', 'mic'], chat: ['S', 'chat'], typing: ['T', 'type'], vocab: ['V', 'cards'], 'vocab/review': ['V', 'cards'], articles: ['L', 'news'], 'articles/tab/p': ['L', 'news'], mock: ['M', 'trophy'], ana: ['R', 'bulb'], shadow: ['S', 'spk'], dictation: ['L', 'wave'], dict: ['A', 'search'], books: ['R', 'doc'], cambridge: ['M', 'trophy'], practice: ['R', 'target'] };
+const autoOf = (go, k) => { const r = String(go || '').split('/')[0]; return r === 'reading' ? c => c.R >= 1 : r === 'listening' ? c => c.L >= 1 : r === 'writing' ? c => c.W >= 1 : r === 'speaking' ? c => c.S >= 1 : r === 'typing' ? c => c.T >= 1 : r === 'vocab' ? c => c.V >= 5 : r === 'articles' ? c => c.A >= 1 : r === 'mock' ? c => c.M >= 1 : r === 'ana' ? () => k === dk() && IE.anaToday && IE.anaToday() >= 1 : null; };
+const mkCustom = (t, k) => { const g = t.go && GOK[t.go] ? GOK[t.go] : null; return { id: 'c:' + t.id, t: t.t, m: t.m, ic: g ? g[1] : 'star', k: g ? g[0] : 'T', go: t.go || 'focus/t/' + encodeURIComponent(t.t) + '/' + Math.min(60, Math.max(15, Math.round(t.m / 5) * 5)), sub: t.ai ? 'AI reja' + (t.go ? ' · bosing — ochiladi' : '') : 'Shaxsiy vazifa · bosing — fokus taymer', custom: true, cid: t.id, ai: !!t.ai, autoFn: t.go ? autoOf(t.go, k) : null }; };
 const isRest = k => !!(S().prest && S().prest[k] && S().prest[k].on);
 IE.isRest = isRest;
-const tasksFor = k => isRest(k) ? [] : planIds(k).map(id => mk(id, k)).filter(Boolean).concat(customOf(k).map(mkCustom));
+const tasksFor = k => isRest(k) ? [] : planIds(k).map(id => mk(id, k)).filter(Boolean).concat(customOf(k).map(t => mkCustom(t, k)));
 function isDone(t, k) {
   const m = S().pdone[k]; if (m && m[t.id]) return true;
   if (t.auto === true) return k === dk();
@@ -159,7 +162,8 @@ function todayH() {
     '<div class="ph-b" style="--c:' + ph.c + '">' + esc(ph.n) + (dl != null && dl >= 0 ? ' · ' + dl + ' kun qoldi' : '') + '</div></div>' + ring(pct, 96, done + '/' + tot, 'bajarildi') + '</div>';
   const rest = isRest(k), st0 = prof().start || '19:00', toM = h => { const q = /^(\d{1,2}):(\d{2})$/.exec(h || ''); return q ? (+q[1]) * 60 + (+q[2]) : 19 * 60; }, hm = m => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
   let cur = toM(st0); const times = ts.map(t => { const a = cur; cur += t.m + 5; return hm(a); });
-  const acts = '<div class="pacts"><button class="pact" data-a="ptadd">' + ic('plus') + '<span>Vazifa</span></button><button class="pact" data-go="focus">' + ic('zap') + '<span>Fokus' + (IE.focusMins() ? ' · ' + IE.focusMins() + '’' : '') + '</span></button><button class="pact' + (rest ? ' on' : '') + '" data-a="prest">' + ic('bed') + '<span>' + (rest ? 'Rejaga qaytish' : 'Dam kuni') + '</span></button></div>';
+  const acts = '<div class="pacts"><button class="pact" data-a="ptadd">' + ic('plus') + '<span>Vazifa</span></button><button class="pact" data-go="focus">' + ic('zap') + '<span>Fokus' + (IE.focusMins() ? ' · ' + IE.focusMins() + '’' : '') + '</span></button><button class="pact' + (rest ? ' on' : '') + '" data-a="prest">' + ic('bed') + '<span>' + (rest ? 'Rejaga qaytish' : 'Dam kuni') + '</span></button></div>' +
+    '<button class="aibn rise" style="margin-top:12px" data-a="agopen">' + bd('sparkl', 'A', 'lg') + '<div style="flex:1"><h3>AI bilan reja tuzish</h3><p>“2 haftalik reja tuz” desangiz AI tuzadi, siz tasdiqlaysiz</p></div><span class="go">' + ic('next') + '</span></button>';
   const go = next ? '<button class="btn block pgo" data-go="' + next.go + '">' + ic('play') + ' Keyingisi: ' + esc(next.t) + '</button>' : '<div class="card c rise" style="margin-top:12px"><b>Hammasi bajarildi!</b><div class="sm mu">Ixtiyoriy: Practice’dan yana mashq qiling yoki dam oling.</div></div>';
   const ins = '<div class="card pins"><div class="row">' + bd('bulb', 'T', 'sm') + '<div style="flex:1"><b>Kun maslahati</b><div class="sm mu" style="margin-top:2px">' + esc(tipOf(k)) + '</div></div></div>' +
     (wk && IE.skillBands()[wk] != null ? '<div class="sm" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--ln)"><b>Eng zaif: ' + ({ L: 'Listening', R: 'Reading', W: 'Writing', S: 'Speaking' })[wk] + '</b> <span class="mu">(' + IE.bandTxt(IE.skillBands()[wk]) + ' → maqsad ' + IE.bandTxt(prof().target) + ') — rejada unga qo‘shimcha vazifa bor.</span></div>' : '') + '</div>';

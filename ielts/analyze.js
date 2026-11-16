@@ -9,8 +9,13 @@ const pg = ts => Object.assign({ w: {}, op: {}, fx: {}, gv: {}, bs: 0 }, lsGet(P
 const pput = (ts, o) => lsSet(PK(ts), o);
 const bump = () => { const d = lsGet(DK, {}) || {}, k = IE.dayKey(); d[k] = (d[k] || 0) + 1; Object.keys(d).sort().slice(0, -20).forEach(x => delete d[x]); lsSet(DK, d); IE.touchDay(); };
 IE.anaToday = () => (lsGet(DK, {}) || {})[IE.dayKey()] || 0;
-const recOf = ts => S().reads.find(r => r.ts === +ts);
-const unitOf = rec => rec && D.reading.passages.find(p => p.id === rec.p);
+const wrap = (r, L) => L ? Object.assign({}, r, { ts: 'l' + r.ts, rts: r.ts, L: 1 }) : Object.assign({}, r, { rts: r.ts });
+const recOf = key => { const k = String(key); if (k[0] === 'l') { const r = S().listens.find(x => x.ts === +k.slice(1)); return r && wrap(r, true); } const r = S().reads.find(x => x.ts === +k); return r && wrap(r, false); };
+const mmss = t => Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0');
+const LC = new Map();
+const adaptL = t => { const k = t.id + ':' + (t.mt || 0) + ':' + (t.tr || []).length; if (!LC.has(k)) LC.set(k, Object.assign({}, t, { paras: (t.tr || []).map((x, i) => ({ k: x.t != null ? mmss(x.t) : String(i + 1), t: String(x.x || '') })).filter(p => p.t), L: true })); return LC.get(k); };
+const unitOf = rec => { if (!rec) return null; if (rec.p != null) return D.reading.passages.find(p => p.id === rec.p) || null; const t = D.listening.tests.find(x => x.id === rec.id); return t ? adaptL(t) : null; };
+const evOf = (u, q) => { if (u.L) { const f = IE.evFindL ? IE.evFindL(u, q) : null; return f && u.paras[f.i] ? { pa: u.paras[f.i], frag: Array.isArray(q.a) ? String(q.a[0] || '') : '' } : null; } return IE.evFind ? IE.evFind(u, q) : null; };
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const fdate = ts => { const d = new Date(ts); return d.getDate() + '.' + String(d.getMonth() + 1).padStart(2, '0'); };
 
@@ -67,18 +72,18 @@ const corrTxt = (g, q) => g.type === 'heads' ? q.a + '. ' + ((g.headings.find(h 
 const mineTxt = (g, q, a) => a == null || a === '' ? '—' : g.type === 'heads' ? a + '. ' + ((g.headings.find(h => h.id === a) || {}).t || '') : g.type === 'mcq' ? ('ABCDEFGHIJ'[a] || '?') + '. ' + (q.o[a] || '') : String(a);
 const qtext = (g, q) => g.type === 'heads' ? 'Paragraph ' + q.para + ' uchun sarlavha' : (q.q || 'Gap ' + q.n);
 const lev = (a, b) => { a = a.toLowerCase(); b = b.toLowerCase(); const d = Array.from({ length: a.length + 1 }, (_, i) => [i]); for (let j = 1; j <= b.length; j++) d[0][j] = j; for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; };
-function errType(g, q, a, em) {
-  if (em) return { k: 'skip', t: 'Javob berilmagan', tip: 'Vaqt yetmagan yoki qiyin ko‘ringan. Qiyin savolni oxiriga qoldiring, lekin hech qachon bo‘sh tashlamang — taxmin qiling.' };
+function errType(g, q, a, em, L) {
+  if (em) return { k: 'skip', t: 'Javob berilmagan', tip: L ? 'Audio ketib qolgan bo‘lishi mumkin. Savollarni oldindan o‘qib, kalit so‘zlarni belgilang — eshitganda tayyor bo‘lasiz; o‘tkazib yuborgan bo‘lsangiz ham taxmin yozing.' : 'Vaqt yetmagan yoki qiyin ko‘ringan. Qiyin savolni oxiriga qoldiring, lekin hech qachon bo‘sh tashlamang — taxmin qiling.' };
   if (g.type === 'tfng') {
     if (q.a === 'NOT GIVEN') return { k: 'ng', t: 'NOT GIVEN’ni topa olmadingiz', tip: 'Matnda bu ma’lumot umuman yo‘q. Taxmin qilmang — faqat yozilganiga tayaning. “Ehtimol, mantiqan to‘g‘ri” bo‘lsa ham matnda aytilmagan bo‘lsa — NOT GIVEN.' };
     if (a === 'NOT GIVEN') return { k: 'miss', t: 'Dalilni ko‘rmadingiz', tip: 'Ma’lumot matnda bor, lekin boshqa so‘zlar bilan (paraphrase) yozilgan. Savoldagi kalit so‘zning sinonimini qidiring.' };
     return { k: 'tf', t: 'TRUE ↔ FALSE chalkashligi', tip: 'Matn savolga aynan mos kelsa TRUE, qarama-qarshi bo‘lsa FALSE. Inkor (not, rarely, only, never) va miqdor so‘zlariga e’tibor bering.' };
   }
-  if (g.type === 'fill') { const c = (Array.isArray(q.a) ? q.a : [q.a]).map(String), m = Math.min(...c.map(x => lev(x, String(a)))); return m <= 2 || c.some(x => String(a).toLowerCase().includes(x.toLowerCase()) || x.toLowerCase().includes(String(a).toLowerCase())) ? { k: 'spell', t: 'Imlo / shakl xatosi', tip: 'So‘zni topdingiz, lekin yozilishi yoki shakli (ko‘plik, -ing, so‘z limiti) mos emas. Javobni matndan aynan ko‘chiring.' } : { k: 'word', t: 'Noto‘g‘ri so‘z topilgan', tip: 'Savoldagi so‘zning sinonimini matndan toping va uning atrofidagi aynan javobni yozing.' }; }
+  if (g.type === 'fill') { const c = (Array.isArray(q.a) ? q.a : [q.a]).map(String), m = Math.min(...c.map(x => lev(x, String(a)))); return m <= 2 || c.some(x => String(a).toLowerCase().includes(x.toLowerCase()) || x.toLowerCase().includes(String(a).toLowerCase())) ? { k: 'spell', t: 'Imlo / shakl xatosi', tip: L ? 'Eshitgan so‘zingiz to‘g‘ri, lekin imlosi/shakli (ko‘plik -s, -ing) xato. Listening’da imlo ham baholanadi — shubhali so‘zlarni daftarda mashq qiling.' : 'So‘zni topdingiz, lekin yozilishi yoki shakli (ko‘plik, -ing, so‘z limiti) mos emas. Javobni matndan aynan ko‘chiring.' } : { k: 'word', t: L ? 'Noto‘g‘ri eshitilgan so‘z' : 'Noto‘g‘ri so‘z topilgan', tip: L ? 'Speaker avval bir variantni aytib, keyin tuzatishi mumkin — OXIRGI aytilganini yozing. Raqamlar va ismlar uchun talaffuzni (13/30, -teen/-ty) ajrating.' : 'Savoldagi so‘zning sinonimini matndan toping va uning atrofidagi aynan javobni yozing.' }; }
   if (g.type === 'heads') return { k: 'head', t: 'Sarlavha mos kelmadi', tip: 'Sarlavha paragrafning BOSH fikrini aks ettiradi, bitta gapni emas. Kalit so‘z takrorlansa ham ma’no mosligini tekshiring.' };
-  return { k: 'mcq', t: 'Chalg‘ituvchi variant', tip: 'Variantlar matndagi so‘zlar bilan chalg‘itadi. To‘g‘ri variant odatda paraphrase qilingan bo‘ladi — so‘zma-so‘z moslikka ishonmang.' };
+  return { k: 'mcq', t: 'Chalg‘ituvchi variant', tip: L ? 'Audioda hamma variantlar tilga olinadi, speaker fikrini o‘zgartirishi mumkin. Yakuniy qaror aytilgan variantni tanlang, birinchi eshitganingizni emas.' : 'Variantlar matndagi so‘zlar bilan chalg‘itadi. To‘g‘ri variant odatda paraphrase qilingan bo‘ladi — so‘zma-so‘z moslikka ishonmang.' };
 }
-const qrows = (u, rec) => IE.allQ(u).map(({ g, q }) => { const a = (rec.a || {})[q.n], em = a == null || a === '', ok = IE.isOk(g, q, a); return { g, q, n: q.n, a, em, ok, ty: ok ? null : errType(g, q, a, em) }; });
+const qrows = (u, rec) => IE.allQ(u).map(({ g, q }) => { const a = (rec.a || {})[q.n], em = a == null || a === '', ok = IE.isOk(g, q, a); return { g, q, n: q.n, a, em, ok, ty: ok ? null : errType(g, q, a, em, u.L) }; });
 
 /* ---------- umumiy hisoblar ---------- */
 function stats(rec) {
@@ -86,8 +91,8 @@ function stats(rec) {
   const marked = ws.filter(w => p.w[w.id]).length, opened = rows.filter(r => p.op[r.n]).length;
   return { u, p, rows, ws, wrong, fixed, marked, opened, touched: !!(Object.keys(p.w).length || Object.keys(p.op).length || Object.keys(p.fx).length || p.bs) };
 }
-IE.anaPending = () => { const r = S().reads.filter(x => unitOf(x) && Date.now() - x.ts < 4 * 864e5).slice(-1)[0]; if (!r || pg(r.ts).bs || Object.keys(pg(r.ts).w).length || Object.keys(pg(r.ts).op).length || Object.keys(pg(r.ts).fx).length) return []; const u = unitOf(r); return [{ t: u.title, s: 'Tahlil qilinmagan · ' + r.raw + '/' + r.tot, go: 'ana/' + r.ts, k: 'R', ts: r.ts }]; };
-IE.anaSummary = rec => { const u = unitOf(rec); if (!u) return null; const ws = IE.anaWords(u), rows = qrows(u, rec); return { words: ws.length, wrong: rows.filter(r => !r.ok).length }; };
+IE.anaPending = () => { const r = S().reads.map(x => wrap(x, false)).concat(S().listens.map(x => wrap(x, true))).filter(x => unitOf(x) && Date.now() - x.rts < 4 * 864e5).sort((a, b) => a.rts - b.rts).slice(-1)[0]; if (!r || pg(r.ts).bs || Object.keys(pg(r.ts).w).length || Object.keys(pg(r.ts).op).length || Object.keys(pg(r.ts).fx).length) return []; const u = unitOf(r); return [{ t: u.title, s: 'Tahlil qilinmagan · ' + r.raw + '/' + r.tot, go: 'ana/' + r.ts, k: r.L ? 'L' : 'R', ts: r.rts }]; };
+IE.anaSummary = rec0 => { const rec = rec0.p != null ? wrap(rec0, false) : wrap(rec0, true), u = unitOf(rec); if (!u) return null; const ws = IE.anaWords(u), rows = qrows(u, rec); return { words: ws.length, wrong: rows.filter(r => !r.ok).length }; };
 
 /* ---------- SRS ---------- */
 const LAD = [0, 1, 3, 7, 16, 35];
@@ -95,11 +100,11 @@ function srsSet(w, mode) { const s = S().srs, cur = s[w.id] || { b: 0 }, td = IE
 const wsy = (p, id) => p.w[id] === 'know' ? 'know' : p.w[id] === 'learn' ? 'learn' : '';
 
 /* ---------- holat ---------- */
-const st = ts => { if (!V.ana || V.ana.ts !== +ts) V.ana = { ts: +ts, tab: 's', qf: 'no', wf: 'all', tm: 'w', open: new Set(), tries: {}, busy: {}, z: null }; return V.ana; };
+const st = ts => { if (!V.ana || V.ana.ts !== String(ts)) V.ana = { ts: String(ts), tab: 's', qf: 'no', wf: 'all', tm: 'w', open: new Set(), tries: {}, busy: {}, z: null }; return V.ana; };
 
 /* ---------- Hub ---------- */
 function hub() {
-  const recs = S().reads.slice().reverse().filter(r => unitOf(r)).slice(0, 40), V0 = V.anah || (V.anah = { f: 'all' });
+  const recs = S().reads.map(x => wrap(x, false)).concat(S().listens.map(x => wrap(x, true))).filter(r => unitOf(r)).sort((a, b) => b.rts - a.rts).slice(0, 40), V0 = V.anah || (V.anah = { f: 'all' });
   let all = { wrong: 0, kinds: {}, words: 0 }, list = [];
   recs.forEach(r => { const x = stats(r); x.wrong.forEach(w => { all.kinds[w.ty.k] = (all.kinds[w.ty.k] || { n: 0, t: w.ty.t, tip: w.ty.tip }); all.kinds[w.ty.k].n++; }); all.wrong += x.wrong.length; list.push({ r, x }); });
   const done = list.filter(o => o.x.touched).length, tops = Object.values(all.kinds).sort((a, b) => b.n - a.n).slice(0, 3);
@@ -108,19 +113,20 @@ function hub() {
     (!IE.cam ? '<div class="card rise" style="margin-top:12px"><div class="row">' + bd('down', 'R') + '<div style="flex:1"><b>Cambridge lug‘atini ulang</b><div class="sm mu">So‘zlar tahlili uchun <code>cambridge-sozlar.json</code> ni Tools → So‘zlar orqali yuklang. Hozircha 8+ lug‘at va sizning so‘zlaringiz ishlatiladi.</div></div></div><button class="btn block ghost" style="margin-top:10px" data-go="vocab">Lug‘at bo‘limi</button></div>' : '') +
     (tops.length ? '<div class="sec"><h2>Eng ko‘p xato turlari</h2></div>' + tops.map(k => '<div class="card rise" style="margin-bottom:8px"><div class="row" style="justify-content:space-between"><b>' + esc(k.t) + '</b><span class="chip">' + k.n + ' ta</span></div><div class="sm mu" style="margin-top:6px">' + esc(k.tip) + '</div></div>').join('') : '') +
     '<div class="sec"><h2>Urinishlar</h2></div><div class="seg" style="margin-bottom:6px">' + [['all', 'Hammasi'], ['cam', 'Cambridge'], ['new', 'Tahlil qilinmagan']].map(f => '<button class="' + (V0.f === f[0] ? 'on' : '') + '" data-a="anahf" data-v="' + f[0] + '">' + f[1] + '</button>').join('') + '</div>';
-  const items = shown.length ? '<div class="lst">' + shown.map(({ r, x }) => '<button class="item rise" data-go="ana/' + r.ts + '">' + bd('book', 'R', 'sm') + '<div class="tx"><b>' + esc(x.u.cam || x.u.title) + '</b><span>' + esc(x.u.cam ? x.u.title + ' · ' : '') + IE.bandTxt(r.band) + ' · ' + r.raw + '/' + r.tot + ' · ' + fdate(r.ts) + ' · ' + x.wrong.length + ' xato · ' + x.ws.length + ' so‘z</span></div><span class="band' + (x.touched ? ' sk-R' : '') + '" style="font-size:12px">' + (x.touched ? '✓' : 'Yangi') + '</span></button>').join('') + '</div>'
-    : '<div class="card empty rise">' + bd('bulb', 'R') + 'Hali Reading urinishi yo‘q.<br>Avval bitta passage ishlang — keyin shu yerda tahlil qilasiz.<br><button class="btn sm" style="margin-top:12px" data-go="reading">Reading’ga o‘tish</button></div>';
+  const items = shown.length ? '<div class="lst">' + shown.map(({ r, x }) => '<button class="item rise" data-go="ana/' + r.ts + '">' + bd(r.L ? 'head' : 'book', r.L ? 'L' : 'R', 'sm') + '<div class="tx"><b>' + esc(x.u.cam || x.u.title) + '</b><span>' + (r.L ? 'Listening · ' : 'Reading · ') + esc(x.u.cam ? x.u.title + ' · ' : '') + IE.bandTxt(r.band) + ' · ' + r.raw + '/' + r.tot + ' · ' + fdate(r.rts) + ' · ' + x.wrong.length + ' xato · ' + x.ws.length + ' so‘z</span></div><span class="band' + (x.touched ? ' sk-R' : '') + '" style="font-size:12px">' + (x.touched ? '✓' : 'Yangi') + '</span></button>').join('') + '</div>'
+    : '<div class="card empty rise">' + bd('bulb', 'R') + 'Hali Reading/Listening urinishi yo‘q.<br>Avval bitta mashq ishlang — keyin shu yerda tahlil qilasiz.<br><div class="two" style="margin-top:12px"><button class="btn sm" data-go="reading">Reading</button><button class="btn sm ghost" data-go="listening">Listening</button></div></div>';
   return IE.sub('Tahlil markazi', 'tools', head + items + '</div>');
 }
 A.anahf = el => { (V.anah = V.anah || {}).f = el.dataset.v; IE.draw(false); };
 
 /* ---------- Tahlil ekrani ---------- */
 const TABS = [['s', 'Sharh'], ['w', 'So‘zlar'], ['q', 'Savollar'], ['r', 'Qayta'], ['t', 'Matn'], ['z', 'Test']];
+const tabName = (t, L) => t[0] === 't' && L ? 'Skript' : t[1];
 R.ana = a => {
   if (!a[0]) return hub();
   const rec = recOf(a[0]), u = unitOf(rec); if (!rec || !u) return hub();
   const c = st(a[0]), x = stats(rec), body = c.tab === 's' ? summary(x, rec) : c.tab === 'w' ? wordsTab(x, c) : c.tab === 'q' ? qTab(x, c, rec) : c.tab === 'r' ? retryTab(x, c, rec) : c.tab === 't' ? textTab(x, c) : quizTab(x, c);
-  const tabs = '<div class="seg anatabs">' + TABS.map(t => '<button class="' + (c.tab === t[0] ? 'on' : '') + '" data-a="anatab" data-v="' + t[0] + '">' + t[1] + (t[0] === 'r' && x.wrong.length ? ' <i>' + x.fixed + '/' + x.wrong.length + '</i>' : t[0] === 'w' && x.ws.length ? ' <i>' + x.ws.length + '</i>' : '') + '</button>').join('') + '</div>';
+  const tabs = '<div class="seg anatabs">' + TABS.map(t => '<button class="' + (c.tab === t[0] ? 'on' : '') + '" data-a="anatab" data-v="' + t[0] + '">' + tabName(t, u.L) + (t[0] === 'r' && x.wrong.length ? ' <i>' + x.fixed + '/' + x.wrong.length + '</i>' : t[0] === 'w' && x.ws.length ? ' <i>' + x.ws.length + '</i>' : '') + '</button>').join('') + '</div>';
   return IE.sub('Tahlil', 'ana', '<div class="pad">' + tabs + '<div id="anab">' + body + '</div></div>');
 };
 A.anatab = el => { const c = V.ana; if (!c) return; c.tab = el.dataset.v; IE.draw(false); window.scrollTo(0, 0); };
@@ -129,11 +135,11 @@ function summary(x, rec) {
   const p = x.p, after = rec.raw + x.fixed, ab = IE.band(after, rec.tot), kinds = {}; x.wrong.forEach(w => { (kinds[w.ty.k] = kinds[w.ty.k] || { n: 0, t: w.ty.t, tip: w.ty.tip }).n++; });
   const top = Object.values(kinds).sort((a, b) => b.n - a.n), bar = (l, a, b, tab, note) => '<button class="anast" data-a="anatab" data-v="' + tab + '"><div class="row" style="justify-content:space-between"><b>' + l + '</b><span class="sm mu">' + a + ' / ' + b + (note ? ' · ' + note : '') + '</span></div><div class="prog" style="margin-top:7px"><i style="width:' + (b ? Math.min(100, a / b * 100) : 0) + '%"></i></div></button>';
   const zs = x.ws.filter(w => w.uz).length;
-  return '<div class="anahero rise"><div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase;opacity:.85">1-urinish · toza</div><div class="abig">' + IE.bandTxt(rec.band) + '</div><div class="sm" style="opacity:.9">' + rec.raw + ' / ' + rec.tot + ' to‘g‘ri · ' + Math.floor(rec.secs / 60) + ' daq</div></div>' +
+  return '<div class="anahero rise"><div class="row" style="justify-content:space-between;align-items:flex-end"><div><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase;opacity:.85">1-urinish · toza' + (rec.L ? ' · Listening' : '') + '</div><div class="abig">' + IE.bandTxt(rec.band) + '</div><div class="sm" style="opacity:.9">' + rec.raw + ' / ' + rec.tot + ' to‘g‘ri · ' + Math.floor(rec.secs / 60) + ' daq</div></div>' +
     (x.fixed ? '<div class="aafter"><div class="mu xs b" style="opacity:.85">Tahlildan keyin</div><b>' + IE.bandTxt(ab) + '</b><span>' + after + ' / ' + rec.tot + (ab > rec.band ? ' · +' + (Math.round((ab - rec.band) * 2) / 2).toFixed(1) : '') + '</span></div>' : '') + '</div><div class="ahtitle">' + esc(x.u.cam ? x.u.cam + ' · ' : '') + esc(x.u.title) + '</div></div>' +
     '<div class="sec"><h2>Bosqichlar</h2></div><div class="card rise anastages">' + bar('1 · So‘zlarni o‘rganish', x.marked, x.ws.length, 'w', x.ws.length ? '' : 'so‘z topilmadi') + bar('2 · Savollar sharhi (nega?)', x.opened, x.rows.length, 'q') + bar('3 · Xatolarni qayta yechish', x.fixed, x.wrong.length, 'r', x.wrong.length ? '' : 'xato yo‘q 🎉') + bar('4 · So‘zlar testi', Math.round(p.bs || 0), 100, 'z', p.bs ? 'eng yaxshi ' + Math.round(p.bs) + '%' : zs >= 4 ? '' : 'so‘z yetarli emas') + '</div>' +
     (top.length ? '<div class="sec"><h2>Xatolaringiz sababi</h2></div>' + top.slice(0, 3).map(k => '<div class="card rise" style="margin-bottom:8px"><div class="row" style="justify-content:space-between"><b>' + esc(k.t) + '</b><span class="chip">' + k.n + ' ta</span></div><div class="sm mu" style="margin-top:6px">' + esc(k.tip) + '</div></div>').join('') : '<div class="card c rise" style="margin-top:12px"><b>Hamma javob to‘g‘ri! 🎉</b><div class="sm mu">Shunda ham “Savollar” bo‘limida har javobning sababini o‘qing va so‘zlarni yodlang.</div></div>') +
-    '<div class="two" style="margin-top:12px"><button class="btn" data-a="anatab" data-v="w">' + ic('cards') + ' So‘zlardan boshlash</button><button class="btn ghost" data-go="reading/' + x.u.id + '/result">Natija sahifasi</button></div>';
+    '<div class="two" style="margin-top:12px"><button class="btn" data-a="anatab" data-v="w">' + ic('cards') + ' So‘zlardan boshlash</button><button class="btn ghost" data-go="' + (x.u.L ? 'listening/' : 'reading/') + x.u.id + '/result">Natija sahifasi</button></div>';
 }
 
 /* ----- So‘zlar ----- */
@@ -152,7 +158,7 @@ function wordsTab(x, c) {
   const p = x.p, learn = Object.values(p.w).filter(v => v === 'learn').length, know = Object.values(p.w).filter(v => v === 'know').length, cnt = x.ws.filter(w => w.found).length;
   const cam = x.ws.filter(w => w.src === 'cam').length;
   return '<div class="card rise"><div class="row" style="justify-content:space-between"><div><b style="font-size:16px">Matndagi so‘zlar: ' + x.ws.length + '</b><div class="sm mu">Cambridge: ' + cam + ' · matnda topilgan: ' + cnt + ' · 🧠 ' + learn + ' · ✓ ' + know + '</div></div></div>' +
-    (!x.ws.length ? '<div class="sm mu" style="margin-top:8px">Bu matn uchun so‘z topilmadi. ' + (IE.cam ? '' : 'Cambridge lug‘atini Tools → So‘zlar orqali yuklang.') + '</div>' : '<div class="two" style="margin-top:12px"><button class="btn" data-a="awall">🧠 Hammasini yodlashga</button><button class="btn ghost" data-go="vocab/cards/ana:' + c.ts + '">' + ic('cards') + ' Flesh-kartalar</button></div>') + '</div>' +
+    (!x.ws.length ? '<div class="sm mu" style="margin-top:8px">' + (x.u.L && !x.u.paras.length ? 'Bu audio uchun skript (transkript) yo‘q — so‘zlarni topib bo‘lmaydi. Cambridge audiosini ZIP bilan yuklaganda transkript ham qo‘shiladi.' : 'Bu matn uchun so‘z topilmadi. ' + (IE.cam ? '' : 'Cambridge lug‘atini Tools → So‘zlar orqali yuklang.')) + '</div>' : '<div class="two" style="margin-top:12px"><button class="btn" data-a="awall">🧠 Hammasini yodlashga</button><button class="btn ghost" data-go="vocab/cards/ana:' + c.ts + '">' + ic('cards') + ' Flesh-kartalar</button></div>') + '</div>' +
     (x.ws.length ? '<div class="seg" style="margin-top:12px">' + [['all', 'Hammasi'], ['left', 'Belgilanmagan'], ['found', 'Matnda topilgan']].map(f => '<button class="' + (c.wf === f[0] ? 'on' : '') + '" data-a="awf" data-v="' + f[0] + '">' + f[1] + '</button>').join('') + '</div><div id="awl">' + wordsList(x, c) + '</div>' : '');
 }
 const findWord = id => { const c = V.ana, rec = c && recOf(c.ts), u = unitOf(rec); return u ? IE.anaWords(u).find(w => w.id === id) : null; };
@@ -181,7 +187,7 @@ function qcard(r, c, rec, u) {
   const cached = lsGet(QK(c.ts, r.n), null), busy = c.busy[r.n];
   return '<div class="aq ' + (r.ok ? 'ok' : r.em ? 'em' : 'no') + '" id="aq' + r.n + '"><div class="row" style="align-items:flex-start;gap:10px"><span class="aqn">' + r.n + '</span><div style="flex:1;min-width:0"><div class="aqt">' + esc(qtext(r.g, r.q)) + '</div><div class="aqa"><span class="' + (r.ok ? 'g' : 'b') + '">' + STI[r.ok ? 'ok' : r.em ? 'em' : 'no'] + ' ' + esc(mineTxt(r.g, r.q, r.a)) + '</span>' + (r.ok ? '' : '<span class="g">✓ ' + esc(corrTxt(r.g, r.q)) + '</span>') + '</div>' +
     (r.ty ? '<div class="aty"><b>' + esc(r.ty.t) + '</b><span>' + esc(r.ty.tip) + '</span></div>' : '') + '</div></div>' +
-    '<div class="aqb"><button class="chip" data-a="ev" data-k="R" data-u="' + esc(u.id) + '" data-n="' + r.n + '">' + ic('eye') + ' Dalil (matn)</button><button class="chip hot" data-a="aqai" data-n="' + r.n + '"' + (busy ? ' disabled' : '') + '>' + ic('spark') + ' ' + (cached ? 'AI sharhni ko‘rsatish' : r.ok ? 'Nega to‘g‘ri?' : 'Nega xato?') + '</button></div><div id="aexp' + r.n + '">' + (busy ? '<div class="mu sm row" style="gap:8px;padding:8px 0"><span class="typing" style="padding:0;display:inline-flex"><i></i><i></i><i></i></span> AI tahlil qilmoqda…</div>' : (cached && c.open.has('q' + r.n) ? exHTML(cached) : '')) + '</div></div>';
+    '<div class="aqb"><button class="chip" data-a="ev" data-k="' + (u.L ? 'L' : 'R') + '" data-u="' + esc(u.id) + '" data-n="' + r.n + '">' + ic('eye') + ' Dalil (matn)</button><button class="chip hot" data-a="aqai" data-n="' + r.n + '"' + (busy ? ' disabled' : '') + '>' + ic('spark') + ' ' + (cached ? 'AI sharhni ko‘rsatish' : r.ok ? 'Nega to‘g‘ri?' : 'Nega xato?') + '</button></div><div id="aexp' + r.n + '">' + (busy ? '<div class="mu sm row" style="gap:8px;padding:8px 0"><span class="typing" style="padding:0;display:inline-flex"><i></i><i></i><i></i></span> AI tahlil qilmoqda…</div>' : (cached && c.open.has('q' + r.n) ? exHTML(cached) : '')) + '</div></div>';
 }
 function qTab(x, c, rec) {
   const f = c.qf, rows = x.rows.filter(r => f === 'all' || (f === 'no' && !r.ok) || (f === 'ok' && r.ok));
@@ -190,7 +196,9 @@ function qTab(x, c, rec) {
 }
 A.aqf = el => { V.ana.qf = el.dataset.v; IE.draw(false); };
 function ctxOf(u, g, q) {
-  const f = IE.evFind ? IE.evFind(u, q) : null; if (f && f.pa) return 'Paragraph ' + f.pa.k + ':\n' + f.pa.t + (f.frag ? '\n(Evidence fragment: ' + f.frag + ')' : '');
+  const f = evOf(u, q);
+  if (u.L) { const i = f ? u.paras.indexOf(f.pa) : -1, seg = i >= 0 ? u.paras.slice(Math.max(0, i - 3), i + 4) : u.paras; return 'LISTENING TRANSCRIPT (this is an audio script; the question is from the IELTS Listening test):\n' + seg.map(p => '[' + p.k + '] ' + p.t).join('\n'); }
+  if (f && f.pa) return 'Paragraph ' + f.pa.k + ':\n' + f.pa.t + (f.frag ? '\n(Evidence fragment: ' + f.frag + ')' : '');
   return u.paras.map(p => p.k + '. ' + p.t).join('\n\n');
 }
 A.aqai = async el => {
@@ -199,7 +207,7 @@ A.aqai = async el => {
   if (cached) { const s = slot(); if (!s) return; const show = !s.innerHTML; s.innerHTML = show ? exHTML(cached) : ''; show ? c.open.add('q' + n) : c.open.delete('q' + n); el.innerHTML = ic('spark') + ' ' + (show ? 'AI sharhni yashirish' : 'AI sharhni ko‘rsatish'); return; }
   c.busy[n] = 1; const s0 = slot(); if (s0) s0.innerHTML = '<div class="mu sm row" style="gap:8px;padding:8px 0"><span class="typing" style="padding:0;display:inline-flex"><i></i><i></i><i></i></span> AI tahlil qilmoqda…</div>'; el.disabled = true;
   try {
-    const out = await SB.fn('ielts-dict', { mode: 'qa', qa: { type: r.g.type, q: qtext(r.g, r.q), opts: r.g.type === 'mcq' ? r.q.o.map((o, i) => 'ABCDEFGHIJ'[i] + '. ' + o).join('\n') : r.g.type === 'heads' ? r.g.headings.map(h => h.id + '. ' + h.t).join('\n') : '', correct: corrTxt(r.g, r.q), mine: r.em ? '' : mineTxt(r.g, r.q, r.a), ctx: ctxOf(u, r.g, r.q) } });
+    const out = await SB.fn('ielts-dict', { mode: 'qa', qa: { type: (u.L ? 'L-' : '') + r.g.type, q: qtext(r.g, r.q), opts: r.g.type === 'mcq' ? r.q.o.map((o, i) => 'ABCDEFGHIJ'[i] + '. ' + o).join('\n') : r.g.type === 'heads' ? r.g.headings.map(h => h.id + '. ' + h.t).join('\n') : '', correct: corrTxt(r.g, r.q), mine: r.em ? '' : mineTxt(r.g, r.q, r.a), ctx: ctxOf(u, r.g, r.q) } });
     const res = out.result || {}; if (res.error || !res.why) throw new Error(res.error || 'AI javobi bo‘sh');
     lsSet(QK(c.ts, n), res); const p = pg(c.ts); p.op[n] = 1; pput(c.ts, p); bump(); c.open.add('q' + n);
     delete c.busy[n]; if (slot()) slot().innerHTML = exHTML(res); el.disabled = false; el.innerHTML = ic('spark') + ' AI sharhni yashirish';
@@ -218,7 +226,7 @@ function rcard(r, c, p, u) {
   const n = r.n, fx = p.fx[n], gv = p.gv[n], tr = c.tries[n] || 0;
   return '<div class="aq ' + (fx ? 'ok' : 'no') + '" id="ar' + n + '"><div class="row" style="align-items:flex-start;gap:10px"><span class="aqn">' + n + '</span><div style="flex:1;min-width:0"><div class="aqt">' + esc(qtext(r.g, r.q)) + '</div>' +
     (fx ? '<div class="aqa"><span class="g">✓ Tuzatildi: ' + esc(corrTxt(r.g, r.q)) + '</span></div>' : gv ? '<div class="aqa"><span class="g">✓ ' + esc(corrTxt(r.g, r.q)) + '</span></div><div class="sm mu">Javob ko‘rsatildi — tuzatilgan hisoblanmaydi.</div>' : '<div class="aqa"><span class="b">Avvalgi javob: ' + esc(mineTxt(r.g, r.q, r.a)) + '</span></div><div class="mu sm" style="margin:6px 0 8px">' + (tr ? 'Yana urinib ko‘ring (' + tr + '-xato). Matn dalilidan foydalaning.' : 'Dalilni matndan topib, qayta yeching:') + '</div>' + ctrl(r, c)) + '</div></div>' +
-    (fx || gv ? '' : '<div class="aqb"><button class="chip" data-a="ev" data-k="R" data-u="' + esc(u.id) + '" data-n="' + n + '">' + ic('eye') + ' Dalil (matn)</button><button class="chip" data-a="argive" data-n="' + n + '">Javobni ko‘rsat</button></div>') + '</div>';
+    (fx || gv ? '' : '<div class="aqb"><button class="chip" data-a="ev" data-k="' + (u.L ? 'L' : 'R') + '" data-u="' + esc(u.id) + '" data-n="' + n + '">' + ic('eye') + ' Dalil (matn)</button><button class="chip" data-a="argive" data-n="' + n + '">Javobni ko‘rsat</button></div>') + '</div>';
 }
 function retryTab(x, c, rec) {
   const p = x.p; if (!x.wrong.length) return '<div class="card c rise"><div style="font-size:44px">🎉</div><b style="font-size:18px">Xato yo‘q!</b><div class="sm mu" style="margin-top:6px">Hamma javob to‘g‘ri edi. “Savollar” bo‘limida sabablarni o‘qing, “So‘zlar”ni yodlang.</div></div>';
@@ -239,9 +247,9 @@ A.argive = el => { const c = V.ana, p = pg(c.ts); p.gv[+el.dataset.n] = 1; pput(
 
 /* ----- Matn ----- */
 function textTab(x, c) {
-  const u = x.u, p = x.p, tm = c.tm, marks = u.paras.map(() => []);
+  const u = x.u, p = x.p, tm = c.tm; if (!u.paras.length) return '<div class="card empty rise">' + bd('doc', 'L') + 'Bu audio uchun skript (transkript) yo‘q.</div>'; const marks = u.paras.map(() => []);
   if (tm === 'w') x.ws.forEach(w => w.hits.forEach(h => marks[h.pi].push({ a: h.i, b: h.i + h.len, o: '<span class="vw ' + wsy(p, w.id) + '" data-a="awsheet" data-id="' + esc(w.id) + '">', c: '</span>' })));
-  else x.rows.forEach(r => { const f = IE.evFind ? IE.evFind(u, r.q) : null; if (!f || !f.pa) return; const pi = u.paras.indexOf(f.pa), rx = f.frag && IE.fragRx ? IE.fragRx(f.frag) : null, m = rx && rx.exec(f.pa.t); const cls = r.ok ? 'ok' : 'no'; if (m) marks[pi].push({ a: m.index, b: m.index + m[0].length, o: '<mark class="ev ' + cls + '" data-a="ev" data-k="R" data-u="' + esc(u.id) + '" data-n="' + r.n + '">', c: '<sup>' + r.n + '</sup></mark>' }); else marks[pi].push({ a: -1, b: -1, badge: '<span class="pbd ' + cls + '" data-a="ev" data-k="R" data-u="' + esc(u.id) + '" data-n="' + r.n + '">' + r.n + '</span>' }); });
+  else x.rows.forEach(r => { const f = evOf(u, r.q); if (!f || !f.pa) return; const pi = u.paras.indexOf(f.pa), rx = f.frag && IE.fragRx ? IE.fragRx(f.frag) : null, m = rx && rx.exec(f.pa.t); const cls = r.ok ? 'ok' : 'no'; if (m) marks[pi].push({ a: m.index, b: m.index + m[0].length, o: '<mark class="ev ' + cls + '" data-a="ev" data-k="' + (u.L ? 'L' : 'R') + '" data-u="' + esc(u.id) + '" data-n="' + r.n + '">', c: '<sup>' + r.n + '</sup></mark>' }); else marks[pi].push({ a: -1, b: -1, badge: '<span class="pbd ' + cls + '" data-a="ev" data-k="' + (u.L ? 'L' : 'R') + '" data-u="' + esc(u.id) + '" data-n="' + r.n + '">' + r.n + '</span>' }); });
   const paras = u.paras.map((pa, i) => {
     const ms = marks[i].filter(m => m.a >= 0).sort((a, b) => a.a - b.a), bd2 = marks[i].filter(m => m.a < 0).map(m => m.badge).join(''); let out = '', pos = 0;
     ms.forEach(m => { if (m.a < pos) return; out += esc(pa.t.slice(pos, m.a)) + m.o + esc(pa.t.slice(m.a, m.b)) + m.c; pos = m.b; });
@@ -270,8 +278,8 @@ A.aza = el => { const z = V.ana.z; if (!z || z.pick != null) return; const q = z
 A.azn = () => { const c = V.ana, z = c.z; z.i++; z.pick = null; if (z.i >= z.qs.length) { const pc = z.ok / z.qs.length * 100, p = pg(c.ts); p.bs = Math.max(p.bs || 0, pc); pput(c.ts, p); bump(); if (pc >= 80) IE.confetti(); } IE.draw(false); };
 
 /* ---------- boshqa joylarga ulash ---------- */
-IE.anaCta = rec => {
+IE.anaCta = (rec, kind) => {
   const s = IE.anaSummary(rec); if (!s) return '';
-  return '<div class="pad" style="padding-bottom:0"><button class="aibn rise" data-go="ana/' + rec.ts + '">' + bd('bulb', 'W', 'lg') + '<div style="flex:1"><h3>Tahlil qilish</h3><p>' + s.words + ' ta so‘z · ' + s.wrong + ' ta xato — nega xato, nega to‘g‘ri, qayta yechish</p></div><span class="go">' + ic('next') + '</span></button></div>';
+  return '<div class="pad" style="padding-bottom:0"><button class="aibn rise" data-go="ana/' + (kind === 'L' ? 'l' : '') + rec.ts + '">' + bd('bulb', 'W', 'lg') + '<div style="flex:1"><h3>Tahlil qilish</h3><p>' + s.words + ' ta so‘z · ' + s.wrong + ' ta xato — nega xato, nega to‘g‘ri, qayta yechish</p></div><span class="go">' + ic('next') + '</span></button></div>';
 };
 })();

@@ -33,6 +33,7 @@ function allRecent() {
 }
 IE.allRecent = () => allRecent();
 const dueCount = () => { const t = IE.dayNum(); return Object.values(S().srs).filter(x => x.d <= t).length; };
+IE.dueCount = dueCount;
 const resumeH = () => {
   const it = IE.resumeItems ? IE.resumeItems() : []; if (!it.length) return '';
   return '<div class="sec" style="margin-top:16px"><h2>Davom ettiring</h2></div><div class="lst rise">' + it.map(x => '<button class="item" data-go="' + x.go + '">' + bd(sk[x.k][0], sk[x.k][1], 'sm') + '<div class="tx"><b>' + esc(x.t) + '</b><span>' + esc(x.s) + '</span></div><span class="go">' + ic('next') + '</span></button>').join('') + '</div>';
@@ -92,6 +93,7 @@ const TOOLS = () => {
     ]],
     ['Reja va testlar', [
       ['plan', 'cal', 'T', 'Reja', 'Kunlik, haftalik, oylik reja', 'plan', '', pl ? pl.done + '/' + pl.total + ' bugun' : ''],
+      ['agent', 'sparkl', 'A', 'AI yordamchi', 'Reja tuzadi, vazifa va so‘z qo‘shadi', 'agent', 'Yangi', ''],
       ['ana', 'bulb', 'W', 'Tahlil markazi', 'Toza urinishdan keyin: so‘zlar, xatolar, qayta yechish', 'ana', 'Yangi', IE.anaPending && IE.anaPending().length ? 'Kutmoqda' : ''],
       ['cambridge', 'trophy', 'M', 'Cambridge IELTS', 'Kitobingizdan testlar, to‘liq imtihon', 'cambridge', '', nc ? nc + ' test' : ''],
       ['ach', 'star', 'M', 'Yutuqlar', 'Daraja, nishonlar, seriya', 'achievements', '', lv ? 'Daraja ' + lv.L : ''],
@@ -99,7 +101,7 @@ const TOOLS = () => {
   ];
 };
 const toolTile = t => '<button class="tool2" data-go="' + t[5] + '" data-k="' + esc((t[3] + ' ' + t[4]).toLowerCase()) + '">' + (t[6] ? '<span class="tnew">' + t[6] + '</span>' : '') + bd(t[1], t[2], 'lg') + '<b>' + t[3] + '</b><span class="td">' + t[4] + '</span>' + (t[7] ? '<span class="ts">' + esc(t[7]) + '</span>' : '') + '</button>';
-IE.toolUse = r0 => { const map = { dict: 'dict', vocab: 'vocab', strat: 'strat', shadow: 'shadow', dictation: 'dictation', articles: 'articles', books: 'books', typing: 'typing', plan: 'plan', ana: 'ana', cambridge: 'cambridge', achievements: 'achievements' }; if (!map[r0]) return; const l = (lsGet(TR, []) || []).filter(x => x !== map[r0]); l.unshift(map[r0]); lsSet(TR, l.slice(0, 5)); };
+IE.toolUse = r0 => { const map = { dict: 'dict', vocab: 'vocab', strat: 'strat', shadow: 'shadow', dictation: 'dictation', articles: 'articles', books: 'books', typing: 'typing', plan: 'plan', ana: 'ana', agent: 'agent', cambridge: 'cambridge', achievements: 'achievements' }; if (!map[r0]) return; const l = (lsGet(TR, []) || []).filter(x => x !== map[r0]); l.unshift(map[r0]); lsSet(TR, l.slice(0, 5)); };
 R.tools = () => {
   const G = TOOLS(), all = G.flatMap(g => g[1]), rec = (lsGet(TR, []) || []).map(id => all.find(t => t[5].split('/')[0] === id || t[0] === id)).filter(Boolean).slice(0, 3), hist = (lsGet('ielts:dhist', []) || []).slice(0, 6);
   return page('tools', '<div class="hero" style="padding-bottom:84px"><div class="hi">O‘rganish vositalari</div><h1>Study Tools</h1></div><div class="lift">' +

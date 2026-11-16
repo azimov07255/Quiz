@@ -9,7 +9,10 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v1.5.0)
+## Hozir ishlaydi (v1.6.0)
+- **AI agent** (`agent.js`, Edge Function `ielts-agent`): Chat → “AI yordamchi” (yoki Reja → “AI bilan reja tuzish”, Tools). “2 haftalik reja tuz”, “ertaga dam kuni”, “Writing uchun 10 ta so‘z qo‘sh”, “maqsadim 7.5” kabi so‘rovlarga **taklif kartasi** chiqaradi; faqat “Qo‘llash” bosilgach bajariladi, “Bekor qilish” bilan qaytariladi. Amallar: vazifa qo‘shish (reja bilan bog‘langan, bajarilganda avtomatik belgilanadi), dam kuni, eski AI vazifalarni o‘chirish, profil sozlamalari, so‘z qo‘shish, ekranni ochish. Mijoz har amalni tekshiradi (sana, qiymat, marshrut oq ro‘yxati).
+- **Tahlil markazi: Listening** — Reading kabi: skript so‘zlari, har savol uchun “nega?”, xato turlari (eshitish bo‘yicha maslahatlar), qayta yechish, skriptda dalil, so‘zlar testi.
+## (v1.5)
 - **Tahlil markazi** (`analyze.js`, Reading): avval toza ishlang, keyin `Natija → Tahlil qilish` (yoki Tools → Tahlil markazi). Bo‘limlar: Sharh (1-urinish va “tahlildan keyin” band, bosqichlar, xato sabablari) · So‘zlar (matnda topilgan Cambridge ro‘yxati + 8+ lug‘at + mening so‘zlarim; yodlayman/bilaman, flesh-kartalar) · Savollar (xato turi, dalil, AI “nega to‘g‘ri/xato?” — `ielts-dict` `qa` rejimi) · Qayta yechish · Matn (so‘z va dalillar bo‘yalgan) · So‘zlar testi.
 ## (v1.4)
 - **Home**: kun gapi, tezkor tugmalar (Fokus/Lug‘at/Typing/Suhbat), “Davom ettiring” (tugallanmagan Reading/Listening), ko‘nikmalar qatori (band, maqsadgacha farq, mini grafik), **band prognozi** (trend bo‘yicha), 10 haftalik faollik xaritasi.
