@@ -44,19 +44,20 @@ const paintSug = () => { const b = $('#dsg'); if (b) b.innerHTML = sugHTML(); };
 /* ---------- qidirish ---------- */
 async function lookup(w) {
   const d = dx(); w = w.trim().replace(/\s+/g, ' '); if (!w) return;
-  clearTimeout(sugT); Object.assign(d, { mode: 'en', q: w, input: w, err: '', res: null, busy: true, sug: [], aiErr: '', uzres: null, sres: null }); addHist(w); IE.touchDay();
+  clearTimeout(sugT); Object.assign(d, { mode: 'en', tab: 'm', q: w, input: w, err: '', res: null, busy: true, sug: [], aiErr: '', uzres: null, sres: null }); addHist(w); IE.touchDay();
   if (location.hash.replace(/^#\/?/, '').split('/')[0] !== 'dict') return; paint(true);
   const c = cget(w);
-  if (c && c.free !== undefined) { d.res = c; d.busy = false; paint(); if (!c.ai) loadAI(d); return; }
+  if (c && c.free !== undefined) { d.res = c; d.busy = false; paint(); if (!c.ai || (!c.free && !(c.ai.defs || []).length)) { c.ai = null; loadAI(d); } return; }
   const single = !w.includes(' '), [free, dm] = await Promise.all([single ? IE.freeDict(w).catch(() => null) : null, single ? datamuse(w) : { syn: [], ant: [], col: [] }]);
   if (dx() !== d || d.q !== w) return;
   d.res = { free: free && !free.nf ? free : null, dm, ai: null, t: Date.now() }; d.busy = false; paint(); loadAI(d);
 }
+const aiFree = res => { const g = []; (res.defs || []).forEach(x => { if (!x || !x.d) return; let m = g.find(y => y.pos === (x.pos || '')); if (!m) g.push(m = { pos: String(x.pos || ''), defs: [], syn: [] }); m.defs.push({ d: String(x.d).slice(0, 260), ex: String(x.ex || '').slice(0, 200) }); }); return g.length ? { ipa: res.ipa || '', ipaUK: '', ipaUS: '', auUK: '', auUS: '', ai: true, meanings: g } : null; };
 async function loadAI(d) {
   const w = d.q, r = d.res; if (!r || d.aiBusy) return; d.aiBusy = true; d.aiErr = ''; paint();
   try {
     const hint = r.free ? r.free.meanings.slice(0, 3).map(m => m.pos + ': ' + ((m.defs[0] || {}).d || '')).join(' | ').slice(0, 480) : '', out = await aiCall({ mode: 'word', q: w, hint }), res = out.result || {};
-    if (res.error) { d.aiErr = res.error; if (!r.free && !(r.dm.syn || []).length) { d.err = res.error; d.res = null; } } else { r.ai = res; cset(w, { free: r.free, dm: r.dm, ai: res, t: Date.now() }); }
+    if (res.error) { d.aiErr = res.error; if (!r.free && !(r.dm.syn || []).length) { d.err = res.error; d.res = null; } } else { r.ai = res; if (!r.free) r.free = aiFree(res); cset(w, { free: r.free, dm: r.dm, ai: res, t: Date.now() }); }
   } catch (e) { d.aiErr = e.message; }
   d.aiBusy = false; if (dx() === d && d.q === w) paint();
 }

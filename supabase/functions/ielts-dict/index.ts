@@ -60,13 +60,13 @@ async function ask(system: string, user: string, maxTok: number): Promise<string
 }
 
 const WORD = `You are an English-Uzbek learner dictionary for IELTS Academic students. Return ONLY valid JSON:
-{"uz":string,"level":"A1"|"A2"|"B1"|"B2"|"C1"|"C2","reg":"formal"|"neutral"|"informal"|"academic"|"spoken","ielts":string,
+{"uz":string,"ipa":string,"defs":[{"pos":string,"d":string,"ex":string}],"level":"A1"|"A2"|"B1"|"B2"|"C1"|"C2","reg":"formal"|"neutral"|"informal"|"academic"|"spoken","ielts":string,
  "family":[{"w":string,"pos":string,"uz":string}],
  "colloc":[{"p":string,"uz":string}],
  "idioms":[{"p":string,"uz":string,"ex":string}],
  "ex":[{"e":string,"uz":string}],
  "ant":[string],"tip":string}
-Rules: "uz" = the most useful Uzbek (Latin script) meanings, 1-3 short items separated by commas (most common senses first). "level" = CEFR. "ielts" = ONE short Uzbek sentence: how/where to use the word in IELTS Writing/Speaking (or empty string). "family" = up to 6 related word forms (noun/verb/adjective/adverb) with Uzbek. "colloc" = exactly 6 natural collocations/phrases that contain the word (English phrase + Uzbek). "idioms" = up to 3 idioms or phrasal verbs with the word (empty array if none). "ex" = 3 natural example sentences at IELTS level with Uzbek translations. "ant" = up to 4 antonyms. "tip" = ONE Uzbek note: common mistakes, confusable words or register. If the input is not a real English word/expression return {"error":"..."} in Uzbek.`
+Rules: "defs" = 1-4 senses (most common first), each with part of speech ("noun","verb","adjective"…), a clear ENGLISH learner-dictionary definition (max 25 words, simple words) and one short English example sentence. "ipa" = British IPA like /rɪˈzɪliənt/ (empty string if unsure). "uz" = the most useful Uzbek (Latin script) meanings, 1-3 short items separated by commas (most common senses first). "level" = CEFR. "ielts" = ONE short Uzbek sentence: how/where to use the word in IELTS Writing/Speaking (or empty string). "family" = up to 6 related word forms (noun/verb/adjective/adverb) with Uzbek. "colloc" = exactly 6 natural collocations/phrases that contain the word (English phrase + Uzbek). "idioms" = up to 3 idioms or phrasal verbs with the word (empty array if none). "ex" = 3 natural example sentences at IELTS level with Uzbek translations. "ant" = up to 4 antonyms. "tip" = ONE Uzbek note: common mistakes, confusable words or register. If the input is not a real English word/expression return {"error":"..."} in Uzbek.`
 const UZ = `You are an Uzbek-to-English dictionary for IELTS students. The user types an Uzbek word or phrase (Latin or Cyrillic). Return ONLY valid JSON: {"items":[{"w":string,"pos":string,"uz":string,"ex":string,"level":string}]}
 Give up to 6 best English equivalents ordered by usefulness for IELTS (prefer natural, precise words over rare ones). "w" = the English word/phrase; "pos" = part of speech; "uz" = the Uzbek nuance/meaning in Latin script (short); "ex" = one natural English example sentence; "level" = CEFR. If the input is not Uzbek or has no sense return {"items":[],"error":"..."}.`
 const SENT = `You help an Uzbek-speaking IELTS student with a sentence. Detect the language (English or Uzbek) and translate to the other one. Return ONLY valid JSON: {"dir":"en2uz"|"uz2en","tr":string,"key":[{"w":string,"uz":string}],"grammar":string,"para":[string,string]}
@@ -81,11 +81,11 @@ Deno.serve(async (req) => {
   if (!GEMINI && !GROQ) return json({ error: 'AI sozlanmagan' }, 503)
   const mode = ['word', 'uz', 'sent'].includes(b.mode) ? b.mode : 'word', q = clip(b.q, mode === 'sent' ? 500 : 90).trim().replace(/\s+/g, ' ')
   if (!q) return json({ error: 'So‘z kiriting' }, 400)
-  const key = mode === 'sent' ? '' : `dx1:${mode}:${q.toLowerCase()}`, svc = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+  const key = mode === 'sent' ? '' : `dx${mode === 'word' ? 2 : 1}:${mode}:${q.toLowerCase()}`, svc = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
   if (key) { const { data: hit } = await svc.from('ielts_transcripts').select('data').eq('key', key).maybeSingle(); if (hit && hit.data) return json({ result: hit.data, cached: true }) }
   try {
     const hint = clip(b.hint, 500).trim(), user = mode === 'word' ? `WORD: ${q}` + (hint ? `\nDICTIONARY DEFINITIONS (for disambiguation): ${hint}` : '') : mode === 'uz' ? `UZBEK: ${q}` : `SENTENCE: ${q}`
-    const out = parse(await ask(mode === 'word' ? WORD : mode === 'uz' ? UZ : SENT, user, mode === 'word' ? 2200 : 1400))
+    const out = parse(await ask(mode === 'word' ? WORD : mode === 'uz' ? UZ : SENT, user, mode === 'word' ? 2800 : 1400))
     if (!out) return json({ error: 'AI javobi tushunarsiz. Qayta urinib ko‘ring.' }, 502)
     if (key && !out.error && ((mode === 'word' && out.uz) || (mode === 'uz' && Array.isArray(out.items) && out.items.length))) await svc.from('ielts_transcripts').upsert({ key, data: out })
     return json({ result: out })
