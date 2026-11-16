@@ -66,11 +66,15 @@ IE.draw = (anim = true) => {
   app.className = anim ? 'anim' : ''; app.innerHTML = o.h; if (o.mount) o.mount(); if (IE.paintUpd) IE.paintUpd(); window.scrollTo(0, r[0] === 'chat' ? 0 : y);
 };
 IE.curRoute = (location.hash.replace(/^#\/?/, '') || 'home'); IE.prevRoute = '';
+IE.stk = [IE.curRoute]; IE.scr = {};
+{ let st = 0; window.addEventListener('scroll', () => { if (st) return; st = setTimeout(() => { st = 0; if (!document.body.classList.contains('chatpage')) IE.scr[IE.curRoute] = window.scrollY; }, 120); }, { passive: true }); }
 window.addEventListener('hashchange', () => {
   IE.prevRoute = IE.curRoute; IE.curRoute = (location.hash.replace(/^#\/?/, '') || 'home'); if (IE.toolUse) IE.toolUse(IE.curRoute.split('/')[0]);
+  /* orqaga (swipe/back) o‘tishmi? — shunda animatsiyasiz va avvalgi scroll joyi bilan chiziladi */
+  const back = IE.stk.length > 1 && IE.stk[IE.stk.length - 2] === IE.curRoute; if (back) IE.stk.pop(); else { IE.stk.push(IE.curRoute); if (IE.stk.length > 60) IE.stk.shift(); } IE.wasBack = back;
   IE.rec.cancel(); IE.closeSheet(); { const sn = document.getElementById('syncnow'); if (sn) sn.remove(); } V.s1 = null; V.s2 = null; V.fc = null; V.w = null;
   if (!D.access) return;
-  IE.draw(true); window.scrollTo(0, 0);
+  IE.draw(!back); window.scrollTo(0, back ? (IE.scr[IE.curRoute] || 0) : 0);
 });
 IE.onSynced = () => { const r = (location.hash.replace(/^#\/?/, '') || 'home').split('/')[0]; if (['home', 'practice', 'tools', 'me', 'vocab'].includes(r) && !$('#sheet')) IE.draw(false); };
 

@@ -24,11 +24,7 @@ R.listening = a => {
 /* ---------- ro‘yxat ---------- */
 function list() {
   const s = S();
-  const inner = '<div class="pad">' + (IE.pracSeg ? IE.pracSeg('L') : '') + (IE.pracMode && IE.pracMode() === 'full' ? IE.pracFull('L') + '<div class="sec"><h2>Yoki bitta qism</h2></div>' : '') + '<div class="card rise" style="margin-bottom:14px"><div class="row">' + bd('head', 'L', 'lg') + '<div style="flex:1"><b style="font-size:16px">Haqiqiy diktor ovozi</b><div class="sm mu">Yozuvlar — VOA Learning English (AQSh hukumati loyihasi, ommaviy mulk). Telefon ovozi emas, jonli o‘qilgan matnlar.</div></div></div></div><button class="item rise" style="margin-bottom:14px" data-go="cambridge">' + bd('trophy', 'M', 'sm') + '<div class="tx"><b>Cambridge testlari</b><span>Kitobingizdan o‘zingiz qo‘shasiz</span></div><span class="go">' + ic('next') + '</span></button><div class="lst">' +
-    tests().map(t => {
-      const last = s.listens.filter(r => r.id === t.id).slice(-1)[0], going = !!lsGet(lk(t.id), null);
-      return '<button class="item rise" data-go="listening/' + t.id + '">' + bd('head', 'L') + '<div class="tx"><b>' + esc(t.topic.split(' · ')[1] || t.title) + '</b><span>' + esc(t.topic.split(' · ')[0]) + ' · ' + esc(t.sec) + ' · ' + mmss(t.dur) + (going ? ' · <b style="color:var(--warn)">davom etmoqda</b>' : '') + '</span></div>' + (last ? '<span class="band sk-L">' + IE.bandTxt(last.band) + '</span>' : '<span class="go">' + ic('next') + '</span>') + '</button>';
-    }).join('') + '</div><p class="hint" style="margin-top:14px">' + ic('bulb') + ' Yangi yozuvlar muntazam qo‘shib boriladi.</p></div>';
+  const inner = '<div class="pad">' + (IE.pracSeg ? IE.pracSeg('L') : '') + (IE.pracMode && IE.pracMode() === 'full' ? IE.pracFull('L') + '<div class="sec"><h2>Yoki bitta qism</h2></div>' : '') + IE.listPage('L') + '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Yozuvlar — VOA Learning English (ommaviy mulk), jonli diktor ovozi. Yangilari muntazam qo‘shiladi.</p></div>';
   return sub('Listening', 'practice', inner);
 }
 

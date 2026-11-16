@@ -64,10 +64,14 @@ R.home = () => {
 };
 
 /* ---------- PRACTICE / TOOLS / CHAT ---------- */
+const camCard = () => {
+  const g = IE.camGroups ? IE.camGroups() : null, nb = g ? g.books.length : 0, nt = g ? g.books.reduce((n, b) => n + b[1].size, 0) : 0;
+  return '<button class="camcard rise" data-go="cambridge"><span class="cc-ic">' + ic('book') + '</span><div style="flex:1;min-width:0"><div class="cc-k">Cambridge IELTS</div><b>' + (nt ? nb + ' kitob · ' + nt + ' test' : 'Kitoblaringizdan testlar') + '</b><span>' + (nt ? 'Listening, Reading va to‘liq imtihon rejimi' : 'PDF yuklab, hammasini avtomatik qo‘shing') + '</span></div><span class="go">' + ic('next') + '</span></button>';
+};
 R.practice = () => { const full = IE.pracMode && IE.pracMode() === 'full'; return page('practice', '<div class="hero" style="padding-bottom:70px"><div class="hi">Imtihon formati</div><h1>Practice</h1></div><div class="lift">' + (IE.pracSeg ? IE.pracSeg() : '') + '<div class="skills rise">' +
   [['L', 'head', 'Listening', full ? '4 qism · 40 savol · audio bir marta' : '1 qism · 10 savol (8 ta yozuv)', 'listening'], ['R', 'book', 'Reading', full ? '3 passage · 39 savol · 60 daq' : '1 passage · 13 savol (3 matn)', 'reading'], ['W', 'pen', 'Writing', 'Task 2 · taymer, namunalar', 'writing'], ['S', 'mic', 'Speaking', '3 qism · yozib olish', 'speaking']]
     .map(a => '<button class="sktile" data-go="' + a[4] + '">' + (a[5] ? soonChip : '') + bd(a[1], a[0], 'lg') + '<b>' + a[2] + '</b><small>' + a[3] + '</small></button>').join('') + '</div>' +
-  '<button class="mock rise" data-go="mock">' + bd('trophy', 'M', 'lg') + '<div style="flex:1"><h3>Mock Test</h3><p>To‘liq imtihon sinovi: 4 ta bo‘lim ketma-ket</p></div>' + '<span class="chip" style="background:rgba(255,255,255,.22);color:#fff">' + (IE.mockActive && IE.mockActive() ? 'Davom' : 'Boshlash') + '</span></button></div>'); };
+  camCard() + '<button class="mock rise" data-go="mock">' + bd('trophy', 'M', 'lg') + '<div style="flex:1"><h3>Mock Test</h3><p>To‘liq imtihon sinovi: 4 ta bo‘lim ketma-ket</p></div>' + '<span class="chip" style="background:rgba(255,255,255,.22);color:#fff">' + (IE.mockActive && IE.mockActive() ? 'Davom' : 'Boshlash') + '</span></button></div>'); };
 
 /* ---------- TOOLS: guruhlangan, qidiruv + tezkor lug‘at, statistikalar bilan ---------- */
 const TR = 'ielts:toolrecent';
@@ -93,14 +97,13 @@ const TOOLS = () => {
     ]],
     ['Reja va testlar', [
       ['plan', 'cal', 'T', 'Reja', 'Kunlik, haftalik, oylik reja', 'plan', '', pl ? pl.done + '/' + pl.total + ' bugun' : ''],
-      ['agent', 'sparkl', 'A', 'AI yordamchi', 'Reja tuzadi, vazifa va so‘z qo‘shadi', 'agent', 'Yangi', ''],
+      ['agent', 'sparkl', 'A', 'AI yordamchi', 'Reja tuzadi, vazifa va so‘z qo‘shadi', '@agopen', 'Yangi', ''],
       ['ana', 'bulb', 'W', 'Tahlil markazi', 'Toza urinishdan keyin: so‘zlar, xatolar, qayta yechish', 'ana', 'Yangi', IE.anaPending && IE.anaPending().length ? 'Kutmoqda' : ''],
-      ['cambridge', 'trophy', 'M', 'Cambridge IELTS', 'Kitobingizdan testlar, to‘liq imtihon', 'cambridge', '', nc ? nc + ' test' : ''],
       ['ach', 'star', 'M', 'Yutuqlar', 'Daraja, nishonlar, seriya', 'achievements', '', lv ? 'Daraja ' + lv.L : ''],
     ]],
   ];
 };
-const toolTile = t => '<button class="tool2" data-go="' + t[5] + '" data-k="' + esc((t[3] + ' ' + t[4]).toLowerCase()) + '">' + (t[6] ? '<span class="tnew">' + t[6] + '</span>' : '') + bd(t[1], t[2], 'lg') + '<b>' + t[3] + '</b><span class="td">' + t[4] + '</span>' + (t[7] ? '<span class="ts">' + esc(t[7]) + '</span>' : '') + '</button>';
+const toolTile = t => '<button class="tool2" ' + (t[5][0] === '@' ? 'data-a="' + t[5].slice(1) + '"' : 'data-go="' + t[5] + '"') + ' data-k="' + esc((t[3] + ' ' + t[4]).toLowerCase()) + '">' + (t[6] ? '<span class="tnew">' + t[6] + '</span>' : '') + bd(t[1], t[2], 'lg') + '<b>' + t[3] + '</b><span class="td">' + t[4] + '</span>' + (t[7] ? '<span class="ts">' + esc(t[7]) + '</span>' : '') + '</button>';
 IE.toolUse = r0 => { const map = { dict: 'dict', vocab: 'vocab', strat: 'strat', shadow: 'shadow', dictation: 'dictation', articles: 'articles', books: 'books', typing: 'typing', plan: 'plan', ana: 'ana', agent: 'agent', cambridge: 'cambridge', achievements: 'achievements' }; if (!map[r0]) return; const l = (lsGet(TR, []) || []).filter(x => x !== map[r0]); l.unshift(map[r0]); lsSet(TR, l.slice(0, 5)); };
 R.tools = () => {
   const G = TOOLS(), all = G.flatMap(g => g[1]), rec = (lsGet(TR, []) || []).map(id => all.find(t => t[5].split('/')[0] === id || t[0] === id)).filter(Boolean).slice(0, 3), hist = (lsGet('ielts:dhist', []) || []).slice(0, 6);
@@ -108,7 +111,7 @@ R.tools = () => {
     '<div class="tfeat rise"><div class="row">' + bd('search', 'A', 'lg') + '<div style="flex:1"><h3>Tezkor lug‘at</h3><p>So‘z yozing — ta’rif, tarjima, talaffuz, birikmalar. O‘zbekcha ham, gap ham bo‘ladi.</p></div></div>' +
     '<div class="tfq"><input id="tdq" placeholder="Masalan: mitigate…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"><button data-a="tdgo" aria-label="Qidirish">' + ic('next') + '</button></div>' +
     (hist.length ? '<div class="dchips" style="margin-top:10px">' + hist.map(x => '<button class="chip w" data-go="dict/' + encodeURIComponent(x.w) + '">' + esc(x.w) + '</button>').join('') + '</div>' : '') + '</div>' +
-    (rec.length ? '<div class="sec"><h2>Davom ettirish</h2></div><div class="trec rise">' + rec.map(t => '<button class="item" data-go="' + t[5] + '">' + bd(t[1], t[2], 'sm') + '<div class="tx"><b>' + t[3] + '</b><span>' + esc(t[7] || t[4]) + '</span></div></button>').join('') + '</div>' : '') +
+    (rec.length ? '<div class="sec"><h2>Davom ettirish</h2></div><div class="trec rise">' + rec.map(t => '<button class="item" ' + (t[5][0] === '@' ? 'data-a="' + t[5].slice(1) + '"' : 'data-go="' + t[5] + '"') + '>' + bd(t[1], t[2], 'sm') + '<div class="tx"><b>' + t[3] + '</b><span>' + esc(t[7] || t[4]) + '</span></div></button>').join('') + '</div>' : '') +
     G.map(g => '<div class="sec"><h2>' + g[0] + '</h2></div><div class="tools2 rise">' + g[1].map(toolTile).join('') + '</div>').join('') + '</div>');
 };
 A.tdgo = () => { const i = $('#tdq'), v = i ? i.value.trim() : ''; IE.go('dict' + (v ? '/' + encodeURIComponent(v) : '')); };
@@ -144,11 +147,7 @@ R.reading = a => {
   if (a[0] && a[1] === 'run') return readRun(a[0]);
   if (a[0] && a[1] === 'result') return readRes(a[0]);
   const s = S();
-  const inner = '<div class="pad">' + (IE.pracSeg ? IE.pracSeg('R') : '') + (IE.pracMode && IE.pracMode() === 'full' ? IE.pracFull('R') + '<div class="sec"><h2>Yoki bitta passage</h2></div>' : '') + '<div class="card rise" style="margin-bottom:14px"><div class="row">' + bd('book', 'R', 'lg') + '<div style="flex:1"><b style="font-size:16px">Academic Reading</b><div class="sm mu">20 daqiqa · har matnda 13 savol. Yakunda taxminiy band hisoblanadi.</div></div></div></div><button class="item rise" style="margin-bottom:14px" data-go="cambridge">' + bd('trophy', 'M', 'sm') + '<div class="tx"><b>Cambridge testlari</b><span>Kitobingizdan o‘zingiz qo‘shasiz</span></div><span class="go">' + ic('next') + '</span></button><div class="lst">' +
-    D.reading.passages.map(p => {
-      const last = s.reads.filter(r => r.p === p.id).slice(-1)[0], going = !!lsGet(rk(p.id), null);
-      return '<button class="item rise" data-go="reading/' + p.id + '/run">' + bd('book', 'R') + '<div class="tx"><b>' + esc(p.title) + '</b><span>' + esc(p.topic) + ' · ' + esc(p.level) + (going ? ' · <b style="color:var(--warn)">davom etmoqda</b>' : '') + '</span></div>' + (last ? '<span class="band sk-R">' + IE.bandTxt(last.band) + '</span>' : '<span class="go">' + ic('next') + '</span>') + '</button>';
-    }).join('') + '</div><p class="hint" style="margin-top:14px">' + ic('bulb') + ' Yangi matnlar muntazam qo‘shib boriladi.</p></div>';
+  const inner = '<div class="pad">' + (IE.pracSeg ? IE.pracSeg('R') : '') + (IE.pracMode && IE.pracMode() === 'full' ? IE.pracFull('R') + '<div class="sec"><h2>Yoki bitta passage</h2></div>' : '') + IE.listPage('R') + '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' 20 daqiqa, har matnda 13 savol; yakunda taxminiy band. Yangi matnlar muntazam qo‘shiladi.</p></div>';
   return sub('Reading', 'practice', inner);
 };
 const initRun = id => {

@@ -1,8 +1,8 @@
 // IELTS ilovasi: offline + versiyali kesh. Ilova o‘zgargach VERSION ni oshiring (app.js dagi APP_VERSION bilan bir xil).
 // Eslatma: ../config.js va ../auth.js Testlar bilan umumiy — ular tarmoqdan olinadi, bo‘lmasa keshdan.
-const VERSION = '1.7.0';
+const VERSION = '1.8.0';
 const CACHE = 'ielts-' + VERSION;
-const SHELL = ['./', 'index.html', 'style.css', 'core.js', 'screens.js', 'ai.js', 'dict.js', 'listening.js', 'materials.js', 'practice.js', 'mock.js', 'books.js', 'testkit.js', 'fulltest.js', 'cambridge.js', 'plan.js', 'stats.js', 'focus.js', 'chat.js', 'me.js', 'analyze.js', 'agent.js', 'typing.js', 'app.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
+const SHELL = ['./', 'index.html', 'style.css', 'core.js', 'screens.js', 'ai.js', 'dict.js', 'listening.js', 'materials.js', 'practice.js', 'mock.js', 'books.js', 'testkit.js', 'fulltest.js', 'lists.js', 'cambridge.js', 'plan.js', 'stats.js', 'focus.js', 'chat.js', 'me.js', 'analyze.js', 'agent.js', 'typing.js', 'app.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
   'data/reading.json', 'data/vocab8.json', 'data/strategy.json', 'data/prompts.json', 'data/listening.json', 'data/articles.json', 'data/podcasts.json', '../config.js', '../auth.js'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' }))))); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x.startsWith('ielts-') && x !== CACHE).map(x => caches.delete(x)))).then(() => self.clients.claim())); });

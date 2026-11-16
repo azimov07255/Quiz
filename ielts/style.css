@@ -973,3 +973,62 @@ mark.ev.ok{background:rgba(18,183,106,.28)}mark.ev.no{background:rgba(240,68,56,
 :root[data-skin=gold] .tfeat .bd,:root[data-skin=gold] .aibn .bd,:root[data-skin=gold] .mock .bd{background:linear-gradient(145deg,#fbeaa6,#b8860b)}
 .hero .chip{white-space:nowrap}
 :root[data-skin=glass] .cin textarea{background:transparent;border:0;backdrop-filter:none;-webkit-backdrop-filter:none}
+/* v1.8: Cambridge kartasi (Practice), yig‘iladigan sozlamalar */
+.camcard{display:flex;align-items:center;gap:14px;width:100%;text-align:left;margin-top:12px;padding:16px;border-radius:22px;color:#fff;background:linear-gradient(135deg,#0ea5e9,#2563eb 55%,#4f46e5);box-shadow:0 16px 30px -14px rgba(37,99,235,.7);position:relative;overflow:hidden}
+.camcard::after{content:"";position:absolute;right:-30px;top:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12)}
+.camcard .cc-ic{flex:none;width:50px;height:50px;border-radius:16px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:26px;position:relative;z-index:1}
+.camcard>div{position:relative;z-index:1}.camcard .cc-k{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.camcard b{display:block;font-size:17px;margin-top:2px}.camcard span:not(.cc-ic):not(.go){display:block;font-size:12.5px;opacity:.9;margin-top:2px}
+.camcard .go{position:relative;z-index:1;opacity:.9}
+.xset{padding:0}.xset>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}.xset>summary::-webkit-details-marker{display:none}
+.xset .tx{flex:1;min-width:0}.xset .tx b{display:block;font-size:15.5px}.xset .tx span{display:block;font-size:12.5px;color:var(--mu);margin-top:1px}
+.xch{font-style:normal;display:grid;place-items:center;color:var(--mu);font-size:18px;transition:transform .25s}.xset[open] .xch{transform:rotate(90deg)}
+.xbody{padding:2px 16px 16px;border-top:1px solid var(--ln);padding-top:14px}
+/* v1.8: reja tahriri */
+.ptask.edit{padding:8px 8px 8px 6px;gap:4px}.pt-main.static{cursor:default}
+.pmv{display:flex;flex-direction:column;gap:3px}.pmv button{width:30px;height:26px;border-radius:9px;background:var(--soft);color:var(--pl);display:grid;place-items:center;font-size:15px}.pmv button[disabled]{opacity:.3}
+.chip.on{background:var(--p1);color:#fff}
+
+/* ================= v1.8: test kartalari (uc) ================= */
+.ucl{display:grid;gap:10px}
+.uc{background:var(--card);border-radius:22px;box-shadow:var(--sh);overflow:hidden;position:relative}
+.uc.done{box-shadow:var(--sh),inset 4px 0 0 var(--ok)}
+.uc.going{box-shadow:var(--sh),inset 4px 0 0 var(--warn)}
+.uc-main{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px 12px 12px}
+.uc-main:active{background:var(--soft)}
+.uc-n{flex:none;width:52px;height:56px;border-radius:16px;background:linear-gradient(150deg,var(--a),var(--b));color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 16px -10px var(--b);position:relative;overflow:hidden}
+.uc-n::after{content:"";position:absolute;left:-20%;top:-40%;width:140%;height:70%;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.45),transparent)}
+.uc-n b{font-size:21px;font-weight:900;line-height:1;position:relative;z-index:1}.uc-n i{font-style:normal;font-size:8.5px;font-weight:900;letter-spacing:.12em;opacity:.9;margin-top:3px;position:relative;z-index:1}
+.uc-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.uc-t{font-size:15.5px;font-weight:800;line-height:1.28;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.uc-m{font-size:12.5px;color:var(--mu);font-weight:600;line-height:1.3}
+.uc-c{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.uck{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px;background:var(--soft);color:var(--pl);white-space:nowrap}
+.uck svg{font-size:12px}.uck.warn{background:rgba(247,144,9,.16);color:#d9730d}
+.uc-r{flex:none}
+.uc-play{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--soft);color:var(--pl);font-size:18px}
+.uc-ring{position:relative;display:grid;place-items:center;width:50px;height:50px}
+.uc-ring i{position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--ok) calc(var(--v)*1%),var(--ln) 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px))}
+.uc-ring b{font-size:15px;font-weight:900}
+.uc-f{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px 10px 76px;flex-wrap:wrap}
+.uc-att{font-size:12px;color:var(--mu);font-weight:700}
+.uc-fa{display:flex;gap:6px;margin-left:auto}.uc-fa .chip{padding:5px 10px}
+.uc.empty{display:flex;align-items:center;gap:12px;padding:12px;background:transparent;box-shadow:none;border:1.5px dashed var(--ln);opacity:.65}
+.uc.empty .uc-n{filter:grayscale(1);opacity:.55;box-shadow:none}
+/* ro‘yxat sarlavhasi */
+.ulh{border-radius:24px;padding:16px;color:#fff;background:linear-gradient(150deg,var(--a),var(--b));box-shadow:0 16px 32px -16px var(--b);position:relative;overflow:hidden}
+.ulh::after{content:"";position:absolute;right:-30px;top:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.14)}
+.ulh>*{position:relative;z-index:1}
+.ulk{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.9}
+.ulbig{font-size:44px;font-weight:900;line-height:1.05;letter-spacing:-.02em}.ulbig small{font-size:22px;opacity:.8;font-weight:800}
+.uls{font-size:13px;opacity:.95;font-weight:600}
+.ulc{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:99px;background:rgba(255,255,255,.22);color:#fff;font-weight:800;font-size:12.5px;border:1px solid rgba(255,255,255,.3)}
+.ulh .prog{background:rgba(255,255,255,.25)}.ulh .prog i{background:#fff}
+.seg button i{font-style:normal;font-size:11px;opacity:.7;margin-left:3px}
+:root[data-skin=glass] .uc{backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border:1px solid var(--ln);background-image:linear-gradient(135deg,var(--shine),rgba(255,255,255,0) 46%)}
+:root[data-skin=gold] .uc-n{color:var(--ink)}:root[data-skin=gold] .ulh{background:var(--hero);color:#fff6dc}
+:root[data-skin=gold] .ulh .prog i{background:var(--gold)}
+.pad>.seg.pseg{margin:0 0 12px;padding:0}
+:root[data-skin=gold] .camcard{background:var(--hero);color:#fff6dc;box-shadow:inset 0 0 0 1px rgba(240,207,110,.3),0 16px 30px -14px rgba(150,110,20,.7)}
+:root[data-skin=gold] .camcard .cc-ic{background:var(--gold);color:var(--ink)}
+.seg.pseg button{min-width:0}

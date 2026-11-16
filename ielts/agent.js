@@ -18,12 +18,12 @@ IE.agentValidate = list => {
   const out = []; if (!Array.isArray(list)) return out;
   list.slice(0, 60).forEach(a => {
     if (!a || typeof a !== 'object') return;
-    if (a.type === 'add_task') { const t = str(a.title, 80), m = Math.round(+a.mins); if (okDate(a.date) && t.length >= 2 && m >= 5 && m <= 180) out.push({ type: 'add_task', date: a.date, title: t, mins: m, go: ROUTES.has(a.go) ? a.go : '' }); }
+    if (a.type === 'add_task') { const t = str(a.title, 80), m = Math.round(+a.mins); if (okDate(a.date) && t.length >= 2 && m >= 5 && m <= 240) out.push({ type: 'add_task', date: a.date, title: t, mins: m, go: ROUTES.has(a.go) ? a.go : '' }); }
     else if (a.type === 'rest_day') { if (okDate(a.date)) out.push({ type: 'rest_day', date: a.date, on: a.on !== false }); }
     else if (a.type === 'clear_tasks') { const f = okDate(a.from) ? a.from : null, t = okDate(a.to) ? a.to : null; if (f && t && t >= f) out.push({ type: 'clear_tasks', from: f, to: t }); }
     else if (a.type === 'set_profile') {
       const o = { type: 'set_profile' }; const tg = +a.target, mn = Math.round(+a.mins);
-      if (tg >= 5 && tg <= 9) o.target = Math.round(tg * 2) / 2; if (okDate(a.date)) o.date = a.date; if (mn >= 20 && mn <= 240) o.mins = mn; if (LV.includes(a.level)) o.level = a.level; if (/^([01]?\d|2[0-3]):[0-5]\d$/.test(String(a.start || ''))) o.start = String(a.start).padStart(5, '0');
+      if (tg >= 5 && tg <= 9) o.target = Math.round(tg * 2) / 2; if (okDate(a.date)) o.date = a.date; if (mn >= 20 && mn <= 720) o.mins = mn; if (LV.includes(a.level)) o.level = a.level; if (/^([01]?\d|2[0-3]):[0-5]\d$/.test(String(a.start || ''))) o.start = String(a.start).padStart(5, '0');
       if (Object.keys(o).length > 1) out.push(o);
     } else if (a.type === 'add_words') {
       const ws = (Array.isArray(a.words) ? a.words : []).slice(0, 15).map(w => ({ w: str(w && w.w, 40), uz: str(w && w.uz, 80), def: str(w && w.def, 160), ex: str(w && w.ex, 200) })).filter(w => /^[A-Za-z][A-Za-z' -]{1,38}$/.test(w.w));
@@ -99,7 +99,7 @@ A.agok = el => {
 };
 A.agno = el => { const m = find(el.dataset.id); if (!m || m.done) return; m.rej = 1; IE.chatSave && IE.chatSave(); };
 A.agundo = el => { const m = find(el.dataset.id); if (!m || !m.done) return; undo(m.done.u || {}); m.done = null; m.undone = 1; IE.chatSave && IE.chatSave(); IE.toast('↶ Bekor qilindi'); };
-R.agent = () => { IE.V.chatAuto = { text: '' }; setTimeout(() => IE.go('chat'), 0); return { h: '<div style="padding-top:40vh"><div class="spin"></div></div>', sub: true }; };
+R.agent = () => { IE.V.chatAuto = { text: '' }; try { location.replace(location.href.split('#')[0] + '#/chat'); } catch (e) { IE.go('chat'); } return { h: '<div style="padding-top:40vh"><div class="spin"></div></div>', sub: true }; };
 
 A.agopen = el => IE.chatOpen && IE.chatOpen('agent', el && el.dataset.p ? el.dataset.p : '');
 })();

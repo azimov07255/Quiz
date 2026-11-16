@@ -20,12 +20,12 @@ R.me = () => {
     '<div class="sec"><h2>Ko‘nikmalar</h2><span class="mu xs">' + (days != null && days >= 0 ? days + ' kun qoldi' : 'maqsad ' + IE.bandTxt(p.target)) + '</span></div>' + IE.skillRows() +
     '<div class="sec"><h2>Faollik xaritasi</h2><span class="mu xs">16 hafta</span></div><div class="card rise">' + IE.heat(16) + '<div class="row sm mu" style="justify-content:space-between;margin-top:8px"><span>Kam</span><span class="cal-lg"><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i></span><span>Ko‘p</span></div></div>' +
     '<div class="sec"><h2>Haftalik hisobot</h2></div>' + IE.weekCard() +
-    '<div class="sec"><h2>Imtihon sozlamalari</h2></div><div class="card rise">' +
+    '<details class="card rise xset" id="xset"' + (V.xo ? ' open' : '') + '><summary><span class="bd sm sk-W">' + ic('sliders') + '</span><div class="tx"><b>Imtihon sozlamalari</b><span>Maqsad ' + IE.bandTxt(p.target) + (p.level ? ' · ' + esc(p.level) : '') + (days != null && days >= 0 ? ' · ' + days + ' kun qoldi' : ' · sana yo‘q') + ' · ' + (p.mins || 60) + ' daq/kun</span></div><i class="xch">' + ic('next') + '</i></summary><div class="xbody">' +
     '<div class="fld"><label>Ism</label><input id="pn" value="' + esc(p.name || pr.name || '') + '" data-in="pf" data-f="name" maxlength="40"></div>' +
     '<div class="fld"><label>Maqsad band</label><select data-in="pf" data-f="target">' + bands.map(b => '<option value="' + b + '"' + (b === +p.target ? ' selected' : '') + '>' + b.toFixed(1) + '</option>').join('') + '</select></div>' +
     '<div class="fld"><label>Hozirgi daraja</label><select data-in="pf" data-f="level"><option value="">Tanlang</option>' + LV.map(l => '<option' + (p.level === l ? ' selected' : '') + '>' + l + '</option>').join('') + '</select></div>' +
     '<div class="fld" style="margin:0"><label>Imtihon sanasi</label><input type="date" value="' + esc(p.date || '') + '" data-in="pf" data-f="date"></div>' +
-    '<button class="set" style="margin-top:10px" data-a="pmins"><span class="bd sm sk-T">' + ic('clock') + '</span><div class="tx"><b>Kunlik vaqt</b><span>Reja shunga moslanadi: ' + (p.mins || 60) + ' daqiqa</span></div></button></div>' +
+    '<button class="set" style="margin-top:10px" data-a="pmins"><span class="bd sm sk-T">' + ic('clock') + '</span><div class="tx"><b>Kunlik vaqt</b><span>Reja shunga moslanadi: ' + (p.mins || 60) + ' daqiqa</span></div></button></div></details>' +
     '<div class="sec"><h2>Ko‘rinish</h2></div><div class="card rise"><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Dizayn uslubi</div><div class="skins">' + IE.SKINS.map(k => '<button class="skn' + (k[0] === IE.skin() ? ' on' : '') + '" data-a="skin" data-v="' + k[0] + '"><div class="sk-pv ' + k[0] + '"><i></i><i></i></div>' + k[1] + '<small>' + k[2] + '</small></button>').join('') + '</div><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase;margin:16px 0 10px">Aksent rang' + (IE.skin() === 'gold' ? ' · Oltin uslubda o‘chiq' : '') + '</div><div class="accs">' + IE.ACC.map(a => '<button class="acc' + (a[0] === acc ? ' on' : '') + '" data-a="acc" data-v="' + a[0] + '" style="--a:' + a[2] + ';--b:' + a[3] + '" aria-label="' + a[1] + '"><i></i><span>' + a[1] + '</span></button>').join('') + '</div>' +
     '<button class="set" data-a="theme"><span class="bd sm sk-A">' + ic('moon') + '</span><div class="tx"><b>Tungi rejim</b><span>' + (th === 'auto' ? 'Avtomatik' : th === 'dark' ? 'Yoqilgan' : 'O‘chirilgan') + ' · bosib almashtiring</span></div></button>' +
     '<button class="set" data-a="hap"><span class="bd sm sk-S">' + ic('zap') + '</span><div class="tx"><b>Tebranish (haptik)</b><span>' + (hapOn() ? 'Yoqilgan' : 'O‘chirilgan') + '</span></div></button></div>' +
@@ -42,6 +42,8 @@ R.me = () => {
     '<p class="c mu xs" style="margin:18px 0 0">IELTS v' + IE.APP_VERSION + ' · BY AZIMOV</p></div>';
   return IE.page('me', inner);
 };
+const V = IE.V;
+document.addEventListener('toggle', e => { if (e.target && e.target.id === 'xset') V.xo = e.target.open; }, true);
 IE.pf = el => {
   const s = S(), f = el.dataset.f, v = el.value; s.prof[f] = f === 'target' ? +v : v; s.pts = Date.now(); IE.save();
   if (f === 'name') { const h = $('.hero h1'); if (h) h.textContent = v || (D.profile && D.profile.name) || ''; const a = $('.avt'); if (a) a.textContent = ((v || IE.dispName())[0] || 'U').toUpperCase(); } else { IE.toast('Saqlandi'); if (f === 'target' || f === 'date') IE.draw(false); }
