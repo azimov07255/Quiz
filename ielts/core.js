@@ -1,7 +1,7 @@
 /* IELTS · BY AZIMOV — yadro: yordamchilar, ikonkalar, holat (localStorage) va Supabase bilan sinxronlash. */
 (() => {
 'use strict';
-const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '1.2.0' };
+const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '1.2.1' };
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 Object.assign(IE, { $, $$, esc });
@@ -106,6 +106,8 @@ IE.sync = async () => {
   S = merged; if (chL) { lsSet(LS, S); if (IE.onSynced) IE.onSynced(); }
   if (chR) await SB.rest('ielts_state?on_conflict=user_id', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: { user_id: uid, data: S, updated_at: new Date().toISOString() } });
 };
+/** Audio manzilini tuzatadi: http→https; BBC mediaselector uchun https yetkazib berish (aks holda aralash kontent bloklanadi). */
+IE.fixAudio = u => { u = String(u || '').trim().replace(/^http:\/\//i, 'https://'); if (/open\.live\.bbc\.co\.uk\/mediaselector/i.test(u)) u = u.replace(/\/proto\/http\//i, '/proto/https/'); return u; };
 IE.vib = p => { try { if (navigator.vibrate && !matchMedia('(prefers-reduced-motion:reduce)').matches) navigator.vibrate(p); } catch (e) { /* */ } };
 IE.touchDay = () => { const k = dayKey(); if (!S.days.includes(k)) { S.days.push(k); S.days.sort(); } };
 IE.streak = () => {

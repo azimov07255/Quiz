@@ -322,6 +322,11 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
     await A.evaluate(() => { document.querySelector('#au').currentTime = 3; }); await A.click('#lsp'); await A.click('[data-a="lloop"][data-p="a"]'); await A.evaluate(() => { document.querySelector('#au').currentTime = 5; }); await A.click('[data-a="lloop"][data-p="b"]'); ok(await A.evaluate(() => IE.V.loop && Math.abs(IE.V.loop.a - 3) < .5 && IE.V.loop.b >= 5), 'A–B takrorlash oralig‘i belgilandi'); await A.evaluate(() => IE.closeSheet());
     await cleanCam(A); await A.goto(base + '#/books'); await A.click('[data-a="bkmenu"]'); await A.click('[data-a="bkdel"]'); await A.click('#askok'); await A.waitForFunction(() => !IE.S().books.filter(b => !b.del).length);
   }
+  console.log('8q. Podkast audiosi: BBC manzil tuzatish va zaxira manzilga o‘tish');
+  ok(await A.evaluate(() => IE.fixAudio('http://open.live.bbc.co.uk/mediaselector/6/redir/version/2.0/mediaset/audio-nondrm-download-rss-low/proto/http/vpid/p0pldlfg.mp3') === 'https://open.live.bbc.co.uk/mediaselector/6/redir/version/2.0/mediaset/audio-nondrm-download-rss-low/proto/https/vpid/p0pldlfg.mp3' && IE.fixAudio('http://x.com/a.mp3') === 'https://x.com/a.mp3'), 'BBC manzili https yetkazib berishga o‘tkaziladi (aralash kontent bloklanmasin)');
+  await A.evaluate(() => { IE.S().lib.push({ id: 'ufx', k: 'p', t: 'Fallback test', au: 'https://bad.invalid/x.mp3', pl: 'https://cdn.example.com/a.mp3', ts: Date.now(), an: 0 }); IE.go('article/ufx'); });
+  await A.waitForSelector('#au', { state: 'attached' }); await A.waitForFunction(() => /cdn\.example\.com/.test(document.querySelector('#au').getAttribute('src')), null, { timeout: 15000 }); ok(true, 'Asosiy audio manzil ishlamasa, zaxira (server topgan) manzilga o‘tdi');
+  await A.evaluate(() => { IE.S().lib = IE.S().lib.filter(x => x.id !== 'ufx'); });
   console.log('9. Ruxsat: guruhsiz foydalanuvchi');
   const { pg: B } = await mk([]); await B.goto(base); await B.waitForSelector('.lockc'); ok((await B.innerText('.lockc')).includes('Ruxsat'), 'guruhsiz: “Ruxsat kerak” ekrani'); await shot(B, '21-lock');
   console.log('10. Kirish ekrani (sessiyasiz)');

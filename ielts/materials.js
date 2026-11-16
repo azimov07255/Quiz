@@ -13,10 +13,11 @@ V.mats = V.mats || {}; V.mload = V.mload || {};
 const saveMat = m => IE.idbSet('mat:' + m.id, m);
 IE.matSync = id => {
   const b = D.articles.items.find(x => x.id === id); if (b) return Object.assign({ k: 'b' }, b);
-  if (V.mats[id]) return V.mats[id];
-  const meta = S().lib.find(x => x.id === id); if (!meta) return null;
+  const meta = S().lib.find(x => x.id === id);
+  if (V.mats[id]) { const mm = V.mats[id]; if (meta && mm.k === 'p' && (meta.au || meta.pl)) { const o = IE.fixAudio(meta.au || meta.pl), p = IE.fixAudio(meta.pl || meta.au); mm.audio = o; mm.alt = p && p !== o ? p : ''; } return mm; }
+  if (!meta) return null;
   if (!V.mload[id]) { V.mload[id] = 1; IE.idbGet('mat:' + id).then(m => { if (m) { V.mats[id] = m; if ((IE.curRoute || '') === 'article/' + id) IE.draw(false); } }); }
-  return { id, k: meta.k, title: meta.t, audio: meta.pl || meta.au || '', dur: 0, img: meta.img ? { src: meta.img, credit: '', license: '', link: meta.src || '' } : null, src: meta.src || '', blocks: [], vocab: [], grammar: [], groups: [], stub: true };
+  return { id, k: meta.k, title: meta.t, audio: IE.fixAudio(meta.au || meta.pl || ''), alt: meta.pl && meta.au && IE.fixAudio(meta.pl) !== IE.fixAudio(meta.au) ? IE.fixAudio(meta.pl) : '', dur: 0, img: meta.img ? { src: meta.img, credit: '', license: '', link: meta.src || '' } : null, src: meta.src || '', blocks: [], vocab: [], grammar: [], groups: [], stub: true };
 };
 
 /* ---------- gaplarga bo‘lish va bloklar ---------- */
@@ -163,7 +164,7 @@ R.article = a => {
   const meta = S().lib.find(x => x.id === id);
   const hero = '<div class="ahero">' + (m.img ? '<div class="aimg big" style="background-image:url(\'' + esc(m.img.src) + '\')"></div>' : '<div class="aimg big ph">' + ic(m.k === 'p' ? 'head' : 'news') + '</div>') + '<div class="aover"><h1>' + esc(m.title) + '</h1></div></div>' + credit(m) +
     '<div class="ameta" style="margin:10px 2px">' + (m.topic ? '<span class="chip">' + esc(m.topic) + '</span>' : '') + (m.level ? '<span class="chip">' + esc(m.level) + '</span>' : '') + (m.mins ? '<span class="chip">' + ic('book') + ' ' + m.mins + ' daq</span>' : '') + (m.src && m.k !== 'b' ? '<a class="chip" href="' + esc(m.src) + '" target="_blank" rel="noopener">manba</a>' : '') + '</div>';
-  const player = m.audio ? '<div class="lsticky">' + IE.player({ audio: m.audio, dur: m.dur || 0 }, 'practice') + '<label class="follow"><input type="checkbox" data-in="afollow"' + (st.follow ? ' checked' : '') + '> Matn audio bilan birga yursin</label></div>' : '';
+  const player = m.audio ? '<div class="lsticky">' + IE.player({ audio: m.audio, alt: m.alt || '', dur: m.dur || 0 }, 'practice') + '<label class="follow"><input type="checkbox" data-in="afollow"' + (st.follow ? ' checked' : '') + '> Matn audio bilan birga yursin</label></div>' : '';
   const tabs = ['text', 'vocab', 'grammar', 'qs'], lbl = { text: 'Matn', vocab: 'Lug‘at', grammar: 'Grammatika', qs: 'Savollar' };
   const trBlock = stub ? '<div class="card c">' + bd('wave', 'L', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<b>' + (m.audio ? 'Transkript hali yo‘q' : 'Matn yuklanmoqda…') + '</b><p class="mu sm" style="margin:6px 0 12px">' + (m.audio ? 'AI audioni tinglab so‘zma-so‘z matn tuzadi (vaqtlari bilan). Odatda 1–3 daqiqa.' : '') + '</p>' + (st.busy === 'tr' ? '<div class="spin"></div><p class="mu sm c" style="margin-top:8px">Transkript tuzilmoqda…</p>' : (m.audio ? '<button class="btn" data-a="atr">' + ic('spark') + ' Transkript tuzish</button>' : '')) + (st.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(st.err) + '</p>' : '') + '</div>' : '';
   const inner = '<div class="pad">' + hero + '</div>' + player + '<div class="pad"><div class="tabs4">' + tabs.map(t => '<button class="' + (t === tab ? 'on' : '') + '" data-a="atab" data-v="' + t + '">' + lbl[t] + '</button>').join('') + '</div>' +
@@ -173,7 +174,7 @@ R.article = a => {
     '<div class="apanel" data-p="qs"' + (tab === 'qs' ? '' : ' hidden') + '>' + qsHTML(m) + '</div></div>' +
     '<div class="phbar hide" id="phbar"><span id="phtx"></span><button class="btn sm" data-a="phgo">Ma’nosi</button><button class="ib sm2" data-a="phclr" aria-label="Tozalash">' + ic('x') + '</button></div>';
   const o = sub(m.k === 'p' ? 'Podkast' : 'Maqola', 'articles', inner);
-  o.mount = () => { if (m.audio) { IE.wirePlayer({ audio: m.audio, dur: m.dur || 0 }, 'practice'); wireSync(); } };
+  o.mount = () => { if (m.audio) { IE.wirePlayer({ audio: m.audio, alt: m.alt || '', dur: m.dur || 0 }, 'practice'); wireSync(); } };
   return o;
 };
 A.atab = el => {
