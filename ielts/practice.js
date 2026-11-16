@@ -47,14 +47,14 @@ function shadow(m) {
   const o = sub('Shadowing', 'shadow', inner); o.mount = () => { if (IE.guardAudio) IE.guardAudio(document.getElementById('sau')); }; return o;
 }
 const shS = () => { const m = art(V.sh.id); return { m, s: sentsOf(m)[V.sh.i], a: $('#sau') }; };
-A.shplay = () => { const { s, a } = shS(); if (!a) return; if (V.sh.rec) return IE.toast('Avval yozishni to‘xtating'); playSeg(a, s.t - 0.1, s.e + 0.15, V.sh.rate); };
+A.shplay = () => { const { s, a } = shS(); if (!a) return; if (V.sh.rec) return IE.toast('Avval yozishni to‘xtating'); playSeg(a, s.t - IE.artShift(V.sh.id) - 0.1, s.e - IE.artShift(V.sh.id) + 0.15, V.sh.rate); };
 A.shrate = () => { V.sh.rate = V.sh.rate === 1 ? 0.75 : 1; const b = $('#shr'); if (b) b.textContent = V.sh.rate === 1 ? '1×' : '0.75×'; };
 A.shrec = async () => {
   const st = V.sh; const a = $('#sau'); if (a) a.pause();
   if (st.rec) { const url = await IE.rec.stop(); st.rec = false; if (url) st.url = url; return IE.draw(false); }
   try { await IE.rec.start(); st.rec = true; st.url = ''; IE.draw(false); } catch (e) { IE.toast(e && e.name === 'NotAllowedError' ? 'Mikrofonga ruxsat berilmadi' : (e.message || 'Yozib bo‘lmadi')); }
 };
-A.shcmp = async () => { const { s, a } = shS(), u = $('#uau'); if (!a || !u) return; await playSeg(a, s.t - 0.1, s.e + 0.15, V.sh.rate); u.currentTime = 0; u.play().catch(() => {}); };
+A.shcmp = async () => { const { s, a } = shS(), u = $('#uau'); if (!a || !u) return; await playSeg(a, s.t - IE.artShift(V.sh.id) - 0.1, s.e - IE.artShift(V.sh.id) + 0.15, V.sh.rate); u.currentTime = 0; u.play().catch(() => {}); };
 A.shn = async el => {
   const st = V.sh, ss = sentsOf(art(st.id)), d = +el.dataset.d; if (st.rec) { await IE.rec.stop(); st.rec = false; }
   if (st.i + d >= ss.length) { IE.touchDay(); IE.save(); IE.toast('Shadowing tugadi — barakalla!'); IE.confetti(); V.sh = null; return IE.go('shadow'); }
@@ -75,7 +75,7 @@ function dictation(m) {
 }
 IE.dct = el => { if (V.dc) V.dc.val = el.value; };
 const dS = () => { const m = art(V.dc.id); return { m, s: sentsOf(m)[V.dc.i], a: $('#sau') }; };
-A.dcplay = () => { const { s, a } = dS(); if (a) playSeg(a, s.t - 0.1, s.e + 0.15, V.dc.rate); };
+A.dcplay = () => { const { s, a } = dS(); if (a) playSeg(a, s.t - IE.artShift(V.dc.id) - 0.1, s.e - IE.artShift(V.dc.id) + 0.15, V.dc.rate); };
 A.dcrate = () => { V.dc.rate = V.dc.rate === 1 ? 0.75 : 1; const b = $('#dcr'); if (b) b.textContent = V.dc.rate === 1 ? '1×' : '0.75×'; };
 A.dchint = () => { const { s } = dS(); IE.toast('Gap “' + s.x.split(/\s+/)[0] + '” so‘zi bilan boshlanadi'); };
 const norm = w => w.toLowerCase().replace(/[’‘]/g, '\'').replace(/[^a-z0-9']/g, '');

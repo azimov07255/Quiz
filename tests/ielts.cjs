@@ -333,6 +333,14 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
   await A.evaluate(() => { IE.S().lib.push({ id: 'ubb', k: 'p', t: 'BBC proxy-first', au: 'http://open.live.bbc.co.uk/mediaselector/6/redir/version/2.0/mediaset/audio-nondrm-download-rss-low/proto/http/vpid/p0x.mp3', ts: Date.now(), an: 0 }); IE.go('article/ubb'); });
   await A.waitForSelector('#au', { state: 'attached' }); const px0 = st.prox; await A.waitForFunction(() => /cdn\.example\.com/.test(document.querySelector('#au').getAttribute('src')), null, { timeout: 15000 }); ok(st.prox > px0 - 1, 'BBC audiosi darrov proksi orqali (aralash kontent/hotlink aylanib o‘tiladi)');
   await A.evaluate(() => { IE.S().lib = IE.S().lib.filter(x => !['upx', 'ubb'].includes(x.id)); });
+  console.log('8r. Matn va audio sinxronini moslash (reklama/kirish farqi)');
+  await A.evaluate(async () => { await IE.idbSet('mat:usy', { id: 'usy', k: 'p', title: 'Sync test', audio: 'https://cdn.example.com/a.mp3', dur: 20, blocks: [{ s: [[0, 'First sentence here.'], [5, 'Second sentence here.'], [10, 'Third one is here.']] }], vocab: [], grammar: [], groups: [], img: null, src: '' }); IE.S().lib.push({ id: 'usy', k: 'p', t: 'Sync test', au: 'https://cdn.example.com/a.mp3', ts: Date.now(), an: 0 }); IE.go('article/usy'); });
+  await A.waitForSelector('.snt'); await A.evaluate(() => { const a = document.querySelector('#au'); Object.defineProperty(a, 'currentTime', { get: () => 6, set: () => {}, configurable: true }); });
+  await A.waitForFunction(() => document.querySelector('.snt.on') && /Second/.test(document.querySelector('.snt.on').textContent)); ok(true, 'Siljishsiz: 6-soniyada 2-gap belgilanadi');
+  await A.click('.syncb'); await A.click('[data-a="syncadj"][data-d="5"]'); await A.evaluate(() => IE.closeSheet()); await A.waitForFunction(() => document.querySelector('.snt.on') && /Third/.test(document.querySelector('.snt.on').textContent)); ok(await A.evaluate(() => IE.artShift('usy') === 5), 'Qo‘lda +5 s: belgi 3-gapga siljidi, siljish saqlandi');
+  await A.click('.syncb'); await A.click('[data-a="syncpick"]'); await A.locator('.snt >> nth=0').click(); await A.waitForFunction(() => /First/.test((document.querySelector('.snt.on') || {}).textContent || '')); ok(await A.evaluate(() => IE.artShift('usy') === -6), '“Hozir aytilayotgan gapni bosing”: siljish avtomatik topildi (−6 s)');
+  await A.click('.syncb'); await A.click('[data-r="1"]'); await A.evaluate(() => IE.closeSheet()); ok(await A.evaluate(() => IE.artShift('usy') === 0), 'Tozalash ishlaydi');
+  await A.evaluate(() => { IE.S().lib = IE.S().lib.filter(x => x.id !== 'usy'); });
   console.log('9. Ruxsat: guruhsiz foydalanuvchi');
   const { pg: B } = await mk([]); await B.goto(base); await B.waitForSelector('.lockc'); ok((await B.innerText('.lockc')).includes('Ruxsat'), 'guruhsiz: “Ruxsat kerak” ekrani'); await shot(B, '21-lock');
   console.log('10. Kirish ekrani (sessiyasiz)');
