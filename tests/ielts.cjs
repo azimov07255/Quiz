@@ -473,6 +473,16 @@ const PROFILE = g => ({ user_id: 'u1', email: 'sinov@testlar.internal', name: 'S
   await A.goto(base + '#/chat'); await A.waitForSelector('[data-a="agundo"]'); await A.click('[data-a="agundo"]'); ok(await A.evaluate((b) => { const s = IE.S(), k = IE.dayKey(); return !(s.ptask[k] || []).some(t => t.ai && !t.del) && s.prof.target === b; }, before), 'Bekor qilish (undo): vazifalar va maqsad qaytdi');
   await A.goto(base + '#/plan'); await A.waitForSelector('[data-a="agopen"]'); await A.click('[data-a="agopen"]'); await A.waitForSelector('.bub.ai.ag'); ok(true, 'Reja sahifasidagi “AI bilan reja tuzish” tugmasi chatni ochadi');
   await A.goto(base + '#/tools'); await A.waitForSelector('[data-go="agent"]'); ok(true, 'Tools: AI yordamchi kartasi');
+  console.log('8w. v1.7: dizayn uslublari (Liquid Glass, Oltin Premium)');
+  await A.goto(base + '#/me'); await A.waitForSelector('.skins'); ok((await A.locator('.skn').count()) === 3, 'Profil: 3 ta dizayn uslubi kartasi');
+  await A.click('[data-a="skin"][data-v="glass"]'); ok(await A.evaluate(() => document.documentElement.getAttribute('data-skin') === 'glass' && IE.skin() === 'glass'), 'Liquid Glass yoqildi');
+  await A.goto(base + '#/home'); await A.waitForSelector('.hplan'); ok(await A.evaluate(() => { const c = getComputedStyle(document.querySelector('.hplan')), n = getComputedStyle(document.querySelector('.nav')); return /blur/.test(c.backdropFilter || c.webkitBackdropFilter || '') && /blur/.test(n.backdropFilter || n.webkitBackdropFilter || '') && getComputedStyle(document.body, '::before').content !== 'none'; }), 'Liquid Glass: kartalar va menyu xira shisha (backdrop blur), jonli fon'); await shot(A, '40-glass-home');
+  ok(await A.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Liquid Glass: gorizontal siljish yo‘q');
+  await A.goto(base + '#/me'); await A.waitForSelector('.skins'); await A.click('[data-a="skin"][data-v="gold"]'); ok(await A.evaluate(() => document.documentElement.getAttribute('data-skin') === 'gold'), 'Oltin Premium yoqildi');
+  await A.goto(base + '#/home'); await A.waitForSelector('.hplan'); ok(await A.evaluate(() => { const p1 = getComputedStyle(document.documentElement).getPropertyValue('--p1').trim().toLowerCase(), h = getComputedStyle(document.querySelector('.hero h1')).fontFamily; return /^#(b8860b|d4af37)$/.test(p1) && /didot|bodoni|playfair|times/i.test(h); }), 'Oltin Premium: tilla ranglar va serif sarlavhalar'); await shot(A, '41-gold-home');
+  ok(await A.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Oltin Premium: gorizontal siljish yo‘q');
+  await A.reload(); await A.waitForSelector('.hplan'); ok(await A.evaluate(() => document.documentElement.getAttribute('data-skin') === 'gold'), 'Tanlangan uslub qayta ochilganda saqlanadi');
+  await A.goto(base + '#/me'); await A.waitForSelector('.skins'); await A.click('[data-a="skin"][data-v="std"]'); ok(await A.evaluate(() => !document.documentElement.hasAttribute('data-skin') && IE.skin() === 'std'), 'Standart uslubga qaytish');
   console.log('9. Ruxsat: guruhsiz foydalanuvchi');
   const { pg: B } = await mk([]); await B.goto(base); await B.waitForSelector('.lockc'); ok((await B.innerText('.lockc')).includes('Ruxsat'), 'guruhsiz: “Ruxsat kerak” ekrani'); await shot(B, '21-lock');
   console.log('10. Kirish ekrani (sessiyasiz)');

@@ -101,7 +101,7 @@ let booting = false;
 async function boot() {
   if (booting) return; booting = true;
   try {
-    IE.setTheme(IE.theme()); IE.setAccent(IE.accent());
+    IE.setTheme(IE.theme()); IE.setAccent(IE.accent()); IE.setSkin(IE.skin());
     if (!SB.configured || !SB.session()) { showAuth(); return; }
     app.innerHTML = '<div style="padding-top:42vh"><div class="spin"></div></div>';
     try { await Promise.all([loadData(), loadProfile()]); if (IE.camLoad) await IE.camLoad(); }

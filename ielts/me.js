@@ -3,7 +3,7 @@
 'use strict';
 const IE = window.IE, { esc, ic, bd, $, lsGet, lsSet } = IE, S = () => IE.S(), D = IE.D, R = IE.routes, A = IE.act;
 const LV = ['A2', 'B1', 'B2', 'C1'];
-const BK = ['ielts:dhist', 'ielts:dfav', 'ielts:dcx', 'ielts:chats', 'ielts:cmist', 'ielts:toolrecent', 'ielts:pmode', 'ielts:acc', 'ielts:theme', 'ielts:fdur', 'ielts:nohap', 'ielts:cread'];
+const BK = ['ielts:dhist', 'ielts:dfav', 'ielts:dcx', 'ielts:chats', 'ielts:cmist', 'ielts:toolrecent', 'ielts:pmode', 'ielts:acc', 'ielts:skin', 'ielts:theme', 'ielts:fdur', 'ielts:nohap', 'ielts:cread'];
 const hapOn = () => { try { return !localStorage.getItem('ielts:nohap'); } catch (e) { return true; } };
 const mins = () => { const s = S(), f = Object.values(s.focus || {}).reduce((a, b) => a + (+b || 0), 0); return f; };
 R.me = () => {
@@ -26,7 +26,7 @@ R.me = () => {
     '<div class="fld"><label>Hozirgi daraja</label><select data-in="pf" data-f="level"><option value="">Tanlang</option>' + LV.map(l => '<option' + (p.level === l ? ' selected' : '') + '>' + l + '</option>').join('') + '</select></div>' +
     '<div class="fld" style="margin:0"><label>Imtihon sanasi</label><input type="date" value="' + esc(p.date || '') + '" data-in="pf" data-f="date"></div>' +
     '<button class="set" style="margin-top:10px" data-a="pmins"><span class="bd sm sk-T">' + ic('clock') + '</span><div class="tx"><b>Kunlik vaqt</b><span>Reja shunga moslanadi: ' + (p.mins || 60) + ' daqiqa</span></div></button></div>' +
-    '<div class="sec"><h2>Ko‘rinish</h2></div><div class="card rise"><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Aksent rang</div><div class="accs">' + IE.ACC.map(a => '<button class="acc' + (a[0] === acc ? ' on' : '') + '" data-a="acc" data-v="' + a[0] + '" style="--a:' + a[2] + ';--b:' + a[3] + '" aria-label="' + a[1] + '"><i></i><span>' + a[1] + '</span></button>').join('') + '</div>' +
+    '<div class="sec"><h2>Ko‘rinish</h2></div><div class="card rise"><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Dizayn uslubi</div><div class="skins">' + IE.SKINS.map(k => '<button class="skn' + (k[0] === IE.skin() ? ' on' : '') + '" data-a="skin" data-v="' + k[0] + '"><div class="sk-pv ' + k[0] + '"><i></i><i></i></div>' + k[1] + '<small>' + k[2] + '</small></button>').join('') + '</div><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase;margin:16px 0 10px">Aksent rang' + (IE.skin() === 'gold' ? ' · Oltin uslubda o‘chiq' : '') + '</div><div class="accs">' + IE.ACC.map(a => '<button class="acc' + (a[0] === acc ? ' on' : '') + '" data-a="acc" data-v="' + a[0] + '" style="--a:' + a[2] + ';--b:' + a[3] + '" aria-label="' + a[1] + '"><i></i><span>' + a[1] + '</span></button>').join('') + '</div>' +
     '<button class="set" data-a="theme"><span class="bd sm sk-A">' + ic('moon') + '</span><div class="tx"><b>Tungi rejim</b><span>' + (th === 'auto' ? 'Avtomatik' : th === 'dark' ? 'Yoqilgan' : 'O‘chirilgan') + ' · bosib almashtiring</span></div></button>' +
     '<button class="set" data-a="hap"><span class="bd sm sk-S">' + ic('zap') + '</span><div class="tx"><b>Tebranish (haptik)</b><span>' + (hapOn() ? 'Yoqilgan' : 'O‘chirilgan') + '</span></div></button></div>' +
     '<div class="sec"><h2>Ma’lumotlar</h2></div><div class="card rise">' +
@@ -46,6 +46,7 @@ IE.pf = el => {
   const s = S(), f = el.dataset.f, v = el.value; s.prof[f] = f === 'target' ? +v : v; s.pts = Date.now(); IE.save();
   if (f === 'name') { const h = $('.hero h1'); if (h) h.textContent = v || (D.profile && D.profile.name) || ''; const a = $('.avt'); if (a) a.textContent = ((v || IE.dispName())[0] || 'U').toUpperCase(); } else { IE.toast('Saqlandi'); if (f === 'target' || f === 'date') IE.draw(false); }
 };
+A.skin = el => { IE.setSkin(el.dataset.v); IE.vib(18); IE.draw(false); IE.toast(el.dataset.v === 'glass' ? 'Liquid Glass yoqildi' : el.dataset.v === 'gold' ? 'Oltin Premium yoqildi' : 'Standart uslub'); };
 A.acc = el => { IE.setAccent(el.dataset.v); IE.vib(12); IE.draw(false); };
 A.hap = () => { try { hapOn() ? localStorage.setItem('ielts:nohap', '1') : localStorage.removeItem('ielts:nohap'); } catch (e) { /* */ } IE.draw(false); if (hapOn()) IE.vib(30); };
 A.psync = async () => { const e = $('#syncst'); if (e) e.textContent = 'Sinxronlanmoqda…'; try { await IE.sync(); IE.toast('Sinxronlandi ✓'); } catch (er) { IE.toast('Internet yo‘q — keyinroq urinib ko‘ring'); } IE.draw(false); };

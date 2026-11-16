@@ -1,7 +1,7 @@
 /* IELTS · BY AZIMOV — yadro: yordamchilar, ikonkalar, holat (localStorage) va Supabase bilan sinxronlash. */
 (() => {
 'use strict';
-const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '1.6.0' };
+const IE = window.IE = { act: {}, routes: {}, V: {}, D: {}, timers: [], APP_VERSION: '1.7.0' };
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 Object.assign(IE, { $, $$, esc });
@@ -156,6 +156,9 @@ IE.setTheme = t => { try { t === 'auto' ? localStorage.removeItem('ielts:theme')
 /* ---------- aksent rang ---------- */
 IE.ACC = [['violet', 'Binafsha', '#5b3df5', '#c026d3'], ['blue', 'Ko‘k', '#2563eb', '#06b6d4'], ['green', 'Yashil', '#059669', '#84cc16'], ['pink', 'Pushti', '#db2777', '#f97316'], ['orange', 'To‘q sariq', '#ea580c', '#f59e0b'], ['slate', 'Grafit', '#334155', '#6366f1']];
 IE.accent = () => { try { return localStorage.getItem('ielts:acc') || 'violet'; } catch (e) { return 'violet'; } };
+IE.SKINS = [['std', 'Standart', 'Binafsha gradient, yengil kartalar'], ['glass', 'Liquid Glass', 'Shaffof, xira shisha — iPhone uslubida'], ['gold', 'Oltin Premium', 'Qora/ivory + tilla, serif sarlavhalar']];
+IE.skin = () => { try { const v = localStorage.getItem('ielts:skin'); return v === 'glass' || v === 'gold' ? v : 'std'; } catch (e) { return 'std'; } };
+IE.setSkin = k => { try { k === 'std' ? localStorage.removeItem('ielts:skin') : localStorage.setItem('ielts:skin', k); } catch (e) { /* */ } if (k === 'std') document.documentElement.removeAttribute('data-skin'); else document.documentElement.setAttribute('data-skin', k); const m = document.querySelector('meta[name=theme-color]'); if (m && k === 'gold') m.content = '#2b2007'; else if (IE.setTheme) IE.setTheme(IE.theme()); };
 IE.setAccent = a => { try { a === 'violet' ? localStorage.removeItem('ielts:acc') : localStorage.setItem('ielts:acc', a); } catch (e) { /* */ } if (a === 'violet') document.documentElement.removeAttribute('data-acc'); else document.documentElement.setAttribute('data-acc', a); };
 
 /* ---------- IndexedDB (shaxsiy lug‘at uchun) ---------- */

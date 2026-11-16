@@ -31,7 +31,7 @@
   try { seen = sessionStorage.getItem('ielts:splash') === '1'; sessionStorage.setItem('ielts:splash', '1'); } catch (e) {}
   if (!force && (navigator.webdriver || seen)) { s.parentNode.removeChild(s); }
   else { document.body.className += ' splashing'; setTimeout(function () { s.className += ' out'; setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); document.body.className = document.body.className.replace(' splashing', ''); }, 520); }, 1500); }
-  try { var t = localStorage.getItem('ielts:theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+  try { var t = localStorage.getItem('ielts:theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); var k = localStorage.getItem('ielts:skin'); if (k === 'glass' || k === 'gold') document.documentElement.setAttribute('data-skin', k); var a = localStorage.getItem('ielts:acc'); if (a) document.documentElement.setAttribute('data-acc', a); } catch (e) {}
 })();
 </script>
 <script src="../config.js"></script>

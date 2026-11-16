@@ -9,7 +9,9 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v1.6.0)
+## Hozir ishlaydi (v1.7.0)
+- **Dizayn uslublari** (Profil → Ko‘rinish → Dizayn uslubi): **Standart**, **Liquid Glass** (iPhone uslubidagi xira shisha: backdrop blur, yorqin jonli fon, yaltiroq tugmalar va menyu) va **Oltin Premium** (qora/ivory + tilla gradient, serif sarlavhalar, yaltiroq hero). Hammasi yorug‘ va tungi rejim bilan ishlaydi; tanlov saqlanadi. Liquid Glass aksent ranglar bilan birga ishlaydi.
+## (v1.6)
 - **AI agent** (`agent.js`, Edge Function `ielts-agent`): Chat → “AI yordamchi” (yoki Reja → “AI bilan reja tuzish”, Tools). “2 haftalik reja tuz”, “ertaga dam kuni”, “Writing uchun 10 ta so‘z qo‘sh”, “maqsadim 7.5” kabi so‘rovlarga **taklif kartasi** chiqaradi; faqat “Qo‘llash” bosilgach bajariladi, “Bekor qilish” bilan qaytariladi. Amallar: vazifa qo‘shish (reja bilan bog‘langan, bajarilganda avtomatik belgilanadi), dam kuni, eski AI vazifalarni o‘chirish, profil sozlamalari, so‘z qo‘shish, ekranni ochish. Mijoz har amalni tekshiradi (sana, qiymat, marshrut oq ro‘yxati).
 - **Tahlil markazi: Listening** — Reading kabi: skript so‘zlari, har savol uchun “nega?”, xato turlari (eshitish bo‘yicha maslahatlar), qayta yechish, skriptda dalil, so‘zlar testi.
 ## (v1.5)
