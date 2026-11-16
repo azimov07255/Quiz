@@ -49,9 +49,17 @@ function wordsHTML(m, s) {
   if (words && words.length) return words.map(w => '<span class="w" data-a="aword" data-w="' + esc(clean(w[0])) + '" data-ws="' + w[1] + '" data-we="' + w[2] + '">' + esc(w[0]) + '</span>').join(' ');
   return text.split(' ').map(tok => { const c = clean(tok), v = c && vocabFor(m, c); return '<span class="w' + (v ? ' vw' : '') + '" data-a="aword" data-w="' + esc(c) + '">' + esc(tok) + '</span>'; }).join(' ');
 }
+/** Podkast boshidagi reklama/kirish gaplarini aniqlaydi (dastur “Hello, welcome…” dan boshlanadi). */
+const AD = /supported by ads|advertis|sponsor|www\.|\.(?:de|com|net)\b/i, foreign = x => (x.match(/[äöüßéèàçñ]/gi) || []).length >= 2;
+IE.adInfo = m => {
+  if (!m || m.k !== 'p') return { set: new Set(), start: null };
+  const all = allSents(m).slice(0, 12); let st = -1;
+  for (let i = 0; i < all.length; i++) { const x = all[i].x; if (AD.test(x) || foreign(x)) continue; if (/\b(hello|welcome|you'?re listening|this is)\b/i.test(x)) { st = i; break; } }
+  return st > 0 ? { set: new Set(all.slice(0, st).map(s => s.bi + ':' + s.si)), start: all[st] } : { set: new Set(), start: null };
+};
 function textHTML(m) {
-  const au = !!m.audio;
-  return m.blocks.map(b => b.h ? '<h3 class="ah">' + esc(b.x) + '</h3>' : '<p class="ap">' + b.s.map(s => '<span class="snt" data-t="' + s[0] + '"' + (s[2] && s[2].length ? ' data-wl="1"' : '') + '>' + (au && m.k !== 'a' ? '<i class="sp" data-a="aseek" data-t="' + s[0] + '">' + ic('play') + '</i>' : '') + wordsHTML(m, s) + ' </span>').join('') + '</p>').join('');
+  const au = !!m.audio, ad = IE.adInfo(m).set;
+  return m.blocks.map((b, bi) => b.h ? '<h3 class="ah">' + esc(b.x) + '</h3>' : '<p class="ap">' + b.s.map((s, si) => '<span class="snt' + (ad.has(bi + ':' + si) ? ' adx' : '') + '" data-t="' + s[0] + '"' + (s[2] && s[2].length ? ' data-wl="1"' : '') + '>' + (au && m.k !== 'a' ? '<i class="sp" data-a="aseek" data-t="' + s[0] + '">' + ic('play') + '</i>' : '') + wordsHTML(m, s) + ' </span>').join('') + '</p>').join('');
 }
 
 /* ---------- markaz (ro‘yxat + qo‘shish) ---------- */
@@ -191,7 +199,7 @@ const setShift = (id, v) => { const mt = S().lib.find(x => x.id === id); if (!mt
 const syncSheet = () => {
   const id = V.art && V.art.id, sh = IE.artShift(id);
   IE.sheet('<h2>Matn va audioni moslash</h2><p class="mu sm" style="margin:4px 0 12px">Audioda reklama yoki kirish bo‘lsa, matn bilan farq qilishi mumkin. Eng oson yo‘l: audioni boshlang va hozir <b>aytilayotgan gapni</b> matndan bosing.</p>' +
-    '<button class="btn block" data-a="syncpick">' + ic('target') + ' Hozir aytilayotgan gapni belgilayman</button>' +
+    '<button class="btn block" data-a="syncpick">' + ic('target') + ' Hozir aytilayotgan gapni belgilayman</button>' + (IE.adInfo(IE.matSync(id)).start ? '<button class="btn block ghost" style="margin-top:8px" data-a="syncstart">' + ic('play') + ' Reklamadan keyin dastur boshlanishini belgilayman</button>' : '') +
     '<div class="lm-l">Qo‘lda sozlash <span style="text-transform:none;letter-spacing:0">(hozir: ' + (sh > 0 ? '+' : '') + sh.toFixed(1) + ' s)</span></div>' +
     '<div class="seg wrap"><button data-a="syncadj" data-d="-5">−5</button><button data-a="syncadj" data-d="-1">−1</button><button data-a="syncadj" data-d="-0.3">−0.3</button><button data-a="syncadj" data-d="0.3">+0.3</button><button data-a="syncadj" data-d="1">+1</button><button data-a="syncadj" data-d="5">+5</button></div>' +
     '<p class="mu xs" style="margin:8px 0 14px"><b>+</b> — matn audiodan orqada qolsa (belgilangan gap yuqorida qolsa). <b>−</b> — matn oldinga ketib qolsa (belgi pastroqda bo‘lsa).</p>' +
@@ -199,6 +207,12 @@ const syncSheet = () => {
 };
 A.sync = () => { if (V.art) syncSheet(); };
 A.syncadj = el => { if (!V.art) return; setShift(V.art.id, el.dataset.r ? 0 : IE.artShift(V.art.id) + (+el.dataset.d)); syncSheet(); };
+A.syncstart = () => {
+  const m = IE.matSync(V.art.id), st = IE.adInfo(m).start; if (!st) return; IE.closeSheet();
+  const old = document.getElementById('syncnow'); if (old) old.remove(); const b = document.createElement('button'); b.id = 'syncnow'; b.className = 'syncnow'; b.innerHTML = ic('play') + ' Dastur boshlandi — “' + esc(st.x.slice(0, 28)) + '…”';
+  b.onclick = () => { const a = IE.audioEl(); if (a) { setShift(V.art.id, st.t - a.currentTime); IE.toast('Moslandi: ' + (IE.artShift(V.art.id) > 0 ? '+' : '') + IE.artShift(V.art.id).toFixed(1) + ' s'); IE.vib(15); } b.remove(); };
+  document.body.appendChild(b); IE.toast('Audioni boshlang. Reklamadan keyin dastur boshlanganda pastdagi tugmani bosing');
+};
 A.syncpick = () => { IE.closeSheet(); V.syncPick = true; IE.toast('Audio ijro bo‘layotganda, hozir aytilayotgan gapni bosing'); };
 document.addEventListener('click', e => {
   if (!V.syncPick) return; const s = e.target && e.target.closest && e.target.closest('.snt'); if (!s || !V.art) return;
@@ -229,7 +243,7 @@ A.aword = async el => {
       (base.note ? '<div class="tip8">' + esc(base.note) + '</div>' : '') +
       (f ? f.meanings.slice(0, 2).map(x => '<h4 class="dh">' + esc(x.pos) + '</h4><p class="df">' + esc((x.defs[0] || {}).d || '') + ((x.defs[0] || {}).ex ? '<em>“' + esc(x.defs[0].ex) + '”</em>' : '') + '</p>').join('') : '') +
       (base.ex ? '<h4 class="dh">Matnda</h4><p class="df"><em>“…' + esc(base.ex) + '…”</em></p>' : '') +
-      '<button class="btn block' + (my ? ' ghost' : '') + '" style="margin-top:14px"' + (my ? ' disabled' : ' data-a="wadd"') + '>' + (my ? ic('check') + ' Lug‘atingizda bor' : ic('star') + ' Mening so‘zlarimga qo‘shish') + '</button>');
+      '<button class="btn block' + (my ? ' ghost' : '') + '" style="margin-top:14px"' + (my ? ' disabled' : ' data-a="wadd"') + '>' + (my ? ic('check') + ' Lug‘atingizda bor' : ic('star') + ' Mening so‘zlarimga qo‘shish') + '</button><button class="btn block ghost" style="margin-top:8px" data-go="dict/' + encodeURIComponent(w) + '">Dictionary’da to‘liq ko‘rish</button>');
   };
   V.wcur = base; V.wpaint = paint; paint();
   try { const c = IE.dcGet(w); if (c && c.uz && !base.uz) { base.uz = c.uz; base.note = c.note || ''; base.busy = false; paint(); } } catch (e) { /* */ }

@@ -67,8 +67,8 @@ IE.draw = (anim = true) => {
 };
 IE.curRoute = (location.hash.replace(/^#\/?/, '') || 'home'); IE.prevRoute = '';
 window.addEventListener('hashchange', () => {
-  IE.prevRoute = IE.curRoute; IE.curRoute = (location.hash.replace(/^#\/?/, '') || 'home');
-  IE.rec.cancel(); IE.closeSheet(); V.s1 = null; V.s2 = null; V.fc = null; V.w = null;
+  IE.prevRoute = IE.curRoute; IE.curRoute = (location.hash.replace(/^#\/?/, '') || 'home'); if (IE.toolUse) IE.toolUse(IE.curRoute.split('/')[0]);
+  IE.rec.cancel(); IE.closeSheet(); { const sn = document.getElementById('syncnow'); if (sn) sn.remove(); } V.s1 = null; V.s2 = null; V.fc = null; V.w = null;
   if (!D.access) return;
   IE.draw(true); window.scrollTo(0, 0);
 });
@@ -82,7 +82,7 @@ document.addEventListener('click', e => {
 });
 const onIn = e => {
   const el = e.target, k = el.dataset && el.dataset.in; if (!k) return;
-  const m = { fill: IE.inp, sel: IE.inp, ed: IE.edInput, notes: IE.inpNotes, vs: IE.vsearch, pf: IE.pf, lseek: IE.lseek, afollow: IE.afollow, dct: IE.dct, bks: IE.bks, tyin: IE.tyin, ntx: IE.ntx, lvol: IE.lvol }[k]; if (m) m(el);
+  const m = { fill: IE.inp, sel: IE.inp, ed: IE.edInput, notes: IE.inpNotes, vs: IE.vsearch, pf: IE.pf, lseek: IE.lseek, afollow: IE.afollow, dct: IE.dct, bks: IE.bks, tyin: IE.tyin, ntx: IE.ntx, lvol: IE.lvol, dsug: IE.dsug }[k]; if (m) m(el);
 };
 document.addEventListener('input', onIn);
 document.addEventListener('change', e => {

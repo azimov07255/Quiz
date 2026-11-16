@@ -9,7 +9,11 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v1.2.3)
+## Hozir ishlaydi (v1.3.0)
+- **Practice: bitta qism yoki to‘liq** — Practice, Listening va Reading ro‘yxatlarida tanlov: “Bitta qism · 10–13 savol” yoki “To‘liq” (Listening 4 qism / Reading 3 passage, 60 daqiqa, Scores bilan). Tanlov eslab qolinadi.
+- **Dictionary 2.0** (`dict.js`, edge function `ielts-dict`): avto-takliflar, ta’rif + UK/US talaffuz, o‘zbekcha tarjima (AI, umumiy kesh), sinonim/antonim/birikma/so‘z oilasi/IELTS misollari tablari, O‘zbekcha→Inglizcha va gap tarjimasi (paraphrase bilan) rejimlari, sevimlilar, tarix, ovozli qidiruv, “Lug‘atimga”/flesh-kart, mini-test, `dict/<so‘z>` havolasi (matn/maqoladagi so‘zdan ham).
+- **Tools markazi**: tezkor lug‘at qidiruvi, “Davom ettirish”, guruhlangan vositalar (statistika bilan).
+- **Podkast reklamasi**: homiy/reklama gaplari xira ko‘rsatiladi; moslash oynasida “dastur boshlanishi” tugmasi — audioda dastur boshlanganda bosiladi, siljish avtomatik hisoblanadi.
 - **Home**: target band, overall, seriya, imtihongacha kun, tezkor mashq, so‘nggi natijalar
 - **Listening**: 8 ta haqiqiy diktor yozuvi (VOA Learning English, ommaviy mulk; `audio/`), 80 savol, imtihon rejimi (bir marta, to‘xtatib bo‘lmaydi) va mashq rejimi (to‘xtatish, 10 s orqaga, tezlik), natijada har savol uchun “shu joydan tinglash” va bosiladigan transkript. Yozuv va matn mosligi offlayn nutq tanish bilan tekshirilgan, vaqtlar shu orqali aniqlangan
 - **Articles & Podcasts**: 8 ta VOA maqolasi (audio + rasm), matn audio bilan birga yuradi (joriy gap belgilanadi, ▶ bilan shu joydan tinglash), so‘z bosilsa ma’no (maqola lug‘ati → ochiq lug‘at → AI tarjima), 10 ta lug‘at, 3 ta grammatika qoidasi va 8 ta savol; rasmlar Wikimedia Commons (CC0/PD/CC BY(-SA)), mualliflari `data/articles.json` da.
