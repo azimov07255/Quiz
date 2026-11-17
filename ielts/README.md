@@ -9,7 +9,16 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v2.0.0)
+## Hozir ishlaydi (v2.1.0)
+- **Reading 40 savol**: 3 passage = 13 + 13 + 14 (Mock’dagi “39 savol” tuzatildi).
+- **Writing Task 1**: 6 ta tayyor diagramma (ustunli, chiziqli, doira, jadval — SVG, `task1.js`); AI bahosi diagramma ma’lumotlarini matnli tavsif sifatida oladi (`ielts-wr`). Task 1 — 150+ so‘z, 20 daqiqa.
+- **Speaking Part 3**: Part 2 mavzusining muhokama savollari alohida (`speaking/3/<i>`) — yozib olish + AI baho; Cambridge Speaking kartasida ham.
+- **Mock**: Writing Task 1 + Task 2, Speaking Part 1 + 2 + 3; Writing bandi Task 1 : Task 2 = 1 : 2 og‘irlik bilan.
+- **Cambridge kitobdan avtomatik**: “Strukturani qayta aniqlash” endi Writing Task 1/2 va Speaking sahifalarini ham matn bo‘yicha topadi (WRITING TASK 1/2, SPEAKING PART 1…), “Test n ni qo‘shish” sahifani rasmga olib `ielts-wr` (extract) orqali Writing/Speaking birliklarini ham qo‘shadi. Topilmasa, bet oralig‘ini qo‘lda yozsa bo‘ladi.
+- **Fayldan import**: Cambridge → Reading/Listening qo‘shish ichida HTML (CD), PDF, TXT/MD fayl(lar)dan matn olinadi (`IE.fileText`) va `camimport` ga beriladi.
+- **Internetdan topib qo‘shish**: Maqolalar — Wikipedia (CORS API) dan mavzu bo‘yicha eng mos maqola(lar); Podkastlar — iTunes katalogi → RSS → birinchi epizod; bo‘sh qidiruv = IELTS mavzusini o‘zi tanlaydi. Maqola RSS manbalari (BBC, VOA Learning English) tayyor tugmalar sifatida.
+
+## (v2.0)
 - **Xatolar banki** (`mb.js`): Reading va Listening’dagi barcha xato savollar (har testning oxirgi urinishi bo‘yicha) takrorlash tizimida (1–3–7–16–35 kun). To‘g‘ri → keyingi quti, xato → bugun yana qaytadi. Zaif savol turlari, Home kartasi, Reja vazifasi, qurilmalar o‘rtasida sinxron (`S().mb`).
 - **Writing murabbiy**: baholangan inshoni “Qayta yozish” (asl nusxaga bog‘lanadi) → qayta baholash → mezonlar bo‘yicha oldingi/hozirgi solishtirish; “Mezonlar dinamikasi” grafigi; AI tuzatishlarini bir bosishda “Iboralarimga” (lug‘at + takrorlash).
 - **AI haftalik trener**: Reja → Hafta (yakshanba/dushanba — Home’da ham) — AI hafta statistikasi, band trendi, xatolar banki va Writing mezonlariga qarab tahlil qiladi va keyingi hafta rejasini taklif kartasi sifatida beradi (tasdiqlab qo‘llanadi).

@@ -76,7 +76,7 @@ const libRow = x => '<div class="item' + (V.newId === x.id ? ' fresh' : '') + '"
 R.articles = a => {
   const tab = a[0] === 'tab' ? a[1] : (V.atab || 'a'); V.atab = tab; const s = S();
   if (tab === 'p') seedPods();
-  const body = tab === 'a' ? '<div class="lst">' + D.articles.items.map(m => {
+  const body = tab === 'a' ? webCard('a') + '<div class="lst">' + D.articles.items.map(m => {
     const last = s.arts.filter(r => r.id === m.id).slice(-1)[0];
     return '<button class="acard rise" data-go="article/' + m.id + '"><div class="aimg" style="background-image:url(\'' + esc(m.img.src) + '\')"></div><div class="abody"><b>' + esc(m.title) + '</b><span>' + esc(m.topic) + '</span><div class="ameta"><span class="chip">' + esc(m.level) + '</span><span class="chip">' + ic('book') + ' ' + m.mins + ' daq</span><span class="chip">' + ic('head') + ' ' + mmss(m.dur) + '</span>' + (last ? '<span class="chip ok">' + last.raw + '/' + last.tot + '</span>' : '') + '</div></div></button>';
   }).join('') + '</div><p class="hint" style="margin-top:14px">' + ic('bulb') + ' Audio — VOA Learning English; rasmlar — Wikimedia Commons (ommaviy mulk/CC). Matnni audio bilan birga kuzating, so‘zni bosing, lug‘at va grammatikani o‘rganing.</p>' + artAdd() : podsHTML();
@@ -95,22 +95,95 @@ function podsHTML() {
     '<div class="two"><button class="btn sm" data-a="nfeed"' + (n.busy ? ' disabled' : '') + '>' + (n.busy === 'feed' ? 'Yuklanmoqda…' : 'Ro‘yxatni ochish') + '</button><button class="btn sm ghost" data-a="nclose">Yopish</button></div>' +
     (n.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(n.err) + '</p>' : '') + '</div>' +
     (n.feed ? '<div class="sec"><h2>' + esc(n.feed.title || 'Ro‘yxat') + '</h2></div><div class="lst">' + n.feed.items.map((it, i) => '<div class="item"><div class="tx"><b style="white-space:normal">' + esc(it.t) + '</b><span>' + esc(it.d.slice(0, 16)) + (it.dur ? ' · ' + esc(fmtDur(it.dur)) : '') + (it.au ? '' : ' · audio yo‘q') + '</span></div>' + (it.au && have(it) ? '<span class="chip ok">' + ic('check') + ' Qo‘shildi</span>' : '<button class="btn sm" data-a="nadd" data-i="' + i + '">Qo‘shish</button>') + '</div>').join('') + '</div>' : '');
-  return mineH + add;
+  return webCard('p') + mineH + add;
 }
 function artAdd() {
-  const n = net(), mine = S().lib.filter(x => x.k !== 'p').slice().reverse(), open = n.openA || n.paste || n.busy === 'art';
+  const n = net(), mine = S().lib.filter(x => x.k !== 'p').slice().reverse(), open = n.openA || n.paste || n.busy === 'art' || n.afeed || n.busy === 'af';
   return '<div class="sec"><h2>Mening maqolalarim</h2></div>' + (mine.length ? '<div class="lst">' + mine.map(libRow).join('') + '</div>' : '<div class="card empty">Hali maqola qo‘shilmagan.</div>') +
     (!open ? '<button class="btn block ghost" style="margin-top:16px" data-a="naopen">' + ic('plus') + ' Maqola qo‘shish</button>' :
-    '<div class="card" style="margin-top:16px"><b>Maqola qo‘shish</b><div class="sm mu">Maqola havolasini qo‘ying yoki matnni qo‘lda kiriting — AI lug‘at, grammatika va savollar tuzadi.</div>' +
+    '<div class="card" style="margin-top:16px"><b>Maqola qo‘shish</b><div class="sm mu">Tayyor manbani tanlang, maqola havolasini qo‘ying yoki matnni qo‘lda kiriting — AI lug‘at, grammatika va savollar tuzadi.</div>' +
+    '<div class="seg" style="margin-top:10px;padding-bottom:4px">' + APRE.map(p => '<button data-a="nprea" data-u="' + esc(p[1]) + '">' + esc(p[0]) + '</button>').join('') + '</div>' +
     '<input class="search" id="nau" style="margin:10px 0" placeholder="https://…  (maqola havolasi)" value="' + esc(n.aurl || '') + '" autocapitalize="off" spellcheck="false">' +
     '<div class="two"><button class="btn sm" data-a="nart"' + (n.busy ? ' disabled' : '') + '>' + (n.busy === 'art' ? 'Yuklanmoqda…' : 'Havoladan olish') + '</button><button class="btn sm ghost" data-a="nclose">Yopish</button></div>' +
     (n.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(n.err) + '</p>' : '') +
     '<button class="chip" style="margin-top:12px" data-a="npaste">' + ic('doc') + ' Matnni qo‘lda qo‘shish</button>' +
+    (n.busy === 'af' ? '<div class="mu sm row" style="gap:8px;margin-top:10px"><div class="spin sm"></div> Ro‘yxat yuklanmoqda…</div>' : '') +
+    (n.afeed ? '<div class="sec"><h2>' + esc(n.afeed.title || 'Ro‘yxat') + '</h2></div><div class="lst">' + n.afeed.items.filter(it => it.link).map((it, i) => '<div class="item"><div class="tx"><b style="white-space:normal">' + esc(it.t) + '</b><span>' + esc(it.d.slice(0, 16)) + '</span></div>' + (S().lib.some(x => x.src === it.link) ? '<span class="chip ok">' + ic('check') + ' Qo‘shildi</span>' : '<button class="btn sm" data-a="naadd" data-l="' + esc(it.link) + '"' + (n.busy ? ' disabled' : '') + '>Qo‘shish</button>') + '</div>').join('') + '</div>' : '') +
     (n.paste ? '<div style="margin-top:10px"><input class="search" id="ptt" placeholder="Sarlavha" style="margin-bottom:8px"><textarea class="ed" id="ptx" style="min-height:140px;font:15px/1.5 -apple-system,sans-serif" placeholder="Inglizcha matnni shu yerga qo‘ying…"></textarea><button class="btn sm block" style="margin-top:8px" data-a="npadd">Qo‘shish</button></div>' : '') + '</div>');
 }
+/* ---------- internetdan topib qo‘shish: Wikipedia (maqola) va iTunes katalogi (podkast) + RSS manbalar ---------- */
+const APRE = [['BBC · Science', 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'], ['BBC · Technology', 'https://feeds.bbci.co.uk/news/technology/rss.xml'], ['BBC · Health', 'https://feeds.bbci.co.uk/news/health/rss.xml'], ['BBC · Education', 'https://feeds.bbci.co.uk/news/education/rss.xml'], ['BBC · World', 'https://feeds.bbci.co.uk/news/world/rss.xml'], ['VOA Learning English', 'https://learningenglish.voanews.com/podcast/?count=20&zoneId=1689']];
+const TOPICS = ['climate change', 'renewable energy', 'artificial intelligence', 'urbanisation', 'online education', 'public health', 'globalisation', 'space exploration', 'biodiversity', 'sleep', 'migration', 'tourism', 'cybersecurity', 'ocean pollution', 'memory and learning', 'sustainable transport', 'ageing population'];
+const PODQ = ['english listening practice', 'ielts listening', 'bbc learning english', 'voa learning english', 'news in slow english', 'english conversation'];
+const web = () => net().web || (net().web = { q: '', busy: '', err: '', res: null });
+const pick = a => a[Math.random() * a.length | 0];
+const jget = async u => { let r; try { r = await fetch(u); } catch (e) { const er = new Error('Internetga ulanib bo‘lmadi.'); er.net = true; throw er; } if (!r.ok) throw new Error('Manba javob bermadi (' + r.status + ')'); return r.json(); };
+const wikiSearch = async q => {
+  const d = await jget('https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=' + encodeURIComponent(q) + '&gsrlimit=8&prop=extracts|pageimages&exintro=1&explaintext=1&exlimit=max&piprop=thumbnail&pithumbsize=900&format=json&origin=*');
+  return Object.values((d.query && d.query.pages) || {}).sort((a, b) => (a.index || 0) - (b.index || 0)).map(p => ({ title: p.title, sn: String(p.extract || '').replace(/\s+/g, ' ').slice(0, 170), img: (p.thumbnail && p.thumbnail.source) || '', url: 'https://en.wikipedia.org/wiki/' + encodeURIComponent(p.title.replace(/ /g, '_')) })).filter(x => x.sn.length > 40);
+};
+const SKIP_SEC = /^(see also|references|external links|notes|further reading|sources|bibliography|citations|footnotes|gallery|footnotes and references)$/i;
+const wikiFull = async title => {
+  const d = await jget('https://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&redirects=1&titles=' + encodeURIComponent(title) + '&format=json&origin=*'), pg = Object.values((d.query && d.query.pages) || {})[0];
+  let skip = false; const out = []; let len = 0;
+  String((pg && pg.extract) || '').split(/\n+/).map(x => x.trim()).filter(Boolean).forEach(l => {
+    const h = /^=+\s*(.+?)\s*=+$/.exec(l); if (h) { skip = SKIP_SEC.test(h[1]); if (!skip && len < 9000) out.push(h[1]); return; }
+    if (skip || len > 9000) return; out.push(l); len += l.length;
+  });
+  return out.join('\n\n');
+};
+async function addWiki(x, opt) {
+  if (S().lib.some(m => m.src === x.url)) return null;
+  const text = await wikiFull(x.title); if (text.length < 400) throw new Error('“' + x.title + '” maqolasi juda qisqa');
+  return addArticle(x.title, text, x.url, x.img, opt);
+}
+function webCard(kind) {
+  const w = web(), P = kind === 'p', busy = w.busy === kind, r = w.res && w.res.kind === kind ? w.res : null;
+  const list = !r ? '' : r.kind === 'a' ? '<div class="lst" style="margin-top:12px">' + r.items.map((x, i) => '<div class="item"><div class="tx"><b style="white-space:normal">' + esc(x.title) + '</b><span style="white-space:normal;display:block">' + esc(x.sn) + '…</span></div>' + (S().lib.some(m => m.src === x.url) ? '<span class="chip ok">' + ic('check') + ' Qo‘shildi</span>' : '<button class="btn sm" data-a="nwadd" data-i="' + i + '"' + (w.busy ? ' disabled' : '') + '>Qo‘shish</button>') + '</div>').join('') + '</div>' :
+    '<div class="lst" style="margin-top:12px">' + r.items.map((x, i) => '<div class="item">' + (x.img ? '<span class="aimg sm" style="background-image:url(\'' + esc(x.img) + '\')"></span>' : bd('head', 'L', 'sm')) + '<div class="tx"><b style="white-space:normal">' + esc(x.t) + '</b><span>' + esc(x.by) + '</span></div><button class="btn sm ghost" data-a="nwshow" data-i="' + i + '">Epizodlar</button></div>').join('') + '</div>';
+  return '<div class="card rise webc" style="margin-bottom:14px"><div class="row">' + bd('search', 'A') + '<div style="flex:1"><b style="font-size:16px">Internetdan topib qo‘shish</b><div class="sm mu">' + (P ? 'Mavzu yozing — podkast katalogidan topib, eng mosini qo‘shaman.' : 'Mavzu yozing — Wikipedia’dan eng mos maqolani topib qo‘shaman.') + ' Bo‘sh qoldirsangiz, IELTS mavzusini o‘zim tanlayman.</div></div></div>' +
+    '<input class="search" id="nwq" style="margin:10px 0" placeholder="' + (P ? 'masalan: ielts listening' : 'masalan: climate change') + '" value="' + esc(w.q || '') + '" autocapitalize="off" spellcheck="false">' +
+    '<button class="btn block" data-a="nweb"' + (w.busy ? ' disabled' : '') + '>' + (busy ? '<span class="spin sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"></span> Qidirilmoqda…' : ic('spark') + ' Topib qo‘shish') + '</button>' +
+    (w.err && w.errK === kind ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(w.err) + '</p>' : '') + list + '</div>';
+}
+A.nweb = async () => {
+  const w = web(), P = V.atab === 'p', kind = P ? 'p' : 'a', typed = readUrl('#nwq'); w.q = typed; w.busy = kind; w.err = ''; w.errK = kind; w.res = null; IE.draw(false);
+  const q = typed || pick(P ? PODQ : TOPICS);
+  try {
+    if (!P) {
+      const items = await wikiSearch(q); if (!items.length) throw new Error('“' + q + '” bo‘yicha maqola topilmadi. Boshqacha yozib ko‘ring.');
+      w.res = { kind, q, items };
+      let added = null; for (const x of items.slice(0, 3)) { try { added = await addWiki(x, { stay: true }); if (added) break; } catch (e) { if (e.net) throw e; } }
+      if (!added) IE.toast('Ro‘yxatdagilar allaqachon qo‘shilgan yoki juda qisqa');
+    } else {
+      const d = await jget('https://itunes.apple.com/search?media=podcast&limit=8&term=' + encodeURIComponent(q)), items = (d.results || []).filter(x => x.feedUrl).map(x => ({ t: x.collectionName || x.trackName, by: x.artistName || '', feed: x.feedUrl, img: x.artworkUrl100 || '' }));
+      if (!items.length) throw new Error('“' + q + '” bo‘yicha podkast topilmadi.');
+      w.res = { kind, q, items };
+      const feed = await IE.ai({ action: 'feed', url: items[0].feed }), it = (feed.items || []).find(x => x.au && !S().lib.some(m => m.au === x.au));
+      if (it) { addPod(it, feed); IE.toast('Qo‘shildi: ' + it.t.slice(0, 40)); } else IE.toast('Birinchi podkastda yangi epizod topilmadi — pastdan boshqasini tanlang');
+    }
+  } catch (e) { w.err = e.net ? e.message : (e.message || 'Xatolik'); w.res = w.res || null; }
+  w.busy = ''; if (location.hash.startsWith('#/articles')) { IE.draw(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+};
+A.nwadd = async el => {
+  const w = web(), x = w.res && w.res.items[+el.dataset.i]; if (!x || w.busy) return; w.busy = 'a'; w.err = ''; w.errK = 'a'; IE.draw(false);
+  try { await addWiki(x, { stay: true }); } catch (e) { w.err = e.message || 'Xatolik'; }
+  w.busy = ''; IE.draw(false);
+};
+A.nwshow = async el => { const w = web(), x = w.res && w.res.items[+el.dataset.i]; if (!x) return; const n = net(); n.url = x.feed; n.openP = true; w.res = null; IE.draw(false); A.nfeed(); };
+A.nprea = async el => {
+  const n = net(); n.openA = true; n.afeed = null; n.busy = 'af'; n.err = ''; IE.draw(false);
+  try { n.afeed = await IE.ai({ action: 'feed', url: el.dataset.u }); } catch (e) { n.err = e.message; }
+  n.busy = ''; if (location.hash.startsWith('#/articles')) IE.draw(false);
+};
+A.naadd = async el => {
+  const n = net(), link = el.dataset.l; if (!link || n.busy) return; n.busy = 'art'; n.err = ''; IE.draw(false);
+  try { const d = await IE.ai({ action: 'article', url: link }); await addArticle(d.title, d.text, link, d.image, { stay: true }); } catch (e) { n.err = e.message; }
+  n.busy = ''; if (location.hash.startsWith('#/articles')) IE.draw(false);
+};
 A.nopen = () => { net().openP = true; IE.draw(false); };
 A.naopen = () => { net().openA = true; IE.draw(false); };
-A.nclose = () => { const n = net(); n.openP = n.openA = n.paste = false; n.feed = null; n.err = ''; IE.draw(false); };
+A.nclose = () => { const n = net(); n.openP = n.openA = n.paste = false; n.feed = null; n.afeed = null; n.err = ''; IE.draw(false); };
 A.npre = el => { const n = net(); n.url = el.dataset.u; n.openP = true; IE.draw(false); A.nfeed(); };
 A.npaste = () => { net().paste = !net().paste; IE.draw(false); };
 const readUrl = id => { const i = $(id); return i ? i.value.trim() : ''; };
@@ -126,16 +199,17 @@ A.nart = async () => {
   try { const d = await IE.ai({ action: 'article', url: n.aurl }); await addArticle(d.title, d.text, n.aurl, d.image); } catch (e) { n.err = e.message; }
   n.busy = ''; if (location.hash.startsWith('#/articles')) IE.draw(false);
 };
-async function addArticle(title, text, src, image) {
+async function addArticle(title, text, src, image, opt) {
   const id = 'u' + Date.now(), m = { id, k: 'a', title: String(title || 'Maqola').slice(0, 120), audio: '', dur: 0, img: image ? { src: image, credit: src ? new URL(src).hostname : '', license: '', link: src || '' } : null, src: src || '', blocks: blocksFromText(text), vocab: [], grammar: [], groups: [] };
-  await saveMat(m); V.mats[id] = m; S().lib.push({ id, k: 'a', t: m.title, au: '', img: image || '', src: src || '', ts: Date.now(), an: 0 }); IE.touchDay(); IE.save(true); IE.toast('Maqola qo‘shildi'); IE.go('article/' + id);
+  await saveMat(m); V.mats[id] = m; S().lib.push({ id, k: 'a', t: m.title, au: '', img: image || '', src: src || '', ts: Date.now(), an: 0 }); IE.touchDay(); IE.save(true); IE.toast('Maqola qo‘shildi'); if (opt && opt.stay) { V.newId = id; setTimeout(() => { V.newId = null; }, 4000); return id; } IE.go('article/' + id);
 }
 A.npadd = async () => { const t = $('#ptt'), x = $('#ptx'); if (!x || x.value.trim().length < 300) return IE.toast('Matn kamida 300 belgi bo‘lsin'); await addArticle((t && t.value.trim()) || 'Mening matnim', x.value.trim(), '', ''); };
+function addPod(it, feed) { const id = 'u' + Date.now(); S().lib.push({ id, k: 'p', t: it.t.slice(0, 120), au: it.au, img: it.img || (feed && feed.image) || '', src: it.link || '', show: ((feed && feed.title) || '').slice(0, 60), ts: Date.now(), an: 0 }); V.newId = id; IE.touchDay(); IE.save(true); return id; }
 A.nadd = async el => {
   const n = net(), it = n.feed && n.feed.items[+el.dataset.i]; if (!it) return;
   if (!it.au) return IE.toast('Bu elementda audio yo‘q');
   if (S().lib.some(x => x.au === it.au)) return IE.toast('Bu podkast allaqachon qo‘shilgan');
-  const id = 'u' + Date.now(); S().lib.push({ id, k: 'p', t: it.t.slice(0, 120), au: it.au, img: it.img || n.feed.image || '', src: it.link || '', show: (n.feed.title || '').slice(0, 60), ts: Date.now(), an: 0 }); V.newId = id; IE.touchDay(); IE.save(true);
+  addPod(it, n.feed);
   IE.toast('Qo‘shildi — “Mening podkastlarim” ro‘yxatining tepasida'); IE.draw(false); window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(() => { V.newId = null; }, 4000);
 };
 A.ndel = el => IE.ask('O‘chirilsinmi?', 'Material va uning tahlili o‘chadi.', 'O‘chirish', async () => { const id = el.dataset.id; S().lib = S().lib.filter(x => x.id !== id); delete V.mats[id]; try { await IE.idbDel('mat:' + id); localStorage.removeItem('ielts:art:' + id); } catch (e) { /* */ } IE.save(true); IE.draw(false); });
