@@ -358,21 +358,41 @@ async function openRaw(id) {
   if (!buf) { if (!bk.cloud) throw new Error('Fayl bu qurilmada yo‘q'); buf = await cloudGet(id); await IE.idbSet('book:' + id, buf); locAdd(id); }
   const pdf = await lib(); return pdf.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise;
 }
+/** Butun kitob betlari matni (to‘liq, keshlanadi; matn qatlami bo‘lmasa OCR keshidan). */
+async function loadIdx(doc, id, prog) {
+  const n = doc.numPages; let c = null; try { c = await IE.idbGet('bkidx:' + id); } catch (e) { /* */ }
+  const idx = c && c.n === n && Array.isArray(c.t) ? c.t.slice() : new Array(n + 1).fill(null); let ocr = {}; try { ocr = (await IE.idbGet('bkocr:' + id)) || {}; } catch (e) { /* */ }
+  let dirty = false;
+  for (let p = 1; p <= n; p++) {
+    if (idx[p] == null) { try { const pg = await doc.getPage(p), tc = await pg.getTextContent(); idx[p] = tc.items.map(i => i.str || '').join(' ').replace(/\s+/g, ' ').trim(); } catch (e) { idx[p] = ''; } dirty = true; }
+    if (!idx[p] && ocr[p]) idx[p] = String(ocr[p]).replace(/\s+/g, ' ');
+    if (prog && (p % 10 === 0 || p === n)) { prog(p, n); await new Promise(r => setTimeout(r, 0)); }
+  }
+  if (dirty) { try { await IE.idbSet('bkidx:' + id, { n, t: idx }); } catch (e) { /* */ } }
+  return { n, idx };
+}
 /** Butun kitobning har bir beti boshi/oxiri (struktura aniqlash uchun). Matn qidiruv indeksiga ham keshlanadi. */
 IE.bookSnips = async (id, prog) => {
   const doc = await openRaw(id);
   try {
-    const n = doc.numPages; let c = null; try { c = await IE.idbGet('bkidx:' + id); } catch (e) { /* */ }
-    const idx = c && c.n === n && Array.isArray(c.t) ? c.t.slice() : new Array(n + 1).fill(null); let ocr = {}; try { ocr = (await IE.idbGet('bkocr:' + id)) || {}; } catch (e) { /* */ }
-    let dirty = false;
-    for (let p = 1; p <= n; p++) {
-      if (idx[p] == null) { try { const pg = await doc.getPage(p), tc = await pg.getTextContent(); idx[p] = tc.items.map(i => i.str || '').join(' ').replace(/\s+/g, ' ').trim(); } catch (e) { idx[p] = ''; } dirty = true; }
-      if (!idx[p] && ocr[p]) idx[p] = String(ocr[p]).replace(/\s+/g, ' ');
-      if (prog && (p % 10 === 0 || p === n)) { prog(p, n); await new Promise(r => setTimeout(r, 0)); }
-    }
-    if (dirty) { try { await IE.idbSet('bkidx:' + id, { n, t: idx }); } catch (e) { /* */ } }
+    const { n, idx } = await loadIdx(doc, id, prog);
     const snips = [], empty = []; for (let p = 1; p <= n; p++) { const t = idx[p] || ''; if (t.length < 15) empty.push(p); snips.push({ p, t: t.length <= 230 ? t : t.slice(0, 170) + ' … ' + t.slice(-60) }); }
     return { n, snips, empty: empty.length };
+  } finally { try { doc.destroy(); } catch (e) { /* */ } }
+};
+/** Butun kitob betlarining to‘liq matni: { n, t:[null, p1, p2, …] } */
+IE.bookPages = async (id, prog) => {
+  const doc = await openRaw(id);
+  try { const { n, idx } = await loadIdx(doc, id, prog); return { n, t: idx }; } finally { try { doc.destroy(); } catch (e) { /* */ } }
+};
+/** Kitobning bitta betini JPEG (data URL) qilib beradi — AI ko‘rishi (diagramma, savol varaqasi) uchun. */
+IE.bookPageImg = async (id, p, maxW) => {
+  const doc = await openRaw(id);
+  try {
+    const pg = await doc.getPage(p), v0 = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: Math.min(3, (maxW || 1400) / v0.width) });
+    const cv = document.createElement('canvas'); cv.width = vp.width | 0; cv.height = vp.height | 0;
+    const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); await pg.render({ canvasContext: g, viewport: vp }).promise;
+    const d = cv.toDataURL('image/jpeg', 0.82); cv.width = cv.height = 0; return d;
   } finally { try { doc.destroy(); } catch (e) { /* */ } }
 };
 /** Kitobning a..b betlari matni (matn qatlami; bo‘lmasa OCR). prog(i, n, 'ocr'?) — jarayon. */

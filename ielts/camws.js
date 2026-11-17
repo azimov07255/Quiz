@@ -72,6 +72,21 @@ A.camsadd = el => {
     '<div class="fld"><label>Part 3 savollari</label><textarea id="csp3" rows="5" class="ed" style="min-height:100px;font:14px/1.5 -apple-system,sans-serif" placeholder="Why do people travel?">' + esc(u && u.p3 ? u.p3.join('\n') : '') + '</textarea></div>' +
     '<button class="btn block" data-a="cwsave">' + ic('check') + ' Saqlash</button>');
 };
+/** Kitobdan avtomatik olingan Writing/Speaking sahifalarini saqlaydi. rs: [{ img (data URL), r (ielts-wr extract natijasi) }] */
+IE.camWSAdd = async (bn, n, k, task, rs) => {
+  const st = IE.camStore(), now = Date.now(), rnd = () => now.toString(36) + Math.random().toString(36).slice(2, 5);
+  if (k === 'w') {
+    const r = (rs[0] && rs[0].r) || {}, text = String(r.prompt || '').trim(); if (text.length < 20) throw new Error('Savol matni o‘qilmadi — bet oralig‘ini tekshiring');
+    const id = 'cw' + rnd(), u = { id, mt: now, cam: bn + ' · Test ' + n + ' · Writing Task ' + task, book: bn, n, task: String(task), text: text.slice(0, 1200), desc: String(r.desc || '').slice(0, 2000), hasImg: String(task) === '1' && !!rs[0].img };
+    st.writing = st.writing.filter(x => x.cam !== u.cam).concat([u]); if (u.hasImg) { try { await IE.idbSet('camimg:' + id, { d: rs[0].img }); } catch (e) { /* */ } }
+  } else {
+    const p1 = [], p3 = []; let p2 = null; rs.forEach(x => { const r = x.r || {}; (r.p1 || []).forEach(q => p1.push(String(q).slice(0, 200))); (r.p3 || []).forEach(q => p3.push(String(q).slice(0, 200))); if (!p2 && r.p2 && r.p2.t) p2 = { t: String(r.p2.t).slice(0, 200), b: (r.p2.b || []).slice(0, 8).map(b => String(b).slice(0, 200)) }; });
+    if (!p1.length && !p2) throw new Error('Speaking savollari o‘qilmadi — bet oralig‘ini tekshiring');
+    const u = { id: 'cs' + rnd(), mt: now, cam: bn + ' · Test ' + n + ' · Speaking', book: bn, n, p1: p1.slice(0, 14), p2, p3: p3.slice(0, 12) };
+    st.speaking = st.speaking.filter(x => x.cam !== u.cam).concat([u]);
+  }
+  await IE.camSave();
+};
 const lines = id => (($('#' + id) || {}).value || '').split(/\n+/).map(x => x.replace(/^\s*[•\-*·]\s*/, '').trim()).filter(Boolean);
 document.addEventListener('change', async e => {
   const t = e.target; if (!t || t.id !== 'cwf' || !t.files || !t.files[0]) return; const f = t.files[0]; t.value = ''; const c = V.cw; if (!c) return;

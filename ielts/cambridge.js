@@ -251,15 +251,30 @@ function mapFrom(res, tot) {
     n: +t.n,
     L: [1, 2, 3, 4].map(p => { const f = (t.listening || []).find(x => +x.part === p) || {}; return { part: p, q: R2(f.q, tot), s: R2(f.s, tot) }; }),
     R: [1, 2, 3].map(i => { const f = (t.reading || []).find(x => +x.passage === i) || {}; return { passage: i, q: R2(f.q, tot) }; }),
-    kl: R2(t.key && t.key.listening, tot), kr: R2(t.key && t.key.reading, tot) })).filter(t => t.n >= 1 && t.n <= 12).sort((a, b) => a.n - b.n);
+    kl: R2(t.key && t.key.listening, tot), kr: R2(t.key && t.key.reading, tot), W1: '', W2: '', SP: '' })).filter(t => t.n >= 1 && t.n <= 12).sort((a, b) => a.n - b.n);
 }
 function readMap() {
   const c = cb(); if (!c.map) return; const v = id => { const e = $('#' + id); return e ? e.value : null; };
   const nm = v('cbnm'); if (nm != null) c.nm = nm; const bk = v('cbk2'); if (bk) c.book = bk;
-  c.map.forEach(t => { t.L.forEach(l => { const q = v('cbL' + t.n + '_' + l.part + 'q'), sc = v('cbL' + t.n + '_' + l.part + 's'); if (q != null) l.q = q; if (sc != null) l.s = sc; }); t.R.forEach(r => { const q = v('cbR' + t.n + '_' + r.passage + 'q'); if (q != null) r.q = q; }); const kl = v('cbKL' + t.n), kr = v('cbKR' + t.n); if (kl != null) t.kl = kl; if (kr != null) t.kr = kr; });
+  c.map.forEach(t => { t.L.forEach(l => { const q = v('cbL' + t.n + '_' + l.part + 'q'), sc = v('cbL' + t.n + '_' + l.part + 's'); if (q != null) l.q = q; if (sc != null) l.s = sc; }); t.R.forEach(r => { const q = v('cbR' + t.n + '_' + r.passage + 'q'); if (q != null) r.q = q; }); const kl = v('cbKL' + t.n), kr = v('cbKR' + t.n); if (kl != null) t.kl = kl; if (kr != null) t.kr = kr; ['W1', 'W2', 'SP'].forEach(f => { const x = v('cb' + f + t.n); if (x != null) t[f] = x; }); });
 }
 const shortName = b => { const m = b && /cambridge[^\d]{0,30}(\d{1,2})/i.exec(b.t); return m ? 'Cambridge ' + m[1] : (b ? b.t.slice(0, 28) : 'Cambridge'); };
 const stI = { wait: '<span class="mu">·</span>', run: '<div class="spin sm" style="margin:0"></div>', ok: '<span class="chip ok">' + '✓' + '</span>', skip: '<span class="chip">allaqachon bor</span>', err: '<span class="chip" style="color:var(--bad)">xato</span>' };
+/** Writing Task 1/2 va Speaking sahifalarini matn bo‘yicha topadi (Test: Listening → Reading → Writing → Speaking → keyingi test / kalitlar). */
+function findWS(pg, map) {
+  const T = p => String(pg.t[p] || '').toLowerCase(), n = pg.n;
+  const isW1 = p => /writing\s+task\s+1/.test(T(p)) && /20\s+minutes/.test(T(p)), isW2 = p => /writing\s+task\s+2/.test(T(p)) && /40\s+minutes/.test(T(p));
+  const isSp = p => /speaking/.test(T(p)) && /part\s+1/.test(T(p)) && /interview|introduc|examiner|\?/.test(T(p)), isSp2 = p => /part\s+[23]/.test(T(p)) && /speaking|cue|should say|discuss|\?/.test(T(p));
+  map.forEach((t, k) => {
+    const rs = t.R.map(r => rng(r.q)).filter(Boolean), rEnd = rs.length ? Math.max(...rs.map(x => x[1])) : 0; if (!rEnd) return;
+    const nx = map[k + 1], nxs = nx ? [].concat(nx.L.map(l => rng(l.q)), nx.R.map(r => rng(r.q))).filter(Boolean).map(x => x[0]) : [];
+    const lim = [n + 1].concat(nxs, [rng(t.kr), rng(t.kl)].concat(t.L.map(l => rng(l.s))).filter(Boolean).map(x => x[0])).filter(x => x > rEnd);
+    const end = Math.min(...lim) - 1; let w1 = 0, w2 = 0, sp = 0;
+    for (let p = rEnd + 1; p <= end; p++) { if (!w1 && isW1(p)) w1 = p; if (!w2 && isW2(p)) w2 = p; if (!sp && isSp(p)) sp = p; }
+    t.W1 = w1 ? w1 + '-' + w1 : ''; t.W2 = w2 ? w2 + '-' + w2 : '';
+    if (sp) { let e = sp; while (e < end && e < sp + 2 && isSp2(e + 1)) e++; t.SP = sp + '-' + e; }
+  });
+}
 function bookAuto() {
   const c = cb(), books = IE.bookList ? IE.bookList() : [];
   if (!c.book || !books.some(b => b.id === c.book)) c.book = books[0] && books[0].id;
@@ -270,23 +285,24 @@ function bookAuto() {
     (c.busy ? '<div class="mu sm row" style="gap:8px"><div class="spin sm"></div> <span id="cbbusy">' + esc(c.busy) + '</span></div>' : '<button class="btn block" data-a="cbmap">' + ic('spark') + ' ' + (c.map ? 'Strukturani qayta aniqlash' : 'Kitob strukturasini aniqlash') + '</button>') +
     (c.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(c.err) + '</p>' : '') + '</div>';
   const zipC = books.length ? zipHTML() : '';
-  const info = !c.map ? '<div class="card" style="margin-top:12px"><b>Bu qanday ishlaydi</b><ol class="sm mu" style="margin:8px 0 0 18px;line-height:1.7"><li>Kitobni tanlang — ilova barcha betlarni o‘qib, qaysi bet qaysi Test/Passage/Part ekanini AI bilan aniqlaydi.</li><li>Natijani tekshiring (kerak bo‘lsa bet raqamlarini tuzating).</li><li>“Test 1 ni qo‘shish” — 3 ta Reading + 4 ta Listening ketma-ket tayyorlanadi (har biri ~1 daqiqa).</li><li>Listening audiolarini (4 ta mp3) birdan tanlab biriktirasiz.</li></ol></div>' : '';
+  const info = !c.map ? '<div class="card" style="margin-top:12px"><b>Bu qanday ishlaydi</b><ol class="sm mu" style="margin:8px 0 0 18px;line-height:1.7"><li>Kitobni tanlang — ilova barcha betlarni o‘qib, qaysi bet qaysi Test/Passage/Part ekanini AI bilan aniqlaydi.</li><li>Natijani tekshiring (kerak bo‘lsa bet raqamlarini tuzating).</li><li>“Test 1 ni qo‘shish” — 3 ta Reading + 4 ta Listening + Writing (Task 1, 2) + Speaking ketma-ket tayyorlanadi.</li><li>Listening audiolarini (4 ta mp3) birdan tanlab biriktirasiz.</li></ol></div>' : '';
   const tests = c.map ? (c.map.length ? c.map.map(t => testCard(t, anyRun)).join('') : '<div class="card empty" style="margin-top:12px">Testlar topilmadi. Kitob skaner qilingan bo‘lsa, avval Kitoblar → Qidirish → “Hammasini OCR qilish”ni bajaring.</div>') : '';
-  return sub('Kitobdan avtomatik', 'cambridge', '<div class="pad">' + top + info + tests + zipC + '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Writing va Speaking tez kunda qo‘shiladi. AI bet oralig‘ini noto‘g‘ri topishi mumkin — “Sahifalarni tekshirish”da tuzating.</p></div>');
+  return sub('Kitobdan avtomatik', 'cambridge', '<div class="pad">' + top + info + tests + zipC + '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Reading, Listening, Writing (Task 1 + 2) va Speaking (Part 1–3) birga qo‘shiladi. Bet oralig‘i noto‘g‘ri topilsa — “Sahifalarni tekshirish”da tuzating.</p></div>');
 }
 function testCard(t, busy) {
-  const c = cb(), run = c.run && c.run.n === t.n ? c.run : null, have = [...store.reading, ...store.listening].filter(u => u.grp === c.book + ':' + t.n), nUnits = t.R.filter(r => rng(r.q)).length + t.L.filter(l => rng(l.q)).length;
+  const c = cb(), run = c.run && c.run.n === t.n ? c.run : null, have = [...store.reading, ...store.listening].filter(u => u.grp === c.book + ':' + t.n), nUnits = t.R.filter(r => rng(r.q)).length + t.L.filter(l => rng(l.q)).length + ['W1', 'W2', 'SP'].filter(f => rng(t[f])).length, haveWS = [...store.writing, ...store.speaking].filter(u => String(u.cam || '').startsWith((c.nm || shortName(IE.bookList().find(b => b.id === c.book))).trim() + ' · Test ' + t.n + ' · '));
   const inp = (id, v, ph) => '<input id="' + id + '" class="fill" style="margin:0;padding:8px 10px" placeholder="' + ph + '" value="' + esc(v || '') + '" inputmode="text" autocapitalize="off">';
   const fields = '<details style="margin-top:10px"><summary class="b" style="cursor:pointer">Sahifalarni tekshirish / tuzatish</summary><div class="sm mu" style="margin:6px 0">Format: 12-15 (PDF bet raqami). Listening’da ikkinchi maydon — audioscript.</div><div class="lst">' +
     t.R.map(r => '<div class="item" style="padding:8px 12px"><span class="qn">R' + r.passage + '</span>' + inp('cbR' + t.n + '_' + r.passage + 'q', r.q, 'savollar') + '</div>').join('') +
+    '<div class="item" style="padding:8px 12px"><span class="qn">W</span>' + inp('cbW1' + t.n, t.W1, 'Task 1') + inp('cbW2' + t.n, t.W2, 'Task 2') + '</div><div class="item" style="padding:8px 12px"><span class="qn">S</span>' + inp('cbSP' + t.n, t.SP, 'Speaking (1–3-qism)') + '</div>' +
     t.L.map(l => '<div class="item" style="padding:8px 12px"><span class="qn">L' + l.part + '</span>' + inp('cbL' + t.n + '_' + l.part + 'q', l.q, 'savollar') + inp('cbL' + t.n + '_' + l.part + 's', l.s, 'audioscript') + '</div>').join('') +
     '<div class="item" style="padding:8px 12px"><span class="qn">K</span>' + inp('cbKR' + t.n, t.kr, 'Reading kaliti') + inp('cbKL' + t.n, t.kl, 'Listening kaliti') + '</div></div></details>';
-  const runH = run ? '<div class="lst" style="margin-top:10px">' + run.items.map(it => '<div class="item" style="padding:8px 12px"><span class="qn">' + (it.k === 'r' ? 'R' : 'L') + it.i + '</span><div class="tx"><b style="font-size:14px">' + (it.k === 'r' ? 'Passage ' : 'Section ') + it.i + '</b><span style="white-space:normal">' + (it.st === 'err' ? esc(it.err || '') : it.st === 'run' ? esc(it.msg || 'Tayyorlanmoqda…') : '') + '</span></div>' + stI[it.st] + '</div>').join('') + '</div>' : '';
+  const runH = run ? '<div class="lst" style="margin-top:10px">' + run.items.map(it => '<div class="item" style="padding:8px 12px"><span class="qn">' + (it.k === 'r' ? 'R' : it.k === 'l' ? 'L' : it.k === 'w' ? 'W' : 'S') + it.i + '</span><div class="tx"><b style="font-size:14px">' + (it.k === 'r' ? 'Passage ' : it.k === 'l' ? 'Section ' : it.k === 'w' ? 'Writing Task ' : 'Speaking ') + (it.k === 's' ? '' : it.i) + '</b><span style="white-space:normal">' + (it.st === 'err' ? esc(it.err || '') : it.st === 'run' ? esc(it.msg || 'Tayyorlanmoqda…') : '') + '</span></div>' + stI[it.st] + '</div>').join('') + '</div>' : '';
   const ls = store.listening.filter(u => u.grp === c.book + ':' + t.n).sort((a, b) => a.sn - b.sn);
   const needAud = ls.filter(u => !(u.dur > 0)).length;
   const aud = ls.length ? '<label class="btn ghost block" style="margin-top:10px">' + ic('head') + ' ' + (needAud ? 'Audiolarni birdan tanlash (' + ls.length + ' ta mp3)' : 'Audiolarni almashtirish') + '<input type="file" accept="audio/*,.mp3,.m4a,.wav" multiple id="camaf4" data-n="' + t.n + '" hidden></label><div class="sm mu" style="margin-top:4px">Fayllar nomi bo‘yicha tartiblanadi: 1-fayl → Section 1 … ' + (needAud ? '<b>' + needAud + ' ta audio yetishmaydi.</b>' : 'Hammasi biriktirilgan.') + '</div>' : '';
   const toTr = ls.filter(u => u.dur > 0 && !u.ttr).length, trAll = ls.length && ls.every(u => u.dur > 0) ? '<button class="btn ghost block" style="margin-top:8px"' + (toTr ? ' data-a="camtrall" data-n="' + t.n + '"' : ' disabled') + '>' + ic('wave') + ' ' + (toTr ? 'Vaqtli transkript (AI): ' + toTr + ' ta' : 'Transkriptlar tayyor ✓') + '</button>' : '';
-  return '<div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between"><b style="font-size:17px">Test ' + t.n + '</b><span class="chip">' + nUnits + '/7 qism topildi' + (have.length ? ' · ' + have.length + ' qo‘shilgan' : '') + '</span></div>' + fields + runH +
+  return '<div class="card" style="margin-top:12px"><div class="row" style="justify-content:space-between"><b style="font-size:17px">Test ' + t.n + '</b><span class="chip">' + nUnits + '/10 qism topildi' + ((have.length + haveWS.length) ? ' · ' + (have.length + haveWS.length) + ' qo‘shilgan' : '') + '</span></div>' + fields + runH +
     (run && run.active ? '' : '<button class="btn block" style="margin-top:12px"' + (busy || !nUnits ? ' disabled' : ' data-a="cbrun" data-n="' + t.n + '"') + '>' + ic('spark') + ' ' + (run && run.items.some(i => i.st === 'err') ? 'Xatolarni qayta urinish' : have.length ? 'Yetishmaganlarini qo‘shish' : 'Test ' + t.n + ' ni qo‘shish') + '</button>') + aud + trAll + '</div>';
 }
 A.cbmap = async () => {
@@ -297,7 +313,9 @@ A.cbmap = async () => {
     if (empty > n * 0.5) throw new Error('Kitobning ko‘p betida matn qatlami yo‘q (skaner). Avval Kitoblar → shu kitob → Qidirish → “Hammasini OCR qilish”ni bajaring.');
     c.busy = 'AI struktura xaritasini tuzmoqda… (20–60 soniya)'; IE.draw(false);
     const out = await IE.ai({ action: 'cammap', pages: snips, total: n });
-    c.map = mapFrom(out.result, n); if (!c.map.length) c.err = 'AI testlarni topa olmadi. Bu Cambridge IELTS test kitobimi? Bo‘lmasa, bittalab qo‘shing.';
+    c.map = mapFrom(out.result, n);
+    try { c.busy = 'Writing / Speaking sahifalari qidirilmoqda…'; IE.draw(false); findWS(await IE.bookPages(book), c.map); } catch (e) { /* qo‘lda kiritiladi */ }
+    if (!c.map.length) c.err = 'AI testlarni topa olmadi. Bu Cambridge IELTS test kitobimi? Bo‘lmasa, bittalab qo‘shing.';
   } catch (e) { c.err = e.message || 'Xatolik'; }
   c.busy = ''; IE.draw(false);
 };
@@ -305,13 +323,23 @@ A.cbrun = async el => {
   readMap(); const c = cb(), n = +el.dataset.n, t = c.map && c.map.find(x => x.n === n); if (!t || (c.run && c.run.active)) return;
   const bk = IE.bookList().find(b => b.id === c.book), bn = (c.nm || shortName(bk)).trim() || 'Cambridge', items = [];
   t.R.forEach(r => items.push({ k: 'r', i: r.passage, q: rng(r.q), key: rng(t.kr), st: 'wait' })); t.L.forEach(l => items.push({ k: 'l', i: l.part, q: rng(l.q), s: rng(l.s), key: rng(t.kl), st: 'wait' }));
-  items.forEach(it => { it.label = bn + ' · Test ' + n + ' · ' + (it.k === 'r' ? 'Passage ' : 'Section ') + it.i; });
+  items.push({ k: 'w', i: 1, q: rng(t.W1), st: 'wait' }, { k: 'w', i: 2, q: rng(t.W2), st: 'wait' }, { k: 's', i: 1, q: rng(t.SP), st: 'wait' });
+  items.forEach(it => { it.label = bn + ' · Test ' + n + ' · ' + (it.k === 'r' ? 'Passage ' : it.k === 'l' ? 'Section ' : it.k === 'w' ? 'Writing Task ' : 'Speaking') + (it.k === 's' ? '' : it.i); });
   const run = c.run = { n, items, active: true }, cache = {}, redraw = () => { if ((IE.curRoute || '') === 'cambridge/book' && !$('#sheet')) IE.draw(false); };
   const txt = async (r, msg, it) => { const k = r[0] + '-' + r[1]; if (!cache[k]) cache[k] = await IE.bookText(c.book, r[0], r[1], (i, tot, o) => { it.msg = msg + (o ? ' (OCR) ' : ' ') + i + '/' + tot; redraw(); }); return cache[k]; };
   redraw();
   for (const it of items) {
     if (!it.q) { it.st = 'skip'; it.err = ''; continue; }
-    if ([...store.reading, ...store.listening].some(u => u.cam === it.label)) { it.st = 'skip'; continue; }
+    if ([...store.reading, ...store.listening, ...store.writing, ...store.speaking].some(u => u.cam === it.label)) { it.st = 'skip'; continue; }
+    if (it.k === 'w' || it.k === 's') {
+      it.st = 'run'; redraw();
+      try {
+        const rs = [];
+        for (let p = it.q[0]; p <= Math.min(it.q[1], it.q[0] + 2); p++) { it.msg = 'Bet ' + p + ' rasmga olinmoqda…'; redraw(); const img = await IE.bookPageImg(c.book, p); it.msg = 'AI bet ' + p + ' ni o‘qimoqda…'; redraw(); const out = await SB.fn('ielts-wr', { mode: 'extract', kind: it.k === 's' ? 'sp' : 'w', img: img.split(',')[1] }); rs.push({ img, r: out.result || {} }); }
+        await IE.camWSAdd(bn, n, it.k, it.i, rs); inject(); it.st = 'ok';
+      } catch (e) { it.st = 'err'; it.err = e.net ? 'Internetga ulanib bo‘lmadi' : (e.message || 'Xatolik'); if (/limit/i.test(it.err)) { redraw(); break; } }
+      redraw(); continue;
+    }
     it.st = 'run'; it.msg = 'Matn olinmoqda…'; redraw();
     try {
       if (!it.key) throw new Error('Javoblar kaliti sahifalari kiritilmagan');
