@@ -238,6 +238,7 @@ IE.camChange = el => {
   if (el.id === 'camzip') { el.value = ''; readZip(f); return true; }
   if (el.id === 'camaf') { const id = el.dataset.id; el.value = ''; IE.camAudio(id, f); return true; }
   if (el.id === 'camaf0') { readForm(); V.cam.audio = f; IE.draw(false); return true; }
+  if (el.dataset && el.dataset.ft) { const fs = [...el.files], id = el.dataset.ft; el.value = ''; readForm(); fileSlot(id, fs); return true; }
   return false;
 };
 
@@ -493,7 +494,7 @@ A.camtrall = async el => {
 const st = () => V.cam || (V.cam = {});
 function readForm() {
   const s = st(), g = id => { const e = $('#' + id); return e ? e.value : undefined; };
-  ['cbk', 'clb', 'cwh', 'cqa', 'cqb', 'cka', 'ckb', 'csa', 'csb'].forEach(id => { const v = g(id); if (v !== undefined) s[id] = v; });
+  ['cbk', 'clb', 'cwh', 'cqa', 'cqb', 'cka', 'ckb', 'csa', 'csb', 'cfl', 'cfw'].forEach(id => { const v = g(id); if (v !== undefined) s[id] = v; });
 }
 function form(k) {
   const s = st(); if (s.k !== k) { for (const x in s) delete s[x]; s.k = k; }
@@ -511,12 +512,39 @@ function form(k) {
       '<div class="fld"><label>Audio fayl (ixtiyoriy, keyin ham qo‘shsa bo‘ladi)</label><label class="btn ghost block" style="margin:0">' + ic('down') + ' ' + (s.audio ? esc(s.audio.name.slice(0, 32)) : 'Audio tanlash') + '<input type="file" accept="audio/*,.mp3,.m4a,.wav" id="camaf0" hidden></label></div>') +
     (s.busy ? '<div class="mu sm row" style="gap:8px;margin-top:6px"><div class="spin sm"></div> ' + esc(s.busy) + '</div>' : '<button class="btn block" data-a="camgo">' + ic('spark') + ' AI bilan tayyorlash</button>') +
     (s.err ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(s.err) + '</p>' : '') + '</div>';
+  const ft = s.ft || {}, fb = (id, lab, hint) => '<div class="fld"><label>' + lab + '</label><label class="btn ghost block" style="margin:0">' + ic('down') + ' ' + (ft[id] ? esc(ft[id].n.slice(0, 34)) + ' ✓ · ' + Math.round(ft[id].t.length / 1000) + ' ming belgi' : 'Fayl tanlash (HTML / PDF / TXT)') + '<input type="file" accept=".html,.htm,.pdf,.txt,.md,text/html,application/pdf,text/plain" multiple data-ft="' + id + '" hidden></label>' + (hint ? '<div class="sm mu" style="margin-top:4px">' + hint + '</div>' : '') + '</div>';
+  const fileH = '<div class="card" style="margin-top:12px"><b>Fayldan olish (HTML / PDF / TXT)</b><p class="sm mu" style="margin:4px 0 10px;line-height:1.5">Cambridge CD dagi HTML test, PDF yoki matn fayli. Bir nechta fayl tanlasangiz, ular birlashtiriladi. Javoblar test faylida bo‘lsa — alohida kalit shart emas.</p>' +
+    '<div class="fld"><label>Nomi</label><input id="cfl" value="' + esc(s.cfl || '') + '" placeholder="Masalan: Cambridge 17 · Test 1 · ' + (r ? 'Passage 1' : 'Section 1') + '" maxlength="60"></div>' +
+    '<div class="fld"><label>' + (r ? 'Qaysi passage' : 'Qaysi section') + '</label><select id="cfw">' + (r ? [1, 2, 3] : [1, 2, 3, 4]).map(n => '<option value="' + n + '"' + (+s.cfw === n ? ' selected' : '') + '>' + (r ? 'Passage ' : 'Section ') + n + '</option>').join('') + '</select></div>' +
+    fb('q', 'Test fayli (savollar' + (r ? ' + matn' : '') + ')') + fb('k', 'Javoblar kaliti (ixtiyoriy)', 'Alohida fayl bo‘lsa.') + (r ? '' : fb('sc', 'Audioscript (ixtiyoriy)')) +
+    (s.busy ? '<div class="mu sm row" style="gap:8px"><div class="spin sm"></div> ' + esc(s.busy) + '</div>' : '<button class="btn block" data-a="camfgo"' + (ft.q ? '' : ' disabled') + '>' + ic('spark') + ' Fayldan AI bilan tayyorlash</button>') + (s.ferr ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(s.ferr) + '</p>' : '') + '</div>';
   const pv = prev ? '<div class="card" style="margin-top:12px"><b>' + esc(prev.unit.title) + '</b><div class="sm mu">' + nqs(prev.unit.groups) + ' ta savol' + (r ? ' · ' + prev.unit.paras.length + ' abzats' : ' · ' + prev.unit.tr.length + ' transkript bo‘lagi') + '</div>' +
     (prev.warn.length ? '<div class="tip8" style="margin-top:8px">' + prev.warn.slice(0, 5).map(esc).join('<br>') + (prev.warn.length > 5 ? '<br>…' : '') + '</div>' : '') +
     '<details style="margin-top:10px"><summary class="b" style="cursor:pointer">Javoblar kaliti — kitob bilan solishtiring</summary><div class="sm" style="margin-top:8px;line-height:1.7">' + prev.unit.groups.map(g => g.qs.map(q => '<b>' + q.n + '</b> ' + esc(answerTxt(g, q))).join(' · ')).join('<br>') + '</div></details>' +
     '<div class="two" style="margin-top:12px"><button class="btn ghost" data-a="camredo">Qayta</button><button class="btn" data-a="camsave">Saqlash</button></div></div>' : '';
-  return sub(r ? 'Reading qo‘shish' : 'Listening qo‘shish', 'cambridge', '<div class="pad">' + formH + pv + '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Tayyor bo‘lgach javoblar kalitini kitob bilan tezda solishtirib chiqing — AI ba’zan xato qilishi mumkin.</p></div>');
+  return sub(r ? 'Reading qo‘shish' : 'Listening qo‘shish', 'cambridge', '<div class="pad">' + formH + fileH + pv + '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Tayyor bo‘lgach javoblar kalitini kitob bilan tezda solishtirib chiqing — AI ba’zan xato qilishi mumkin.</p></div>');
 }
+/** Fayldan (HTML / PDF / TXT) import: fayl(lar) matni olinib, “Kitobdan” bilan bir xil AI (camimport) ga beriladi. */
+async function fileSlot(id, files) {
+  const s = st(); s.ft = s.ft || {}; s.ferr = '';
+  try {
+    const parts = []; for (const f of files) { s.busy = 'Fayl o‘qilmoqda: ' + f.name.slice(0, 30); IE.draw(false); parts.push(await IE.fileText(f, (i, t) => { s.busy = 'Fayl o‘qilmoqda: ' + f.name.slice(0, 24) + ' ' + i + '/' + t; paintBusy(); })); }
+    const t = parts.join('\n\n').trim(); if (t.length < 20) throw new Error('Fayldan matn chiqmadi (rasm/skaner bo‘lishi mumkin — PDF bo‘lsa OCR urinildi).');
+    s.ft[id] = { n: files.map(f => f.name).join(', '), t: t.slice(0, 60000) };
+  } catch (e) { s.ferr = e.message || 'Faylni o‘qib bo‘lmadi'; }
+  s.busy = ''; IE.draw(false);
+}
+A.camfgo = async () => {
+  readForm(); const s = st(), r = s.k === 'r', ft = s.ft || {}; s.ferr = '';
+  if (!ft.q) { s.ferr = 'Avval test faylini tanlang.'; return IE.draw(false); }
+  const w = parseInt(s.cfw, 10) || 1, key = (ft.k && ft.k.t) || ft.q.t.slice(-12000);
+  try {
+    s.busy = 'AI testni tuzmoqda… (30–90 soniya)'; s.prev = null; IE.draw(false);
+    const out = await IE.ai({ action: 'camimport', kind: r ? 'reading' : 'listening', which: w, text: ft.q.t, key, script: !r && ft.sc ? ft.sc.t : '' });
+    s.prev = normUnit(s.k, out.result, (s.cfl || '').trim() || ('Cambridge · ' + (r ? 'Passage ' : 'Section ') + w), w);
+  } catch (e) { s.ferr = e.message || 'Xatolik'; }
+  s.busy = ''; IE.draw(false);
+};
 A.camredo = () => { const s = st(); s.prev = null; s.err = ''; IE.draw(false); };
 A.camgo = async () => {
   readForm(); const s = st(), r = s.k === 'r', n = x => parseInt(x, 10);

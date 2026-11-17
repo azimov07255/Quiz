@@ -358,6 +358,30 @@ async function openRaw(id) {
   if (!buf) { if (!bk.cloud) throw new Error('Fayl bu qurilmada yo‘q'); buf = await cloudGet(id); await IE.idbSet('book:' + id, buf); locAdd(id); }
   const pdf = await lib(); return pdf.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise;
 }
+/** Fayldan matn: PDF (matn qatlami, bo‘lmasa OCR), HTML (Cambridge CD sahifalari), TXT/MD. */
+IE.fileText = async (f, prog) => {
+  const nm = String(f.name || '').toLowerCase();
+  if (/\.pdf$/.test(nm) || f.type === 'application/pdf') {
+    const pdf = await lib(), doc = await pdf.getDocument({ data: new Uint8Array(await f.arrayBuffer()) }).promise;
+    try {
+      const n = Math.min(doc.numPages, 60), out = [];
+      for (let p = 1; p <= n; p++) { if (prog) prog(p, n); let t = (await extractParas(doc, p)).join('\n\n'); if (t.length < 15) { try { t = await ocrRaw(doc, p); } catch (e) { t = ''; } } out.push('--- page ' + p + ' ---\n' + t); }
+      return out.join('\n\n');
+    } finally { try { doc.destroy(); } catch (e) { /* */ } }
+  }
+  const raw = await f.text();
+  if (/\.html?$/.test(nm) || /^\s*<(!doctype|html|body|div|p)\b/i.test(raw)) {
+    const d = new DOMParser().parseFromString(raw, 'text/html');
+    d.querySelectorAll('script,style,noscript,svg,head,nav,footer,iframe').forEach(e => e.remove());
+    d.querySelectorAll('br').forEach(e => e.replaceWith('\n'));
+    d.querySelectorAll('p,div,li,tr,h1,h2,h3,h4,h5,h6,section,article,table,ul,ol,dt,dd,label,legend,fieldset').forEach(e => e.append('\n'));
+    d.querySelectorAll('td,th').forEach(e => e.append(' \t '));
+    d.querySelectorAll('input[type=text],input:not([type])').forEach(e => e.replaceWith(' ______ '));
+    d.querySelectorAll('select').forEach(e => e.replaceWith(' [' + [...e.options].map(o => o.textContent.trim()).filter(Boolean).join(' / ') + '] '));
+    return String(d.body ? d.body.textContent : d.documentElement.textContent).replace(/[ \t\u00a0]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+  return raw.replace(/\r/g, '').trim();
+};
 /** Butun kitob betlari matni (to‘liq, keshlanadi; matn qatlami bo‘lmasa OCR keshidan). */
 async function loadIdx(doc, id, prog) {
   const n = doc.numPages; let c = null; try { c = await IE.idbGet('bkidx:' + id); } catch (e) { /* */ }
