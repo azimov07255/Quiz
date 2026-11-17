@@ -7,7 +7,7 @@ const last = a => a.length ? a[a.length - 1] : null;
 const MINW = t => t === '1' || t === 1 ? 150 : 250;
 const wRec = u => last(S().writes.filter(w => w.p === u.id));
 const wRecs = u => S().writes.filter(w => w.p === u.id);
-const sRecs = u => ({ p1: last(S().speaks.filter(x => x.k === '1' && x.t === u.cam + ' · Part 1')), p2: last(S().speaks.filter(x => x.k === '2' && x.t === String((u.p2 && u.p2.t) || '').replace('Describe ', ''))) });
+const sRecs = u => ({ p1: last(S().speaks.filter(x => x.k === '1' && x.t === u.cam + ' · Part 1')), p2: last(S().speaks.filter(x => x.k === '2' && x.t === String((u.p2 && u.p2.t) || '').replace('Describe ', ''))), p3: last(S().speaks.filter(x => x.k === '3' && x.t === String((u.p2 && u.p2.t) || '').replace('Describe ', ''))) });
 const r5 = x => Math.round(x * 2) / 2;
 /** Writing: Task 1 + 2×Task 2 og‘irligi (IELTS bo‘yicha 1:2). */
 IE.camWskill = t => {
@@ -38,9 +38,9 @@ IE.camWS = (book, n, t) => {
   else {
     const r = sRecs(su), i1 = P.sp1.findIndex(x => x.priv === su.id), i2 = P.sp2.findIndex(x => x.priv === su.id), sk = IE.camSskill(t), done = sk.done;
     scard = IE.uc({ go: i1 >= 0 ? 'speaking/1/' + i1 : 'speaking/2/' + i2, k: 'S', num: 'S', lab: 'PART', title: 'Speaking', meta: [su.p1 && su.p1.length ? 'Part 1 · ' + su.p1.length + ' savol' : '', su.p2 && su.p2.t ? 'Part 2 cue card' : '', su.p3 && su.p3.length ? 'Part 3 · ' + su.p3.length : ''].filter(Boolean).join(' · '),
-      chips: [r.p1 ? IE.ucChip('P1 ✓' + (r.p1.ai ? ' ' + IE.bandTxt(r.p1.ai.overall) : '')) : '', r.p2 ? IE.ucChip('P2 ✓' + (r.p2.ai ? ' ' + IE.bandTxt(r.p2.ai.overall) : '')) : ''].filter(Boolean),
+      chips: [r.p1 ? IE.ucChip('P1 ✓' + (r.p1.ai ? ' ' + IE.bandTxt(r.p1.ai.overall) : '')) : '', r.p2 ? IE.ucChip('P2 ✓' + (r.p2.ai ? ' ' + IE.bandTxt(r.p2.ai.overall) : '')) : '', r.p3 ? IE.ucChip('P3 ✓' + (r.p3.ai ? ' ' + IE.bandTxt(r.p3.ai.overall) : '')) : ''].filter(Boolean),
       rec: done ? { band: sk.band, raw: done, tot: 2, ts: (r.p2 || r.p1).ts } : null, att: done, del: { k: 's', id: su.id }, edit: 'data-a="camsadd" data-b="' + bk + '" data-n="' + n + '"',
-      extra: (i1 >= 0 ? '<button class="chip" data-go="speaking/1/' + i1 + '">Part 1</button>' : '') + (i2 >= 0 ? '<button class="chip" data-go="speaking/2/' + i2 + '">Part 2+3</button>' : '') });
+      extra: (i1 >= 0 ? '<button class="chip" data-go="speaking/1/' + i1 + '">Part 1</button>' : '') + (i2 >= 0 ? '<button class="chip" data-go="speaking/2/' + i2 + '">Part 2</button>' : '') + (i2 >= 0 && su.p3 && su.p3.length ? '<button class="chip" data-go="speaking/3/' + i2 + '">Part 3</button>' : '') });
   }
   return '<div class="sec"><h2>Writing</h2><span class="chip">' + IE.camWskill(t).done + '/2</span></div><div class="ucl">' + wcard(1) + wcard(2) + '</div>' +
     '<div class="sec"><h2>Speaking</h2><span class="chip">' + IE.camSskill(t).done + '/2</span></div><div class="ucl">' + scard + '</div>';

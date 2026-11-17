@@ -1064,3 +1064,11 @@ mark.ev.ok{background:rgba(18,183,106,.28)}mark.ev.no{background:rgba(240,68,56,
 :root[data-skin=glass] .dsug,:root[data-skin=gold] .dsug{background:var(--bg);backdrop-filter:none;-webkit-backdrop-filter:none;border:1px solid var(--ln);box-shadow:0 24px 48px -16px rgba(0,0,0,.55)}
 :root[data-skin=glass] .dsug button{border-bottom:1px solid var(--ln)}
 .dsug{max-height:min(60vh,380px);overflow-y:auto}
+
+/* ================= v2.1: Writing Task 1 diagrammalar ================= */
+.t1box{background:var(--card);border-radius:20px;box-shadow:var(--sh);padding:12px;margin-top:12px}
+.t1cap{font-size:13px;font-weight:800;text-align:center;margin-bottom:6px}
+.t1svg{display:block;width:100%;height:auto}
+.t1lg{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;font-size:12px;font-weight:700;margin-top:8px;color:var(--mu)}.t1lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.t1pies{display:flex;gap:10px;justify-content:space-around}.t1pie{flex:1;max-width:160px;text-align:center}.t1pie svg{width:100%;height:auto;transform:rotate(0deg)}.t1pie b{font-size:12.5px}
+.t1tw{overflow-x:auto}.t1tbl{width:100%;border-collapse:collapse;font-size:13px}.t1tbl th,.t1tbl td{padding:7px 8px;border-bottom:1px solid var(--ln);text-align:center}.t1tbl thead th{font-size:11.5px;color:var(--mu)}.t1tbl tbody th{text-align:left;font-weight:800}

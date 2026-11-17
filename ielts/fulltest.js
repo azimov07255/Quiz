@@ -80,7 +80,7 @@ const resumeCard = f => '<div class="card ftc" style="margin-top:12px"><div clas
 const PM = 'ielts:pmode';
 IE.pracMode = () => { try { return localStorage.getItem(PM) === 'full' ? 'full' : 'one'; } catch (e) { return 'one'; } };
 A.pmode = el => { try { localStorage.setItem(PM, el.dataset.v); } catch (e) { /* */ } IE.draw(false); };
-IE.pracSeg = kind => { const m = IE.pracMode(), t1 = kind === 'L' ? 'Bitta qism · 10 savol' : kind === 'R' ? 'Bitta passage · 13 savol' : 'Bitta qism · 10–13 savol', t2 = kind === 'L' ? 'To‘liq · 4 qism · 40' : kind === 'R' ? 'To‘liq · 3 passage · 39' : 'To‘liq test · 40 savol'; return '<div class="seg pseg"><button class="' + (m === 'one' ? 'on' : '') + '" data-a="pmode" data-v="one">' + t1 + '</button><button class="' + (m === 'full' ? 'on' : '') + '" data-a="pmode" data-v="full">' + t2 + '</button></div>'; };
+IE.pracSeg = kind => { const m = IE.pracMode(), t1 = kind === 'L' ? 'Bitta qism · 10 savol' : kind === 'R' ? 'Bitta passage · 13 savol' : 'Bitta qism · 10–13 savol', t2 = kind === 'L' ? 'To‘liq · 4 qism · 40' : kind === 'R' ? 'To‘liq · 3 passage · 40' : 'To‘liq test · 40 savol'; return '<div class="seg pseg"><button class="' + (m === 'one' ? 'on' : '') + '" data-a="pmode" data-v="one">' + t1 + '</button><button class="' + (m === 'full' ? 'on' : '') + '" data-a="pmode" data-v="full">' + t2 + '</button></div>'; };
 /** To‘liq rejim kartasi (Listening / Reading ro‘yxati sahifalarida). */
 IE.pracFull = kind => {
   const f = ft(); if (f && f.book === '') return resumeCard(f);

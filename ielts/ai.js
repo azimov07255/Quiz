@@ -38,8 +38,8 @@ A.wai = async el => {
   const ts = +el.dataset.ts, rec = S().writes.find(w => w.ts === ts), box = $('#aires'); if (!rec || !box) return;
   box.innerHTML = '<div class="card c"><div class="bub ai typing" style="margin:0 auto 8px;display:inline-flex"><i></i><i></i><i></i></div><p class="mu sm">AI inshoni o‘qiyapti… (10–20 soniya)</p></div>';
   try {
-    const cu = IE.camWUnit ? IE.camWUnit(rec.p) : null, img = cu && cu.task === '1' && IE.camWImg ? await IE.camWImg(cu.id) : null;
-    const out = cu ? await SB.fn('ielts-wr', { mode: 'eval', task: cu.task, prompt: cu.text, desc: cu.desc || '', text: rec.x, img: img ? img.split(',')[1] : '' }) : await call({ action: 'writing', prompt: IE.wprompt(rec.p), text: rec.x });
+    const cu = IE.camWUnit ? IE.camWUnit(rec.p) : null, bt = IE.t1Find && String(rec.p).startsWith('t1:') ? IE.t1Find(rec.p) : null, img = cu && cu.task === '1' && IE.camWImg ? await IE.camWImg(cu.id) : null;
+    const out = cu ? await SB.fn('ielts-wr', { mode: 'eval', task: cu.task, prompt: cu.text, desc: cu.desc || '', text: rec.x, img: img ? img.split(',')[1] : '' }) : bt ? await SB.fn('ielts-wr', { mode: 'eval', task: '1', prompt: bt.text, desc: IE.t1Desc(bt), text: rec.x, img: '' }) : await call({ action: 'writing', prompt: IE.wprompt(rec.p), text: rec.x });
     rec.ai = out.result; IE.save(true);
     const b = $('#aires'); if (b) b.innerHTML = (IE.wCompare ? IE.wCompare(rec) : '') + IE.aiHTML(rec.ai);
     if (rec.ai.overall >= (S().prof.target || 7)) IE.confetti();
@@ -136,6 +136,7 @@ IE.speakHTML = r => {
 async function speakAI(kind) {
   const box = $('#sai'); let blob, q, part, secs, topic, store;
   if (kind === '1') { const s = V.s1, t = IE.D.prompts.sp1[s.i], key = s.i + ':' + s.q; blob = s.blobs && s.blobs[key]; q = t.q[s.q]; part = '1'; secs = (s.secs && s.secs[key]) || 15; topic = t.t; store = r => { s.ai[key] = r; }; }
+  else if (kind === '3') { const s = V.s3, t = IE.D.prompts.sp2[s.i], key = s.i + ':' + s.q; blob = s.blobs && s.blobs[key]; q = t.f[s.q] + ' (follow-up to: ' + t.t + ')'; part = '3'; secs = (s.secs && s.secs[key]) || 30; topic = t.t.replace('Describe ', ''); store = r => { s.ai[key] = r; }; }
   else { const s = V.s2, t = IE.D.prompts.sp2[s.i]; blob = s.blob; q = t.t + ' You should say: ' + t.b.join('; '); part = '2'; secs = s.secsUsed || 90; topic = t.t.replace('Describe ', ''); store = r => { s.ai = r; }; }
   if (!blob || !box) return IE.toast('Avval javobingizni yozib oling');
   box.innerHTML = '<div class="card c"><div class="bub ai typing" style="margin:0 auto 8px;display:inline-flex"><i></i><i></i><i></i></div><p class="mu sm">AI nutqingizni tinglayapti… (15–40 soniya)</p></div>';
@@ -145,5 +146,5 @@ async function speakAI(kind) {
     const b2 = $('#sai'); if (b2) b2.innerHTML = IE.speakHTML(out); if (out.result.overall >= (S().prof.target || 7)) IE.confetti();
   } catch (e) { const b2 = $('#sai'); if (b2) b2.innerHTML = '<div class="card c"><p class="sm" style="color:var(--bad);font-weight:600">' + esc(e.message) + '</p><button class="btn sm" style="margin-top:8px" data-a="sp' + kind + 'ai">Qayta urinish</button></div>'; }
 }
-A.sp1ai = () => speakAI('1'); A.sp2ai = () => speakAI('2');
+A.sp1ai = () => speakAI('1'); A.sp2ai = () => speakAI('2'); A.sp3ai = () => speakAI('3');
 })();

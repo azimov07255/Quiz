@@ -524,6 +524,25 @@
        "why": "Paragraph E: ‘Frost damage appears as a distorted band’."
       }
      ]
+    },
+    {
+     "type": "mcq",
+     "title": "Question 14",
+     "note": "Choose the correct letter, A, B, C or D.",
+     "qs": [
+      {
+       "n": 14,
+       "q": "According to paragraph D, dendrochronology has been used to show that",
+       "o": [
+        "some wooden panels used for paintings could not have been cut until after the date traditionally given for the works.",
+        "Viking ships were built from imported timber.",
+        "cathedral roofs were rebuilt in the twentieth century.",
+        "oak trees grow more slowly than pine trees."
+       ],
+       "a": 0,
+       "why": "Paragraph D: the panels ‘could not have been cut until after the date traditionally given for the works’."
+      }
+     ]
     }
    ]
   }
