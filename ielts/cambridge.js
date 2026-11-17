@@ -5,7 +5,7 @@
 const IE = window.IE, { esc, ic, bd, $, $$, lsGet, lsSet } = IE, R = IE.routes, A = IE.act, V = IE.V, D = IE.D;
 const sub = (title, back, inner) => ({ h: '<header class="top"><button class="ib" data-a="back" data-r="' + back + '" aria-label="Orqaga">' + ic('back') + '</button><h1>' + esc(title) + '</h1></header><div class="scr sub">' + inner + '</div>', sub: true });
 const KEY = 'camt', TYPES = ['heads', 'tfng', 'fill', 'mcq'];
-let store = { reading: [], listening: [], del: {} };
+let store = { reading: [], listening: [], writing: [], speaking: [], del: {} };
 const cloudOn = () => lsGet('ielts:camcloud', 1) !== 0;
 let syncT = 0;
 /** Mahalliy saqlash + (yoqilgan bo‘lsa) bulutga sinxronlashni rejalashtirish. */
@@ -22,8 +22,8 @@ async function cGet(p) { const u = uidP(p); if (!u) return null; const r = await
 async function cDel(p) { const u = uidP(p); if (u) { try { await SB.raw(u, { method: 'DELETE' }); } catch (e) { /* */ } } }
 function mergeStore(a, b) {
   const del = {}; [a.del, b.del].forEach(d => Object.keys(d || {}).forEach(k => { del[k] = Math.max(del[k] || 0, d[k] || 0); }));
-  const out = { reading: [], listening: [], del };
-  ['reading', 'listening'].forEach(k => { const m = new Map(); [...(a[k] || []), ...(b[k] || [])].forEach(u => { if (!u || !u.id) return; const o = m.get(u.id); if (!o || (u.mt || 0) > (o.mt || 0) || ((u.mt || 0) === (o.mt || 0) && u.cau && !o.cau)) m.set(u.id, u); }); out[k] = [...m.values()].filter(u => !(del[u.id] && del[u.id] >= (u.mt || 0))); });
+  const out = { reading: [], listening: [], writing: [], speaking: [], del };
+  ['reading', 'listening', 'writing', 'speaking'].forEach(k => { const m = new Map(); [...(a[k] || []), ...(b[k] || [])].forEach(u => { if (!u || !u.id) return; const o = m.get(u.id); if (!o || (u.mt || 0) > (o.mt || 0) || ((u.mt || 0) === (o.mt || 0) && u.cau && !o.cau)) m.set(u.id, u); }); out[k] = [...m.values()].filter(u => !(del[u.id] && del[u.id] >= (u.mt || 0))); });
   return out;
 }
 let syncing = null;
@@ -32,8 +32,8 @@ function camSync(manual) {
   if (syncing) return syncing;
   return syncing = (async () => {
     if (!cloudOn() || !window.SB || !SB.session()) return false;
-    let remote = { reading: [], listening: [], del: {} };
-    try { const r = await cGet('index.json'); if (r) { const j = await r.json(); if (j && Array.isArray(j.reading)) remote = j; } } catch (e) { if (manual) IE.toast(navigator.onLine ? 'Bulutga ulanib bo‘lmadi' : 'Internet yo‘q'); return false; }
+    let remote = { reading: [], listening: [], writing: [], speaking: [], del: {} };
+    try { const r = await cGet('index.json'); if (r) { const j = await r.json(); if (j && Array.isArray(j.reading)) remote = { reading: j.reading, listening: j.listening || [], writing: j.writing || [], speaking: j.speaking || [], del: j.del || {} }; } } catch (e) { if (manual) IE.toast(navigator.onLine ? 'Bulutga ulanib bo‘lmadi' : 'Internet yo‘q'); return false; }
     const before = JSON.stringify(store), merged = mergeStore(store, remote);
     let dirty = JSON.stringify(merged) !== JSON.stringify(remote);
     // audio: mahalliy bor, bulutda yo‘q → yuklash
@@ -51,15 +51,19 @@ function camSync(manual) {
     return changed;
   })().finally(() => { syncing = null; });
 }
-IE.camSync = camSync;
+IE.camSync = camSync; IE.camStore = () => store; IE.camSave = async () => { inject(); await persist(); };
 function inject() {
+  if (D.prompts) {
+    D.prompts.sp1 = (D.prompts.sp1 || []).filter(x => !x.priv).concat((store.speaking || []).filter(u => u.p1 && u.p1.length).map(u => ({ t: u.cam + ' · Part 1', q: u.p1, priv: u.id })));
+    D.prompts.sp2 = (D.prompts.sp2 || []).filter(x => !x.priv).concat((store.speaking || []).filter(u => u.p2 && u.p2.t).map(u => ({ t: u.p2.t, b: u.p2.b || [], f: u.p3 || [], priv: u.id, cam: u.cam })));
+  }
   if (D.reading && D.reading.passages) D.reading.passages = D.reading.passages.filter(p => !p.priv).concat(store.reading.map(p => Object.assign({}, p, { priv: 1 })));
   if (D.listening && D.listening.tests) {
     const old = new Map((D.listening.tests || []).filter(t => t.priv).map(t => [t.id, t]));
     D.listening.tests = D.listening.tests.filter(t => !t.priv).concat(store.listening.map(t => { const o = old.get(t.id), keep = o ? { audio: o.audio, noaudio: o.noaudio } : {}; return Object.assign(o || {}, t, { priv: 1 }, keep); }));
   }
 }
-IE.camLoad = async () => { try { const s = await IE.idbGet(KEY); if (s && Array.isArray(s.reading) && Array.isArray(s.listening)) store = Object.assign({ del: {} }, s); } catch (e) { /* */ } inject(); setTimeout(() => camSync().catch(() => {}), 800); };
+IE.camLoad = async () => { try { const s = await IE.idbGet(KEY); if (s && Array.isArray(s.reading) && Array.isArray(s.listening)) store = Object.assign({ del: {} }, s); } catch (e) { /* */ } store.writing = store.writing || []; store.speaking = store.speaking || []; inject(); setTimeout(() => camSync().catch(() => {}), 800); };
 
 /* ---------- tekshirish va tozalash ---------- */
 function normGroups(rg, warn) {
@@ -119,7 +123,7 @@ IE.camEnsure = async t => {
 IE.camAttach = t => '<div class="card c" style="margin-top:12px">' + bd('head', 'L', 'lg').replace('class="bd', 'style="margin:0 auto 10px" class="bd') + '<b>Audio fayl kerak</b><p class="mu sm" style="margin:6px 0 12px">Cambridge CD/yuklab olingan yozuvdan shu bo‘limga mos mp3 faylni tanlang (faqat shu qurilmada saqlanadi).</p><label class="btn block">' + ic('down') + ' Audio tanlash<input type="file" accept="audio/*,.mp3,.m4a,.wav" id="camaf" data-id="' + esc(t.id) + '" hidden></label></div>';
 
 /* ---------- markaz ---------- */
-const kindOf = k => k === 'l' ? 'listening' : 'reading';
+const kindOf = k => k === 'l' ? 'listening' : k === 'w' ? 'writing' : k === 's' ? 'speaking' : 'reading';
 const rowH = (k, x) => {
   const nq = nqs(x.groups), noAud = k === 'l' && !(x.dur > 0);
   return '<div class="item" style="padding:8px 8px 8px 12px"><button class="row" style="flex:1;min-width:0;text-align:left" data-go="' + (k === 'r' ? 'reading/' + x.id + '/run' : 'listening/' + x.id) + '">' + bd(k === 'r' ? 'book' : 'head', k === 'r' ? 'R' : 'L', 'sm') + '<div class="tx"><b>' + esc(x.cam || x.title) + '</b><span>' + esc(x.title) + ' · ' + nq + ' savol' + (noAud ? ' · <b style="color:var(--warn)">audio yo‘q</b>' : '') + '</span></div></button><button class="ib" data-a="camdel" data-k="' + k + '" data-id="' + x.id + '" aria-label="O‘chirish">' + ic('trash') + '</button></div>';
@@ -132,6 +136,9 @@ const lastRec = (k, id) => { const L = k === 'r' ? IE.S().reads.filter(r => r.p 
 function groups() {
   const books = new Map(), loose = { r: [], l: [] };
   [['r', store.reading], ['l', store.listening]].forEach(([k, list]) => list.forEach(u => { const p = parseCam(u); if (!p) return void loose[k].push(u); const bk = books.get(p.book) || books.set(p.book, new Map()).get(p.book), t = bk.get(p.n) || bk.set(p.n, { R: {}, L: {} }).get(p.n); t[k.toUpperCase()][p.i] = u; }));
+  const tst = (book, n) => { const bk = books.get(book) || books.set(book, new Map()).get(book); return bk.get(n) || bk.set(n, { R: {}, L: {} }).get(n); };
+  (store.writing || []).forEach(u => { if (u.book && u.n) (tst(u.book, u.n).W = tst(u.book, u.n).W || {})[u.task] = u; });
+  (store.speaking || []).forEach(u => { if (u.book && u.n) tst(u.book, u.n).S = u; });
   return { books: [...books.entries()].sort((a, b) => natCmp(b[0], a[0])), loose };
 }
 /** Bitta ko‘nikma bo‘yicha: { done, need, band } — band faqat hamma qism topshirilganda. */
@@ -140,12 +147,12 @@ function skill(t, k) {
   const band = done === need && us.length === need ? (k === 'L' ? IE.bandL : IE.band)(rs.reduce((s, r) => s + r.raw, 0), rs.reduce((s, r) => s + r.tot, 0)) : null;
   return { done, need, have: us.length, band };
 }
-const overall = t => { const b = [skill(t, 'L').band, skill(t, 'R').band].filter(x => x != null); return b.length ? Math.round(b.reduce((s, x) => s + x, 0) / b.length * 2) / 2 : null; };
+const overall = t => { const b = [skill(t, 'L').band, skill(t, 'R').band, IE.camWskill ? IE.camWskill(t).band : null, IE.camSskill ? IE.camSskill(t).band : null].filter(x => x != null); return b.length ? Math.round(b.reduce((s, x) => s + x, 0) / b.length * 2) / 2 : null; };
 const chipS = sk => sk.band != null ? '<span class="v">' + IE.bandTxt(sk.band) + '</span>' : sk.have ? '<span class="v mu">' + sk.done + '/' + sk.need + '</span>' : '<span class="v mu">—</span>';
 function testCardH(book, n, t) {
   const ov = overall(t);
   return '<button class="camt rise" data-go="cambridge/t/' + encodeURIComponent(book) + '/' + n + '"><div class="hd"><b>Test ' + n + '</b>' + (ov != null ? '<span class="bdg">' + IE.bandTxt(ov) + '</span>' : '') + '</div>' +
-    '<div class="rw"><span>Listening</span>' + chipS(skill(t, 'L')) + '</div><div class="rw"><span>Reading</span>' + chipS(skill(t, 'R')) + '</div><div class="rw off"><span>Writing</span></div><div class="rw off"><span>Speaking</span></div></button>';
+    '<div class="rw"><span>Listening</span>' + chipS(skill(t, 'L')) + '</div><div class="rw"><span>Reading</span>' + chipS(skill(t, 'R')) + '</div><div class="rw"><span>Writing</span>' + chipS(IE.camWskill ? IE.camWskill(t) : { done: 0, need: 2, have: 0, band: null }) + '</div><div class="rw"><span>Speaking</span>' + chipS(IE.camSskill ? IE.camSskill(t) : { done: 0, need: 2, have: 0, band: null }) + '</div></button>';
 }
 function addBlock() {
   return '<div class="sec"><h2>Qo‘shish</h2></div><button class="aibn rise" data-go="cambridge/book">' + bd('spark', 'A', 'lg') + '<div style="flex:1"><h3>Kitobdan hammasini avtomatik</h3><p>Test 1, 2, 3, 4 — Reading va Listening bir bosishda.</p></div><span class="go">' + ic('next') + '</span></button>' +
@@ -186,11 +193,11 @@ function testPage(book, n) {
   };
   const soon = nm => '<div class="item" style="opacity:.45">' + bd(nm === 'Writing' ? 'pen' : 'mic', nm === 'Writing' ? 'W' : 'S', 'sm') + '<div class="tx"><b>' + nm + '</b><span>Tez orada</span></div></div>';
   const inner = '<div class="pad"><div class="card rise"><div class="row" style="justify-content:space-between"><div><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase">' + esc(book) + '</div><div style="font-size:26px;font-weight:900">Test ' + n + '</div></div>' + (ov != null ? '<div class="c"><div class="mu xs">Taxminiy band</div><div style="font-size:30px;font-weight:900;color:var(--pl)">' + IE.bandTxt(ov) + '</div></div>' : '') + '</div>' +
-    '<div class="two" style="margin-top:10px"><div class="stat"><b>' + (L.band != null ? IE.bandTxt(L.band) : L.done + '/' + L.need) + '</b><span>Listening</span></div><div class="stat"><b>' + (Rr.band != null ? IE.bandTxt(Rr.band) : Rr.done + '/' + Rr.need) + '</b><span>Reading</span></div></div></div>' +
+    '<div class="stats4"><div class="stat"><b>' + (L.band != null ? IE.bandTxt(L.band) : L.done + '/' + L.need) + '</b><span>Listening</span></div><div class="stat"><b>' + (Rr.band != null ? IE.bandTxt(Rr.band) : Rr.done + '/' + Rr.need) + '</b><span>Reading</span></div>' + (IE.camWskill ? (() => { const w = IE.camWskill(t), s2 = IE.camSskill(t); return '<div class="stat"><b>' + (w.band != null ? IE.bandTxt(w.band) : w.done + '/' + w.need) + '</b><span>Writing</span></div><div class="stat"><b>' + (s2.band != null ? IE.bandTxt(s2.band) : s2.done + '/' + s2.need) + '</b><span>Speaking</span></div>'; })() : '') + '</div></div>' +
     '<button class="item" style="margin-top:12px" data-go="cambridge/s/' + encodeURIComponent(book) + '/' + n + '">' + bd('target', 'M', 'sm') + '<div class="tx"><b>Scores</b><span>Javoblar jadvali, dalillar, urinishlar tarixi</span></div><span class="go">' + ic('next') + '</span></button>' + (IE.ftCard ? IE.ftCard(book, n, t) : '') +
     '<div class="sec"><h2>Listening</h2><span class="chip">' + L.done + '/' + L.need + '</span></div>' + (lack ? '<button class="item" style="margin-bottom:8px" data-go="cambridge">' + bd('down', 'L', 'sm') + '<div class="tx"><b>Audio ZIP yuklash</b><span>' + lack + ' ta Section’da audio yo‘q — Cambridge sahifasidagi “Audio” bo‘limidan zip tanlang</span></div><span class="go">' + ic('next') + '</span></button>' : '') + '<div class="ucl">' + [1, 2, 3, 4].map(i => row('L', i, t.L[i])).join('') + '</div>' +
     '<div class="sec"><h2>Reading</h2><span class="chip">' + Rr.done + '/' + Rr.need + '</span></div><div class="ucl">' + [1, 2, 3].map(i => row('R', i, t.R[i])).join('') + '</div>' +
-    '<div class="sec"><h2>Writing va Speaking</h2></div><div class="lst">' + soon('Writing') + soon('Speaking') + '</div>' +
+    (IE.camWS ? IE.camWS(book, n, t) : '<div class="sec"><h2>Writing va Speaking</h2></div><div class="lst">' + soon('Writing') + soon('Speaking') + '</div>') +
     '<p class="hint" style="margin-top:14px">' + ic('bulb') + ' Band — hamma Section/Passage topshirilgach hisoblanadi (har birining oxirgi natijasi bo‘yicha).</p></div>';
   return sub('Test ' + n, 'cambridge', inner);
 }

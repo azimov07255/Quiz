@@ -9,7 +9,10 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v1.8.0)
+## Hozir ishlaydi (v1.9.0)
+- **Cambridge Writing va Speaking** (`camws.js`, Edge Function `ielts-wr`): test sahifasida Writing Task 1/2 va Speaking (Part 1–3) kartalari. Savollarni yozasiz yoki kitob sahifasi suratidan AI o‘qiydi (Task 1 uchun diagramma tavsifi ham). Diagramma surati faqat qurilmada; matn va tavsif shaxsiy bulutda sinxronlanadi. Mashq — oddiy Writing/Speaking ekranlari (Task 1: 150 so‘z, taymer, diagramma ko‘rinadi); Writing baholash Task Achievement/Response bo‘yicha (`ielts-wr` eval); Speaking — mavjud audio-tahlil (haqiqiy ovoz transkripsiyasi). Test bandiga Writing (T1:T2 = 1:2) va Speaking ham kiradi.
+- Tuzatish: to‘liq Reading boshlanganda banner (Listening sessiyasidan keyin) chiqmasdi.
+## (v1.8)
 - **Navigatsiya**: orqaga (swipe-back) animatsiyasiz va avvalgi scroll joyiga qaytadi; AI yordamchi endi orqaga-oldinga tsikl hosil qilmaydi; Chat ekrani to‘liq ekranni egallaydi (klaviatura ochilganda gina visualViewport).
 - **Practice → Cambridge IELTS** kartasi (Tools’dan ko‘chirildi).
 - **Reja**: vazifalarni tahrirlash (nom, daqiqa, sana — boshqa kunga ko‘chirish), tartibini yuqoriga/pastga o‘zgartirish, kunlik vaqt 20–720 daqiqa (qo‘lda kiritiladi), istalgan kunga vazifa qo‘shish.

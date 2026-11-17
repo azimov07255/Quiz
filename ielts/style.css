@@ -1032,3 +1032,9 @@ mark.ev.ok{background:rgba(18,183,106,.28)}mark.ev.no{background:rgba(240,68,56,
 :root[data-skin=gold] .camcard{background:var(--hero);color:#fff6dc;box-shadow:inset 0 0 0 1px rgba(240,207,110,.3),0 16px 30px -14px rgba(150,110,20,.7)}
 :root[data-skin=gold] .camcard .cc-ic{background:var(--gold);color:var(--ink)}
 .seg.pseg button{min-width:0}
+
+/* ================= v1.9: Cambridge Writing/Speaking ================= */
+.stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.stats4 .stat{padding:8px 4px}.stats4 .stat b{font-size:17px}.stats4 .stat span{font-size:10.5px}
+.uc.empty .uc-add{margin-left:auto;flex:none}
+.wchart{display:block;width:100%;max-height:340px;object-fit:contain;border-radius:14px;margin-top:12px;background:#fff}

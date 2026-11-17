@@ -14,7 +14,7 @@ const clearRuns = f => { (f.units.L || []).forEach(i => { try { localStorage.rem
 /** Shu birlik hozir faol to‘liq imtihonning joriy bosqichiga tegishlimi? */
 IE.ftOn = (kind, id) => { const f = ft(); return !!f && f.phase === kind && f.skills.includes(kind) && (f.units[kind] || []).includes(id); };
 IE.ftLeft = (r, kind) => (kind === 'R' && IE.ftOn('R', r.id) && ft().tR) ? 3600 - (Date.now() - ft().tR) / 1000 : 1200 - (Date.now() - r.t0) / 1000;
-IE.ftBanner = kind => { const f = ft(); if (!f || !IE.ftOn(kind, (V.l && V.l.id) || (V.run && V.run.id) || '')) return ''; return '<div class="ftb">' + ic('clock') + ' <b>To‘liq imtihon</b> · ' + (kind === 'L' ? 'Listening, Section ' + f.li + '/' + f.units.L.length : 'Reading · 60 daqiqa umumiy vaqt') + '</div>'; };
+IE.ftBanner = kind => { const f = ft(); if (!f || !IE.ftOn(kind, (kind === 'L' ? (V.l && V.l.id) : (V.run && V.run.id)) || '')) return ''; return '<div class="ftb">' + ic('clock') + ' <b>To‘liq imtihon</b> · ' + (kind === 'L' ? 'Listening, Section ' + f.li + '/' + f.units.L.length : 'Reading · 60 daqiqa umumiy vaqt') + '</div>'; };
 
 function open(f) {
   if (f.phase === 'L') { const pm = V.lmode; V.lmode = 'exam'; A.lstart({ dataset: { id: f.units.L[f.li - 1] } }); V.lmode = pm; }

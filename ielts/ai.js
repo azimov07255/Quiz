@@ -21,7 +21,7 @@ document.addEventListener('keydown', e => {
 /* ---------- Writing: AI bahosi ---------- */
 IE.aiHTML = a => {
   const sc = (k, v, big) => '<div class="sc' + (big ? ' big' : '') + '"><b>' + IE.bandTxt(v) + '</b><span>' + k + '</span></div>';
-  return '<div class="airs"><div class="scs">' + sc('Task Response', a.tr) + sc('Coherence', a.cc) + sc('Lexical', a.lr) + sc('Grammar', a.gra) + '</div><div class="sc big all"><b>' + IE.bandTxt(a.overall) + '</b><span>Taxminiy overall band</span></div>' +
+  return '<div class="airs"><div class="scs">' + sc(a.task === '1' ? 'Task Achiev.' : 'Task Response', a.tr) + sc('Coherence', a.cc) + sc('Lexical', a.lr) + sc('Grammar', a.gra) + '</div><div class="sc big all"><b>' + IE.bandTxt(a.overall) + '</b><span>Taxminiy overall band</span></div>' +
     (a.strengths && a.strengths.length ? '<h4>Kuchli tomonlar</h4><ul>' + a.strengths.map(s => '<li>' + esc(s) + '</li>').join('') + '</ul>' : '') +
     (a.issues && a.issues.length ? '<h4>Tuzatish kerak</h4>' + a.issues.map(i => '<div class="iss"><div class="was">' + esc(i.quote) + '</div><div class="now">' + esc(i.fix) + '</div><div class="why2">' + esc(i.why) + '</div></div>').join('') : '') +
     (a.upgrade ? '<h4>Kuchaytirilgan variant</h4><div class="essay card" style="padding:12px 14px"><p style="margin:0;font-size:15px">' + esc(a.upgrade) + '</p></div>' : '') +
@@ -31,7 +31,8 @@ A.wai = async el => {
   const ts = +el.dataset.ts, rec = S().writes.find(w => w.ts === ts), box = $('#aires'); if (!rec || !box) return;
   box.innerHTML = '<div class="card c"><div class="bub ai typing" style="margin:0 auto 8px;display:inline-flex"><i></i><i></i><i></i></div><p class="mu sm">AI inshoni o‘qiyapti… (10–20 soniya)</p></div>';
   try {
-    const out = await call({ action: 'writing', prompt: IE.wprompt(rec.p), text: rec.x });
+    const cu = IE.camWUnit ? IE.camWUnit(rec.p) : null, img = cu && cu.task === '1' && IE.camWImg ? await IE.camWImg(cu.id) : null;
+    const out = cu ? await SB.fn('ielts-wr', { mode: 'eval', task: cu.task, prompt: cu.text, desc: cu.desc || '', text: rec.x, img: img ? img.split(',')[1] : '' }) : await call({ action: 'writing', prompt: IE.wprompt(rec.p), text: rec.x });
     rec.ai = out.result; IE.save(true);
     const b = $('#aires'); if (b) b.innerHTML = IE.aiHTML(rec.ai);
     if (rec.ai.overall >= (S().prof.target || 7)) IE.confetti();

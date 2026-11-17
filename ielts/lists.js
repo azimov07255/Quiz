@@ -10,11 +10,11 @@ const nq = u => u.groups.reduce((n, g) => n + g.qs.length, 0);
 /** Bitta test kartasi. o: {go, k:'L'|'R', num, lab, title, meta, chips[], rec, att, going, ana, del:{k,id}, empty} */
 IE.uc = o => {
   const L = o.k === 'L';
-  if (o.empty) return '<div class="uc empty sk-' + o.k + '"><span class="uc-n"><b>' + o.num + '</b><i>' + o.lab + '</i></span><span class="uc-b"><b class="uc-t">' + esc(o.title) + '</b><span class="uc-m">Qo‘shilmagan</span></span></div>';
+  if (o.empty) return '<div class="uc empty sk-' + o.k + '"><span class="uc-n"><b>' + o.num + '</b><i>' + o.lab + '</i></span><span class="uc-b"><b class="uc-t">' + esc(o.title) + '</b><span class="uc-m">Qo‘shilmagan</span></span>' + (o.add ? '<button class="chip uc-add" ' + o.add + '>' + ic('plus') + ' Qo‘shish</button>' : '') + '</div>';
   const rec = o.rec, pc = rec ? Math.round(rec.raw / Math.max(1, rec.tot) * 100) : 0;
   const right = rec ? '<span class="uc-ring"><i style="--v:' + pc + '"></i><b>' + IE.bandTxt(rec.band) + '</b></span>' : '<span class="uc-play">' + ic('play') + '</span>';
   const foot = (rec ? '<span class="uc-att">' + rec.raw + '/' + rec.tot + ' · ' + (o.att > 1 ? o.att + ' urinish' : '1 urinish') + '</span>' : '') +
-    '<span class="uc-fa">' + (rec && o.ana ? '<button class="chip" data-go="ana/' + o.ana + '">' + ic('bulb') + ' Tahlil</button>' : '') + (rec ? '<button class="chip" data-go="' + o.go + '">Qayta</button>' : '') + (o.del ? '<button class="chip" data-a="camdel" data-k="' + o.del.k + '" data-id="' + esc(o.del.id) + '" aria-label="O‘chirish">' + ic('trash') + '</button>' : '') + '</span>';
+    '<span class="uc-fa">' + (o.extra || '') + (o.edit ? '<button class="chip" ' + o.edit + ' aria-label="Tahrirlash">' + ic('edit') + '</button>' : '') + (rec && o.ana ? '<button class="chip" data-go="ana/' + o.ana + '">' + ic('bulb') + ' Tahlil</button>' : '') + (rec ? '<button class="chip" data-go="' + o.go + '">Qayta</button>' : '') + (o.del ? '<button class="chip" data-a="camdel" data-k="' + o.del.k + '" data-id="' + esc(o.del.id) + '" aria-label="O‘chirish">' + ic('trash') + '</button>' : '') + '</span>';
   return '<div class="uc rise sk-' + o.k + (rec ? ' done' : '') + (o.going ? ' going' : '') + '"><button class="uc-main" data-go="' + o.go + '"><span class="uc-n"><b>' + o.num + '</b><i>' + o.lab + '</i></span><span class="uc-b"><b class="uc-t">' + esc(o.title) + '</b>' + (o.meta ? '<span class="uc-m">' + o.meta + '</span>' : '') + ((o.chips || []).length ? '<span class="uc-c">' + o.chips.join('') + '</span>' : '') + '</span>' + right + '</button>' + (rec || o.del ? '<div class="uc-f">' + foot + '</div>' : '') + '</div>';
 };
 IE.ucChip = chip;

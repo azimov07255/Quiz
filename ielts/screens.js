@@ -263,19 +263,21 @@ function readRes(id) {
 A.rretry = el => { try { localStorage.removeItem(rk(el.dataset.id)); } catch (e) { /* */ } V.run = null; IE.go('reading/' + el.dataset.id + '/run'); };
 
 /* ---------- WRITING ---------- */
-const wlist = () => { let n = 0; const o = []; Object.entries(D.prompts.task2).forEach(([cat, arr]) => arr.forEach(t => o.push({ n: n++, cat, t }))); return o; };
-IE.wprompt = n => (wlist()[n] || {}).t || '';
+const wlist = () => { let n = 0; const o = []; Object.entries(D.prompts.task2).forEach(([cat, arr]) => arr.forEach(t => o.push({ n: n++, cat, t }))); ((IE.camStore ? IE.camStore().writing : []) || []).forEach(u => o.push({ n: u.id, cat: 'Cambridge', t: u.text, priv: 1, task: u.task, cam: u.cam })); return o; };
+const wfind = n => wlist().find(x => x.n === n);
+const wmin = x => x && x.priv && x.task === '1' ? 150 : 250;
+IE.wprompt = n => (wfind(n) || {}).t || '';
 const wc = t => (String(t).trim().match(/\S+/g) || []).length;
 R.writing = a => {
-  if (a[0] === 'p') return writeEd(+a[1]);
+  if (a[0] === 'p') return writeEd(/^\d+$/.test(a[1] || '') ? +a[1] : a[1]);
   if (a[0] === 's') return writeSample(a[1]);
   if (a[0] === 'h') return writeHist(+a[1]);
   const tab = a[0] === 'tab' ? a[1] : (V.wtab || 'p'); V.wtab = tab;
-  const cats = Object.keys(D.prompts.task2), cat = V.wcat || 'all', s = S();
+  const cats = Object.keys(D.prompts.task2).concat(wlist().some(x => x.priv) ? ['Cambridge'] : []), cat = V.wcat || 'all', s = S();
   let body = '';
   if (tab === 'p') {
     body = '<div class="seg"><button class="' + (cat === 'all' ? 'on' : '') + '" data-a="wcat" data-v="all">Hammasi</button>' + cats.map(c => '<button class="' + (cat === c ? 'on' : '') + '" data-a="wcat" data-v="' + esc(c) + '">' + esc(c) + '</button>').join('') + '</div><div class="lst">' +
-      wlist().filter(x => cat === 'all' || x.cat === cat).map(x => { const d = s.drafts['w' + x.n], dn = s.writes.some(w => w.p === x.n); return '<button class="item" data-go="writing/p/' + x.n + '">' + bd('pen', 'W', 'sm') + '<div class="tx"><b style="white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' + esc(x.t) + '</b><span>' + esc(x.cat) + (d && !d.del ? ' · qoralama bor' : '') + (dn ? ' · yozilgan' : '') + '</span></div></button>'; }).join('') + '</div>';
+      wlist().filter(x => cat === 'all' || x.cat === cat).map(x => { const d = s.drafts['w' + x.n], dn = s.writes.some(w => w.p === x.n); return '<button class="item" data-go="writing/p/' + x.n + '">' + bd('pen', 'W', 'sm') + '<div class="tx"><b style="white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' + esc(x.priv ? x.t.split(/\n/).filter(l => l.trim() && !/^you should spend|^write at least/i.test(l.trim()))[0] || x.t : x.t) + '</b><span>' + esc(x.priv ? x.cam : x.cat) + (d && !d.del ? ' · qoralama bor' : '') + (dn ? ' · yozilgan' : '') + '</span></div></button>'; }).join('') + '</div>';
   } else if (tab === 's') {
     body = '<div class="lst">' + D.prompts.samples.map(x => '<button class="item" data-go="writing/s/' + x.id + '">' + bd('doc', 'W') + '<div class="tx"><b>Band ' + x.band + ' · ' + esc(x.type) + '</b><span style="white-space:normal;display:block">' + esc(x.prompt.slice(0, 90)) + '…</span></div></button>').join('') + '</div>';
   } else {
@@ -288,19 +290,20 @@ R.writing = a => {
 A.wtab = el => { V.wtab = el.dataset.v; IE.draw(false); };
 A.wcat = el => { V.wcat = el.dataset.v; IE.draw(false); };
 function writeEd(n) {
-  const x = wlist()[n]; if (!x) return R.writing([]);
-  const k = 'w' + n, d = S().drafts[k], txt = d && !d.del ? d.x : '';
+  const x = wfind(n); if (!x) return R.writing([]);
+  const k = 'w' + n, d = S().drafts[k], txt = d && !d.del ? d.x : '', min = wmin(x), t1 = x.priv && x.task === '1';
   if (!V.w || V.w.n !== n) V.w = { n, t0: Date.now() - ((d && d.s) || 0) * 1000 };
+  V.w.min = min;
   const c = wc(txt);
-  const o = sub('Task 2', 'writing', '<div class="pad"><div class="prompt">' + esc(x.t) + '</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0"><span class="chip">1 Kirish</span><span class="chip">2 Asosiy qism</span><span class="chip">3 Asosiy qism</span><span class="chip">4 Xulosa</span></div>' +
-    '<textarea class="ed" id="ed" data-in="ed" placeholder="Inshoni shu yerda yozing…" spellcheck="true">' + esc(txt) + '</textarea><div class="wc' + (c >= 250 ? ' ok' : '') + '" id="wcn"><span><b>' + c + '</b> so‘z · kamida 250</span><span>' + ic('clock') + ' <span id="wt">' + fmtT((Date.now() - V.w.t0) / 1000) + '</span></span></div>' +
+  const o = sub(t1 ? 'Task 1' : 'Task 2', x.priv ? 'cambridge' : 'writing', '<div class="pad"><div class="prompt">' + esc(x.t) + '</div>' + (t1 ? '<div id="wimg"></div>' : '') + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0">' + (t1 ? '<span class="chip">1 Paraphrase</span><span class="chip">2 Overview</span><span class="chip">3 Detail</span><span class="chip">4 Detail</span>' : '<span class="chip">1 Kirish</span><span class="chip">2 Asosiy qism</span><span class="chip">3 Asosiy qism</span><span class="chip">4 Xulosa</span>') + '</div>' +
+    '<textarea class="ed" id="ed" data-in="ed" placeholder="Inshoni shu yerda yozing…" spellcheck="true">' + esc(txt) + '</textarea><div class="wc' + (c >= min ? ' ok' : '') + '" id="wcn"><span><b>' + c + '</b> so‘z · kamida ' + min + '</span><span>' + ic('clock') + ' <span id="wt">' + fmtT((Date.now() - V.w.t0) / 1000) + '</span></span></div>' +
     '<button class="btn block" data-a="wfin" data-n="' + n + '">Tugatish</button></div>', '');
-  o.mount = () => { IE.every(1000, () => { const t = $('#wt'); if (t && V.w) t.textContent = fmtT((Date.now() - V.w.t0) / 1000); }); };
+  o.mount = () => { IE.every(1000, () => { const t = $('#wt'); if (t && V.w) t.textContent = fmtT((Date.now() - V.w.t0) / 1000); }); if (t1 && IE.camWImg) IE.camWImg(x.n).then(d => { const b = $('#wimg'); if (b && d) b.innerHTML = '<img class="wchart" src="' + d + '" alt="Task 1 diagramma">'; }); };
   return o;
 }
 let wTimer;
 IE.edInput = el => {
-  const c = wc(el.value), n = $('#wcn'); if (n) { n.classList.toggle('ok', c >= 250); n.firstElementChild.innerHTML = '<b>' + c + '</b> so‘z · kamida 250'; }
+  const c = wc(el.value), mn = (V.w && V.w.min) || 250, n = $('#wcn'); if (n) { n.classList.toggle('ok', c >= mn); n.firstElementChild.innerHTML = '<b>' + c + '</b> so‘z · kamida ' + mn; }
   clearTimeout(wTimer); wTimer = setTimeout(() => { if (!V.w) return; S().drafts['w' + V.w.n] = { t: Date.now(), x: el.value, s: Math.round((Date.now() - V.w.t0) / 1000) }; IE.saveLocal(); }, 500);
 };
 A.wfin = el => {
@@ -309,7 +312,7 @@ A.wfin = el => {
   const secs = Math.round((Date.now() - V.w.t0) / 1000), rec = { ts: Date.now(), p: n, words: c, secs, x: txt.slice(0, 8000) };
   S().writes.push(rec); S().drafts['w' + n] = { t: Date.now(), x: '', del: true }; IE.touchDay(); IE.save(true); V.w = null; clearTimeout(wTimer); IE.clearTimers();
   const lst = ['Savolga to‘liq javob berdim (barcha qismlari)', 'Pozitsiyam boshidan oxirigacha aniq', 'Har paragrafda bitta asosiy g‘oya + sabab/misol', 'Bog‘lovchilarni (however, moreover…) me’yorida ishlatdim', 'Xilma-xil grammatika: shart, nisbiy gap, passiv', 'Imlo va artikllarni tekshirdim'];
-  IE.sheet('<h2>Ajoyib, ' + c + ' so‘z!</h2><p class="mu sm" style="margin-bottom:8px">' + (c < 250 ? 'Diqqat: imtihonda 250 so‘zdan kam yozish ballni tushiradi.' : 'Hajm yetarli.') + ' Vaqt: ' + fmtT(secs) + '. O‘zingizni tekshiring:</p>' + lst.map(l => '<label class="ck"><input type="checkbox"><span>' + l + '</span></label>').join('') + '<div class="two" style="margin-top:16px"><button class="btn ghost" data-a="wsam">Namunalarni ko‘rish</button><button class="btn" data-a="wdone">Yopish</button></div><div id="aires" style="margin-top:14px"><button class="btn block" data-a="wai" data-ts="' + rec.ts + '">' + ic('spark') + ' AI bilan baholash</button></div>');
+  IE.sheet('<h2>Ajoyib, ' + c + ' so‘z!</h2><p class="mu sm" style="margin-bottom:8px">' + (c < ((V.w && V.w.min) || 250) ? 'Diqqat: imtihonda ' + ((V.w && V.w.min) || 250) + ' so‘zdan kam yozish ballni tushiradi.' : 'Hajm yetarli.') + ' Vaqt: ' + fmtT(secs) + '. O‘zingizni tekshiring:</p>' + lst.map(l => '<label class="ck"><input type="checkbox"><span>' + l + '</span></label>').join('') + '<div class="two" style="margin-top:16px"><button class="btn ghost" data-a="wsam">Namunalarni ko‘rish</button><button class="btn" data-a="wdone">Yopish</button></div><div id="aires" style="margin-top:14px"><button class="btn block" data-a="wai" data-ts="' + rec.ts + '">' + ic('spark') + ' AI bilan baholash</button></div>');
   IE.confetti();
 };
 A.wsam = () => { IE.closeSheet(); IE.go('writing/tab/s'); };
@@ -321,7 +324,7 @@ function writeSample(id) {
 }
 function writeHist(ts) {
   const w = S().writes.find(x => x.ts === ts); if (!w) return R.writing([]);
-  const pr = wlist()[w.p];
+  const pr = wfind(w.p);
   return sub('Yozuvim', 'writing/tab/h', '<div class="pad">' + (pr ? '<div class="prompt">' + esc(pr.t) + '</div>' : '') + '<div class="card essay" style="margin-top:14px">' + String(w.x || '').split(/\n+/).map(p => '<p>' + esc(p) + '</p>').join('') + '<div class="mu xs b">' + w.words + ' so‘z · ' + fmtD(w.ts) + '</div></div><div id="aires" style="margin-top:14px">' + (w.ai ? IE.aiHTML(w.ai) : '<button class="btn block" data-a="wai" data-ts="' + ts + '">' + ic('spark') + ' AI bilan baholash</button>') + '</div><button class="btn block ghost" style="margin-top:14px" data-a="wcopy" data-ts="' + ts + '">Nusxalash</button></div>');
 }
 A.wcopy = el => { const w = S().writes.find(x => x.ts === +el.dataset.ts); try { navigator.clipboard.writeText(w.x || ''); IE.toast('Nusxalandi'); } catch (e) { IE.toast('Nusxalab bo‘lmadi'); } };
