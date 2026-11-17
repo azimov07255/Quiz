@@ -9,7 +9,11 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v1.9.0)
+## Hozir ishlaydi (v2.0.0)
+- **Xatolar banki** (`mb.js`): Reading va Listening’dagi barcha xato savollar (har testning oxirgi urinishi bo‘yicha) takrorlash tizimida (1–3–7–16–35 kun). To‘g‘ri → keyingi quti, xato → bugun yana qaytadi. Zaif savol turlari, Home kartasi, Reja vazifasi, qurilmalar o‘rtasida sinxron (`S().mb`).
+- **Writing murabbiy**: baholangan inshoni “Qayta yozish” (asl nusxaga bog‘lanadi) → qayta baholash → mezonlar bo‘yicha oldingi/hozirgi solishtirish; “Mezonlar dinamikasi” grafigi; AI tuzatishlarini bir bosishda “Iboralarimga” (lug‘at + takrorlash).
+- **AI haftalik trener**: Reja → Hafta (yakshanba/dushanba — Home’da ham) — AI hafta statistikasi, band trendi, xatolar banki va Writing mezonlariga qarab tahlil qiladi va keyingi hafta rejasini taklif kartasi sifatida beradi (tasdiqlab qo‘llanadi).
+## (v1.9)
 - **Cambridge Writing va Speaking** (`camws.js`, Edge Function `ielts-wr`): test sahifasida Writing Task 1/2 va Speaking (Part 1–3) kartalari. Savollarni yozasiz yoki kitob sahifasi suratidan AI o‘qiydi (Task 1 uchun diagramma tavsifi ham). Diagramma surati faqat qurilmada; matn va tavsif shaxsiy bulutda sinxronlanadi. Mashq — oddiy Writing/Speaking ekranlari (Task 1: 150 so‘z, taymer, diagramma ko‘rinadi); Writing baholash Task Achievement/Response bo‘yicha (`ielts-wr` eval); Speaking — mavjud audio-tahlil (haqiqiy ovoz transkripsiyasi). Test bandiga Writing (T1:T2 = 1:2) va Speaking ham kiradi.
 - Tuzatish: to‘liq Reading boshlanganda banner (Listening sessiyasidan keyin) chiqmasdi.
 ## (v1.8)

@@ -39,6 +39,7 @@ const CAT = {
   type: { t: 'Typing mashqi', m: 5, ic: 'type', k: 'W', go: () => 'typing', sub: () => '1 daqiqa — Writing tezligi uchun', auto: c => c.T >= 1 },
   mock: { t: 'Mini Mock Test', m: 90, ic: 'trophy', k: 'M', go: () => 'mock', sub: () => 'Haftalik sinov: hamma ko‘nikma', auto: c => c.M >= 1 },
   ana: { t: 'Reading tahlili', m: 15, ic: 'bulb', k: 'R', go: () => { const p = IE.anaPending ? IE.anaPending()[0] : null; return p ? p.go : 'ana'; }, sub: () => 'So‘zlar, xatolar sababi, qayta yechish', auto: () => IE.anaToday && IE.anaToday() >= 3 },
+  mb: { t: 'Xatolar banki', m: 10, ic: 'cards', k: 'V', go: () => 'mb', sub: () => (IE.bankStats ? IE.bankStats().due : 0) + ' ta xato savol takrorga tayyor', auto: () => IE.bankToday && IE.bankToday() >= 5 },
   review: { t: 'Haftalik takror', m: 20, ic: 'refresh', k: 'V', go: () => 'practice', sub: () => 'Xatolaringiz va yangi so‘zlarni ko‘rib chiqing' },
 };
 const weakest = () => { const b = IE.skillBands(), e = Object.entries(b).filter(([, v]) => v != null).sort((a, c) => a[1] - c[1]); return e.length ? e[0][0] : null; };
@@ -61,6 +62,7 @@ function planIds(k) {
   if (ph === 'final') { base = dow === 3 || dow === 6 ? ['mock', 'srs'] : ['srs', 'review', 'listen']; if (M < 90) base = base.map(x => x === 'mock' ? 'read' : x); }
   else if (ph === 'intense' && (dow === 2 || dow === 4) && M >= 60) base.splice(1, 0, 'write');
   if (IE.anaPending && IE.anaPending().length && ph !== 'final') base.splice(Math.min(1, base.length), 0, 'ana');
+  if (IE.bankStats && IE.bankStats().due >= 3) base.splice(Math.min(2, base.length), 0, 'mb');
   const wk = weakest(); if (wk && ph !== 'final' && (dow === 1 || dow === 3 || dow === 5)) WEAK[wk].forEach(id => { if (!base.includes(id)) base.push(id); });
   if (ph === 'base') ['pod', 'shadow'].forEach(id => { if (!base.includes(id) && M >= 45) base.push(id); });
   // vaqt byudjetiga sig‘dirish: birinchi (asosiy) vazifa va srs har doim qoladi
@@ -212,7 +214,7 @@ A.pmsave = () => { const i = $('#pmv'), v = Math.round(+(i ? i.value : 0)); if (
 A.pset = el => { const s = S(); s.prof.mins = +el.dataset.v; s.pts = Date.now(); IE.save(); IE.closeSheet(); IE.toast('Reja yangilandi'); IE.draw(false); };
 
 function weekDays() { const k = dk(), dow = dowOf(k), mon = addD(k, -((dow + 6) % 7)); return Array.from({ length: 7 }, (_, i) => addD(mon, i)); }
-function weekH() { return IE.weekCard() + '<div style="height:12px"></div>' + weekH0(); }
+function weekH() { return (IE.coachCard ? IE.coachCard(true) + '<div style="height:12px"></div>' : '') + IE.weekCard() + '<div style="height:12px"></div>' + weekH0(); }
 function weekH0() {
   const today = dk(), days = weekDays(); let pl = 0, dn = 0, mn = 0;
   const rows = days.map(k => {

@@ -37,7 +37,9 @@ IE.agentValidate = list => {
 IE.agentCtx = () => {
   const s = S(), p = s.prof, k = today(), dl = p.date ? Math.ceil((parse(p.date) - parse(k)) / 864e5) : null, b = IE.skillBands(), ws = Object.entries(b).filter(([, v]) => v != null).sort((x, y) => x[1] - y[1]);
   const plan = Array.from({ length: 8 }, (_, i) => addD(k, i)).map(d => { const x = IE.planDay ? IE.planDay(d) : { rest: false, tasks: [] }; return { date: d, weekday: WE[parse(d).getDay()], rest: x.rest, tasks: x.tasks.slice(0, 6).map(t => t.t + ' (' + t.m + ')' + (t.ai ? ' [AI]' : '')) }; });
-  return { today: k, weekday: WE[parse(k).getDay()], exam: p.date || null, daysLeft: dl, target: +p.target || 7, level: p.level || null, dailyMins: +p.mins || 60, start: p.start || '19:00', bands: { L: b.L, R: b.R, W: b.W, S: b.S }, weakest: ws[0] ? ws[0][0] : null, counts: { reading: s.reads.length, listening: s.listens.length, writing: s.writes.length, speaking: s.speaks.length, mocks: s.mocks.length, words: Object.keys(s.srs).length }, streak: IE.streak(), dueWords: IE.dueCount ? IE.dueCount() : 0, plan };
+  const wk0 = IE.weekStats ? IE.weekStats(0) : null, wp = IE.weekStats ? IE.weekStats(-1) : null, fc = IE.forecast ? IE.forecast() : null, wr = s.writes.filter(w => w.ai && typeof w.ai.overall === 'number').slice(-3).map(w => ({ o: w.ai.overall, tr: w.ai.tr, cc: w.ai.cc, lr: w.ai.lr, gra: w.ai.gra }));
+  const doneDays = Array.from({ length: 7 }, (_, i) => addD(k, -i)).filter(d => s.pdone[d] && s.pdone[d]._).length;
+  return { today: k, weekday: WE[parse(k).getDay()], exam: p.date || null, daysLeft: dl, target: +p.target || 7, level: p.level || null, dailyMins: +p.mins || 60, start: p.start || '19:00', bands: { L: b.L, R: b.R, W: b.W, S: b.S }, weakest: ws[0] ? ws[0][0] : null, counts: { reading: s.reads.length, listening: s.listens.length, writing: s.writes.length, speaking: s.speaks.length, mocks: s.mocks.length, words: Object.keys(s.srs).length }, week: wk0 ? { activeDays: wk0.act, tests: wk0.tests, focusMin: wk0.foc, vocabReviews: wk0.t.V, avgBand: wk0.avg, prev: { activeDays: wp.act, tests: wp.tests, focusMin: wp.foc, avgBand: wp.avg } } : null, trend: fc ? { slopePerWeek: fc.slopeW, predicted: fc.pred } : null, planDoneDays7: doneDays, writingRecent: wr, streak: IE.streak(), dueWords: IE.dueCount ? IE.dueCount() : 0, bank: IE.bankStats ? (() => { const b = IE.bankStats(); return { active: b.active, due: b.due, mastered: b.mastered, weakTypes: b.types }; })() : null, plan };
 };
 IE.agentAsk = async msgs => {
   const hist = msgs.filter(x => !x.loc).slice(-10).map(x => ({ role: x.r === 'user' ? 'user' : 'assistant', content: (x.hid || x.c) + (x.act && x.act.length ? ' [' + x.act.length + ' ta amal taklif qilindi' + (x.done ? ', qo‘llandi' : x.rej ? ', rad etildi' : '') + ']' : '') }));
@@ -101,5 +103,10 @@ A.agno = el => { const m = find(el.dataset.id); if (!m || m.done) return; m.rej 
 A.agundo = el => { const m = find(el.dataset.id); if (!m || !m.done) return; undo(m.done.u || {}); m.done = null; m.undone = 1; IE.chatSave && IE.chatSave(); IE.toast('↶ Bekor qilindi'); };
 R.agent = () => { IE.V.chatAuto = { text: '' }; try { location.replace(location.href.split('#')[0] + '#/chat'); } catch (e) { IE.go('chat'); } return { h: '<div style="padding-top:40vh"><div class="spin"></div></div>', sub: true }; };
 
+const COACH = 'Haftalik tahlil qil: shu hafta nimalar yaxshi ketdi, qaysi joylar zaif (CONTEXT dagi band trendi, xatolar banki, Writing mezonlari va reja bajarilishiga qarab) va keyingi 7 kun uchun aniq reja taklif qil. Eski AI vazifalarni almashtir va zaif tomonlarga ko‘proq vaqt ber.';
+IE.coachCard = force => {
+  const d = new Date().getDay(); if (!force && d !== 0 && d !== 1) return '';
+  return '<button class="mbcard rise coachc" data-a="agopen" data-p="' + esc(COACH) + '"><span class="mbi" style="background:linear-gradient(145deg,#a78bfa,#7c3aed)">' + ic('sparkl') + '</span><div style="flex:1;min-width:0"><b>AI haftalik trener</b><span>' + (d === 0 || d === 1 ? 'Yangi hafta — natijalaringiz tahlil qilinib, reja tuzib beriladi' : 'Haftangizni tahlil qilib, keyingi hafta rejasini tuzadi') + '</span></div><span class="go">' + ic('next') + '</span></button>';
+};
 A.agopen = el => IE.chatOpen && IE.chatOpen('agent', el && el.dataset.p ? el.dataset.p : '');
 })();

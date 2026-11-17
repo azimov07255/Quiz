@@ -19,11 +19,18 @@ document.addEventListener('keydown', e => {
 });
 
 /* ---------- Writing: AI bahosi ---------- */
+IE.issHTML = i => '<div class="iss"><div class="was">' + esc(i.quote) + '</div><div class="now">' + esc(i.fix) + '</div><div class="why2">' + esc(i.why) + '</div><button class="chip issb" data-a="wiss" data-f="' + esc(i.fix) + '" data-w="' + esc(i.why) + '" data-q="' + esc(i.quote) + '">' + ic('plus') + ' Iboralarimga</button></div>';
+A.wiss = el => {
+  const f = String(el.dataset.f || '').trim().slice(0, 90); if (f.length < 3) return; const id = 'my:' + f.toLowerCase().replace(/[^a-z0-9 ]+/g, '').slice(0, 60).trim().replace(/\s+/g, '-');
+  const s = S(); if (s.my.some(x => x.id === id)) return IE.toast('Bu ibora allaqachon lug‘atingizda');
+  s.my.push({ id, w: f, uz: String(el.dataset.w || '').slice(0, 140), def: '', ex: String(el.dataset.q || '').slice(0, 160), pos: 'ibora', ts: Date.now() }); s.srs[id] = { b: 1, d: IE.dayNum(), t: Date.now() };
+  IE.touchDay(); IE.save(); IE.vib(12); el.classList.add('done'); el.innerHTML = ic('check') + ' Qo‘shildi'; IE.toast('Iboralar daftariga qo‘shildi — takrorlash tizimida chiqadi');
+};
 IE.aiHTML = a => {
   const sc = (k, v, big) => '<div class="sc' + (big ? ' big' : '') + '"><b>' + IE.bandTxt(v) + '</b><span>' + k + '</span></div>';
   return '<div class="airs"><div class="scs">' + sc(a.task === '1' ? 'Task Achiev.' : 'Task Response', a.tr) + sc('Coherence', a.cc) + sc('Lexical', a.lr) + sc('Grammar', a.gra) + '</div><div class="sc big all"><b>' + IE.bandTxt(a.overall) + '</b><span>Taxminiy overall band</span></div>' +
     (a.strengths && a.strengths.length ? '<h4>Kuchli tomonlar</h4><ul>' + a.strengths.map(s => '<li>' + esc(s) + '</li>').join('') + '</ul>' : '') +
-    (a.issues && a.issues.length ? '<h4>Tuzatish kerak</h4>' + a.issues.map(i => '<div class="iss"><div class="was">' + esc(i.quote) + '</div><div class="now">' + esc(i.fix) + '</div><div class="why2">' + esc(i.why) + '</div></div>').join('') : '') +
+    (a.issues && a.issues.length ? '<h4>Tuzatish kerak</h4>' + a.issues.map(IE.issHTML).join('') : '') +
     (a.upgrade ? '<h4>Kuchaytirilgan variant</h4><div class="essay card" style="padding:12px 14px"><p style="margin:0;font-size:15px">' + esc(a.upgrade) + '</p></div>' : '') +
     (a.next ? '<div class="tip8" style="margin-top:12px"><b>Keyingi qadam:</b> ' + esc(a.next) + '</div>' : '') + '<p class="hint" style="margin-top:10px">' + ic('bulb') + ' AI bahosi taxminiy — rasmiy imtihon bahosi emas.</p></div>';
 };
@@ -34,7 +41,7 @@ A.wai = async el => {
     const cu = IE.camWUnit ? IE.camWUnit(rec.p) : null, img = cu && cu.task === '1' && IE.camWImg ? await IE.camWImg(cu.id) : null;
     const out = cu ? await SB.fn('ielts-wr', { mode: 'eval', task: cu.task, prompt: cu.text, desc: cu.desc || '', text: rec.x, img: img ? img.split(',')[1] : '' }) : await call({ action: 'writing', prompt: IE.wprompt(rec.p), text: rec.x });
     rec.ai = out.result; IE.save(true);
-    const b = $('#aires'); if (b) b.innerHTML = IE.aiHTML(rec.ai);
+    const b = $('#aires'); if (b) b.innerHTML = (IE.wCompare ? IE.wCompare(rec) : '') + IE.aiHTML(rec.ai);
     if (rec.ai.overall >= (S().prof.target || 7)) IE.confetti();
   } catch (e) { const b = $('#aires'); if (b) b.innerHTML = '<div class="card c"><p class="sm" style="color:var(--bad);font-weight:600">' + esc(e.message) + '</p><button class="btn sm" style="margin-top:8px" data-a="wai" data-ts="' + ts + '">Qayta urinish</button></div>'; }
 };
@@ -121,7 +128,7 @@ IE.speakHTML = r => {
     '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"><span class="chip">' + (r.words || 0) + ' so‘z</span><span class="chip">' + (r.wpm || 0) + ' so‘z/daq</span></div>' +
     '<details class="card tr" style="padding:12px 14px"><summary>' + ic('doc') + ' Siz aytgan matn</summary><p style="margin:10px 0 0;font:15px/1.6 Georgia,serif">' + esc(r.transcript || '') + '</p></details>' +
     (a.strengths && a.strengths.length ? '<h4>Kuchli tomonlar</h4><ul>' + a.strengths.map(s => '<li>' + esc(s) + '</li>').join('') + '</ul>' : '') +
-    (a.issues && a.issues.length ? '<h4>Tuzatish kerak</h4>' + a.issues.map(i => '<div class="iss"><div class="was">' + esc(i.quote) + '</div><div class="now">' + esc(i.fix) + '</div><div class="why2">' + esc(i.why) + '</div></div>').join('') : '') +
+    (a.issues && a.issues.length ? '<h4>Tuzatish kerak</h4>' + a.issues.map(IE.issHTML).join('') : '') +
     (a.better ? '<h4>Namunaviy javob</h4><div class="essay card" style="padding:12px 14px"><p style="margin:0;font-size:15px">' + esc(a.better) + '</p></div><button class="chip" style="margin-top:8px" data-a="say" data-t="' + esc(a.better) + '">' + ic('spk') + ' Eshitish</button>' : '') +
     (a.next ? '<div class="tip8" style="margin-top:12px"><b>Keyingi qadam:</b> ' + esc(a.next) + '</div>' : '') +
     '<p class="hint" style="margin-top:10px">' + ic('bulb') + ' *Talaffuz ovozdan emas, matndan taxmin qilinadi. Baho taxminiy — rasmiy imtihon bahosi emas.</p></div>';

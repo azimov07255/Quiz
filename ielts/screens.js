@@ -45,7 +45,7 @@ R.home = () => {
   const total = s.reads.length + s.writes.length + s.speaks.length, due = dueCount();
   const inner = '<div class="hero"><div class="row"><div><div class="hi">' + (IE.greet ? IE.greet() : 'Xush kelibsiz') + '</div><h1>' + esc(dispName()) + '</h1></div>' +
     '<div class="row" style="gap:8px"><button class="ib w updb" data-a="upd" aria-label="Yangilanishni tekshirish">' + ic('refresh') + '</button><div class="chip" style="background:rgba(255,255,255,.2);color:#fff;font-size:13px;padding:7px 12px">' + ic('flame') + ' ' + st + ' kun</div></div></div><p class="hquote">' + esc(IE.quote ? IE.quote() : '') + '</p></div>' +
-    '<div class="lift">' + (IE.homePlan ? IE.homePlan() : '') + resumeH() + qaH() + '<div class="card rise" style="margin-top:14px"><div class="score"><div class="ring" style="--v:' + (ov ? ov / 9 * 100 : 0) + '"><small>Overall</small><b>' + IE.bandTxt(ov) + '</b></div>' +
+    '<div class="lift">' + (IE.homePlan ? IE.homePlan() : '') + resumeH() + qaH() + (IE.bankCard ? IE.bankCard() : '') + (IE.coachCard ? IE.coachCard() : '') + '<div class="card rise" style="margin-top:14px"><div class="score"><div class="ring" style="--v:' + (ov ? ov / 9 * 100 : 0) + '"><small>Overall</small><b>' + IE.bandTxt(ov) + '</b></div>' +
     '<div style="flex:1"><div class="mu xs b" style="letter-spacing:.08em;text-transform:uppercase">Maqsad band</div><div style="font-size:34px;font-weight:900;line-height:1.1">' + IE.bandTxt(p.target) + '</div>' +
     '<div class="sm mu">' + (days != null && days >= 0 ? 'Imtihongacha <b>' + days + '</b> kun' : '<a data-go="me" style="color:var(--pl);font-weight:700">Imtihon sanasini qo‘shing</a>') + '</div></div></div>' +
     '</div>' + '<div class="sec"><h2>Ko‘nikmalar</h2><button class="chip" data-go="me">Batafsil</button></div>' + IE.skillRows() + IE.forecastCard() +
@@ -98,13 +98,14 @@ const TOOLS = () => {
     ['Reja va testlar', [
       ['plan', 'cal', 'T', 'Reja', 'Kunlik, haftalik, oylik reja', 'plan', '', pl ? pl.done + '/' + pl.total + ' bugun' : ''],
       ['agent', 'sparkl', 'A', 'AI yordamchi', 'Reja tuzadi, vazifa va so‘z qo‘shadi', '@agopen', 'Yangi', ''],
+      ['mb', 'cards', 'V', 'Xatolar banki', 'Xato savollar — takrorlash tizimi bilan', 'mb', 'Yangi', IE.bankStats && IE.bankStats().due ? IE.bankStats().due + ' takror' : ''],
       ['ana', 'bulb', 'W', 'Tahlil markazi', 'Toza urinishdan keyin: so‘zlar, xatolar, qayta yechish', 'ana', 'Yangi', IE.anaPending && IE.anaPending().length ? 'Kutmoqda' : ''],
       ['ach', 'star', 'M', 'Yutuqlar', 'Daraja, nishonlar, seriya', 'achievements', '', lv ? 'Daraja ' + lv.L : ''],
     ]],
   ];
 };
 const toolTile = t => '<button class="tool2" ' + (t[5][0] === '@' ? 'data-a="' + t[5].slice(1) + '"' : 'data-go="' + t[5] + '"') + ' data-k="' + esc((t[3] + ' ' + t[4]).toLowerCase()) + '">' + (t[6] ? '<span class="tnew">' + t[6] + '</span>' : '') + bd(t[1], t[2], 'lg') + '<b>' + t[3] + '</b><span class="td">' + t[4] + '</span>' + (t[7] ? '<span class="ts">' + esc(t[7]) + '</span>' : '') + '</button>';
-IE.toolUse = r0 => { const map = { dict: 'dict', vocab: 'vocab', strat: 'strat', shadow: 'shadow', dictation: 'dictation', articles: 'articles', books: 'books', typing: 'typing', plan: 'plan', ana: 'ana', agent: 'agent', cambridge: 'cambridge', achievements: 'achievements' }; if (!map[r0]) return; const l = (lsGet(TR, []) || []).filter(x => x !== map[r0]); l.unshift(map[r0]); lsSet(TR, l.slice(0, 5)); };
+IE.toolUse = r0 => { const map = { dict: 'dict', vocab: 'vocab', strat: 'strat', shadow: 'shadow', dictation: 'dictation', articles: 'articles', books: 'books', typing: 'typing', plan: 'plan', ana: 'ana', mb: 'mb', agent: 'agent', cambridge: 'cambridge', achievements: 'achievements' }; if (!map[r0]) return; const l = (lsGet(TR, []) || []).filter(x => x !== map[r0]); l.unshift(map[r0]); lsSet(TR, l.slice(0, 5)); };
 R.tools = () => {
   const G = TOOLS(), all = G.flatMap(g => g[1]), rec = (lsGet(TR, []) || []).map(id => all.find(t => t[5].split('/')[0] === id || t[0] === id)).filter(Boolean).slice(0, 3), hist = (lsGet('ielts:dhist', []) || []).slice(0, 6);
   return page('tools', '<div class="hero" style="padding-bottom:84px"><div class="hi">O‘rganish vositalari</div><h1>Study Tools</h1></div><div class="lift">' +
@@ -282,7 +283,7 @@ R.writing = a => {
     body = '<div class="lst">' + D.prompts.samples.map(x => '<button class="item" data-go="writing/s/' + x.id + '">' + bd('doc', 'W') + '<div class="tx"><b>Band ' + x.band + ' · ' + esc(x.type) + '</b><span style="white-space:normal;display:block">' + esc(x.prompt.slice(0, 90)) + '…</span></div></button>').join('') + '</div>';
   } else {
     const h = s.writes.slice().reverse();
-    body = h.length ? '<div class="lst">' + h.map(w => '<button class="item" data-go="writing/h/' + w.ts + '">' + bd('pen', 'W', 'sm') + '<div class="tx"><b>' + w.words + ' so‘z · ' + Math.round(w.secs / 60) + ' daqiqa</b><span>' + ago(w.ts) + '</span></div></button>').join('') + '</div>' : '<div class="card empty">' + bd('pen', 'W') + 'Hali yozuv yo‘q.</div>';
+    body = h.length ? (IE.wTrend ? IE.wTrend() : '') + '<div class="lst">' + h.map(w => '<button class="item" data-go="writing/h/' + w.ts + '">' + bd('pen', 'W', 'sm') + '<div class="tx"><b>' + w.words + ' so‘z · ' + Math.round(w.secs / 60) + ' daqiqa' + (w.rev ? ' · ↻ qayta yozilgan' : '') + '</b><span>' + ago(w.ts) + (w.ai ? ' · AI ' + IE.bandTxt(w.ai.overall) : '') + '</span></div></button>').join('') + '</div>' : '<div class="card empty">' + bd('pen', 'W') + 'Hali yozuv yo‘q.</div>';
   }
   return sub('Writing', 'practice', '<div class="pad"><div class="card" style="margin-bottom:14px"><div class="row">' + bd('pen', 'W', 'lg') + '<div style="flex:1"><b style="font-size:16px">Task 2 — insho</b><div class="sm mu">40 daqiqa · kamida 250 so‘z. Tuzilma: kirish, 2 asosiy qism, xulosa.</div></div></div></div>' +
     '<div class="tabs2" style="margin:0 0 12px;grid-template-columns:repeat(3,1fr)">' + [['p', 'Mavzular'], ['s', 'Namunalar'], ['h', 'Yozuvlarim']].map(t => '<button class="' + (tab === t[0] ? 'on' : '') + '" data-a="wtab" data-v="' + t[0] + '" style="padding:9px 2px;font-size:13px">' + t[1] + '</button>').join('') + '</div>' + body + '</div>');
@@ -309,7 +310,7 @@ IE.edInput = el => {
 A.wfin = el => {
   const n = +el.dataset.n, ed = $('#ed'), txt = ed.value, c = wc(txt);
   if (c < 30) return IE.toast('Avval kamida 30 so‘z yozing');
-  const secs = Math.round((Date.now() - V.w.t0) / 1000), rec = { ts: Date.now(), p: n, words: c, secs, x: txt.slice(0, 8000) };
+  const secs = Math.round((Date.now() - V.w.t0) / 1000), rec = { ts: Date.now(), p: n, words: c, secs, x: txt.slice(0, 8000) }; if (V.wrev && V.wrev.n === n) { rec.rev = V.wrev.from; V.wrev = null; }
   S().writes.push(rec); S().drafts['w' + n] = { t: Date.now(), x: '', del: true }; IE.touchDay(); IE.save(true); V.w = null; clearTimeout(wTimer); IE.clearTimers();
   const lst = ['Savolga to‘liq javob berdim (barcha qismlari)', 'Pozitsiyam boshidan oxirigacha aniq', 'Har paragrafda bitta asosiy g‘oya + sabab/misol', 'Bog‘lovchilarni (however, moreover…) me’yorida ishlatdim', 'Xilma-xil grammatika: shart, nisbiy gap, passiv', 'Imlo va artikllarni tekshirdim'];
   IE.sheet('<h2>Ajoyib, ' + c + ' so‘z!</h2><p class="mu sm" style="margin-bottom:8px">' + (c < ((V.w && V.w.min) || 250) ? 'Diqqat: imtihonda ' + ((V.w && V.w.min) || 250) + ' so‘zdan kam yozish ballni tushiradi.' : 'Hajm yetarli.') + ' Vaqt: ' + fmtT(secs) + '. O‘zingizni tekshiring:</p>' + lst.map(l => '<label class="ck"><input type="checkbox"><span>' + l + '</span></label>').join('') + '<div class="two" style="margin-top:16px"><button class="btn ghost" data-a="wsam">Namunalarni ko‘rish</button><button class="btn" data-a="wdone">Yopish</button></div><div id="aires" style="margin-top:14px"><button class="btn block" data-a="wai" data-ts="' + rec.ts + '">' + ic('spark') + ' AI bilan baholash</button></div>');
@@ -325,8 +326,9 @@ function writeSample(id) {
 function writeHist(ts) {
   const w = S().writes.find(x => x.ts === ts); if (!w) return R.writing([]);
   const pr = wfind(w.p);
-  return sub('Yozuvim', 'writing/tab/h', '<div class="pad">' + (pr ? '<div class="prompt">' + esc(pr.t) + '</div>' : '') + '<div class="card essay" style="margin-top:14px">' + String(w.x || '').split(/\n+/).map(p => '<p>' + esc(p) + '</p>').join('') + '<div class="mu xs b">' + w.words + ' so‘z · ' + fmtD(w.ts) + '</div></div><div id="aires" style="margin-top:14px">' + (w.ai ? IE.aiHTML(w.ai) : '<button class="btn block" data-a="wai" data-ts="' + ts + '">' + ic('spark') + ' AI bilan baholash</button>') + '</div><button class="btn block ghost" style="margin-top:14px" data-a="wcopy" data-ts="' + ts + '">Nusxalash</button></div>');
+  return sub('Yozuvim', 'writing/tab/h', '<div class="pad">' + (pr ? '<div class="prompt">' + esc(pr.t) + '</div>' : '') + '<div class="card essay" style="margin-top:14px">' + String(w.x || '').split(/\n+/).map(p => '<p>' + esc(p) + '</p>').join('') + '<div class="mu xs b">' + w.words + ' so‘z · ' + fmtD(w.ts) + '</div></div><div id="aires" style="margin-top:14px">' + (w.ai ? (IE.wCompare ? IE.wCompare(w) : '') + IE.aiHTML(w.ai) : '<button class="btn block" data-a="wai" data-ts="' + ts + '">' + ic('spark') + ' AI bilan baholash</button>') + '</div>' + (w.ai && pr ? '<button class="btn block wrevb" style="margin-top:14px" data-a="wrev" data-ts="' + ts + '">' + ic('edit') + ' Qayta yozish — baholangan insho ustida ishlash</button>' : '') + '<button class="btn block ghost" style="margin-top:10px" data-a="wcopy" data-ts="' + ts + '">Nusxalash</button></div>');
 }
+A.wrev = el => { const w = S().writes.find(x => x.ts === +el.dataset.ts); if (!w) return; const n = w.p; S().drafts['w' + n] = { t: Date.now(), x: w.x || '', s: 0 }; V.w = null; V.wrev = { n, from: w.ts }; IE.saveLocal(); IE.toast('Insho muharrirga qo‘yildi — AI maslahatlari bo‘yicha tuzating'); IE.go('writing/p/' + n); };
 A.wcopy = el => { const w = S().writes.find(x => x.ts === +el.dataset.ts); try { navigator.clipboard.writeText(w.x || ''); IE.toast('Nusxalandi'); } catch (e) { IE.toast('Nusxalab bo‘lmadi'); } };
 
 /* ---------- SPEAKING ---------- */

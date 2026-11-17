@@ -79,6 +79,21 @@ IE.skillRows = () => {
   return '<div class="sks">' + ['L', 'R', 'W', 'S'].map(k => { const v = b[k], ser = IE.bandSeries(k).slice(-8).map(x => x.b), gap = v == null ? null : Math.round((t - v) * 2) / 2;
     return '<button class="skr" data-go="' + ({ L: 'listening', R: 'reading', W: 'writing', S: 'speaking' })[k] + '">' + bd(ic2[k], k, 'sm') + '<div class="skm"><b>' + SKN[k] + '</b><span>' + (v == null ? 'Hali natija yo‘q' : gap <= 0 ? 'Maqsadga yetdingiz ✓' : '+' + gap.toFixed(1) + ' kerak') + '</span></div><div class="skg">' + IE.spark(ser, { w: 80, h: 30, c: 'var(--' + k + '2)' }) + '</div><b class="skb sk-' + k + '">' + IE.bandTxt(v) + '</b></button>'; }).join('') + '</div>';
 };
+/** Writing: qayta yozish natijasi (oldingi vs hozirgi baho). */
+IE.wCompare = w => {
+  if (!w.rev || !w.ai) return ''; const b = S().writes.find(x => x.ts === w.rev); if (!b || !b.ai) return '';
+  const rows = [['tr', w.ai.task === '1' ? 'Task Achiev.' : 'Task Response'], ['cc', 'Coherence'], ['lr', 'Lexical'], ['gra', 'Grammar'], ['overall', 'Overall']];
+  const d = (x, y) => { const v = Math.round((x - y) * 2) / 2; return v === 0 ? '<i class="dl0">=</i>' : '<i class="dl' + (v > 0 ? 'u' : 'd') + '">' + (v > 0 ? '▲ +' : '▼ ') + v + '</i>'; };
+  const up = w.ai.overall - b.ai.overall;
+  return '<div class="card wcmp rise"><b style="font-size:16px">↻ Qayta yozish natijasi</b><div class="sm mu" style="margin:2px 0 8px">' + (up > 0 ? 'Yaxshilandi! Mashq natija berdi 🎉' : up === 0 ? 'Baho o‘zgarmadi — AI maslahatlarini yana bir bor tekshiring.' : 'Bu safar baho pastroq — maslahatlarga qayting.') + '</div>' + rows.map(r => '<div class="wcr' + (r[0] === 'overall' ? ' tot' : '') + '"><span>' + r[1] + '</span><b>' + IE.bandTxt(b.ai[r[0]]) + ' → ' + IE.bandTxt(w.ai[r[0]]) + '</b>' + d(w.ai[r[0]], b.ai[r[0]]) + '</div>').join('') + '</div>';
+};
+/** Writing: mezonlar dinamikasi (oxirgi 12 baholangan yozuv). */
+IE.wTrend = () => {
+  const ev = S().writes.filter(w => w.ai && typeof w.ai.overall === 'number').slice(-12); if (ev.length < 2) return '';
+  const rows = [['overall', 'Overall'], ['tr', 'Task'], ['cc', 'Coherence'], ['lr', 'Lexical'], ['gra', 'Grammar']];
+  return '<div class="card wtr rise"><div class="row" style="justify-content:space-between"><b style="font-size:16px">Mezonlar dinamikasi</b><span class="chip">' + ev.length + ' ta yozuv</span></div>' + rows.map(r => { const v = ev.map(w => +w.ai[r[0]] || 0), dl = Math.round((v[v.length - 1] - v[0]) * 2) / 2; return '<div class="wtrr"><span>' + r[1] + '</span><div class="wtrs">' + IE.spark(v, { w: 120, h: 30, min: 4, max: 9, c: r[0] === 'overall' ? 'var(--pl)' : 'var(--W2)' }) + '</div><b>' + IE.bandTxt(v[v.length - 1]) + '</b>' + (dl ? '<i class="' + (dl > 0 ? 'dlu' : 'dld') + '">' + (dl > 0 ? '+' : '') + dl + '</i>' : '<i class="dl0">=</i>') + '</div>'; }).join('') + '<div class="sm mu" style="margin-top:8px">Eng past mezonga e’tibor bering: ' + (() => { const last = ev[ev.length - 1].ai, k = [['tr', 'Task'], ['cc', 'Coherence'], ['lr', 'Lexical'], ['gra', 'Grammar']].sort((a, b) => last[a[0]] - last[b[0]])[0]; return '<b style="color:var(--tx)">' + k[1] + ' (' + IE.bandTxt(last[k[0]]) + ')</b>'; })() + '.</div></div>';
+};
+
 /** Kunning ilhom beruvchi gapi. */
 const QUOTES = ['Har kuni 1% yaxshilansangiz, bir yilda 37 barobar kuchayasiz.', 'Katta natija kichik, lekin to‘xtovsiz qadamlardan boshlanadi.', 'Bugungi 30 daqiqa — imtihon kunidagi tinchlik.', 'Muvaffaqiyat — har kuni takrorlangan kichik harakatlar yig‘indisi.', 'Mukammal bo‘lish shart emas, muntazam bo‘lish yetarli.', 'Xato — o‘rganishning eng tez yo‘li. Qo‘rqmang.', 'Ingliz tili mushak kabi: mashq qilsangiz kuchayadi.', 'Bugun qilgan ishingiz kelajakdagi o‘zingizga sovg‘a.', 'Sabr va intizom — band 7 ning kaliti.', 'Eng qiyin qadam — boshlash. Siz allaqachon shu yerdasiz.', 'Tinglang, takrorlang, yozing — til shunday o‘rganiladi.', 'Charchaganingizda to‘xtamang, sekinlashing.'];
 IE.quote = () => QUOTES[Math.floor(Date.UTC(parse(dk()).getFullYear(), parse(dk()).getMonth(), parse(dk()).getDate()) / 864e5) % QUOTES.length];
