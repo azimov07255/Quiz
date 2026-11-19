@@ -82,6 +82,7 @@ const TOOLS = () => {
     ['Lug‘at va so‘z boyligi', [
       ['dict', 'search', 'A', 'Dictionary', 'Ta’rif, tarjima, birikma, so‘z oilasi, UZ↔EN', 'dict', 'Yangi', hist ? hist + ' ta qidiruv' : 'AI bilan'],
       ['vocab', 'cards', 'V', 'Vocabulary', 'Mavzular va flesh-kartalar', 'vocab', '', Object.keys(st.srs).length + ' so‘z' + (due ? ' · ' + due + ' takror' : '')],
+      ['dictold', 'search', 'A', 'Dictionary (eski)', 'Tezkor oddiy lug‘at: ta’rif, talaffuz, UZ tarjima', 'dictold', '', 'Tez'],
       ['strat', 'bulb', 'T', 'Strategiyalar', 'Har bir savol turi uchun usullar', 'strat', '', ''],
     ]],
     ['Tinglash va talaffuz', [
