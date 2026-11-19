@@ -37,11 +37,12 @@ async function loadProfile() {
 function showAuth(err) {
   IE.clearTimers();
   app.className = 'anim';
-  app.innerHTML = '<div class="auth"><div class="logo">' + IE.bd('check', 'A') + '<h1>IELTS</h1><p>tayyorgarlik · by azimov</p></div>' +
+  const F = [['book', 'Reading va Listening', '40 savollik testlar, Cambridge kitobingizdan import, javob kaliti va tushuntirishlar'], ['pen', 'Writing va Speaking', 'Task 1 diagrammalar, Part 1–3, AI band bahosi va xatolar tahlili'], ['trophy', 'Mock Test', 'To‘liq imtihon sinovi va umumiy band prognozi'], ['target', 'Savol turlari trenajyori', 'True/False/Not Given, Headings, Map labelling, Paraphrase'], ['cards', 'Lug‘at va takrorlash', 'AI lug‘at, flesh-kartalar, xatolar banki'], ['user', 'Guruhlar', 'Do‘stlar reytingi yoki o‘qituvchi sinfi: vazifa va izohlar'], ['cal', 'Reja va eslatma', 'Kunlik 15 daqiqa, haftalik reja, bildirishnoma'], ['doc', 'Hisobot', 'Maqsadga yetish bashorati va PDF hisobot']];
+  app.innerHTML = '<div class="auth"><div class="land"><div class="lk">IELTS Academic</div><h2>Imtihonga tayyorgarlik — bitta ilovada</h2><p class="ls">Reading, Listening, Writing, Speaking, AI tahlil, lug‘at va guruhlar. Telefonda ham, kompyuterda ham — natijalaringiz hamma joyda saqlanadi.</p><div class="lf">' + F.map(f => '<div class="lc">' + IE.bd(f[0], 'A', 'sm') + '<div><b>' + f[1] + '</b><span>' + f[2] + '</span></div></div>').join('') + '</div><p class="ln">Kirish taklif asosida: hisob ilova egasi tomonidan beriladi. Telefonga o‘rnatish: brauzer menyusidan “Bosh ekranga qo‘shish”.</p></div><div class="box"><div class="logo">' + IE.bd('check', 'A') + '<h1>IELTS</h1><p>tayyorgarlik · by azimov</p></div>' +
     '<form id="af" autocomplete="on"><div class="fld"><label>Login</label><input id="lu" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="masalan, abdulaziz1" required></div>' +
     '<div class="fld"><label>Parol</label><input id="lp" type="password" autocomplete="current-password" placeholder="••••••" required></div>' +
     '<button class="btn block" type="submit" id="lb">Kirish</button><div class="err" id="er">' + esc(err || '') + '</div></form>' +
-    '<p class="c" style="margin-top:18px;opacity:.85;font-size:13px">Testlar ilovasidagi login va parol bilan kiring.</p></div>';
+    '<p class="c" style="margin-top:18px;opacity:.85;font-size:13px">Testlar ilovasidagi login va parol bilan kiring.</p></div></div>';
   $('#af').onsubmit = async e => {
     e.preventDefault(); const b = $('#lb'), er = $('#er'); er.textContent = ''; b.disabled = true; b.textContent = 'Kirilmoqda…';
     try { await SB.signIn(toEmail($('#lu').value), $('#lp').value); await boot(); }

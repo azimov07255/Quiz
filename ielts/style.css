@@ -1149,3 +1149,24 @@ mark.ev.ok{background:rgba(18,183,106,.28)}mark.ev.no{background:rgba(240,68,56,
   .scr{padding-bottom:40px}
 }
 @media(min-width:1000px) and (max-height:620px){.nav{padding-top:76px}.nav button{height:44px}}
+
+/* ---- v2.4: kirish sahifasi = sayt (landing) ---- */
+#app:has(.auth){margin:0 auto!important;width:100%!important;max-width:none!important}
+.auth .land{order:2;margin-top:34px;color:#fff}
+.auth .box{order:1}
+.auth .lk{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+.auth .land h2{font-size:26px;line-height:1.15;font-weight:900;margin:8px 0 10px}
+.auth .ls{opacity:.88;line-height:1.55;font-size:15px;margin:0 0 18px}
+.auth .lf{display:grid;grid-template-columns:1fr;gap:10px}
+.auth .lc{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.12);backdrop-filter:blur(6px)}
+.auth .lc b{display:block;font-size:14.5px}.auth .lc span{display:block;font-size:12.5px;opacity:.85;line-height:1.4;margin-top:2px}
+.auth .ln{opacity:.75;font-size:12.5px;line-height:1.5;margin:16px 0 0}
+@media(min-width:900px){
+  .auth{flex-direction:row;align-items:center;justify-content:center;gap:64px;max-width:1180px;margin:0 auto;padding:60px 48px}
+  .auth .land{order:1;flex:1 1 0;margin-top:0}.auth .box{order:2;flex:0 0 390px}
+  .auth .land h2{font-size:44px}.auth .ls{font-size:17px}
+  .auth .lf{grid-template-columns:1fr 1fr}
+  .auth .logo{margin-top:0}
+}
+body:has(.auth){background:var(--hero);background-attachment:fixed}
+.auth{background:transparent}
