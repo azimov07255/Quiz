@@ -49,6 +49,19 @@ A.closeSheet = () => IE.closeSheet();
 let ip = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); ip = e; if ((IE.curRoute || '') === 'me') IE.draw(false); });
 window.addEventListener('appinstalled', () => { ip = null; IE.toast('Ilova o‘rnatildi'); if ((IE.curRoute || '') === 'me') IE.draw(false); });
-IE.installMenu = () => ip && !standalone() ? '<button class="set" data-a="pwainst"><span class="bd sm sk-R">' + ic('dl') + '</span><div class="tx"><b>Ilovani o‘rnatish</b><span>Alohida oynada, tezroq ochiladi — kompyuter va telefon uchun</span></div></button>' : '';
-A.pwainst = async () => { if (!ip) return; try { ip.prompt(); await ip.userChoice; } catch (e) { /* */ } ip = null; if ((IE.curRoute || '') === 'me') IE.draw(false); };
+IE.installMenu = () => '<button class="set" data-a="pwainst"><span class="bd sm sk-R">' + ic('dl') + '</span><div class="tx"><b>Ilovani o‘rnatish</b><span>' + (standalone() ? 'Hozir ilova oynasidasiz' : ip ? 'Alohida oynada, tezroq ochiladi — bir bosishda' : 'Telefon yoki kompyuterga alohida ilova sifatida') + '</span></div></button>';
+const IURL = () => location.origin + location.pathname.replace(/[^/]*$/, '');
+A.pwainst = async () => {
+  if (ip) { try { ip.prompt(); await ip.userChoice; } catch (e) { /* */ } ip = null; if ((IE.curRoute || '') === 'me') IE.draw(false); return; }
+  const droid = /android/i.test(navigator.userAgent), edge = /edg\//i.test(navigator.userAgent), ipad = ios();
+  const steps = ipad ? ['Safari’da shu sahifani oching (Chrome emas).', 'Pastdagi <b>Ulashish</b> tugmasini bosing.', '<b>Bosh ekranga qo‘shish</b> ni tanlang, nomi: <b>IELTS</b>.', 'Ilovani Bosh ekrandagi ikondan oching.']
+    : droid ? ['Chrome’da shu sahifani oching.', 'Yuqori o‘ngdagi <b>⋮</b> menyusini bosing.', '<b>Ilovani o‘rnatish</b> yoki <b>Bosh ekranga qo‘shish</b> ni tanlang.', 'Ilovani yangi ikondan oching.']
+    : edge ? ['Edge menyusi <b>⋯</b> → <b>Ilovalar</b> → <b>Bu saytni ilova sifatida o‘rnatish</b>.', 'Nomi: <b>IELTS</b> — o‘rnating.']
+      : ['Chrome manzil satrining o‘ng chetidagi <b>o‘rnatish belgisi</b>ni (⊕ yoki monitor) bosing; yo‘q bo‘lsa <b>⋮ → Cast, save and share → Install page as app</b>.', 'Nomi: <b>IELTS</b> — o‘rnating.'];
+  IE.sheet('<h2>Ilovani o‘rnatish</h2>' + (standalone() ? '<div class="card" style="margin:10px 0"><b>Hozir ilova oynasidasiz</b><div class="sm mu" style="margin-top:4px;line-height:1.5">Agar bu oyna <b>Testlar</b> ilovasi bo‘lib ochilgan bo‘lsa — uni yoping, IELTS havolasini oddiy brauzerda oching va shu yerdan o‘rnating. Shunda IELTS alohida ilova bo‘ladi.</div></div>' : '') +
+    '<ol class="notes" style="margin:10px 0 12px;padding-left:20px;line-height:1.7">' + steps.map(x => '<li>' + x + '</li>').join('') + '</ol>' +
+    '<div class="card sm mu" style="margin-bottom:12px;line-height:1.5">' + ic('bulb') + ' Testlar ilovasi o‘rnatilgan bo‘lsa, brauzer ba’zan o‘rnatish taklifini ko‘rsatmaydi — yuqoridagi qo‘lda usul har doim ishlaydi. O‘rnatilgach “Open in app” IELTS’ni ochadi.</div>' +
+    '<div class="two"><button class="btn ghost" data-a="pwacopy">Havolani nusxalash</button><button class="btn" data-a="closeSheet">Tushunarli</button></div>');
+};
+A.pwacopy = async () => { try { await navigator.clipboard.writeText(IURL()); IE.toast('Havola nusxalandi'); } catch (e) { IE.toast(IURL()); } };
 })();
