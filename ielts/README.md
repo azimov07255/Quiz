@@ -9,7 +9,14 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v2.1.0)
+## Hozir ishlaydi (v2.2.0)
+- **Savol turlari trenajyori** (`qtypes.js`, `data/qtypes.json`; Practice → “Savol turlari”): True/False/Not Given (8 matn · 32 gap), Matching Headings (3 matn), Listening Map/Plan labelling (3 xarita, audio brauzer TTS orqali), Paraphrase (AI baho: `ielts-wr` `mode:'para'`) va Collocation (25 birikma; xatolari “Iboralarimga” qo‘shiladi). Har javobga “nega” tushuntirishi; natijalar `S().qt` (bulutga birlashadi).
+- **Bugungi 15 daqiqa** (`quick15.js`, Home): 3 ta 5-daqiqalik qadam (takror → eng zaif ko‘nikma → xatolar banki/maqola); bugungi faoliyatdan avtomatik belgilanadi.
+- **Hisobot** (`report.js`, Profil → Hisobot): ko‘nikmalar, maqsadga yetish bashorati (taxminiy sana), faollik, savol turlari, Mock tarixi, tavsiyalar, o‘qituvchi izohi uchun joy; “PDF sifatida saqlash” (chop etish stili).
+- **Natija kartasi** (PNG, ulashish): Mock, Reading, Listening va Writing (AI) natijalarida.
+- **Fikr bildirish** (`feedback.js`, Profil → Boshqa): `ielts_feedback` jadvali (faqat RPC orqali: `ielts_send_feedback`, owner uchun `owner_feedback_list`/`owner_feedback_set`); owner “Fikrlar” sahifasini ko‘radi.
+
+## (v2.1)
 - **Reading 40 savol**: 3 passage = 13 + 13 + 14 (Mock’dagi “39 savol” tuzatildi).
 - **Writing Task 1**: 6 ta tayyor diagramma (ustunli, chiziqli, doira, jadval — SVG, `task1.js`); AI bahosi diagramma ma’lumotlarini matnli tavsif sifatida oladi (`ielts-wr`). Task 1 — 150+ so‘z, 20 daqiqa.
 - **Speaking Part 3**: Part 2 mavzusining muhokama savollari alohida (`speaking/3/<i>`) — yozib olish + AI baho; Cambridge Speaking kartasida ham.

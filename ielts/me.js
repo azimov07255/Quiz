@@ -15,7 +15,7 @@ R.me = () => {
     '<div class="lift">' +
     '<div class="card rise"><div class="row" style="justify-content:space-between;margin-bottom:8px"><b>Daraja ' + lv.L + '</b><span class="sm mu">' + lv.xp + ' XP · keyingisigacha ' + (lv.hi - lv.xp) + '</span></div><div class="prog"><i style="width:' + lv.pct + '%"></i></div>' +
     '<div class="stats" style="margin-top:14px"><div class="stat"><b>' + st + '</b><span>Seriya</span></div><div class="stat"><b>' + s.days.length + '</b><span>O‘qigan kun</span></div><div class="stat"><b>' + fm + '’</b><span>Fokus</span></div><div class="stat"><b>' + got + '/' + bg.length + '</b><span>Yutuq</span></div></div>' +
-    '<div class="two" style="margin-top:14px"><button class="btn" data-a="share">' + ic('share') + ' Progressni ulashish</button><button class="btn ghost" data-go="achievements">' + ic('trophy') + ' Yutuqlar</button></div></div>' +
+    '<div class="two" style="margin-top:14px"><button class="btn" data-a="share">' + ic('share') + ' Progressni ulashish</button><button class="btn ghost" data-go="achievements">' + ic('trophy') + ' Yutuqlar</button></div><button class="btn ghost block" style="margin-top:10px" data-go="report">' + ic('doc') + ' Hisobot (PDF) va bashorat</button></div>' +
     IE.forecastCard() +
     '<div class="sec"><h2>Ko‘nikmalar</h2><span class="mu xs">' + (days != null && days >= 0 ? days + ' kun qoldi' : 'maqsad ' + IE.bandTxt(p.target)) + '</span></div>' + IE.skillRows() +
     '<div class="sec"><h2>Faollik xaritasi</h2><span class="mu xs">16 hafta</span></div><div class="card rise">' + IE.heat(16) + '<div class="row sm mu" style="justify-content:space-between;margin-top:8px"><span>Kam</span><span class="cal-lg"><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i></span><span>Ko‘p</span></div></div>' +
@@ -34,6 +34,7 @@ R.me = () => {
     '<button class="set" data-a="bkexp"><span class="bd sm sk-W">' + ic('dl') + '</span><div class="tx"><b>Zaxira nusxa olish</b><span>Hamma natija, so‘zlar, rejalar — JSON fayl</span></div></button>' +
     '<label class="set" for="bkpf" style="cursor:pointer"><span class="bd sm sk-V">' + ic('up') + '</span><div class="tx"><b>Zaxiradan tiklash</b><span>Faylni tanlang — mavjud ma’lumotga qo‘shiladi (hech narsa o‘chmaydi)</span></div></label><input type="file" id="bkpf" accept="application/json,.json" class="hide"></div>' +
     '<div class="sec"><h2>Boshqa</h2></div><div class="card rise">' +
+    (IE.fbMenu ? IE.fbMenu() : '') +
     '<button class="set" data-a="upd"><span class="bd sm sk-R">' + ic('refresh') + '</span><div class="tx"><b>Yangilanishni tekshirish</b><span>Versiya ' + IE.APP_VERSION + ' · bosib yangilang</span></div></button>' +
     '<button class="set" data-a="pwd"><span class="bd sm sk-W">' + ic('key') + '</span><div class="tx"><b>Parolni o‘zgartirish</b></div></button>' +
     (IE.cam ? '<button class="set" data-a="camvdel"><span class="bd sm sk-M">' + ic('trash') + '</span><div class="tx"><b>Shaxsiy lug‘atni o‘chirish</b><span>Cambridge ma’lumotlari qurilmadan o‘chadi</span></div></button>' : '') +

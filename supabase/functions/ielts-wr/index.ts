@@ -1,5 +1,6 @@
 // Edge Function: ielts-wr  (JWT majburiy; ruxsat: can_ielts()) — Cambridge Writing/Speaking: rasmdan savol o‘qish va Writing (Task 1/2) bahosi.
 // POST {mode:'extract', kind:'w'|'sp', img}            → {result:{prompt?, desc?, p1?, p2?, p3?}}
+// POST {mode:'para', s, text}                         → {result:{score:0-3, comment, better}}
 // POST {mode:'eval', task:'1'|'2', prompt, desc?, text, img?} → {result:{task, tr, cc, lr, gra, overall, strengths, issues, upgrade, next}}
 // Rasm base64 (JPEG, ≤ ~450 KB). Hech narsa serverda saqlanmaydi.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -70,6 +71,10 @@ const EVW = `You are a strict, fair IELTS Academic Writing examiner for an Uzbek
 Scoring: "tr" = Task Achievement (Task 1: accuracy of data, clear overview, key features selected, 150+ words) or Task Response (Task 2: full answer, clear position, developed ideas, 250+ words); "cc" coherence & cohesion; "lr" lexical resource; "gra" grammatical range & accuracy. Bands 1-9 in 0.5 steps; "overall" = mean of the four rounded to nearest 0.5 (round .25 up). Be realistic, not generous; penalise under-length and missing overview (Task 1) / unclear position (Task 2). For Task 1 check every number/trend the student states against the visual/description and flag factual errors in "issues".
 "strengths" = 2-3 short Uzbek (Latin) bullets. "issues" = 3-5 items: "quote" = exact fragment from the student's text (English), "fix" = improved English version, "why" = short Uzbek explanation. "upgrade" = ONE improved paragraph (English, 60-110 words) rewriting the student's weakest paragraph at about +1 band. "next" = ONE Uzbek sentence: the most valuable next step. Write all explanations in simple Uzbek (Latin script).`
 
+const EPA = `You are an IELTS tutor checking a PARAPHRASE exercise for an Uzbek-speaking student. You get the ORIGINAL sentence and the student's rewrite. Return ONLY valid JSON: {"score":0|1|2|3,"comment":string,"better":string}
+score: 3 = same meaning, key words replaced with natural synonyms/structure change, grammatical; 2 = same meaning and mostly good but small issues (one copied key word, slightly unnatural); 1 = meaning changed a little or too close to the original or noticeable grammar errors; 0 = meaning lost/wrong or copied.
+"comment" = ONE or TWO short sentences in Uzbek (Latin script) explaining the score and the most useful fix. "better" = ONE improved English paraphrase (natural, band 7-8 level).`
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   if (req.method !== 'POST') return json({ error: 'POST kerak' }, 405)
@@ -83,6 +88,13 @@ Deno.serve(async (req) => {
       if (!img) return json({ error: 'Rasm yo‘q' }, 400)
       const out = parse(await ask(b.kind === 'sp' ? EXS : EXW, b.kind === 'sp' ? 'Extract the Speaking page.' : 'Extract the Writing task.', img, 2200))
       if (!out) return json({ error: 'Rasmdan o‘qib bo‘lmadi. Aniqroq rasm oling.' }, 502)
+      return json({ result: out })
+    }
+    if (b.mode === 'para') {
+      const orig = clip(b.s, 300).trim(), text = clip(b.text, 400).trim(); if (orig.length < 8 || text.split(/\s+/).length < 3) return json({ error: 'Gap juda qisqa' }, 400)
+      const out = parse(await ask(EPA, `ORIGINAL: ${orig}\nSTUDENT REWRITE: ${text}`, '', 600))
+      if (!out || typeof out.score !== 'number') return json({ error: 'AI javobi tushunarsiz. Qayta urinib ko‘ring.' }, 502)
+      out.score = Math.max(0, Math.min(3, Math.round(out.score))); out.comment = clip(out.comment, 400); out.better = clip(out.better, 300)
       return json({ result: out })
     }
     if (b.mode === 'eval') {

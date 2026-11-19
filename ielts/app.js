@@ -18,7 +18,7 @@ IE.uzErr = e => {
 /* ---------- ma’lumotlar va profil ---------- */
 async function loadData() {
   const f = n => fetch('data/' + n + '.json').then(r => { if (!r.ok) throw new Error(n); return r.json(); });
-  [D.reading, D.vocab, D.strategy, D.prompts, D.listening, D.articles, D.podcasts] = await Promise.all([f('reading'), f('vocab8'), f('strategy'), f('prompts'), f('listening'), f('articles'), f('podcasts').catch(() => ({ shows: [], items: [] }))]);
+  [D.reading, D.vocab, D.strategy, D.prompts, D.listening, D.articles, D.podcasts, D.qt] = await Promise.all([f('reading'), f('vocab8'), f('strategy'), f('prompts'), f('listening'), f('articles'), f('podcasts').catch(() => ({ shows: [], items: [] })), f('qtypes').catch(() => null)]);
   await IE.loadCam();
 }
 const KP = 'ielts:profile';

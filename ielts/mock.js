@@ -89,7 +89,7 @@ function report(ts) {
     (h.partial ? '<div class="card sm" style="margin-bottom:12px">' + ic('bulb') + ' Writing yoki Speaking AI bilan baholanmagan — overall ularsiz hisoblandi. Ularni baholatsangiz, natija aniqroq bo‘ladi.</div>' : '') +
     (gap != null ? '<div class="card"><b>Maqsad: ' + IE.bandTxt(tg) + '</b><p class="sm mu" style="margin:6px 0 0">' + (gap > 0 ? 'Maqsadga yana <b>' + gap.toFixed(1) + '</b> band yetmaydi.' : 'Maqsad banddan yuqori yoki teng. Zo‘r!') + '</p></div>' : '') +
     (weak ? '<div class="card" style="margin-top:12px"><b>Eng zaif bo‘lim: ' + weak[2] + '</b><p class="sm" style="margin:6px 0 0;line-height:1.5">' + adv[weak[0]] + '</p></div>' : '') +
-    '<div class="two" style="margin-top:16px"><button class="btn ghost" data-go="mock">Mock bosh sahifa</button><button class="btn" data-a="mstart" data-m="' + h.mode + '">Yana sinash</button></div></div>';
+    '<div class="two" style="margin-top:16px"><button class="btn ghost" data-go="mock">Mock bosh sahifa</button><button class="btn" data-a="mstart" data-m="' + h.mode + '">Yana sinash</button></div>' + (IE.rcBtn ? IE.rcBtn({ kicker: (MODES[h.mode] || MODES.full).name + ' natijasi', big: IE.bandTxt(h.overall), bigLabel: 'Overall band', sub: 'Maqsad ' + IE.bandTxt(tg), rows: sk.map(x => [x[2], IE.bandTxt(x[3])]), foot: fmtD(h.ts) }) : '') + '</div>';
   return sub('Mock natijasi', 'mock', inner);
 }
 })();
