@@ -34,7 +34,7 @@ R.me = () => {
     '<button class="set" data-a="bkexp"><span class="bd sm sk-W">' + ic('dl') + '</span><div class="tx"><b>Zaxira nusxa olish</b><span>Hamma natija, so‘zlar, rejalar — JSON fayl</span></div></button>' +
     '<label class="set" for="bkpf" style="cursor:pointer"><span class="bd sm sk-V">' + ic('up') + '</span><div class="tx"><b>Zaxiradan tiklash</b><span>Faylni tanlang — mavjud ma’lumotga qo‘shiladi (hech narsa o‘chmaydi)</span></div></label><input type="file" id="bkpf" accept="application/json,.json" class="hide"></div>' +
     '<div class="sec"><h2>Boshqa</h2></div><div class="card rise">' +
-    (IE.grpMenu ? IE.grpMenu() : '') + (IE.fbMenu ? IE.fbMenu() : '') +
+    (IE.grpMenu ? IE.grpMenu() : '') + (IE.pushMenu ? IE.pushMenu() : '') + (IE.installMenu ? IE.installMenu() : '') + (IE.fbMenu ? IE.fbMenu() : '') +
     '<button class="set" data-a="upd"><span class="bd sm sk-R">' + ic('refresh') + '</span><div class="tx"><b>Yangilanishni tekshirish</b><span>Versiya ' + IE.APP_VERSION + ' · bosib yangilang</span></div></button>' +
     '<button class="set" data-a="pwd"><span class="bd sm sk-W">' + ic('key') + '</span><div class="tx"><b>Parolni o‘zgartirish</b></div></button>' +
     (IE.cam ? '<button class="set" data-a="camvdel"><span class="bd sm sk-M">' + ic('trash') + '</span><div class="tx"><b>Shaxsiy lug‘atni o‘chirish</b><span>Cambridge ma’lumotlari qurilmadan o‘chadi</span></div></button>' : '') +

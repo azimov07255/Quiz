@@ -9,7 +9,12 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v2.3.0)
+## Hozir ishlaydi (v2.4.0)
+- **Kunlik eslatma** (`push.js`, `ielts-push` funksiyasi, `pg_cron`): Profil → Kunlik eslatma → vaqt tanlanadi; server har 10 daqiqada tekshiradi va — agar o‘sha kuni hali mashq qilinmagan bo‘lsa — Web Push yuboradi (payload’siz; matn `sw.js` ichida). VAPID kalitlari funksiyaning o‘zida yaratiladi va bazada (`ielts_push_cfg`, RLS, faqat servis roli) saqlanadi — qo‘lda sir kiritish shart emas. iPhone’da ilova **Bosh ekranga qo‘shilgan** bo‘lishi kerak (iOS 16.4+).
+- **Sayt ko‘rinishi**: kompyuterda (≥1000px) chap menyu + keng kontent ustuni; telefon ko‘rinishi o‘zgarmaydi. Profil → “Ilovani o‘rnatish” (brauzer taklif qilsa) — alohida oynada ochiladigan ilova. Havola ulashilganda chiroyli ko‘rinish uchun Open Graph teglari qo‘shildi.
+- **O‘z domeni**: hosting qaysi bo‘lsa, shu yerda domen ulang (masalan GitHub Pages: Settings → Pages → Custom domain; DNS’da `CNAME` yozuvi). Domen ulangach `index.html` dagi `og:image` ni to‘liq manzilga (`https://domen/ielts/icons/icon-512.png`) almashtiring — ijtimoiy tarmoqlar rasmni shunda ko‘rsatadi. Supabase’da Auth → URL Configuration → Site URL / Redirect URLs ga ham yangi domenni qo‘shing.
+
+## (v2.3)
 - **Guruhlar** (`groups.js`; Profil/Tools → Guruhlar): ikki xil — *Do‘stlar guruhi* (haftalik reyting: oxirgi 7 kun faollik bali, seriya, fokus daqiqalari) va *O‘qituvchi sinfi* (guruh egasi vazifa beradi — tayyor mashq havolalari bilan; a’zolar qadamlarni belgilaydi; a’zolar insho yuboradi, ega izoh yozadi; ega har a’zoning band/maqsad/mashq sonini ko‘radi). Kod bilan qo‘shilish (6 belgi). Maxfiylik: a’zolar bir-birining faqat ism, seriya, haftalik ball, fokus daqiqasini ko‘radi.
 - Baza (`ielts_groups`, `ielts_members`, `ielts_summary`, `ielts_assign`, `ielts_assign_prog`, `ielts_works`, `ielts_comments`): RLS yoqilgan, to‘g‘ridan-to‘g‘ri kirish yo‘q — hammasi `security definer` RPC orqali (`ielts_group_*`, `ielts_assign_*`, `ielts_work_*`, `ielts_publish_summary`), har birida a’zolik/egalik tekshiruvi.
 

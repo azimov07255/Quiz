@@ -1125,3 +1125,27 @@ mark.ev.ok{background:rgba(18,183,106,.28)}mark.ev.no{background:rgba(240,68,56,
 .gbh{background:linear-gradient(135deg,color-mix(in srgb,#f59e0b 18%,var(--card)),var(--card))}
 .gsteps{display:flex;flex-wrap:wrap;gap:6px}.gst.on{background:var(--p1);color:#fff;border-color:var(--p1)}
 .gcm{margin-top:10px;padding:8px 10px;border-radius:12px;background:color-mix(in srgb,var(--p1) 9%,transparent);font-size:14px;line-height:1.45}.gcm.mine{background:color-mix(in srgb,#10b981 11%,transparent)}.gcm b{font-size:13px}
+
+/* ================= v2.4: Sayt ko‘rinishi (kompyuter) — chap menyu + keng kontent ================= */
+@media(min-width:1000px){
+  :root{--rail:236px;--col:880px}
+  .nav{left:0;top:0;bottom:0;transform:none;width:var(--rail);height:auto;border-radius:0;padding:84px 14px 16px;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;gap:6px;background:var(--card);backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none;border-right:1px solid var(--ln)}
+  .nav::before{content:"IELTS · BY AZIMOV";position:absolute;top:30px;left:26px;font-size:14.5px;font-weight:900;letter-spacing:.06em;color:var(--pl)}
+  .nav::after{content:"";position:absolute;top:62px;left:26px;right:26px;height:1px;background:var(--ln)}
+  .nav button{flex-direction:row;justify-content:flex-start;gap:14px;height:50px;padding:0 16px;font-size:14.5px;border-radius:16px}
+  .nav button svg{font-size:22px}
+  .nav button.on svg{transform:none}
+  .nav button .dot{top:20px;right:16px}
+  #app{max-width:none;margin:0 0 0 max(var(--rail),calc((100vw + var(--rail) - var(--col)) / 2));width:min(var(--col),calc(100vw - var(--rail)));min-height:100vh}
+  body.tw #app{margin-left:var(--rail);width:auto;max-width:1240px}
+  .hero{border-radius:0 0 40px 40px;padding-left:28px;padding-right:28px;padding-top:34px}
+  .lift{padding:0 24px}.pad{padding:0 24px}
+  .top{padding-left:24px;padding-right:24px}
+  .sheet-bg{align-items:center}.sheet{border-radius:28px;max-width:560px}
+  #toast{left:calc(50% + var(--rail) / 2);bottom:32px}
+  .chat{left:calc(50% + var(--rail) / 2);width:min(var(--col),calc(100vw - var(--rail)));padding-bottom:20px}
+  .tools .grid2,.grid2{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .skills{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .scr{padding-bottom:40px}
+}
+@media(min-width:1000px) and (max-height:620px){.nav{padding-top:76px}.nav button{height:44px}}
