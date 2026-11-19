@@ -1117,3 +1117,11 @@ mark.ev.ok{background:rgba(18,183,106,.28)}mark.ev.no{background:rgba(240,68,56,
   .rep{padding:0!important}.rep .card{box-shadow:none!important;border:1px solid #ccc!important;break-inside:avoid;background:#fff!important;color:#000!important}
   .rep .mu,.rep .sm.mu{color:#444!important}
 }
+
+/* ---- v2.3: Guruhlar ---- */
+.gr .grk{flex:0 0 34px;font-size:20px;font-weight:900;text-align:center}
+.gr .grw{flex:0 0 auto;font-size:22px;font-weight:900;color:var(--pl)}
+.gr.me{border:1.5px solid var(--p1);background:color-mix(in srgb,var(--p1) 10%,var(--card))}
+.gbh{background:linear-gradient(135deg,color-mix(in srgb,#f59e0b 18%,var(--card)),var(--card))}
+.gsteps{display:flex;flex-wrap:wrap;gap:6px}.gst.on{background:var(--p1);color:#fff;border-color:var(--p1)}
+.gcm{margin-top:10px;padding:8px 10px;border-radius:12px;background:color-mix(in srgb,var(--p1) 9%,transparent);font-size:14px;line-height:1.45}.gcm.mine{background:color-mix(in srgb,#10b981 11%,transparent)}.gcm b{font-size:13px}

@@ -9,7 +9,11 @@ Egasi → Foydalanuvchilar → Guruhlar bo‘limida `ielts` guruhini qo‘shadi.
 Server tomonida ham `can_ielts()` va `ielts_state` jadvalidagi RLS shuni tekshiradi
 (`supabase/migrations/20261116_ielts_state.sql`).
 
-## Hozir ishlaydi (v2.2.0)
+## Hozir ishlaydi (v2.3.0)
+- **Guruhlar** (`groups.js`; Profil/Tools → Guruhlar): ikki xil — *Do‘stlar guruhi* (haftalik reyting: oxirgi 7 kun faollik bali, seriya, fokus daqiqalari) va *O‘qituvchi sinfi* (guruh egasi vazifa beradi — tayyor mashq havolalari bilan; a’zolar qadamlarni belgilaydi; a’zolar insho yuboradi, ega izoh yozadi; ega har a’zoning band/maqsad/mashq sonini ko‘radi). Kod bilan qo‘shilish (6 belgi). Maxfiylik: a’zolar bir-birining faqat ism, seriya, haftalik ball, fokus daqiqasini ko‘radi.
+- Baza (`ielts_groups`, `ielts_members`, `ielts_summary`, `ielts_assign`, `ielts_assign_prog`, `ielts_works`, `ielts_comments`): RLS yoqilgan, to‘g‘ridan-to‘g‘ri kirish yo‘q — hammasi `security definer` RPC orqali (`ielts_group_*`, `ielts_assign_*`, `ielts_work_*`, `ielts_publish_summary`), har birida a’zolik/egalik tekshiruvi.
+
+## (v2.2)
 - **Savol turlari trenajyori** (`qtypes.js`, `data/qtypes.json`; Practice → “Savol turlari”): True/False/Not Given (8 matn · 32 gap), Matching Headings (3 matn), Listening Map/Plan labelling (3 xarita, audio brauzer TTS orqali), Paraphrase (AI baho: `ielts-wr` `mode:'para'`) va Collocation (25 birikma; xatolari “Iboralarimga” qo‘shiladi). Har javobga “nega” tushuntirishi; natijalar `S().qt` (bulutga birlashadi).
 - **Bugungi 15 daqiqa** (`quick15.js`, Home): 3 ta 5-daqiqalik qadam (takror → eng zaif ko‘nikma → xatolar banki/maqola); bugungi faoliyatdan avtomatik belgilanadi.
 - **Hisobot** (`report.js`, Profil → Hisobot): ko‘nikmalar, maqsadga yetish bashorati (taxminiy sana), faollik, savol turlari, Mock tarixi, tavsiyalar, o‘qituvchi izohi uchun joy; “PDF sifatida saqlash” (chop etish stili).
