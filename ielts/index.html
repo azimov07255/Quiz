@@ -3,78 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>IELTS · Tayyorgarlik</title>
-<meta name="description" content="IELTS Academic tayyorgarligi: Reading, Writing, Speaking, so‘zlar va strategiyalar">
+<title>IELTS · BY AZIMOV — yangi manzil</title>
 <meta name="theme-color" content="#5b3df5">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="IELTS · BY AZIMOV">
-<meta property="og:title" content="IELTS · BY AZIMOV — IELTS Academic tayyorgarligi">
-<meta property="og:description" content="Reading, Listening, Writing, Speaking, Mock testlar, AI tahlil, lug‘at va guruhlar — bitta ilovada. Telefon va kompyuterda.">
-<meta property="og:image" content="icons/icon-512.png">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="IELTS · BY AZIMOV">
-<meta name="twitter:description" content="IELTS Academic tayyorgarligi: testlar, AI tahlil, lug‘at, guruhlar.">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="IELTS">
-<link rel="manifest" href="manifest.webmanifest">
+<meta http-equiv="refresh" content="2;url=https://azimov07255.github.io/IELTS/">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css">
+<style>
+html,body{margin:0;height:100%;font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#fff;background:linear-gradient(150deg,#2a1b8f,#5b3df5 55%,#8b5cf6)}
+main{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px}
+h1{margin:0 0 8px;font-size:30px;letter-spacing:.08em}p{margin:6px 0;opacity:.9;max-width:420px}
+a.b{display:inline-block;margin-top:18px;padding:14px 26px;border-radius:16px;background:#fff;color:#4a2fe0;font-weight:800;text-decoration:none}
+small{opacity:.7;margin-top:16px;display:block;max-width:380px}
+</style>
 </head>
 <body>
-<div id="splash" aria-hidden="true">
-  <div class="sp-orb"></div>
-  <div class="sp-logo"><svg viewBox="0 0 64 64" width="84" height="84"><defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d9ccff"/></linearGradient></defs><rect x="6" y="6" width="52" height="52" rx="16" fill="url(#sg)"/><path d="M20 38l8 8 16-20" fill="none" stroke="#5b3df5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-  <div class="sp-t">IELTS</div>
-  <div class="sp-s">tayyorgarlik · <b>BY AZIMOV</b></div>
-</div>
-<div id="app"></div>
-<div id="toast" role="status" aria-live="polite"></div>
-<canvas id="fx" aria-hidden="true"></canvas>
+<main>
+  <h1>IELTS</h1>
+  <p>Ilova yangi manzilga ko‘chdi. Hisobingiz va natijalaringiz o‘zgarmagan.</p>
+  <a class="b" id="go" href="https://azimov07255.github.io/IELTS/">Yangi manzilga o‘tish</a>
+  <small>Ilovani telefoningizga o‘rnatgan bo‘lsangiz: yangi manzilni oching va Profil → “Ilovani o‘rnatish” orqali qayta o‘rnating.</small>
+</main>
 <script>
-(function () {
-  var s = document.getElementById('splash'), force = /[?&]splash=1/.test(location.search), seen = false;
-  try { seen = sessionStorage.getItem('ielts:splash') === '1'; sessionStorage.setItem('ielts:splash', '1'); } catch (e) {}
-  if (!force && (navigator.webdriver || seen)) { s.parentNode.removeChild(s); }
-  else { document.body.className += ' splashing'; setTimeout(function () { s.className += ' out'; setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); document.body.className = document.body.className.replace(' splashing', ''); }, 520); }, 1500); }
-  try { var t = localStorage.getItem('ielts:theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); var k = localStorage.getItem('ielts:skin'); if (k === 'glass' || k === 'gold') document.documentElement.setAttribute('data-skin', k); var a = localStorage.getItem('ielts:acc'); if (a) document.documentElement.setAttribute('data-acc', a); } catch (e) {}
-})();
+var N = 'https://azimov07255.github.io/IELTS/';
+try { var h = location.hash || ''; document.getElementById('go').href = N + h; location.replace(N + h); } catch (e) { /* havola ishlaydi */ }
 </script>
-<script src="../config.js"></script>
-<script src="../auth.js"></script>
-<script src="core.js"></script>
-<script src="screens.js"></script>
-<script src="task1.js"></script>
-<script src="qtypes.js"></script>
-<script src="quick15.js"></script>
-<script src="feedback.js"></script>
-<script src="report.js"></script>
-<script src="groups.js"></script>
-<script src="push.js"></script>
-<script src="dictold.js"></script>
-<script src="ai.js"></script>
-<script src="dict.js"></script>
-<script src="listening.js"></script>
-<script src="materials.js"></script>
-<script src="practice.js"></script>
-<script src="mock.js"></script>
-<script src="books.js"></script>
-<script src="testkit.js"></script>
-<script src="fulltest.js"></script>
-<script src="lists.js"></script>
-<script src="cambridge.js"></script>
-<script src="camws.js"></script>
-<script src="plan.js"></script>
-<script src="stats.js"></script>
-<script src="focus.js"></script>
-<script src="chat.js"></script>
-<script src="me.js"></script>
-<script src="analyze.js"></script>
-<script src="mb.js"></script>
-<script src="agent.js"></script>
-<script src="typing.js"></script>
-<script src="app.js"></script>
 </body>
 </html>

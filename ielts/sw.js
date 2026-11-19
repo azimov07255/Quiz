@@ -1,33 +1,13 @@
-// IELTS ilovasi: offline + versiyali kesh. Ilova o‘zgargach VERSION ni oshiring (app.js dagi APP_VERSION bilan bir xil).
-// Eslatma: ../config.js va ../auth.js Testlar bilan umumiy — ular tarmoqdan olinadi, bo‘lmasa keshdan.
-const VERSION = '2.4.4';
-const CACHE = 'ielts-' + VERSION;
-const SHELL = ['./', 'index.html', 'style.css', 'core.js', 'screens.js', 'task1.js', 'qtypes.js', 'quick15.js', 'feedback.js', 'report.js', 'groups.js', 'push.js', 'dictold.js', 'data/qtypes.json', 'ai.js', 'dict.js', 'listening.js', 'materials.js', 'practice.js', 'mock.js', 'books.js', 'testkit.js', 'fulltest.js', 'lists.js', 'cambridge.js', 'camws.js', 'plan.js', 'stats.js', 'focus.js', 'chat.js', 'me.js', 'analyze.js', 'mb.js', 'agent.js', 'typing.js', 'app.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
-  'data/reading.json', 'data/vocab8.json', 'data/strategy.json', 'data/prompts.json', 'data/listening.json', 'data/articles.json', 'data/podcasts.json', '../config.js', '../auth.js'];
-self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' }))))); });
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x.startsWith('ielts-') && x !== CACHE).map(x => caches.delete(x)))).then(() => self.clients.claim())); });
-self.addEventListener('message', e => {
-  const d = e.data || {};
-  if (d.type === 'SKIP_WAITING') self.skipWaiting();
-  if (d.type === 'GET_VERSION' && e.source) e.source.postMessage({ type: 'VERSION', version: VERSION });
-});
-/* Kunlik eslatma (Web Push, payload'siz): server faqat “turtki” yuboradi, matn shu yerda. */
-self.addEventListener('push', e => {
-  e.waitUntil(self.registration.showNotification('IELTS · Bugungi 15 daqiqa', { body: 'Seriyani saqlang — bugungi mashqni boshlang 🔥', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: 'ielts-daily', renotify: false, data: { url: './#/home' } }));
-});
-self.addEventListener('notificationclick', e => {
-  e.notification.close();
-  const url = new URL((e.notification.data && e.notification.data.url) || './#/home', self.registration.scope).href;
-  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => { const c = cs.find(x => x.url.startsWith(self.registration.scope)); if (c) { c.navigate && c.navigate(url).catch(() => {}); return c.focus(); } return self.clients.openWindow(url); }));
-});
-self.addEventListener('fetch', e => {
-  const r = e.request, u = new URL(r.url);
-  if (r.method !== 'GET' || u.origin !== location.origin) return;
-  if (/\.mp3$/.test(u.pathname) || r.headers.has('range')) return;   // audio: brauzer o‘zi (Range so‘rovlari bilan) oladi
-  e.respondWith((async () => {
-    const c = await caches.open(CACHE), hit = await c.match(r, { ignoreSearch: true });
-    if (hit) return hit;
-    try { const res = await fetch(r); if (res.ok && !u.pathname.endsWith('sw.js') && u.pathname.includes('/ielts/')) c.put(r, res.clone()); return res; }
-    catch (err) { return r.mode === 'navigate' ? ((await c.match('index.html')) || Response.error()) : Response.error(); }
-  })());
-});
+// IELTS eski manzili (…/Quiz/ielts/): ilova ko‘chdi → https://azimov07255.github.io/IELTS/
+// Bu service worker eski keshni tozalaydi, eski eslatma obunasini bekor qiladi (yangi ilova o‘zi qayta obuna bo‘ladi) va ochiq oynalarni yangi manzilga yo‘naltiradi.
+const NEW = 'https://azimov07255.github.io/IELTS/';
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', e => e.waitUntil((async () => {
+  try { const s = await self.registration.pushManager.getSubscription(); if (s) await s.unsubscribe(); } catch (err) { /* */ }
+  try { for (const k of await caches.keys()) if (k.startsWith('ielts-')) await caches.delete(k); } catch (err) { /* */ }
+  await self.clients.claim();
+  const cs = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  for (const c of cs) { try { await c.navigate(NEW + new URL(c.url).hash); } catch (err) { /* */ } }
+})()));
+self.addEventListener('push', e => e.waitUntil(self.registration.showNotification('IELTS · Bugungi 15 daqiqa', { body: 'Seriyani saqlang — bugungi mashqni boshlang 🔥', icon: 'icons/icon-192.png', tag: 'ielts-daily', data: { url: NEW } })));
+self.addEventListener('notificationclick', e => { e.notification.close(); e.waitUntil(self.clients.openWindow(NEW)); });
