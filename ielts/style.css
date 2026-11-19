@@ -1118,6 +1118,13 @@ mark.ev.ok{background:rgba(18,183,106,.28)}mark.ev.no{background:rgba(240,68,56,
   .rep .mu,.rep .sm.mu{color:#444!important}
 }
 
+/* ---- v2.4.4: Mening maqolalarim = tayyor maqola kartasi; topib qo‘shish yig‘iladigan ---- */
+.acard.my{position:relative;margin-bottom:12px}
+.acard.my .acb{display:block;width:100%;text-align:left;background:none;color:inherit;padding:0}
+.acard.my .adel{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;background:rgba(10,8,30,.55);color:#fff;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:grid;place-items:center}
+.acard.my .aimg.ph{display:grid;place-items:center;font-size:44px}
+.acard.my .abody>span{margin-bottom:8px}
+.webc.xset .xbody .search{width:100%}
 /* ---- v2.3: Guruhlar ---- */
 .gr .grk{flex:0 0 34px;font-size:20px;font-weight:900;text-align:center}
 .gr .grw{flex:0 0 auto;font-size:22px;font-weight:900;color:var(--pl)}

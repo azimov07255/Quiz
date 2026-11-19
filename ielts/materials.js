@@ -97,9 +97,14 @@ function podsHTML() {
     (n.feed ? '<div class="sec"><h2>' + esc(n.feed.title || 'Ro‘yxat') + '</h2></div><div class="lst">' + n.feed.items.map((it, i) => '<div class="item"><div class="tx"><b style="white-space:normal">' + esc(it.t) + '</b><span>' + esc(it.d.slice(0, 16)) + (it.dur ? ' · ' + esc(fmtDur(it.dur)) : '') + (it.au ? '' : ' · audio yo‘q') + '</span></div>' + (it.au && have(it) ? '<span class="chip ok">' + ic('check') + ' Qo‘shildi</span>' : '<button class="btn sm" data-a="nadd" data-i="' + i + '">Qo‘shish</button>') + '</div>').join('') + '</div>' : '');
   return webCard('p') + mineH + add;
 }
+/** “Mening maqolalarim” — yuqoridagi tayyor maqolalar bilan bir xil karta (rasm, sarlavha, manba, belgilar). */
+const myArt = x => {
+  const mins = x.wc ? Math.max(1, Math.round(x.wc / 200)) : 0, fresh = V.newId === x.id ? ' fresh' : '';
+  return '<div class="acard my rise' + fresh + '"><button class="acb" data-go="article/' + x.id + '"><div class="aimg' + (x.img ? '' : ' ph') + '"' + (x.img ? ' style="background-image:url(\'' + esc(x.img) + '\')"' : '') + '>' + (x.img ? '' : ic('news')) + '</div><div class="abody"><b>' + esc(x.t) + '</b><span>' + esc(x.host || 'Qo‘shilgan maqola') + '</span><div class="ameta">' + (mins ? '<span class="chip">' + ic('book') + ' ' + mins + ' daq</span>' : '') + (x.an ? '<span class="chip ok">' + ic('check') + ' Tahlil tayyor</span>' : '<span class="chip">AI tahlil</span>') + '</div></div></button><button class="ib adel" data-a="ndel" data-id="' + x.id + '" aria-label="O‘chirish">' + ic('trash') + '</button></div>';
+};
 function artAdd() {
   const n = net(), mine = S().lib.filter(x => x.k !== 'p').slice().reverse(), open = n.openA || n.paste || n.busy === 'art' || n.afeed || n.busy === 'af';
-  return '<div class="sec"><h2>Mening maqolalarim</h2></div>' + (mine.length ? '<div class="lst">' + mine.map(libRow).join('') + '</div>' : '<div class="card empty">Hali maqola qo‘shilmagan.</div>') +
+  return '<div class="sec"><h2>Mening maqolalarim</h2></div>' + (mine.length ? '<div class="lst">' + mine.map(myArt).join('') + '</div>' : '<div class="card empty">Hali maqola qo‘shilmagan.</div>') +
     (!open ? '<button class="btn block ghost" style="margin-top:16px" data-a="naopen">' + ic('plus') + ' Maqola qo‘shish</button>' :
     '<div class="card" style="margin-top:16px"><b>Maqola qo‘shish</b><div class="sm mu">Tayyor manbani tanlang, maqola havolasini qo‘ying yoki matnni qo‘lda kiriting — AI lug‘at, grammatika va savollar tuzadi.</div>' +
     '<div class="seg" style="margin-top:10px;padding-bottom:4px">' + APRE.map(p => '<button data-a="nprea" data-u="' + esc(p[1]) + '">' + esc(p[0]) + '</button>').join('') + '</div>' +
@@ -141,11 +146,13 @@ function webCard(kind) {
   const w = web(), P = kind === 'p', busy = w.busy === kind, r = w.res && w.res.kind === kind ? w.res : null;
   const list = !r ? '' : r.kind === 'a' ? '<div class="lst" style="margin-top:12px">' + r.items.map((x, i) => '<div class="item"><div class="tx"><b style="white-space:normal">' + esc(x.title) + '</b><span style="white-space:normal;display:block">' + esc(x.sn) + '…</span></div>' + (S().lib.some(m => m.src === x.url) ? '<span class="chip ok">' + ic('check') + ' Qo‘shildi</span>' : '<button class="btn sm" data-a="nwadd" data-i="' + i + '"' + (w.busy ? ' disabled' : '') + '>Qo‘shish</button>') + '</div>').join('') + '</div>' :
     '<div class="lst" style="margin-top:12px">' + r.items.map((x, i) => '<div class="item">' + (x.img ? '<span class="aimg sm" style="background-image:url(\'' + esc(x.img) + '\')"></span>' : bd('head', 'L', 'sm')) + '<div class="tx"><b style="white-space:normal">' + esc(x.t) + '</b><span>' + esc(x.by) + '</span></div><button class="btn sm ghost" data-a="nwshow" data-i="' + i + '">Epizodlar</button></div>').join('') + '</div>';
-  return '<div class="card rise webc" style="margin-bottom:14px"><div class="row">' + bd('search', 'A') + '<div style="flex:1"><b style="font-size:16px">Internetdan topib qo‘shish</b><div class="sm mu">' + (P ? 'Mavzu yozing — podkast katalogidan topib, eng mosini qo‘shaman.' : 'Mavzu yozing — Wikipedia’dan eng mos maqolani topib qo‘shaman.') + ' Bo‘sh qoldirsangiz, IELTS mavzusini o‘zim tanlayman.</div></div></div>' +
+  return '<details class="card rise webc xset" id="nwd"' + (w.open || busy ? ' open' : '') + ' style="margin-bottom:14px"><summary><span class="bd sm sk-A">' + ic('search') + '</span><div class="tx"><b>Internetdan topib qo‘shish</b><span>' + (P ? 'Podkastni mavzu bo‘yicha topadi' : 'Wikipedia’dan mos maqolani topadi') + ' · bir bosishda</span></div><i class="xch">' + ic('next') + '</i></summary><div class="xbody"><div class="sm mu">' + (P ? 'Mavzu yozing — podkast katalogidan topib, eng mosini qo‘shaman.' : 'Mavzu yozing — Wikipedia’dan eng mos maqolani topib qo‘shaman.') + ' Bo‘sh qoldirsangiz, IELTS mavzusini o‘zim tanlayman.</div>' +
     '<input class="search" id="nwq" style="margin:10px 0" placeholder="' + (P ? 'masalan: ielts listening' : 'masalan: climate change') + '" value="' + esc(w.q || '') + '" autocapitalize="off" spellcheck="false">' +
     '<button class="btn block" data-a="nweb"' + (w.busy ? ' disabled' : '') + '>' + (busy ? '<span class="spin sm" style="display:inline-block;vertical-align:-3px;margin-right:6px"></span> Qidirilmoqda…' : ic('spark') + ' Topib qo‘shish') + '</button>' +
-    (w.err && w.errK === kind ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(w.err) + '</p>' : '') + list + '</div>';
+    (w.err && w.errK === kind ? '<p class="sm" style="color:var(--bad);font-weight:600;margin-top:10px">' + esc(w.err) + '</p>' : '') + (r ? '<div style="margin-top:12px;text-align:right"><button class="chip" data-a="nwclr">' + ic('x') + ' Natijalarni yopish</button></div>' : '') + list + '</div></details>';
 }
+document.addEventListener('toggle', e => { if (e.target && e.target.id === 'nwd') web().open = e.target.open; }, true);
+A.nwclr = () => { web().res = null; IE.draw(false); };
 A.nweb = async () => {
   const w = web(), P = V.atab === 'p', kind = P ? 'p' : 'a', typed = readUrl('#nwq'); w.q = typed; w.busy = kind; w.err = ''; w.errK = kind; w.res = null; IE.draw(false);
   const q = typed || pick(P ? PODQ : TOPICS);
@@ -200,8 +207,8 @@ A.nart = async () => {
   n.busy = ''; if (location.hash.startsWith('#/articles')) IE.draw(false);
 };
 async function addArticle(title, text, src, image, opt) {
-  const id = 'u' + Date.now(), m = { id, k: 'a', title: String(title || 'Maqola').slice(0, 120), audio: '', dur: 0, img: image ? { src: image, credit: src ? new URL(src).hostname : '', license: '', link: src || '' } : null, src: src || '', blocks: blocksFromText(text), vocab: [], grammar: [], groups: [] };
-  await saveMat(m); V.mats[id] = m; S().lib.push({ id, k: 'a', t: m.title, au: '', img: image || '', src: src || '', ts: Date.now(), an: 0 }); IE.touchDay(); IE.save(true); IE.toast('Maqola qo‘shildi'); if (opt && opt.stay) { V.newId = id; setTimeout(() => { V.newId = null; }, 4000); return id; } IE.go('article/' + id);
+  const id = 'u' + Date.now(), wc = (String(text).match(/\S+/g) || []).length, host = (() => { try { return src ? new URL(src).hostname.replace(/^www\./, '').replace(/^en\.wikipedia\.org$/, 'Wikipedia') : ''; } catch (e) { return ''; } })(), m = { id, k: 'a', title: String(title || 'Maqola').slice(0, 120), audio: '', dur: 0, mins: Math.max(1, Math.round(wc / 200)), topic: host || 'Mening matnim', img: image ? { src: image, credit: src ? new URL(src).hostname : '', license: '', link: src || '' } : null, src: src || '', blocks: blocksFromText(text), vocab: [], grammar: [], groups: [] };
+  await saveMat(m); V.mats[id] = m; S().lib.push({ id, k: 'a', t: m.title, au: '', img: image || '', src: src || '', ts: Date.now(), an: 0, wc, host: m.topic }); IE.touchDay(); IE.save(true); IE.toast('Maqola qo‘shildi'); if (opt && opt.stay) { V.newId = id; setTimeout(() => { V.newId = null; }, 4000); return id; } IE.go('article/' + id);
 }
 A.npadd = async () => { const t = $('#ptt'), x = $('#ptx'); if (!x || x.value.trim().length < 300) return IE.toast('Matn kamida 300 belgi bo‘lsin'); await addArticle((t && t.value.trim()) || 'Mening matnim', x.value.trim(), '', ''); };
 function addPod(it, feed) { const id = 'u' + Date.now(); S().lib.push({ id, k: 'p', t: it.t.slice(0, 120), au: it.au, img: it.img || (feed && feed.image) || '', src: it.link || '', show: ((feed && feed.title) || '').slice(0, 60), ts: Date.now(), an: 0 }); V.newId = id; IE.touchDay(); IE.save(true); return id; }
@@ -256,7 +263,7 @@ R.article = a => {
     '<div class="apanel" data-p="qs"' + (tab === 'qs' ? '' : ' hidden') + '>' + qsHTML(m) + '</div></div>' +
     '<div class="phbar hide" id="phbar"><span id="phtx"></span><button class="btn sm" data-a="phgo">Ma’nosi</button><button class="ib sm2" data-a="phclr" aria-label="Tozalash">' + ic('x') + '</button></div>';
   const o = sub(m.k === 'p' ? 'Podkast' : 'Maqola', 'articles', inner);
-  o.mount = () => { if (m.audio) { IE.wirePlayer({ audio: m.audio, alt: m.alt || '', dur: m.dur || 0 }, 'practice'); wireSync(); } };
+  o.mount = () => { if (m.audio) { IE.wirePlayer({ audio: m.audio, alt: m.alt || '', dur: m.dur || 0 }, 'practice'); wireSync(); } if (m.k === 'a' && /^u/.test(m.id) && !stub && !hasAnalysis(m) && meta && !meta.auto) { meta.auto = 1; IE.save(); setTimeout(() => { if (V.art && V.art.id === id && !V.art.busy) A.aan(); }, 350); } };
   return o;
 };
 A.atab = el => {
